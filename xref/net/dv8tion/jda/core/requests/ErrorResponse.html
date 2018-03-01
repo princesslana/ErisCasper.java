@@ -1,0 +1,117 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>ErrorResponse xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../apidocs/net/dv8tion/jda/core/requests/ErrorResponse.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> *     Copyright 2015-2018 Austin Keener &amp; Michael Ritter &amp; Florian Spieß</em>
+<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> *     Copyright 2018-2018 "Princess" Lana Samson</em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_comment"> * Licensed under the Apache License, Version 2.0 (the "License");</em>
+<a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_comment"> * you may not use this file except in compliance with the License.</em>
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> * You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_comment"> *     <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_comment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_comment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <em class="jxr_comment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <em class="jxr_comment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">package</strong> net.dv8tion.jda.core.requests;
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> org.json.JSONObject;
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">public</strong> enum <a href="../../../../../net/dv8tion/jda/core/requests/ErrorResponse.html">ErrorResponse</a> {
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>    UNKNOWN_ACCOUNT(10001, <span class="jxr_string">"Unknown Account"</span>),
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>    UNKNOWN_APPLICATION(10002, <span class="jxr_string">"Unknown Application"</span>),
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>    UNKNOWN_CHANNEL(10003, <span class="jxr_string">"Unknown Channel"</span>),
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>    UNKNOWN_GUILD(10004, <span class="jxr_string">"Unknown Guild"</span>),
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>    UNKNOWN_INTEGRATION(10005, <span class="jxr_string">"Unknown Integration"</span>),
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>    UNKNOWN_INVITE(10006, <span class="jxr_string">"Unknown Invite"</span>),
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>    UNKNOWN_MEMBER(10007, <span class="jxr_string">"Unknown Member"</span>),
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>    UNKNOWN_MESSAGE(10008, <span class="jxr_string">"Unknown Message"</span>),
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>    UNKNOWN_OVERRIDE(10009, <span class="jxr_string">"Unknown Override"</span>),
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>    UNKNOWN_PROVIDER(10010, <span class="jxr_string">"Unknown Provider"</span>),
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>    UNKNOWN_ROLE(10011, <span class="jxr_string">"Unknown Role"</span>),
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>    UNKNOWN_TOKEN(10012, <span class="jxr_string">"Unknown Token"</span>),
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>    UNKNOWN_USER(10013, <span class="jxr_string">"Unknown User"</span>),
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>    UNKNOWN_EMOJI(10014, <span class="jxr_string">"Unknown Emoji"</span>),
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>    UNKNOWN_WEBHOOK(10015, <span class="jxr_string">"Unknown Webhook"</span>),
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>    BOTS_NOT_ALLOWED(20001, <span class="jxr_string">"Bots cannot use this endpoint"</span>),
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>    ONLY_BOTS_ALLOWED(20002, <span class="jxr_string">"Only bots can use this endpoint"</span>),
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>    MAX_GUILDS(30001, <span class="jxr_string">"Maximum number of Guilds reached (100)"</span>),
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>    MAX_FRIENDS(30002, <span class="jxr_string">"Maximum number of Friends reached (1000)"</span>),
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>    MAX_MESSAGE_PINS(30003, <span class="jxr_string">"Maximum number of pinned messages reached (50)"</span>),
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>    MAX_USERS_PER_DM(30004, <span class="jxr_string">"Maximum number of recipients reached. (10)"</span>),
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>    MAX_ROLES_PER_GUILD(30005, <span class="jxr_string">"Maximum number of guild roles reached (250)"</span>),
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>    TOO_MANY_REACTIONS(30010, <span class="jxr_string">"Too many reactions"</span>),
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>    UNAUTHORIZED(40001, <span class="jxr_string">"Unauthorized"</span>),
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>    MISSING_ACCESS(50001, <span class="jxr_string">"Missing Access"</span>),
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>    INVALID_ACCOUNT_TYPE(50002, <span class="jxr_string">"Invalid Account Type"</span>),
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>    INVALID_DM_ACTION(50003, <span class="jxr_string">"Cannot execute action on a DM channel"</span>),
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>    EMBED_DISABLED(50004, <span class="jxr_string">"Embed Disabled"</span>),
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>    INVALID_AUTHOR_EDIT(50005, <span class="jxr_string">"Cannot edit a message authored by another user"</span>),
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>    EMPTY_MESSAGE(50006, <span class="jxr_string">"Cannot send an empty message"</span>),
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>    CANNOT_SEND_TO_USER(50007, <span class="jxr_string">"Cannot send messages to this user"</span>),
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>    CANNOT_MESSAGE_VC(50008, <span class="jxr_string">"Cannot send messages in a voice channel"</span>),
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>    VERIFICATION_ERROR(50009, <span class="jxr_string">"Channel verification level is too high"</span>),
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>    OAUTH_NOT_BOT(50010, <span class="jxr_string">"OAuth2 application does not have a bot"</span>),
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>    MAX_OAUTH_APPS(50011, <span class="jxr_string">"OAuth2 application limit reached"</span>),
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>    INVALID_OAUTH_STATE(50012, <span class="jxr_string">"Invalid OAuth state"</span>),
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>    MISSING_PERMISSIONS(50013, <span class="jxr_string">"Missing Permissions"</span>),
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>    INVALID_TOKEN(50014, <span class="jxr_string">"Invalid Authentication Token"</span>),
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>    NOTE_TOO_LONG(50015, <span class="jxr_string">"Note is too long"</span>),
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>    INVALID_BULK_DELETE(
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>        50016,
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>        <span class="jxr_string">"Provided too few or too many messages to delete. Must provided at least 2 and fewer than 100 messages to delete"</span>),
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>    INVALID_MFA_LEVEL(50017, <span class="jxr_string">"Provided MFA level was invalid."</span>),
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>    INVALID_PASSWORD(50018, <span class="jxr_string">"Provided password was invalid"</span>),
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>    INVALID_PIN(50019, <span class="jxr_string">"A message can only be pinned to the channel it was sent in"</span>),
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>    INVALID_MESSAGE_TARGET(50021, <span class="jxr_string">"Cannot execute action on a system message"</span>),
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>    INVALID_BULK_DELETE_MESSAGE_AGE(
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>        50034, <span class="jxr_string">"A Message provided to bulk_delete was older than 2 weeks"</span>),
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>    MFA_NOT_ENABLED(60003, <span class="jxr_string">"MFA auth required but not enabled"</span>),
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>    REACTION_BLOCKED(90001, <span class="jxr_string">"Reaction Blocked"</span>),
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>  
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>    SERVER_ERROR(0, <span class="jxr_string">"Discord encountered an internal server error! Not good!"</span>);
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>  
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> code;
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String meaning;
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>  
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>    <a href="../../../../../net/dv8tion/jda/core/requests/ErrorResponse.html">ErrorResponse</a>(<strong class="jxr_keyword">int</strong> code, String meaning) {
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>      <strong class="jxr_keyword">this</strong>.code = code;
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>      <strong class="jxr_keyword">this</strong>.meaning = meaning;
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>    }
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>  
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getCode() {
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>      <strong class="jxr_keyword">return</strong> code;
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>    }
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>  
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>    <strong class="jxr_keyword">public</strong> String getMeaning() {
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>      <strong class="jxr_keyword">return</strong> meaning;
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>    }
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>  
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../net/dv8tion/jda/core/requests/ErrorResponse.html">ErrorResponse</a> fromCode(<strong class="jxr_keyword">int</strong> code) {
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>      <strong class="jxr_keyword">for</strong> (ErrorResponse error : values()) {
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>        <strong class="jxr_keyword">if</strong> (code == error.getCode()) <strong class="jxr_keyword">return</strong> error;
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>      }
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>      <strong class="jxr_keyword">return</strong> SERVER_ERROR;
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>    }
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>  
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../net/dv8tion/jda/core/requests/ErrorResponse.html">ErrorResponse</a> fromJSON(JSONObject obj) {
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>      <strong class="jxr_keyword">if</strong> (obj == <strong class="jxr_keyword">null</strong> || obj.isNull(<span class="jxr_string">"code"</span>)) <strong class="jxr_keyword">return</strong> SERVER_ERROR;
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>     <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>       <strong class="jxr_keyword">return</strong> ErrorResponse.fromCode(obj.getInt(<span class="jxr_string">"code"</span>));
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>     }
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>   }
+<a class="jxr_linenumber" name="L104" href="#L104">104</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2018. All rights reserved.</div>
+</body>
+</html>
