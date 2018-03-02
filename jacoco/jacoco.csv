@@ -195,7 +195,7 @@ ErisCasper.java,net.dv8tion.jda.core.events.user,UserOnlineStatusUpdateEvent,24,
 ErisCasper.java,net.dv8tion.jda.core.events.user,GenericUserPresenceEvent,42,0,6,0,7,0,8,0,5,0
 ErisCasper.java,net.dv8tion.jda.core.events.user,UserAvatarUpdateEvent,35,0,2,0,6,0,4,0,3,0
 ErisCasper.java,net.dv8tion.jda.core.events.user,UserNameUpdateEvent,18,0,0,0,6,0,3,0,3,0
-ErisCasper.java,com.github.lana.eriscasper,ErisCasper,50,0,0,0,14,0,5,0,5,0
+ErisCasper.java,com.github.lana.eriscasper,ErisCasper,17,33,0,0,4,10,1,4,1,4
 ErisCasper.java,com.github.lana.eriscasper,Message,36,0,0,0,10,0,5,0,5,0
 ErisCasper.java,com.github.lana.eriscasper,ErisCasperFatalException,16,0,0,0,8,0,4,0,4,0
 ErisCasper.java,net.dv8tion.jda.core.events.role.update,RoleUpdateMentionableEvent,12,0,0,0,4,0,2,0,2,0
