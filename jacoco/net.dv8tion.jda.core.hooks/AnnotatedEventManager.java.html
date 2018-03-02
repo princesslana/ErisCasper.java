@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AnnotatedEventManager.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">net.dv8tion.jda.core.hooks</a> &gt; <span class="el_source">AnnotatedEventManager.java</span></div><h1>AnnotatedEventManager.java</h1><pre class="source lang-java linenums">/*
+ *     Copyright 2015-2018 Austin Keener &amp; Michael Ritter &amp; Florian Spieß
+ *     Copyright 2018-2018 &quot;Princess&quot; Lana Samson
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package net.dv8tion.jda.core.hooks;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.*;
+import net.dv8tion.jda.core.entities.impl.JDAImpl;
+import net.dv8tion.jda.core.events.Event;
+
+/**
+ * Implementation for {@link net.dv8tion.jda.core.hooks.IEventManager IEventManager} which checks
+ * for {@link net.dv8tion.jda.core.hooks.SubscribeEvent SubscribeEvent} annotations on both
+ * &lt;b&gt;static&lt;/b&gt; and &lt;b&gt;member&lt;/b&gt; methods.
+ *
+ * &lt;p&gt;Listeners for this manager do &lt;u&gt;not&lt;/u&gt; need to implement {@link
+ * net.dv8tion.jda.core.hooks.EventListener EventListener} &lt;br&gt;
+ * Example
+ *
+ * &lt;pre&gt;&lt;code&gt;
+ *     public class Foo
+ *     {
+ *        {@literal @SubscribeEvent}
+ *         public void onMsg(MessageReceivedEvent event)
+ *         {
+ *             System.out.printf(&quot;%s: %s\n&quot;, event.getAuthor().getName(), event.getMessage().getContentDisplay());
+ *         }
+ *     }
+ * &lt;/code&gt;&lt;/pre&gt;
+ *
+ * @see net.dv8tion.jda.core.hooks.InterfacedEventManager
+ * @see net.dv8tion.jda.core.hooks.IEventManager
+ * @see net.dv8tion.jda.core.hooks.SubscribeEvent
+ */
+<span class="nc" id="L50">public class AnnotatedEventManager implements IEventManager {</span>
+<span class="nc" id="L51">  private final Set&lt;Object&gt; listeners = new HashSet&lt;&gt;();</span>
+<span class="nc" id="L52">  private final Map&lt;Class&lt;? extends Event&gt;, Map&lt;Object, List&lt;Method&gt;&gt;&gt; methods = new HashMap&lt;&gt;();</span>
+
+  @Override
+  public void register(Object listener) {
+<span class="nc bnc" id="L56" title="All 2 branches missed.">    if (listeners.add(listener)) {</span>
+<span class="nc" id="L57">      updateMethods();</span>
+    }
+<span class="nc" id="L59">  }</span>
+
+  @Override
+  public void unregister(Object listener) {
+<span class="nc bnc" id="L63" title="All 2 branches missed.">    if (listeners.remove(listener)) {</span>
+<span class="nc" id="L64">      updateMethods();</span>
+    }
+<span class="nc" id="L66">  }</span>
+
+  @Override
+  public List&lt;Object&gt; getRegisteredListeners() {
+<span class="nc" id="L70">    return Collections.unmodifiableList(new LinkedList&lt;&gt;(listeners));</span>
+  }
+
+  @Override
+  @SuppressWarnings(&quot;unchecked&quot;)
+  public void handle(Event event) {
+<span class="nc" id="L76">    Class&lt;? extends Event&gt; eventClass = event.getClass();</span>
+    do {
+<span class="nc" id="L78">      Map&lt;Object, List&lt;Method&gt;&gt; listeners = methods.get(eventClass);</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">      if (listeners != null) {</span>
+<span class="nc" id="L80">        listeners</span>
+<span class="nc" id="L81">            .entrySet()</span>
+<span class="nc" id="L82">            .forEach(</span>
+                e -&gt;
+<span class="nc" id="L84">                    e.getValue()</span>
+<span class="nc" id="L85">                        .forEach(</span>
+                            method -&gt; {
+                              try {
+<span class="nc" id="L88">                                method.setAccessible(true);</span>
+<span class="nc" id="L89">                                method.invoke(e.getKey(), event);</span>
+<span class="nc" id="L90">                              } catch (IllegalAccessException | InvocationTargetException e1) {</span>
+<span class="nc" id="L91">                                JDAImpl.LOG.error(</span>
+                                    &quot;Couldn't access annotated eventlistener method&quot;, e1);
+<span class="nc" id="L93">                              } catch (Throwable throwable) {</span>
+<span class="nc" id="L94">                                JDAImpl.LOG.error(</span>
+                                    &quot;One of the EventListeners had an uncaught exception&quot;,
+                                    throwable);
+<span class="nc" id="L97">                              }</span>
+<span class="nc" id="L98">                            }));</span>
+      }
+<span class="nc bnc" id="L100" title="All 2 branches missed.">      eventClass =</span>
+<span class="nc" id="L101">          eventClass == Event.class ? null : (Class&lt;? extends Event&gt;) eventClass.getSuperclass();</span>
+<span class="nc bnc" id="L102" title="All 2 branches missed.">    } while (eventClass != null);</span>
+<span class="nc" id="L103">  }</span>
+
+  private void updateMethods() {
+<span class="nc" id="L106">    methods.clear();</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">    for (Object listener : listeners) {</span>
+<span class="nc" id="L108">      boolean isClass = listener instanceof Class;</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">      Class&lt;?&gt; c = isClass ? (Class) listener : listener.getClass();</span>
+<span class="nc" id="L110">      Method[] allMethods = c.getDeclaredMethods();</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">      for (Method m : allMethods) {</span>
+<span class="nc bnc" id="L112" title="All 4 branches missed.">        if (!m.isAnnotationPresent(SubscribeEvent.class)</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">            || (isClass &amp;&amp; !Modifier.isStatic(m.getModifiers()))) {</span>
+<span class="nc" id="L114">          continue;</span>
+        }
+<span class="nc" id="L116">        Class&lt;?&gt;[] pType = m.getParameterTypes();</span>
+<span class="nc bnc" id="L117" title="All 4 branches missed.">        if (pType.length == 1 &amp;&amp; Event.class.isAssignableFrom(pType[0])) {</span>
+          @SuppressWarnings(&quot;unchecked&quot;)
+<span class="nc" id="L119">          Class&lt;? extends Event&gt; eventClass = (Class&lt;? extends Event&gt;) pType[0];</span>
+<span class="nc bnc" id="L120" title="All 2 branches missed.">          if (!methods.containsKey(eventClass)) {</span>
+<span class="nc" id="L121">            methods.put(eventClass, new HashMap&lt;&gt;());</span>
+          }
+
+<span class="nc bnc" id="L124" title="All 2 branches missed.">          if (!methods.get(eventClass).containsKey(listener)) {</span>
+<span class="nc" id="L125">            methods.get(eventClass).put(listener, new ArrayList&lt;&gt;());</span>
+          }
+
+<span class="nc" id="L128">          methods.get(eventClass).get(listener).add(m);</span>
+        }
+      }
+<span class="nc" id="L131">    }</span>
+<span class="nc" id="L132">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

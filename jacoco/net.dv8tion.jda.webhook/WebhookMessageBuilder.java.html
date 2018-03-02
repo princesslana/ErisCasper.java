@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WebhookMessageBuilder.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">net.dv8tion.jda.webhook</a> &gt; <span class="el_source">WebhookMessageBuilder.java</span></div><h1>WebhookMessageBuilder.java</h1><pre class="source lang-java linenums">/*
+ *     Copyright 2015-2018 Austin Keener &amp; Michael Ritter &amp; Florian Spieß
+ *     Copyright 2018-2018 &quot;Princess&quot; Lana Samson
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package net.dv8tion.jda.webhook;
+
+import java.io.*;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import net.dv8tion.jda.core.AccountType;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageEmbed;
+import net.dv8tion.jda.core.utils.Checks;
+import net.dv8tion.jda.core.utils.Helpers;
+
+/** Builder for a {@link net.dv8tion.jda.webhook.WebhookMessage WebhookMessage} */
+public class WebhookMessageBuilder {
+<span class="nc" id="L31">  protected final StringBuilder content = new StringBuilder();</span>
+<span class="nc" id="L32">  protected final List&lt;MessageEmbed&gt; embeds = new LinkedList&lt;&gt;();</span>
+  protected String username, avatarUrl, fileName;
+  protected InputStream file;
+  protected boolean isTTS;
+
+  /**
+   * Creates a new WebhookMessageBuilder and applies the information of the provided {@link
+   * net.dv8tion.jda.core.entities.Message Message} as preset values. &lt;br&gt;
+   * This will not copy any attachments!
+   *
+   * @param message The {@link net.dv8tion.jda.core.entities.Message Message} used to set initial
+   *     values of the builder
+   */
+<span class="nc" id="L45">  public WebhookMessageBuilder(Message message) {</span>
+<span class="nc bnc" id="L46" title="All 2 branches missed.">    if (message != null) {</span>
+<span class="nc" id="L47">      embeds.addAll(message.getEmbeds());</span>
+<span class="nc" id="L48">      setContent(message.getContentRaw());</span>
+<span class="nc" id="L49">      isTTS = message.isTTS();</span>
+    }
+<span class="nc" id="L51">  }</span>
+
+  /** Creates a new empty WebhookMessageBuilder */
+<span class="nc" id="L54">  public WebhookMessageBuilder() {}</span>
+
+  /**
+   * Whether this WebhookMessageBuilder contains any readable content. &lt;br&gt;
+   * When the builder is empty it cannot successfully build a {@link
+   * net.dv8tion.jda.webhook.WebhookMessage WebhookMessage}.
+   *
+   * @return True, if this builder has no readable content
+   */
+  public boolean isEmpty() {
+<span class="nc bnc" id="L64" title="All 6 branches missed.">    return content.length() == 0 &amp;&amp; embeds.isEmpty() &amp;&amp; file == null;</span>
+  }
+
+  /**
+   * Resets this builder to default settings.
+   *
+   * @return The current WebhookMessageBuilder for chaining convenience
+   */
+  public WebhookMessageBuilder reset() {
+<span class="nc" id="L73">    content.setLength(0);</span>
+<span class="nc" id="L74">    embeds.clear();</span>
+<span class="nc" id="L75">    username = null;</span>
+<span class="nc" id="L76">    avatarUrl = null;</span>
+<span class="nc" id="L77">    fileName = null;</span>
+<span class="nc" id="L78">    file = null;</span>
+<span class="nc" id="L79">    isTTS = false;</span>
+<span class="nc" id="L80">    return this;</span>
+  }
+
+  /**
+   * Removes all embeds from this builder.
+   *
+   * @return The current WebhookMessageBuilder for chaining convenience
+   */
+  public WebhookMessageBuilder resetEmbeds() {
+<span class="nc" id="L89">    this.embeds.clear();</span>
+<span class="nc" id="L90">    return this;</span>
+  }
+
+  /**
+   * Adds the provided {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbeds} to this
+   * builder.
+   *
+   * &lt;p&gt;&lt;b&gt;You can send up to 10 embeds per message! If more are sent they will not be
+   * displayed.&lt;/b&gt;
+   *
+   * @param embeds The embeds to add
+   * @throws java.lang.IllegalArgumentException If any of the provided embeds is {@code null} or
+   *     exceeds the maximum total character count of {@link MessageEmbed#EMBED_MAX_LENGTH_BOT}
+   * @return The current WebhookMessageBuilder for chaining convenience
+   */
+  public WebhookMessageBuilder addEmbeds(MessageEmbed... embeds) {
+<span class="nc" id="L106">    Checks.notNull(embeds, &quot;Embeds&quot;);</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">    for (MessageEmbed embed : embeds) {</span>
+<span class="nc" id="L108">      Checks.notNull(embed, &quot;Embed&quot;);</span>
+<span class="nc" id="L109">      Checks.check(</span>
+<span class="nc" id="L110">          embed.isSendable(AccountType.BOT),</span>
+          &quot;One of the provided embeds is empty or exceeds the maximum character count of %d!&quot;,
+<span class="nc" id="L112">          MessageEmbed.EMBED_MAX_LENGTH_BOT);</span>
+<span class="nc" id="L113">      this.embeds.add(embed);</span>
+    }
+<span class="nc" id="L115">    return this;</span>
+  }
+
+  /**
+   * Adds the provided {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbeds} to this
+   * builder.
+   *
+   * &lt;p&gt;&lt;b&gt;You can send up to 10 embeds per message! If more are sent they will not be
+   * displayed.&lt;/b&gt;
+   *
+   * @param embeds The embeds to add
+   * @throws java.lang.IllegalArgumentException If any of the provided embeds is {@code null} or
+   *     exceeds the maximum total character count of {@link MessageEmbed#EMBED_MAX_LENGTH_BOT}
+   * @return The current WebhookMessageBuilder for chaining convenience
+   */
+  public WebhookMessageBuilder addEmbeds(Collection&lt;MessageEmbed&gt; embeds) {
+<span class="nc" id="L131">    Checks.notNull(embeds, &quot;Embeds&quot;);</span>
+<span class="nc bnc" id="L132" title="All 2 branches missed.">    for (MessageEmbed embed : embeds) {</span>
+<span class="nc" id="L133">      Checks.notNull(embed, &quot;Embed&quot;);</span>
+<span class="nc" id="L134">      Checks.check(</span>
+<span class="nc" id="L135">          embed.isSendable(AccountType.BOT),</span>
+          &quot;One of the provided embeds is empty or exceeds the maximum character count of %d!&quot;,
+<span class="nc" id="L137">          MessageEmbed.EMBED_MAX_LENGTH_BOT);</span>
+<span class="nc" id="L138">      this.embeds.add(embed);</span>
+<span class="nc" id="L139">    }</span>
+<span class="nc" id="L140">    return this;</span>
+  }
+
+  /**
+   * Sets the content of the resulting message. &lt;br&gt;
+   * This will override the previous content.
+   *
+   * @param content The new content
+   * @throws java.lang.IllegalArgumentException If the provided content exceeds {@code 2000}
+   *     characters in length
+   * @return The current WebhookMessageBuilder for chaining convenience
+   */
+  public WebhookMessageBuilder setContent(String content) {
+<span class="nc bnc" id="L153" title="All 2 branches missed.">    Checks.check(</span>
+<span class="nc bnc" id="L154" title="All 2 branches missed.">        content == null || content.length() &lt;= 2000, &quot;Content may not exceed 2000 characters!&quot;);</span>
+<span class="nc bnc" id="L155" title="All 2 branches missed.">    if (content != null) this.content.replace(0, content.length(), content);</span>
+<span class="nc" id="L156">    else this.content.setLength(0);</span>
+<span class="nc" id="L157">    return this;</span>
+  }
+
+  /**
+   * Appends to the currently set content of the resulting message.
+   *
+   * @param content The content to append
+   * @throws java.lang.IllegalArgumentException If the provided content is {@code null} or the
+   *     resulting content would exceed {@code 2000} characters in length
+   * @return The current WebhookMessageBuilder for chaining convenience
+   */
+  public WebhookMessageBuilder append(String content) {
+<span class="nc" id="L169">    Checks.notNull(content, &quot;Content&quot;);</span>
+<span class="nc" id="L170">    Checks.check(</span>
+<span class="nc bnc" id="L171" title="All 2 branches missed.">        this.content.length() + content.length() &lt;= 2000,</span>
+        &quot;Content may not exceed 2000 characters!&quot;);
+<span class="nc" id="L173">    this.content.append(content);</span>
+<span class="nc" id="L174">    return this;</span>
+  }
+
+  /**
+   * Sets the username that should be used for the resulting message. &lt;br&gt;
+   * This will override the default username of the webhook.
+   *
+   * @param username The username to use for this message
+   * @return The current WebhookMessageBuilder for chaining convenience
+   */
+  public WebhookMessageBuilder setUsername(String username) {
+<span class="nc bnc" id="L185" title="All 2 branches missed.">    this.username = Helpers.isBlank(username) ? null : username;</span>
+<span class="nc" id="L186">    return this;</span>
+  }
+
+  /**
+   * Sets the avatar url that should be used for the resulting message. &lt;br&gt;
+   * This will override the default avatar of the webhook.
+   *
+   * @param avatarUrl The avatar url to use for this message
+   * @return The current WebhookMessageBuilder for chaining convenience
+   */
+  public WebhookMessageBuilder setAvatarUrl(String avatarUrl) {
+<span class="nc bnc" id="L197" title="All 2 branches missed.">    this.avatarUrl = Helpers.isBlank(avatarUrl) ? null : avatarUrl;</span>
+<span class="nc" id="L198">    return this;</span>
+  }
+
+  /**
+   * Sets the attached file for the resulting message.
+   *
+   * @param file The {@link java.io.File File} that should be attached to the message
+   * @throws java.lang.IllegalArgumentException If the provided file is {@code null}, does not
+   *     exist, is not readable or exceeds the maximum size of 8MB
+   * @return The current WebhookMessageBuilder for chaining convenience
+   */
+  public WebhookMessageBuilder setFile(File file) {
+<span class="nc bnc" id="L210" title="All 2 branches missed.">    return setFile(file, file == null ? null : file.getName());</span>
+  }
+
+  /**
+   * Sets the attached file for the resulting message.
+   *
+   * @param file The {@link java.io.File File} that should be attached to the message
+   * @param fileName The name that should be used for this attachment
+   * @throws java.lang.IllegalArgumentException If the provided file is does not exist, is not
+   *     readable or exceeds the maximum size of 8MB
+   * @return The current WebhookMessageBuilder for chaining convenience
+   */
+  public WebhookMessageBuilder setFile(File file, String fileName) {
+<span class="nc bnc" id="L223" title="All 2 branches missed.">    if (file == null) {</span>
+<span class="nc" id="L224">      this.file = null;</span>
+<span class="nc" id="L225">      this.fileName = null;</span>
+<span class="nc" id="L226">      return this;</span>
+    }
+<span class="nc bnc" id="L228" title="All 4 branches missed.">    Checks.check(file.canRead() &amp;&amp; file.exists(), &quot;File must exist and be readable!&quot;);</span>
+<span class="nc" id="L229">    Checks.notBlank(fileName, &quot;File name&quot;);</span>
+<span class="nc" id="L230">    Checks.check(</span>
+<span class="nc bnc" id="L231" title="All 2 branches missed.">        file.length() &lt;= Message.MAX_FILE_SIZE, &quot;Provided data exceeds the maximum size of 8MB!&quot;);</span>
+    try {
+<span class="nc" id="L233">      this.file = new FileInputStream(file);</span>
+<span class="nc" id="L234">      this.fileName = fileName;</span>
+<span class="nc" id="L235">    } catch (FileNotFoundException ex) {</span>
+<span class="nc" id="L236">      throw new IllegalArgumentException(ex);</span>
+<span class="nc" id="L237">    }</span>
+<span class="nc" id="L238">    return this;</span>
+  }
+
+  /**
+   * Sets the attached file for the resulting message.
+   *
+   * @param data The {@code byte[]} data that should be attached to the message
+   * @param fileName The name that should be used for this attachment
+   * @throws java.lang.IllegalArgumentException If the provided data exceeds the maximum size of 8MB
+   * @return The current WebhookMessageBuilder for chaining convenience
+   */
+  public WebhookMessageBuilder setFile(byte[] data, String fileName) {
+<span class="nc bnc" id="L250" title="All 2 branches missed.">    if (data == null) {</span>
+<span class="nc" id="L251">      this.fileName = null;</span>
+<span class="nc" id="L252">      this.file = null;</span>
+<span class="nc" id="L253">      return this;</span>
+    }
+<span class="nc" id="L255">    Checks.notBlank(fileName, &quot;File name&quot;);</span>
+<span class="nc bnc" id="L256" title="All 2 branches missed.">    Checks.check(</span>
+        data.length &lt;= Message.MAX_FILE_SIZE, &quot;Provided data exceeds the maximum size of 8MB!&quot;);
+<span class="nc" id="L258">    this.file = new ByteArrayInputStream(data);</span>
+<span class="nc" id="L259">    this.fileName = fileName;</span>
+<span class="nc" id="L260">    return this;</span>
+  }
+
+  /**
+   * Sets the attached file for the resulting message.
+   *
+   * @param data The {@link java.io.InputStream InputStream} data that should be attached to the
+   *     message
+   * @param fileName The name that should be used for this attachment
+   * @return The current WebhookMessageBuilder for chaining convenience
+   */
+  public WebhookMessageBuilder setFile(InputStream data, String fileName) {
+<span class="nc bnc" id="L272" title="All 2 branches missed.">    Checks.check(</span>
+<span class="nc bnc" id="L273" title="All 2 branches missed.">        data == null || !Helpers.isBlank(fileName),</span>
+        &quot;The provided file name must not be null, empty or blank!&quot;);
+<span class="nc" id="L275">    this.file = data;</span>
+<span class="nc" id="L276">    this.fileName = fileName;</span>
+<span class="nc" id="L277">    return this;</span>
+  }
+
+  /**
+   * Sets whether the resulting message should use Text-To-Speech.
+   *
+   * @param tts True, if the resulting message should use Text-To-Speech
+   * @return The current WebhookMessageBuilder for chaining convenience
+   */
+  public WebhookMessageBuilder setTTS(boolean tts) {
+<span class="nc" id="L287">    isTTS = tts;</span>
+<span class="nc" id="L288">    return this;</span>
+  }
+
+  /**
+   * Builds a {@link net.dv8tion.jda.webhook.WebhookMessage WebhookMessage} instance with the
+   * current state of this builder.
+   *
+   * @throws java.lang.IllegalStateException If this builder is empty
+   * @return The resulting {@link net.dv8tion.jda.webhook.WebhookMessage WebhookMessage}
+   */
+  public WebhookMessage build() {
+<span class="nc bnc" id="L299" title="All 2 branches missed.">    if (isEmpty()) throw new IllegalStateException(&quot;Cannot build an empty message!&quot;);</span>
+<span class="nc" id="L300">    return new WebhookMessage(</span>
+<span class="nc" id="L301">        username, avatarUrl, content.toString(), embeds, isTTS, file, fileName);</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

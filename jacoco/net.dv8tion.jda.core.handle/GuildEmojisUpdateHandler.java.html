@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GuildEmojisUpdateHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">net.dv8tion.jda.core.handle</a> &gt; <span class="el_source">GuildEmojisUpdateHandler.java</span></div><h1>GuildEmojisUpdateHandler.java</h1><pre class="source lang-java linenums">/*
+ *     Copyright 2015-2018 Austin Keener &amp; Michael Ritter &amp; Florian Spieß
+ *     Copyright 2018-2018 &quot;Princess&quot; Lana Samson
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package net.dv8tion.jda.core.handle;
+
+import gnu.trove.map.TLongObjectMap;
+import java.util.*;
+import net.dv8tion.jda.core.entities.Emote;
+import net.dv8tion.jda.core.entities.Role;
+import net.dv8tion.jda.core.entities.impl.EmoteImpl;
+import net.dv8tion.jda.core.entities.impl.GuildImpl;
+import net.dv8tion.jda.core.entities.impl.JDAImpl;
+import net.dv8tion.jda.core.events.emote.EmoteAddedEvent;
+import net.dv8tion.jda.core.events.emote.EmoteRemovedEvent;
+import net.dv8tion.jda.core.events.emote.update.EmoteUpdateNameEvent;
+import net.dv8tion.jda.core.events.emote.update.EmoteUpdateRolesEvent;
+import org.apache.commons.collections4.CollectionUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+public class GuildEmojisUpdateHandler extends SocketHandler {
+  public GuildEmojisUpdateHandler(JDAImpl api) {
+<span class="nc" id="L36">    super(api);</span>
+<span class="nc" id="L37">  }</span>
+
+  @Override
+  protected Long handleInternally(JSONObject content) {
+<span class="nc" id="L41">    final long guildId = content.getLong(&quot;guild_id&quot;);</span>
+<span class="nc bnc" id="L42" title="All 2 branches missed.">    if (api.getGuildLock().isLocked(guildId)) return guildId;</span>
+
+<span class="nc" id="L44">    GuildImpl guild = (GuildImpl) api.getGuildMap().get(guildId);</span>
+<span class="nc bnc" id="L45" title="All 2 branches missed.">    if (guild == null) {</span>
+<span class="nc" id="L46">      api.getEventCache()</span>
+<span class="nc" id="L47">          .cache(EventCache.Type.GUILD, guildId, () -&gt; handle(responseNumber, allContent));</span>
+<span class="nc" id="L48">      return null;</span>
+    }
+
+<span class="nc" id="L51">    JSONArray array = content.getJSONArray(&quot;emojis&quot;);</span>
+<span class="nc" id="L52">    TLongObjectMap&lt;Emote&gt; emoteMap = guild.getEmoteMap();</span>
+<span class="nc" id="L53">    List&lt;Emote&gt; oldEmotes = new ArrayList&lt;&gt;(emoteMap.valueCollection()); // snapshot of emote cache</span>
+<span class="nc" id="L54">    List&lt;Emote&gt; newEmotes = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L55" title="All 2 branches missed.">    for (int i = 0; i &lt; array.length(); i++) {</span>
+<span class="nc" id="L56">      JSONObject current = array.getJSONObject(i);</span>
+<span class="nc" id="L57">      final long emoteId = current.getLong(&quot;id&quot;);</span>
+<span class="nc" id="L58">      EmoteImpl emote = (EmoteImpl) emoteMap.get(emoteId);</span>
+<span class="nc" id="L59">      EmoteImpl oldEmote = null;</span>
+
+<span class="nc bnc" id="L61" title="All 2 branches missed.">      if (emote == null) {</span>
+<span class="nc" id="L62">        emote = new EmoteImpl(emoteId, guild);</span>
+<span class="nc" id="L63">        newEmotes.add(emote);</span>
+      } else {
+        // emote is in our cache which is why we don't want to remove it in cleanup later
+<span class="nc" id="L66">        oldEmotes.remove(emote);</span>
+<span class="nc" id="L67">        oldEmote = emote.clone();</span>
+      }
+
+<span class="nc" id="L70">      emote</span>
+<span class="nc" id="L71">          .setName(current.getString(&quot;name&quot;))</span>
+<span class="nc" id="L72">          .setAnimated(current.optBoolean(&quot;animated&quot;))</span>
+<span class="nc" id="L73">          .setManaged(current.getBoolean(&quot;managed&quot;));</span>
+      // update roles
+<span class="nc" id="L75">      JSONArray roles = current.getJSONArray(&quot;roles&quot;);</span>
+<span class="nc" id="L76">      Set&lt;Role&gt; newRoles = emote.getRoleSet();</span>
+<span class="nc" id="L77">      Set&lt;Role&gt; oldRoles = new HashSet&lt;&gt;(newRoles); // snapshot of cached roles</span>
+<span class="nc bnc" id="L78" title="All 2 branches missed.">      for (int j = 0; j &lt; roles.length(); j++) {</span>
+<span class="nc" id="L79">        Role role = guild.getRoleById(roles.getString(j));</span>
+<span class="nc" id="L80">        newRoles.add(role);</span>
+<span class="nc" id="L81">        oldRoles.remove(role);</span>
+      }
+
+      // cleanup old cached roles that were not found in the JSONArray
+<span class="nc bnc" id="L85" title="All 2 branches missed.">      for (Role r : oldRoles) {</span>
+        // newRoles directly writes to the set contained in the emote
+<span class="nc" id="L87">        newRoles.remove(r);</span>
+<span class="nc" id="L88">      }</span>
+
+      // finally, update the emote
+<span class="nc" id="L91">      emoteMap.put(emote.getIdLong(), emote);</span>
+      // check for updated fields and fire events
+<span class="nc" id="L93">      handleReplace(oldEmote, emote);</span>
+    }
+    // cleanup old emotes that don't exist anymore
+<span class="nc bnc" id="L96" title="All 2 branches missed.">    for (Emote e : oldEmotes) {</span>
+<span class="nc" id="L97">      emoteMap.remove(e.getIdLong());</span>
+<span class="nc" id="L98">      api.getEventManager().handle(new EmoteRemovedEvent(api, responseNumber, e));</span>
+<span class="nc" id="L99">    }</span>
+
+<span class="nc bnc" id="L101" title="All 2 branches missed.">    for (Emote e : newEmotes) {</span>
+<span class="nc" id="L102">      api.getEventManager().handle(new EmoteAddedEvent(api, responseNumber, e));</span>
+<span class="nc" id="L103">    }</span>
+
+<span class="nc" id="L105">    return null;</span>
+  }
+
+  private void handleReplace(Emote oldEmote, Emote newEmote) {
+<span class="nc bnc" id="L109" title="All 4 branches missed.">    if (oldEmote == null || newEmote == null) return;</span>
+
+<span class="nc bnc" id="L111" title="All 2 branches missed.">    if (!Objects.equals(oldEmote.getName(), newEmote.getName())) {</span>
+<span class="nc" id="L112">      api.getEventManager()</span>
+<span class="nc" id="L113">          .handle(new EmoteUpdateNameEvent(api, responseNumber, newEmote, oldEmote.getName()));</span>
+    }
+
+<span class="nc bnc" id="L116" title="All 2 branches missed.">    if (!CollectionUtils.isEqualCollection(oldEmote.getRoles(), newEmote.getRoles())) {</span>
+<span class="nc" id="L117">      api.getEventManager()</span>
+<span class="nc" id="L118">          .handle(new EmoteUpdateRolesEvent(api, responseNumber, newEmote, oldEmote.getRoles()));</span>
+    }
+<span class="nc" id="L120">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

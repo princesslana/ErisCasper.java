@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JDAClient.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">net.dv8tion.jda.client</a> &gt; <span class="el_source">JDAClient.java</span></div><h1>JDAClient.java</h1><pre class="source lang-java linenums">/*
+ *     Copyright 2015-2018 Austin Keener &amp; Michael Ritter &amp; Florian Spieß
+ *     Copyright 2018-2018 &quot;Princess&quot; Lana Samson
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package net.dv8tion.jda.client;
+
+import java.util.List;
+import net.dv8tion.jda.client.entities.*;
+import net.dv8tion.jda.client.requests.restaction.ApplicationAction;
+import net.dv8tion.jda.client.requests.restaction.pagination.MentionPaginationAction;
+import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.requests.RestAction;
+import net.dv8tion.jda.core.utils.cache.SnowflakeCacheView;
+
+public interface JDAClient {
+  JDA getJDA();
+
+  SnowflakeCacheView&lt;Group&gt; getGroupCache();
+
+  default List&lt;Group&gt; getGroups() {
+<span class="nc" id="L36">    return getGroupCache().asList();</span>
+  }
+
+  default List&lt;Group&gt; getGroupsByName(String name, boolean ignoreCase) {
+<span class="nc" id="L40">    return getGroupCache().getElementsByName(name, ignoreCase);</span>
+  }
+
+  default Group getGroupById(String id) {
+<span class="nc" id="L44">    return getGroupCache().getElementById(id);</span>
+  }
+
+  default Group getGroupById(long id) {
+<span class="nc" id="L48">    return getGroupCache().getElementById(id);</span>
+  }
+
+  List&lt;Relationship&gt; getRelationships();
+
+  List&lt;Relationship&gt; getRelationships(RelationshipType type);
+
+  List&lt;Relationship&gt; getRelationships(RelationshipType type, String name, boolean ignoreCase);
+
+  List&lt;Relationship&gt; getRelationshipsByName(String name, boolean ignoreCase);
+
+  Relationship getRelationship(User user);
+
+  Relationship getRelationship(Member member);
+
+  Relationship getRelationshipById(String id);
+
+  Relationship getRelationshipById(long id);
+
+  Relationship getRelationshipById(String id, RelationshipType type);
+
+  Relationship getRelationshipById(long id, RelationshipType type);
+
+  List&lt;Friend&gt; getFriends();
+
+  List&lt;Friend&gt; getFriendsByName(String name, boolean ignoreCase);
+
+  Friend getFriend(User user);
+
+  Friend getFriend(Member member);
+
+  Friend getFriendById(String id);
+
+  Friend getFriendById(long id);
+
+  /**
+   * Retrieves the recent mentions for the currently logged in client account.
+   *
+   * &lt;p&gt;The returned {@link
+   * net.dv8tion.jda.client.requests.restaction.pagination.MentionPaginationAction
+   * MentionPaginationAction} allows to filter by whether the messages mention everyone or a role.
+   *
+   * @return {@link net.dv8tion.jda.client.requests.restaction.pagination.MentionPaginationAction
+   *     MentionPaginationAction}
+   */
+  MentionPaginationAction getRecentMentions();
+
+  /**
+   * Retrieves the recent mentions for the currently logged in client account.
+   *
+   * &lt;p&gt;The returned {@link
+   * net.dv8tion.jda.client.requests.restaction.pagination.MentionPaginationAction
+   * MentionPaginationAction} allows to filter by whether the messages mention everyone or a role.
+   *
+   * &lt;p&gt;&lt;b&gt;To target recent mentions from all over Discord use {@link #getRecentMentions()}
+   * instead!&lt;/b&gt;
+   *
+   * @param guild The {@link net.dv8tion.jda.core.entities.Guild Guild} to narrow recent mentions to
+   * @throws java.lang.IllegalArgumentException If the specified Guild is {@code null}
+   * @throws net.dv8tion.jda.core.exceptions.GuildUnavailableException If the specified Guild is not
+   *     currently {@link net.dv8tion.jda.core.entities.Guild#isAvailable() available}
+   * @return {@link net.dv8tion.jda.client.requests.restaction.pagination.MentionPaginationAction
+   *     MentionPaginationAction}
+   */
+  MentionPaginationAction getRecentMentions(Guild guild);
+
+  UserSettings getSettings();
+
+  /**
+   * Creates a new {@link net.dv8tion.jda.client.entities.Application Application} for this user
+   * account with the given name.
+   *
+   * &lt;p&gt;A name &lt;b&gt;must not&lt;/b&gt; be {@code null} nor less than 2 characters or more than 32 characters
+   * long!
+   *
+   * &lt;p&gt;Possible {@link net.dv8tion.jda.core.requests.ErrorResponse ErrorResponses} caused by the
+   * returned {@link net.dv8tion.jda.core.requests.RestAction RestAction} include the following:
+   *
+   * &lt;ul&gt;
+   *   &lt;li&gt;{@link net.dv8tion.jda.core.requests.ErrorResponse#MAX_OAUTH_APPS MAX_OAUTH_APPS} &lt;br&gt;
+   *       OAuth2 application limit reached
+   * &lt;/ul&gt;
+   *
+   * @param name The name for new {@link net.dv8tion.jda.client.entities.Application Application}
+   * @throws IllegalArgumentException If the provided name is {@code null}, less than 2 or more than
+   *     32 characters long
+   * @return A specific {@link net.dv8tion.jda.client.requests.restaction.ApplicationAction
+   *     ApplicationAction} &lt;br&gt;
+   *     This action allows to set fields for the new application before creating it
+   */
+  ApplicationAction createApplication(String name);
+
+  /**
+   * Retrieves all {@link net.dv8tion.jda.client.entities.Application Applications} owned by this
+   * user account.
+   *
+   * @return {@link net.dv8tion.jda.core.requests.RestAction RestAction} - Type: {@link
+   *     java.util.List List}{@literal &lt;}{@link net.dv8tion.jda.client.entities.Application
+   *     Application}{@literal &gt;} &lt;br&gt;
+   *     A list of all Applications owned by this user account.
+   */
+  RestAction&lt;List&lt;Application&gt;&gt; getApplications();
+
+  /**
+   * Retrieves a specific {@link net.dv8tion.jda.client.entities.Application Application} owned by
+   * this user account.
+   *
+   * &lt;p&gt;Possible {@link net.dv8tion.jda.core.requests.ErrorResponse ErrorResponses}:
+   *
+   * &lt;ul&gt;
+   *   &lt;li&gt;{@link net.dv8tion.jda.core.requests.ErrorResponse#UNKNOWN_APPLICATION
+   *       UNKNOWN_APPLICATION} &lt;br&gt;
+   *       The Application did not exist (possibly deleted).
+   * &lt;/ul&gt;
+   *
+   * @param id The id for the {@link net.dv8tion.jda.client.entities.Application Application}
+   * @throws IllegalArgumentException If the provided id is {@code null} or empty
+   * @return {@link net.dv8tion.jda.core.requests.RestAction RestAction} - Type: {@link
+   *     net.dv8tion.jda.client.entities.Application Application} &lt;br&gt;
+   *     The Application behind the provided id.
+   */
+  RestAction&lt;Application&gt; getApplicationById(String id);
+
+  /**
+   * Retrieves all {@link net.dv8tion.jda.client.entities.AuthorizedApplication
+   * AuthorizedApplications} authorized by this user account.
+   *
+   * @return {@link net.dv8tion.jda.core.requests.RestAction RestAction} - Type: List{@literal
+   *     &lt;}{@link net.dv8tion.jda.client.entities.AuthorizedApplication
+   *     AuthorizedApplication}{@literal &gt;} &lt;br&gt;
+   *     A list of all AuthorizedApplications authorized by this user account.
+   */
+  RestAction&lt;List&lt;AuthorizedApplication&gt;&gt; getAuthorizedApplications();
+
+  /**
+   * Retrieves a specific {@link net.dv8tion.jda.client.entities.AuthorizedApplication
+   * AuthorizedApplication} authorized by this user account.
+   *
+   * &lt;p&gt;Possible {@link net.dv8tion.jda.core.requests.ErrorResponse ErrorResponses}:
+   *
+   * &lt;ul&gt;
+   *   &lt;li&gt;{@link net.dv8tion.jda.core.requests.ErrorResponse#UNKNOWN_TOKEN UNKNOWN_TOKEN} &lt;br&gt;
+   *       The Application either doesn't exist or isn't authorized by this user account.
+   * &lt;/ul&gt;
+   *
+   * @param id The id of the {@link net.dv8tion.jda.client.entities.AuthorizedApplication
+   *     AuthorizedApplication}
+   * @throws IllegalArgumentException If the provided id is {@code null} or empty
+   * @return {@link net.dv8tion.jda.core.requests.RestAction RestAction} - Type: {@link
+   *     net.dv8tion.jda.client.entities.AuthorizedApplication AuthorizedApplication} &lt;br&gt;
+   *     The Application behind the provided id.
+   */
+  RestAction&lt;AuthorizedApplication&gt; getAuthorizedApplicationById(String id);
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

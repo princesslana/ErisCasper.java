@@ -1,0 +1,670 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GuildAction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">net.dv8tion.jda.core.requests.restaction</a> &gt; <span class="el_source">GuildAction.java</span></div><h1>GuildAction.java</h1><pre class="source lang-java linenums">/*
+ *     Copyright 2015-2018 Austin Keener &amp; Michael Ritter &amp; Florian Spieß
+ *     Copyright 2018-2018 &quot;Princess&quot; Lana Samson
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package net.dv8tion.jda.core.requests.restaction;
+
+import java.awt.Color;
+import java.util.*;
+import java.util.function.BooleanSupplier;
+import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.Region;
+import net.dv8tion.jda.core.entities.ChannelType;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Icon;
+import net.dv8tion.jda.core.requests.Request;
+import net.dv8tion.jda.core.requests.Response;
+import net.dv8tion.jda.core.requests.RestAction;
+import net.dv8tion.jda.core.requests.Route;
+import net.dv8tion.jda.core.utils.Checks;
+import okhttp3.RequestBody;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.JSONString;
+
+/**
+ * {@link net.dv8tion.jda.core.requests.RestAction RestAction} extension specifically designed to
+ * allow for the creation of {@link net.dv8tion.jda.core.entities.Guild Guilds}. &lt;br&gt;
+ * This is available to all account types but may undergo certain restrictions by Discord.
+ *
+ * @since 3.4.0
+ */
+public class GuildAction extends RestAction&lt;Void&gt; {
+  protected String name;
+  protected Region region;
+  protected Icon icon;
+  protected Guild.VerificationLevel verificationLevel;
+  protected Guild.NotificationLevel notificationLevel;
+  protected Guild.ExplicitContentLevel explicitContentLevel;
+
+  protected final List&lt;RoleData&gt; roles;
+  protected final List&lt;ChannelData&gt; channels;
+
+  public GuildAction(JDA api, String name) {
+<span class="nc" id="L57">    super(api, Route.Guilds.CREATE_GUILD.compile());</span>
+<span class="nc" id="L58">    this.setName(name);</span>
+
+<span class="nc" id="L60">    this.roles = new LinkedList&lt;&gt;();</span>
+<span class="nc" id="L61">    this.channels = new LinkedList&lt;&gt;();</span>
+    // public role is the first element
+<span class="nc" id="L63">    this.roles.add(new RoleData(0));</span>
+<span class="nc" id="L64">  }</span>
+
+  @Override
+  public GuildAction setCheck(BooleanSupplier checks) {
+<span class="nc" id="L68">    return (GuildAction) super.setCheck(checks);</span>
+  }
+
+  /**
+   * Sets the voice {@link net.dv8tion.jda.core.Region Region} of the resulting {@link
+   * net.dv8tion.jda.core.entities.Guild Guild}.
+   *
+   * @param region The {@link net.dv8tion.jda.core.Region Region} to use
+   * @throws java.lang.IllegalArgumentException If the provided region is a VIP region as per {@link
+   *     net.dv8tion.jda.core.Region#isVip() Region.isVip()}
+   * @return The current GuildAction for chaining convenience
+   */
+  public GuildAction setRegion(Region region) {
+<span class="nc bnc" id="L81" title="All 2 branches missed.">    Checks.check(</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">        region == null || !region.isVip(), &quot;Cannot create a Guild with a VIP voice region!&quot;);</span>
+<span class="nc" id="L83">    this.region = region;</span>
+<span class="nc" id="L84">    return this;</span>
+  }
+
+  /**
+   * Sets the {@link net.dv8tion.jda.core.entities.Icon Icon} for the resulting {@link
+   * net.dv8tion.jda.core.entities.Guild Guild}
+   *
+   * @param icon The {@link net.dv8tion.jda.core.entities.Icon Icon} to use
+   * @return The current GuildAction for chaining convenience
+   */
+  public GuildAction setIcon(Icon icon) {
+<span class="nc" id="L95">    this.icon = icon;</span>
+<span class="nc" id="L96">    return this;</span>
+  }
+
+  /**
+   * Sets the name for the resulting {@link net.dv8tion.jda.core.entities.Guild Guild}
+   *
+   * @param name The name to use
+   * @throws java.lang.IllegalArgumentException If the provided name is {@code null}, blank or not
+   *     between 2-100 characters long
+   * @return The current GuildAction for chaining convenience
+   */
+  public GuildAction setName(String name) {
+<span class="nc" id="L108">    Checks.notBlank(name, &quot;Name&quot;);</span>
+<span class="nc" id="L109">    name = name.trim();</span>
+<span class="nc" id="L110">    Checks.check(</span>
+<span class="nc bnc" id="L111" title="All 4 branches missed.">        name.length() &gt;= 2 &amp;&amp; name.length() &lt;= 100, &quot;Name must have 2-100 characters in length!&quot;);</span>
+<span class="nc" id="L112">    this.name = name;</span>
+<span class="nc" id="L113">    return this;</span>
+  }
+
+  /**
+   * Sets the {@link net.dv8tion.jda.core.entities.Guild.VerificationLevel VerificationLevel} for
+   * the resulting {@link net.dv8tion.jda.core.entities.Guild Guild}
+   *
+   * @param level The {@link net.dv8tion.jda.core.entities.Guild.VerificationLevel
+   *     VerificationLevel} to use
+   * @return The current GuildAction for chaining convenience
+   */
+  public GuildAction setVerificationLevel(Guild.VerificationLevel level) {
+<span class="nc" id="L125">    this.verificationLevel = level;</span>
+<span class="nc" id="L126">    return this;</span>
+  }
+
+  /**
+   * Sets the {@link net.dv8tion.jda.core.entities.Guild.NotificationLevel NotificationLevel} for
+   * the resulting {@link net.dv8tion.jda.core.entities.Guild Guild}
+   *
+   * @param level The {@link net.dv8tion.jda.core.entities.Guild.NotificationLevel
+   *     NotificationLevel} to use
+   * @return The current GuildAction for chaining convenience
+   */
+  public GuildAction setNotificationLevel(Guild.NotificationLevel level) {
+<span class="nc" id="L138">    this.notificationLevel = level;</span>
+<span class="nc" id="L139">    return this;</span>
+  }
+
+  /**
+   * Sets the {@link net.dv8tion.jda.core.entities.Guild.ExplicitContentLevel ExplicitContentLevel}
+   * for the resulting {@link net.dv8tion.jda.core.entities.Guild Guild}
+   *
+   * @param level The {@link net.dv8tion.jda.core.entities.Guild.ExplicitContentLevel
+   *     ExplicitContentLevel} to use
+   * @return The current GuildAction for chaining convenience
+   */
+  public GuildAction setExplicitContentLevel(Guild.ExplicitContentLevel level) {
+<span class="nc" id="L151">    this.explicitContentLevel = level;</span>
+<span class="nc" id="L152">    return this;</span>
+  }
+
+  // Channels
+
+  /**
+   * Adds a {@link net.dv8tion.jda.core.entities.Channel Channel} to the resulting Guild. This
+   * cannot be of type {@link net.dv8tion.jda.core.entities.ChannelType#CATEGORY CATEGORY}!
+   *
+   * @param channel The {@link net.dv8tion.jda.core.requests.restaction.GuildAction.ChannelData
+   *     ChannelData} to use for the construction of the Channel
+   * @throws java.lang.IllegalArgumentException If the provided channel is {@code null}!
+   * @return The current GuildAction for chaining convenience
+   */
+  public GuildAction addChannel(ChannelData channel) {
+<span class="nc" id="L167">    Checks.notNull(channel, &quot;Channel&quot;);</span>
+<span class="nc" id="L168">    this.channels.add(channel);</span>
+<span class="nc" id="L169">    return this;</span>
+  }
+
+  /**
+   * Gets the {@link net.dv8tion.jda.core.requests.restaction.GuildAction.ChannelData ChannelData}
+   * of the specified index. The index is 0 based on insertion order of {@link
+   * #addChannel(GuildAction.ChannelData)}!
+   *
+   * @param index The 0 based index of the channel
+   * @throws java.lang.IndexOutOfBoundsException If the provided index is not in bounds
+   * @return The current GuildAction for chaining convenience
+   */
+  public ChannelData getChannel(int index) {
+<span class="nc" id="L182">    return this.channels.get(index);</span>
+  }
+
+  /**
+   * Removes the {@link net.dv8tion.jda.core.requests.restaction.GuildAction.ChannelData
+   * ChannelData} at the specified index and returns the removed object.
+   *
+   * @param index The index of the channel
+   * @throws java.lang.IndexOutOfBoundsException If the index is out of bounds
+   * @return The removed object
+   */
+  public ChannelData removeChannel(int index) {
+<span class="nc" id="L194">    return this.channels.remove(index);</span>
+  }
+
+  /**
+   * Removes the provided {@link net.dv8tion.jda.core.requests.restaction.GuildAction.ChannelData
+   * ChannelData} from this GuildAction if present.
+   *
+   * @param data The ChannelData to remove
+   * @return The current GuildAction for chaining convenience
+   */
+  public GuildAction removeChannel(ChannelData data) {
+<span class="nc" id="L205">    this.channels.remove(data);</span>
+<span class="nc" id="L206">    return this;</span>
+  }
+
+  /**
+   * Creates a new {@link net.dv8tion.jda.core.requests.restaction.GuildAction.ChannelData
+   * ChannelData} instance and adds it to this GuildAction.
+   *
+   * @param type The {@link net.dv8tion.jda.core.entities.ChannelType ChannelType} of the resulting
+   *     Channel &lt;br&gt;
+   *     This may be of type {@link net.dv8tion.jda.core.entities.ChannelType#TEXT TEXT} or {@link
+   *     net.dv8tion.jda.core.entities.ChannelType#VOICE VOICE}!
+   * @param name The name of the channel. This must be alphanumeric with underscores for type TEXT
+   * @throws java.lang.IllegalArgumentException
+   *     &lt;ul&gt;
+   *       &lt;li&gt;If provided with an invalid ChannelType
+   *       &lt;li&gt;If the provided name is {@code null} or blank
+   *       &lt;li&gt;If the provided name is not between 2-100 characters long
+   *       &lt;li&gt;If the type is TEXT and the provided name is not alphanumeric with underscores
+   *     &lt;/ul&gt;
+   *
+   * @return The new ChannelData instance
+   */
+  public ChannelData newChannel(ChannelType type, String name) {
+<span class="nc" id="L229">    ChannelData data = new ChannelData(type, name);</span>
+<span class="nc" id="L230">    addChannel(data);</span>
+<span class="nc" id="L231">    return data;</span>
+  }
+
+  // Roles
+
+  /**
+   * Retrieves the {@link net.dv8tion.jda.core.requests.restaction.GuildAction.RoleData RoleData}
+   * for the public role ({@link net.dv8tion.jda.core.entities.Guild#getPublicRole()
+   * Guild.getPublicRole()}) for the resulting Guild. &lt;br&gt;
+   * The public role is also known in the official client as the {@code @everyone} role.
+   *
+   * &lt;p&gt;&lt;b&gt;You can only change the permissions of the public role!&lt;/b&gt;
+   *
+   * @return RoleData of the public role
+   */
+  public RoleData getPublicRole() {
+<span class="nc" id="L247">    return this.roles.get(0);</span>
+  }
+
+  /**
+   * Retrieves the {@link net.dv8tion.jda.core.requests.restaction.GuildAction.RoleData RoleData}
+   * for the provided index. &lt;br&gt;
+   * The public role is at the index 0 and all others are ordered by insertion order!
+   *
+   * @param index The index of the role
+   * @throws java.lang.IndexOutOfBoundsException If the provided index is out of bounds
+   * @return RoleData of the provided index
+   */
+  public RoleData getRole(int index) {
+<span class="nc" id="L260">    return this.roles.get(index);</span>
+  }
+
+  /**
+   * Creates and add a new {@link net.dv8tion.jda.core.requests.restaction.GuildAction.RoleData
+   * RoleData} object representing a Role for the resulting Guild.
+   *
+   * &lt;p&gt;This can be used in {@link
+   * GuildAction.ChannelData#addPermissionOverride(GuildAction.RoleData, long, long)
+   * ChannelData.addPermissionOverride(...)}. &lt;br&gt;
+   * You may change any properties of this {@link
+   * net.dv8tion.jda.core.requests.restaction.GuildAction.RoleData RoleData} instance!
+   *
+   * @return RoleData for the new Role
+   */
+  public RoleData newRole() {
+<span class="nc" id="L276">    final RoleData role = new RoleData(roles.size());</span>
+<span class="nc" id="L277">    this.roles.add(role);</span>
+<span class="nc" id="L278">    return role;</span>
+  }
+
+  @Override
+  protected RequestBody finalizeData() {
+<span class="nc" id="L283">    final JSONObject object = new JSONObject();</span>
+<span class="nc" id="L284">    object.put(&quot;name&quot;, name);</span>
+<span class="nc" id="L285">    object.put(&quot;roles&quot;, new JSONArray(roles));</span>
+<span class="nc bnc" id="L286" title="All 2 branches missed.">    if (!channels.isEmpty()) object.put(&quot;channels&quot;, new JSONArray(channels));</span>
+<span class="nc bnc" id="L287" title="All 2 branches missed.">    if (icon != null) object.put(&quot;icon&quot;, icon.getEncoding());</span>
+<span class="nc bnc" id="L288" title="All 2 branches missed.">    if (verificationLevel != null) object.put(&quot;verification_level&quot;, verificationLevel.getKey());</span>
+<span class="nc bnc" id="L289" title="All 2 branches missed.">    if (notificationLevel != null)</span>
+<span class="nc" id="L290">      object.put(&quot;default_message_notifications&quot;, notificationLevel.getKey());</span>
+<span class="nc bnc" id="L291" title="All 2 branches missed.">    if (explicitContentLevel != null)</span>
+<span class="nc" id="L292">      object.put(&quot;explicit_content_filter&quot;, explicitContentLevel.getKey());</span>
+<span class="nc bnc" id="L293" title="All 2 branches missed.">    if (region != null) object.put(&quot;region&quot;, region.getKey());</span>
+<span class="nc" id="L294">    return getRequestBody(object);</span>
+  }
+
+  @Override
+  protected void handleResponse(Response response, Request&lt;Void&gt; request) {
+<span class="nc bnc" id="L299" title="All 2 branches missed.">    if (response.isOk()) request.onSuccess(null);</span>
+<span class="nc" id="L300">    else request.onFailure(response);</span>
+<span class="nc" id="L301">  }</span>
+
+  /**
+   * Mutable object containing information on a {@link net.dv8tion.jda.core.entities.Role Role} of
+   * the resulting {@link net.dv8tion.jda.core.entities.Guild Guild} that is constructed by a
+   * GuildAction instance
+   *
+   * &lt;p&gt;This may be used in {@link
+   * net.dv8tion.jda.core.requests.restaction.GuildAction.ChannelData#addPermissionOverride(GuildAction.RoleData,
+   * long, long)} ChannelData.addPermissionOverride(...)}!
+   */
+  public static class RoleData implements JSONString {
+    protected final long id;
+    protected final boolean isPublicRole;
+
+    protected Long permissions;
+    protected String name;
+    protected Integer color;
+    protected Integer position;
+    protected Boolean mentionable, hoisted;
+
+<span class="nc" id="L322">    protected RoleData(long id) {</span>
+<span class="nc" id="L323">      this.id = id;</span>
+<span class="nc bnc" id="L324" title="All 2 branches missed.">      this.isPublicRole = id == 0;</span>
+<span class="nc" id="L325">    }</span>
+
+    /**
+     * Sets the raw permission value for this Role
+     *
+     * @param rawPermissions Raw permission value
+     * @throws java.lang.IllegalArgumentException If the provided permissions are negative or exceed
+     *     the maximum permissions
+     * @return The current RoleData instance for chaining convenience
+     */
+    public RoleData setPermissionsRaw(Long rawPermissions) {
+<span class="nc bnc" id="L336" title="All 2 branches missed.">      if (rawPermissions != null) {</span>
+<span class="nc" id="L337">        Checks.notNegative(rawPermissions, &quot;Raw Permissions&quot;);</span>
+<span class="nc" id="L338">        Checks.check(</span>
+<span class="nc bnc" id="L339" title="All 2 branches missed.">            rawPermissions &lt;= Permission.ALL_PERMISSIONS,</span>
+            &quot;Provided permissions may not be greater than a full permission set!&quot;);
+      }
+<span class="nc" id="L342">      this.permissions = rawPermissions;</span>
+<span class="nc" id="L343">      return this;</span>
+    }
+
+    /**
+     * Adds the provided permissions to the Role
+     *
+     * @param permissions The permissions to add
+     * @throws java.lang.IllegalArgumentException If any of the provided permissions is {@code null}
+     * @return The current RoleData instance for chaining convenience
+     */
+    public RoleData addPermissions(Permission... permissions) {
+<span class="nc" id="L354">      Checks.notNull(permissions, &quot;Permissions&quot;);</span>
+<span class="nc bnc" id="L355" title="All 2 branches missed.">      for (Permission perm : permissions) Checks.notNull(perm, &quot;Permissions&quot;);</span>
+<span class="nc bnc" id="L356" title="All 2 branches missed.">      if (this.permissions == null) this.permissions = 0L;</span>
+<span class="nc" id="L357">      this.permissions |= Permission.getRaw(permissions);</span>
+<span class="nc" id="L358">      return this;</span>
+    }
+
+    /**
+     * Adds the provided permissions to the Role
+     *
+     * @param permissions The permissions to add
+     * @throws java.lang.IllegalArgumentException If any of the provided permissions is {@code null}
+     * @return The current RoleData instance for chaining convenience
+     */
+    public RoleData addPermissions(Collection&lt;Permission&gt; permissions) {
+<span class="nc" id="L369">      Checks.noneNull(permissions, &quot;Permissions&quot;);</span>
+<span class="nc bnc" id="L370" title="All 2 branches missed.">      if (this.permissions == null) this.permissions = 0L;</span>
+<span class="nc" id="L371">      this.permissions |= Permission.getRaw(permissions);</span>
+<span class="nc" id="L372">      return this;</span>
+    }
+
+    /**
+     * Sets the name for this Role
+     *
+     * @param name The name
+     * @throws java.lang.IllegalStateException If this is the public role
+     * @return The current RoleData instance for chaining convenience
+     */
+    public RoleData setName(String name) {
+<span class="nc" id="L383">      checkPublic(&quot;name&quot;);</span>
+<span class="nc" id="L384">      this.name = name;</span>
+<span class="nc" id="L385">      return this;</span>
+    }
+
+    /**
+     * Sets the color for this Role
+     *
+     * @param color The color for this Role
+     * @throws java.lang.IllegalStateException If this is the public role
+     * @return The current RoleData instance for chaining convenience
+     */
+    public RoleData setColor(Color color) {
+<span class="nc" id="L396">      checkPublic(&quot;color&quot;);</span>
+<span class="nc bnc" id="L397" title="All 2 branches missed.">      this.color = color == null ? null : color.getRGB();</span>
+<span class="nc" id="L398">      return this;</span>
+    }
+
+    /**
+     * Sets the position for this Role
+     *
+     * @param position The position
+     * @throws java.lang.IllegalStateException If this is the public role
+     * @return The current RoleData instance for chaining convenience
+     */
+    public RoleData setPosition(Integer position) {
+<span class="nc" id="L409">      checkPublic(&quot;position&quot;);</span>
+<span class="nc" id="L410">      this.position = position;</span>
+<span class="nc" id="L411">      return this;</span>
+    }
+
+    /**
+     * Sets whether the Role is mentionable
+     *
+     * @param mentionable Whether the role is mentionable
+     * @throws java.lang.IllegalStateException If this is the public role
+     * @return The current RoleData instance for chaining convenience
+     */
+    public RoleData setMentionable(Boolean mentionable) {
+<span class="nc" id="L422">      checkPublic(&quot;mentionable&quot;);</span>
+<span class="nc" id="L423">      this.mentionable = mentionable;</span>
+<span class="nc" id="L424">      return this;</span>
+    }
+
+    /**
+     * Sets whether the Role is hoisted
+     *
+     * @param hoisted Whether the role is hoisted
+     * @throws java.lang.IllegalStateException If this is the public role
+     * @return The current RoleData instance for chaining convenience
+     */
+    public RoleData setHoisted(Boolean hoisted) {
+<span class="nc" id="L435">      checkPublic(&quot;hoisted&quot;);</span>
+<span class="nc" id="L436">      this.hoisted = hoisted;</span>
+<span class="nc" id="L437">      return this;</span>
+    }
+
+    @Override
+    public String toJSONString() {
+<span class="nc" id="L442">      final JSONObject o = new JSONObject().put(&quot;id&quot;, Long.toUnsignedString(id));</span>
+<span class="nc bnc" id="L443" title="All 2 branches missed.">      if (permissions != null) o.put(&quot;permissions&quot;, permissions);</span>
+<span class="nc bnc" id="L444" title="All 2 branches missed.">      if (position != null) o.put(&quot;position&quot;, position);</span>
+<span class="nc bnc" id="L445" title="All 2 branches missed.">      if (name != null) o.put(&quot;name&quot;, name);</span>
+<span class="nc bnc" id="L446" title="All 2 branches missed.">      if (color != null) o.put(&quot;color&quot;, color &amp; 0xFFFFFF);</span>
+<span class="nc bnc" id="L447" title="All 2 branches missed.">      if (mentionable != null) o.put(&quot;mentionable&quot;, mentionable);</span>
+<span class="nc bnc" id="L448" title="All 2 branches missed.">      if (hoisted != null) o.put(&quot;hoist&quot;, hoisted);</span>
+<span class="nc" id="L449">      return o.toString();</span>
+    }
+
+    protected void checkPublic(String comment) {
+<span class="nc bnc" id="L453" title="All 2 branches missed.">      if (isPublicRole)</span>
+<span class="nc" id="L454">        throw new IllegalStateException(&quot;Cannot modify &quot; + comment + &quot; for the public role!&quot;);</span>
+<span class="nc" id="L455">    }</span>
+  }
+
+  /**
+   * Channel information used for the creation of {@link net.dv8tion.jda.core.entities.Channel
+   * Channels} within the construction of a {@link net.dv8tion.jda.core.entities.Guild Guild} via
+   * GuildAction.
+   *
+   * &lt;p&gt;Use with {@link
+   * net.dv8tion.jda.core.requests.restaction.GuildAction#addChannel(GuildAction.ChannelData)
+   * GuildAction.addChannel(ChannelData)}.
+   */
+  public static class ChannelData implements JSONString {
+    protected final ChannelType type;
+    protected final String name;
+
+<span class="nc" id="L471">    protected final Set&lt;PermOverrideData&gt; overrides = new HashSet&lt;&gt;();</span>
+
+    protected Integer position;
+
+    // Text only
+    protected String topic;
+    protected Boolean nsfw;
+    // Voice only
+    protected Integer bitrate, userlimit;
+
+    /**
+     * Constructs a data object containing information on a {@link
+     * net.dv8tion.jda.core.entities.Channel Channel} to be used in the construction of a {@link
+     * net.dv8tion.jda.core.entities.Guild Guild}!
+     *
+     * @param type The {@link net.dv8tion.jda.core.entities.ChannelType ChannelType} of the
+     *     resulting Channel &lt;br&gt;
+     *     This may be of type {@link net.dv8tion.jda.core.entities.ChannelType#TEXT TEXT} or {@link
+     *     net.dv8tion.jda.core.entities.ChannelType#VOICE VOICE}!
+     * @param name The name of the channel. This must be alphanumeric with underscores for type TEXT
+     * @throws java.lang.IllegalArgumentException
+     *     &lt;ul&gt;
+     *       &lt;li&gt;If provided with an invalid ChannelType
+     *       &lt;li&gt;If the provided name is {@code null} or blank
+     *       &lt;li&gt;If the provided name is not between 2-100 characters long
+     *       &lt;li&gt;If the type is TEXT and the provided name is not alphanumeric with underscores
+     *     &lt;/ul&gt;
+     */
+<span class="nc" id="L499">    public ChannelData(ChannelType type, String name) {</span>
+<span class="nc" id="L500">      Checks.notBlank(name, &quot;Name&quot;);</span>
+<span class="nc bnc" id="L501" title="All 4 branches missed.">      Checks.check(</span>
+          type == ChannelType.TEXT || type == ChannelType.VOICE,
+          &quot;Can only create channels of type TEXT or VOICE in GuildAction!&quot;);
+<span class="nc" id="L504">      Checks.check(</span>
+<span class="nc bnc" id="L505" title="All 4 branches missed.">          name.length() &gt;= 2 &amp;&amp; name.length() &lt;= 100,</span>
+          &quot;Channel name has to be between 2-100 characters long!&quot;);
+<span class="nc bnc" id="L507" title="All 2 branches missed.">      Checks.check(</span>
+<span class="nc bnc" id="L508" title="All 2 branches missed.">          type == ChannelType.VOICE || name.matches(&quot;[a-zA-Z0-9-_]+&quot;),</span>
+          &quot;Channels of type TEXT must have a name in alphanumeric with underscores!&quot;);
+
+<span class="nc" id="L511">      this.type = type;</span>
+<span class="nc" id="L512">      this.name = name;</span>
+<span class="nc" id="L513">    }</span>
+
+    /**
+     * Sets the topic for this channel. &lt;br&gt;
+     * These are only relevant to channels of type {@link
+     * net.dv8tion.jda.core.entities.ChannelType#TEXT TEXT}.
+     *
+     * @param topic The topic for the channel
+     * @throws java.lang.IllegalArgumentException If the provided topic is bigger than 1024
+     *     characters
+     * @return This ChannelData instance for chaining convenience
+     */
+    public ChannelData setTopic(String topic) {
+<span class="nc bnc" id="L526" title="All 4 branches missed.">      if (topic != null &amp;&amp; topic.length() &gt; 1024)</span>
+<span class="nc" id="L527">        throw new IllegalArgumentException(</span>
+            &quot;Channel Topic must not be greater than 1024 in length!&quot;);
+<span class="nc" id="L529">      this.topic = topic;</span>
+<span class="nc" id="L530">      return this;</span>
+    }
+
+    /**
+     * Sets the whether this channel should be marked NSFW. &lt;br&gt;
+     * These are only relevant to channels of type {@link
+     * net.dv8tion.jda.core.entities.ChannelType#TEXT TEXT}.
+     *
+     * @param nsfw Whether this channel should be marked NSFW
+     * @return This ChannelData instance for chaining convenience
+     */
+    public ChannelData setNSFW(Boolean nsfw) {
+<span class="nc" id="L542">      this.nsfw = nsfw;</span>
+<span class="nc" id="L543">      return this;</span>
+    }
+
+    /**
+     * Sets the bitrate for this channel. &lt;br&gt;
+     * These are only relevant to channels of type {@link
+     * net.dv8tion.jda.core.entities.ChannelType#VOICE VOICE}.
+     *
+     * @param bitrate The bitrate for the channel (8000-96000)
+     * @throws java.lang.IllegalArgumentException If the provided bitrate is not between 8000-96000
+     * @return This ChannelData instance for chaining convenience
+     */
+    public ChannelData setBitrate(Integer bitrate) {
+<span class="nc bnc" id="L556" title="All 2 branches missed.">      if (bitrate != null) {</span>
+<span class="nc bnc" id="L557" title="All 2 branches missed.">        Checks.check(bitrate &gt;= 8000, &quot;Bitrate must be greater than 8000.&quot;);</span>
+<span class="nc bnc" id="L558" title="All 2 branches missed.">        Checks.check(bitrate &lt;= 96000, &quot;Bitrate must be less than 96000.&quot;);</span>
+      }
+<span class="nc" id="L560">      this.bitrate = bitrate;</span>
+<span class="nc" id="L561">      return this;</span>
+    }
+
+    /**
+     * Sets the userlimit for this channel. &lt;br&gt;
+     * These are only relevant to channels of type {@link
+     * net.dv8tion.jda.core.entities.ChannelType#VOICE VOICE}.
+     *
+     * @param userlimit The userlimit for the channel (0-99)
+     * @throws java.lang.IllegalArgumentException If the provided userlimit is not between 0-99
+     * @return This ChannelData instance for chaining convenience
+     */
+    public ChannelData setUserlimit(Integer userlimit) {
+<span class="nc bnc" id="L574" title="All 6 branches missed.">      if (userlimit != null &amp;&amp; (userlimit &lt; 0 || userlimit &gt; 99))</span>
+<span class="nc" id="L575">        throw new IllegalArgumentException(&quot;Userlimit must be between 0-99!&quot;);</span>
+<span class="nc" id="L576">      this.userlimit = userlimit;</span>
+<span class="nc" id="L577">      return this;</span>
+    }
+
+    /**
+     * Sets the position for this channel.
+     *
+     * @param position The position for the channel
+     * @return This ChannelData instance for chaining convenience
+     */
+    public ChannelData setPosition(Integer position) {
+<span class="nc" id="L587">      this.position = position;</span>
+<span class="nc" id="L588">      return this;</span>
+    }
+
+    /**
+     * Adds a {@link net.dv8tion.jda.core.entities.PermissionOverride PermissionOverride} to this
+     * channel with the provided {@link
+     * net.dv8tion.jda.core.requests.restaction.GuildAction.RoleData RoleData}! &lt;br&gt;
+     * Use {@link GuildAction#newRole() GuildAction.newRole()} to retrieve an instance of RoleData.
+     *
+     * @param role The target role
+     * @param allow The permissions to grant in the override
+     * @param deny The permissions to deny in the override
+     * @throws java.lang.IllegalArgumentException
+     *     &lt;ul&gt;
+     *       &lt;li&gt;If the provided role is {@code null}
+     *       &lt;li&gt;If the provided allow value is negative or exceeds maximum permissions
+     *       &lt;li&gt;If the provided deny value is negative or exceeds maximum permissions
+     *     &lt;/ul&gt;
+     *
+     * @return This ChannelData instance for chaining convenience
+     */
+    public ChannelData addPermissionOverride(RoleData role, long allow, long deny) {
+<span class="nc" id="L610">      Checks.notNull(role, &quot;Role&quot;);</span>
+<span class="nc" id="L611">      Checks.notNegative(allow, &quot;Granted permissions value&quot;);</span>
+<span class="nc" id="L612">      Checks.notNegative(deny, &quot;Denied permissions value&quot;);</span>
+<span class="nc bnc" id="L613" title="All 2 branches missed.">      Checks.check(</span>
+          allow &lt;= Permission.ALL_PERMISSIONS,
+          &quot;Specified allow value may not be greater than a full permission set&quot;);
+<span class="nc bnc" id="L616" title="All 2 branches missed.">      Checks.check(</span>
+          deny &lt;= Permission.ALL_PERMISSIONS,
+          &quot;Specified deny value may not be greater than a full permission set&quot;);
+<span class="nc" id="L619">      this.overrides.add(new PermOverrideData(PermOverrideData.ROLE_TYPE, role.id, allow, deny));</span>
+<span class="nc" id="L620">      return this;</span>
+    }
+
+    /**
+     * Adds a {@link net.dv8tion.jda.core.entities.PermissionOverride PermissionOverride} to this
+     * channel with the provided {@link
+     * net.dv8tion.jda.core.requests.restaction.GuildAction.RoleData RoleData}! &lt;br&gt;
+     * Use {@link GuildAction#newRole() GuildAction.newRole()} to retrieve an instance of RoleData.
+     *
+     * @param role The target role
+     * @param allow The permissions to grant in the override
+     * @param deny The permissions to deny in the override
+     * @throws java.lang.IllegalArgumentException
+     *     &lt;ul&gt;
+     *       &lt;li&gt;If the provided role is {@code null}
+     *       &lt;li&gt;If any permission is {@code null}
+     *     &lt;/ul&gt;
+     *
+     * @return This ChannelData instance for chaining convenience
+     */
+    public ChannelData addPermissionOverride(
+        RoleData role, Collection&lt;Permission&gt; allow, Collection&lt;Permission&gt; deny) {
+<span class="nc" id="L642">      long allowRaw = 0;</span>
+<span class="nc" id="L643">      long denyRaw = 0;</span>
+<span class="nc bnc" id="L644" title="All 2 branches missed.">      if (allow != null) {</span>
+<span class="nc" id="L645">        Checks.noneNull(allow, &quot;Granted Permissions&quot;);</span>
+<span class="nc" id="L646">        allowRaw = Permission.getRaw(allow);</span>
+      }
+<span class="nc bnc" id="L648" title="All 2 branches missed.">      if (deny != null) {</span>
+<span class="nc" id="L649">        Checks.noneNull(deny, &quot;Denied Permissions&quot;);</span>
+<span class="nc" id="L650">        denyRaw = Permission.getRaw(deny);</span>
+      }
+<span class="nc" id="L652">      return addPermissionOverride(role, allowRaw, denyRaw);</span>
+    }
+
+    @Override
+    public String toJSONString() {
+<span class="nc" id="L657">      final JSONObject o = new JSONObject();</span>
+<span class="nc" id="L658">      o.put(&quot;name&quot;, name);</span>
+<span class="nc" id="L659">      o.put(&quot;type&quot;, type.getId());</span>
+<span class="nc bnc" id="L660" title="All 2 branches missed.">      if (topic != null) o.put(&quot;topic&quot;, topic);</span>
+<span class="nc bnc" id="L661" title="All 2 branches missed.">      if (nsfw != null) o.put(&quot;nsfw&quot;, nsfw);</span>
+<span class="nc bnc" id="L662" title="All 2 branches missed.">      if (bitrate != null) o.put(&quot;bitrate&quot;, bitrate);</span>
+<span class="nc bnc" id="L663" title="All 2 branches missed.">      if (userlimit != null) o.put(&quot;user_limit&quot;, userlimit);</span>
+<span class="nc bnc" id="L664" title="All 2 branches missed.">      if (position != null) o.put(&quot;position&quot;, position);</span>
+<span class="nc bnc" id="L665" title="All 2 branches missed.">      if (!overrides.isEmpty()) o.put(&quot;permission_overwrites&quot;, overrides);</span>
+<span class="nc" id="L666">      return o.toString();</span>
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

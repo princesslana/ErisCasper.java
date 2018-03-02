@@ -1,0 +1,421 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RichPresence.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">net.dv8tion.jda.core.entities</a> &gt; <span class="el_source">RichPresence.java</span></div><h1>RichPresence.java</h1><pre class="source lang-java linenums">/*
+ *     Copyright 2015-2018 Austin Keener &amp; Michael Ritter &amp; Florian Spieß
+ *     Copyright 2018-2018 &quot;Princess&quot; Lana Samson
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package net.dv8tion.jda.core.entities;
+
+import java.time.Instant;
+import java.time.temporal.TemporalUnit;
+import java.util.Objects;
+import net.dv8tion.jda.core.utils.Checks;
+
+/**
+ * Used to hold additional information about a users {@link net.dv8tion.jda.core.entities.Game Game}
+ * relevant to &lt;a href=&quot;https://discordapp.com/developers/docs/rich-presence/best-practices&quot;
+ * target=&quot;_blank&quot;&gt;Rich Presence&lt;/a&gt;.
+ *
+ * @since 3.4.0
+ */
+public class RichPresence extends Game {
+  protected final long applicationId;
+
+  protected final Party party;
+  protected final String details;
+  protected final String state;
+  protected final Timestamps timestamps;
+  protected final Image largeImage;
+  protected final Image smallImage;
+
+  protected RichPresence(
+      GameType type,
+      String name,
+      String url,
+      long applicationId,
+      Party party,
+      String details,
+      String state,
+      Timestamps timestamps,
+      String largeImageKey,
+      String largeImageText,
+      String smallImageKey,
+      String smallImageText) {
+<span class="nc" id="L54">    super(name, url, type);</span>
+<span class="nc" id="L55">    this.applicationId = applicationId;</span>
+<span class="nc" id="L56">    this.party = party;</span>
+<span class="nc" id="L57">    this.details = details;</span>
+<span class="nc" id="L58">    this.state = state;</span>
+<span class="nc" id="L59">    this.timestamps = timestamps;</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">    this.largeImage = largeImageKey != null ? new Image(largeImageKey, largeImageText) : null;</span>
+<span class="nc bnc" id="L61" title="All 2 branches missed.">    this.smallImage = smallImageKey != null ? new Image(smallImageKey, smallImageText) : null;</span>
+<span class="nc" id="L62">  }</span>
+
+  @Override
+  public boolean isRich() {
+<span class="nc" id="L66">    return true;</span>
+  }
+
+  @Override
+  public RichPresence asRichPresence() {
+<span class="nc" id="L71">    return this;</span>
+  }
+
+  /**
+   * The ID for the responsible application.
+   *
+   * @return The ID for the application
+   */
+  public long getApplicationIdLong() {
+<span class="nc" id="L80">    return applicationId;</span>
+  }
+
+  /**
+   * The ID for the responsible application.
+   *
+   * @return The ID for the application
+   */
+  public String getApplicationId() {
+<span class="nc" id="L89">    return Long.toUnsignedString(applicationId);</span>
+  }
+
+  /**
+   * The user's current party status &lt;br&gt;
+   * Example: &quot;Looking to Play&quot;, &quot;Playing Solo&quot;, &quot;In a Group&quot;
+   *
+   * @return The user's current party status
+   */
+  public String getState() {
+<span class="nc" id="L99">    return state;</span>
+  }
+
+  /**
+   * What the player is currently doing &lt;br&gt;
+   * Example: &quot;Competitive - Captain's Mode&quot;, &quot;In Queue&quot;, &quot;Unranked PvP&quot;
+   *
+   * @return What the player is currently doing
+   */
+  public String getDetails() {
+<span class="nc" id="L109">    return details;</span>
+  }
+
+  /**
+   * Information on the active party of the player
+   *
+   * @return {@link net.dv8tion.jda.core.entities.RichPresence.Party Party} wrapper or {@code null}
+   *     if unset
+   */
+  public Party getParty() {
+<span class="nc" id="L119">    return party;</span>
+  }
+
+  /**
+   * Information on the match duration, start, and end.
+   *
+   * @return {@link net.dv8tion.jda.core.entities.RichPresence.Timestamps Timestamps} wrapper of
+   *     {@code null} if unset
+   */
+  public Timestamps getTimestamps() {
+<span class="nc" id="L129">    return timestamps;</span>
+  }
+
+  /**
+   * Information on the large image displayed in the profile view
+   *
+   * @return {@link net.dv8tion.jda.core.entities.RichPresence.Image Image} wrapper or {@code null}
+   *     if unset
+   */
+  public Image getLargeImage() {
+<span class="nc" id="L139">    return largeImage;</span>
+  }
+
+  /**
+   * Information on the small corner image displayed in the profile view
+   *
+   * @return {@link net.dv8tion.jda.core.entities.RichPresence.Image Image} wrapper or {@code null}
+   *     if unset
+   */
+  public Image getSmallImage() {
+<span class="nc" id="L149">    return smallImage;</span>
+  }
+
+  @Override
+  public String toString() {
+<span class="nc" id="L154">    return String.format(&quot;RichPresence(%s / %s)&quot;, name, getApplicationId());</span>
+  }
+
+  @Override
+  public int hashCode() {
+<span class="nc" id="L159">    return Objects.hash(applicationId, state, details, party, timestamps, largeImage, smallImage);</span>
+  }
+
+  @Override
+  public boolean equals(Object o) {
+<span class="nc bnc" id="L164" title="All 2 branches missed.">    if (this == o) return true;</span>
+<span class="nc bnc" id="L165" title="All 2 branches missed.">    if (!(o instanceof RichPresence)) return false;</span>
+<span class="nc" id="L166">    RichPresence p = (RichPresence) o;</span>
+<span class="nc bnc" id="L167" title="All 2 branches missed.">    return applicationId == p.applicationId</span>
+<span class="nc bnc" id="L168" title="All 2 branches missed.">        &amp;&amp; Objects.equals(name, p.name)</span>
+<span class="nc bnc" id="L169" title="All 2 branches missed.">        &amp;&amp; Objects.equals(url, p.url)</span>
+<span class="nc bnc" id="L170" title="All 2 branches missed.">        &amp;&amp; Objects.equals(type, p.type)</span>
+<span class="nc bnc" id="L171" title="All 2 branches missed.">        &amp;&amp; Objects.equals(state, p.state)</span>
+<span class="nc bnc" id="L172" title="All 2 branches missed.">        &amp;&amp; Objects.equals(details, p.details)</span>
+<span class="nc bnc" id="L173" title="All 2 branches missed.">        &amp;&amp; Objects.equals(party, p.party)</span>
+<span class="nc bnc" id="L174" title="All 2 branches missed.">        &amp;&amp; Objects.equals(timestamps, p.timestamps)</span>
+<span class="nc bnc" id="L175" title="All 2 branches missed.">        &amp;&amp; Objects.equals(largeImage, p.largeImage)</span>
+<span class="nc bnc" id="L176" title="All 2 branches missed.">        &amp;&amp; Objects.equals(smallImage, p.smallImage);</span>
+  }
+
+  /** Used to hold information on images within a Rich Presence profile */
+  public class Image {
+    protected final String key;
+    protected final String text;
+
+<span class="nc" id="L184">    public Image(String key, String text) {</span>
+<span class="nc" id="L185">      this.key = key;</span>
+<span class="nc" id="L186">      this.text = text;</span>
+<span class="nc" id="L187">    }</span>
+
+    /**
+     * The key for this image, used for {@link #getUrl()}
+     *
+     * @return The key for this image
+     */
+    public String getKey() {
+<span class="nc" id="L195">      return key;</span>
+    }
+
+    /**
+     * Text which is displayed when hovering the image in the official client
+     *
+     * @return Hover text for this image, or {@code null}
+     */
+    public String getText() {
+<span class="nc" id="L204">      return text;</span>
+    }
+
+    /**
+     * URL for this image, combination of {@link #getApplicationId()} and {@link #getKey()}
+     *
+     * @return URL for this image
+     */
+    public String getUrl() {
+<span class="nc" id="L213">      return &quot;https://cdn.discordapp.com/app-assets/&quot; + applicationId + &quot;/&quot; + key + &quot;.png&quot;;</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="nc" id="L218">      return String.format(&quot;RichPresenceImage(%s | %s)&quot;, key, text);</span>
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+<span class="nc bnc" id="L223" title="All 2 branches missed.">      if (!(obj instanceof Image)) return false;</span>
+<span class="nc" id="L224">      Image i = (Image) obj;</span>
+<span class="nc bnc" id="L225" title="All 4 branches missed.">      return Objects.equals(key, i.key) &amp;&amp; Objects.equals(text, i.text);</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="nc" id="L230">      return Objects.hash(key, text);</span>
+    }
+  }
+
+  /** Represents the start and end timestamps for a running match */
+  public static class Timestamps {
+    protected final long start;
+
+    protected final long end;
+
+<span class="nc" id="L240">    public Timestamps(long start, long end) {</span>
+<span class="nc" id="L241">      this.start = start;</span>
+<span class="nc" id="L242">      this.end = end;</span>
+<span class="nc" id="L243">    }</span>
+
+    /**
+     * Epoch second timestamp of match start, or {@code 0} of unset.
+     *
+     * @return Epoch second timestamp of match start, or {@code 0} of unset.
+     */
+    public long getStart() {
+<span class="nc" id="L251">      return start;</span>
+    }
+
+    /**
+     * Shortcut for {@code Instant.ofEpochSecond(start)}
+     *
+     * @return Instant of match start, or {@code null} if unset
+     */
+    public Instant getStartTime() {
+<span class="nc bnc" id="L260" title="All 2 branches missed.">      return start &lt;= 0 ? null : Instant.ofEpochMilli(start);</span>
+    }
+
+    /**
+     * Epoch second timestamp of match end, or {@code 0} of unset.
+     *
+     * @return Epoch second timestamp of match end, or {@code 0} of unset.
+     */
+    public long getEnd() {
+<span class="nc" id="L269">      return end;</span>
+    }
+
+    /**
+     * Shortcut for {@code Instant.ofEpochSecond(start)}
+     *
+     * @return Instant of match start, or {@code null} if unset
+     */
+    public Instant getEndTime() {
+<span class="nc bnc" id="L278" title="All 2 branches missed.">      return end &lt;= 0 ? null : Instant.ofEpochMilli(end);</span>
+    }
+
+    /**
+     * Calculates the amount of time until {@link #getEndTime()} in terms of the specified unit.
+     * &lt;br&gt;
+     * If {@link #getEndTime()} is {@code null} this will be negative.
+     *
+     * @param unit The {@link java.time.temporal.TemporalUnit TemporalUnit} to return
+     * @throws IllegalArgumentException If the provided unit is {@code null}
+     * @throws ArithmeticException If a numeric overflow occurs
+     * @throws java.time.DateTimeException If the amount cannot be calculated
+     * @throws java.time.temporal.UnsupportedTemporalTypeException If the provided unit is not
+     *     supported
+     * @return Remaining time in the provided {@link java.time.temporal.TemporalUnit TemporalUnit}
+     *     or {@code -1} if unset
+     * @see java.time.Instant#until(java.time.temporal.Temporal, java.time.temporal.TemporalUnit)
+     *     Instant.until(Temporal, TemporalUnit)
+     * @see java.time.temporal.TemporalUnit
+     */
+    public long getRemainingTime(TemporalUnit unit) {
+<span class="nc" id="L299">      Checks.notNull(unit, &quot;TemporalUnit&quot;);</span>
+<span class="nc" id="L300">      Instant end = getEndTime();</span>
+<span class="nc bnc" id="L301" title="All 2 branches missed.">      return end != null ? Instant.now().until(end, unit) : -1;</span>
+    }
+
+    /**
+     * Calculates the elapsed time from {@link #getStartTime()} to now in terms of the specified
+     * unit. &lt;br&gt;
+     * If {@link #getStartTime()} is {@code null} this will be negative.
+     *
+     * @param unit The {@link java.time.temporal.TemporalUnit TemporalUnit} to return
+     * @throws IllegalArgumentException If the provided unit is {@code null}
+     * @throws ArithmeticException If a numeric overflow occurs
+     * @throws java.time.DateTimeException If the amount cannot be calculated
+     * @throws java.time.temporal.UnsupportedTemporalTypeException If the provided unit is not
+     *     supported
+     * @return Elapsed time in the provided {@link java.time.temporal.TemporalUnit TemporalUnit} or
+     *     {@code -1} if unset
+     * @see java.time.Instant#until(java.time.temporal.Temporal, java.time.temporal.TemporalUnit)
+     *     Instant.until(Temporal, TemporalUnit)
+     * @see java.time.temporal.TemporalUnit
+     */
+    public long getElapsedTime(TemporalUnit unit) {
+<span class="nc" id="L322">      Checks.notNull(unit, &quot;TemporalUnit&quot;);</span>
+<span class="nc" id="L323">      Instant start = getStartTime();</span>
+<span class="nc bnc" id="L324" title="All 2 branches missed.">      return start != null ? start.until(Instant.now(), unit) : -1;</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="nc" id="L329">      return String.format(&quot;RichPresenceTimestamp(%d-%d)&quot;, start, end);</span>
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+<span class="nc bnc" id="L334" title="All 2 branches missed.">      if (!(obj instanceof Timestamps)) return false;</span>
+<span class="nc" id="L335">      Timestamps t = (Timestamps) obj;</span>
+<span class="nc bnc" id="L336" title="All 4 branches missed.">      return start == t.start &amp;&amp; end == t.end;</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="nc" id="L341">      return Objects.hash(start, end);</span>
+    }
+  }
+
+  /** Holds information on a player's party */
+  public static class Party {
+    protected final String id;
+    protected final long size;
+
+    protected final long max;
+
+<span class="nc" id="L352">    public Party(String id, long size, long max) {</span>
+<span class="nc" id="L353">      this.id = id;</span>
+<span class="nc" id="L354">      this.size = size;</span>
+<span class="nc" id="L355">      this.max = max;</span>
+<span class="nc" id="L356">    }</span>
+
+    /**
+     * ID for this party, relevant to the game.
+     *
+     * @return The ID for this party, or {@code null} if unset
+     */
+    public String getId() {
+<span class="nc" id="L364">      return id;</span>
+    }
+
+    /**
+     * The current size of this party, or {@code 0} if unset
+     *
+     * @return The current size of this party, or {@code 0} if unset
+     */
+    public int getSize() {
+<span class="nc" id="L373">      return (int) size;</span>
+    }
+
+    /**
+     * The current size of this party, or {@code 0} if unset
+     *
+     * @return The current size of this party, or {@code 0} if unset
+     */
+    public long getSizeAsLong() {
+<span class="nc" id="L382">      return size;</span>
+    }
+
+    /**
+     * The maximum size of this party, or {@code 0} if unset
+     *
+     * @return The maximum size of this party, or {@code 0} if unset
+     */
+    public int getMax() {
+<span class="nc" id="L391">      return (int) max;</span>
+    }
+
+    /**
+     * The maximum size of this party, or {@code 0} if unset
+     *
+     * @return The maximum size of this party, or {@code 0} if unset
+     */
+    public long getMaxAsLong() {
+<span class="nc" id="L400">      return max;</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="nc" id="L405">      return String.format(&quot;RichPresenceParty(%s | [%d, %d])&quot;, id, size, max);</span>
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+<span class="nc bnc" id="L410" title="All 2 branches missed.">      if (!(obj instanceof Party)) return false;</span>
+<span class="nc" id="L411">      Party p = (Party) obj;</span>
+<span class="nc bnc" id="L412" title="All 6 branches missed.">      return size == p.size &amp;&amp; max == p.max &amp;&amp; Objects.equals(id, p.id);</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="nc" id="L417">      return Objects.hash(id, size, max);</span>
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

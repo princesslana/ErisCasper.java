@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ClientRateLimiter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">net.dv8tion.jda.core.requests.ratelimit</a> &gt; <span class="el_source">ClientRateLimiter.java</span></div><h1>ClientRateLimiter.java</h1><pre class="source lang-java linenums">/*
+ *     Copyright 2015-2018 Austin Keener &amp; Michael Ritter &amp; Florian Spieß
+ *     Copyright 2018-2018 &quot;Princess&quot; Lana Samson
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package net.dv8tion.jda.core.requests.ratelimit;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Iterator;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.TimeUnit;
+import net.dv8tion.jda.core.entities.impl.JDAImpl;
+import net.dv8tion.jda.core.events.ExceptionEvent;
+import net.dv8tion.jda.core.requests.RateLimiter;
+import net.dv8tion.jda.core.requests.Request;
+import net.dv8tion.jda.core.requests.Requester;
+import net.dv8tion.jda.core.requests.Route;
+import net.dv8tion.jda.core.requests.Route.RateLimit;
+import org.json.JSONObject;
+import org.json.JSONTokener;
+
+public class ClientRateLimiter extends RateLimiter {
+<span class="nc" id="L37">  volatile Long globalCooldown = null;</span>
+
+  public ClientRateLimiter(Requester requester, int poolSize) {
+<span class="nc" id="L40">    super(requester, poolSize);</span>
+<span class="nc" id="L41">  }</span>
+
+  @Override
+  public Long getRateLimit(Route.CompiledRoute route) {
+<span class="nc" id="L45">    Bucket bucket = getBucket(route);</span>
+<span class="nc" id="L46">    synchronized (bucket) {</span>
+<span class="nc" id="L47">      return bucket.getRateLimit();</span>
+    }
+  }
+
+  @Override
+  protected void queueRequest(Request request) {
+<span class="nc" id="L53">    Bucket bucket = getBucket(request.getRoute());</span>
+<span class="nc" id="L54">    synchronized (bucket) {</span>
+<span class="nc" id="L55">      bucket.addToQueue(request);</span>
+<span class="nc" id="L56">    }</span>
+<span class="nc" id="L57">  }</span>
+
+  @Override
+  protected Long handleResponse(Route.CompiledRoute route, okhttp3.Response response) {
+<span class="nc" id="L61">    Bucket bucket = getBucket(route);</span>
+<span class="nc" id="L62">    synchronized (bucket) {</span>
+<span class="nc" id="L63">      long now = System.currentTimeMillis();</span>
+<span class="nc" id="L64">      int code = response.code();</span>
+<span class="nc bnc" id="L65" title="All 2 branches missed.">      if (code == 429) {</span>
+<span class="nc" id="L66">        try (InputStream in = Requester.getBody(response)) {</span>
+<span class="nc" id="L67">          JSONObject limitObj = new JSONObject(new JSONTokener(in));</span>
+<span class="nc" id="L68">          long retryAfter = limitObj.getLong(&quot;retry_after&quot;);</span>
+
+<span class="nc bnc" id="L70" title="All 4 branches missed.">          if (limitObj.has(&quot;global&quot;) &amp;&amp; limitObj.getBoolean(&quot;global&quot;)) // Global ratelimit</span>
+<span class="nc" id="L71">          globalCooldown = now + retryAfter;</span>
+<span class="nc" id="L72">          else bucket.retryAfter = now + retryAfter;</span>
+
+<span class="nc" id="L74">          return retryAfter;</span>
+<span class="nc" id="L75">        } catch (IOException e) {</span>
+<span class="nc" id="L76">          throw new IllegalStateException(e);</span>
+        }
+      } else {
+<span class="nc" id="L79">        return null;</span>
+      }
+    }
+  }
+
+  private Bucket getBucket(Route.CompiledRoute route) {
+<span class="nc" id="L85">    String baseRoute = route.getBaseRoute().getRoute();</span>
+<span class="nc" id="L86">    Bucket bucket = (Bucket) buckets.get(baseRoute);</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">    if (bucket == null) {</span>
+<span class="nc" id="L88">      synchronized (buckets) {</span>
+<span class="nc" id="L89">        bucket = (Bucket) buckets.get(baseRoute);</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">        if (bucket == null) {</span>
+<span class="nc" id="L91">          bucket = new Bucket(baseRoute, route.getBaseRoute().getRatelimit());</span>
+<span class="nc" id="L92">          buckets.put(baseRoute, bucket);</span>
+        }
+<span class="nc" id="L94">      }</span>
+    }
+<span class="nc" id="L96">    return bucket;</span>
+  }
+
+  private class Bucket implements IBucket, Runnable {
+    final String route;
+    final RateLimit rateLimit;
+<span class="nc" id="L102">    final ConcurrentLinkedQueue&lt;Request&gt; requests = new ConcurrentLinkedQueue&lt;&gt;();</span>
+<span class="nc" id="L103">    volatile long retryAfter = 0;</span>
+
+<span class="nc" id="L105">    public Bucket(String route, RateLimit rateLimit) {</span>
+<span class="nc" id="L106">      this.route = route;</span>
+<span class="nc" id="L107">      this.rateLimit = rateLimit;</span>
+<span class="nc" id="L108">    }</span>
+
+    void addToQueue(Request request) {
+<span class="nc" id="L111">      requests.add(request);</span>
+<span class="nc" id="L112">      submitForProcessing();</span>
+<span class="nc" id="L113">    }</span>
+
+    void submitForProcessing() {
+<span class="nc" id="L116">      synchronized (submittedBuckets) {</span>
+<span class="nc bnc" id="L117" title="All 2 branches missed.">        if (!submittedBuckets.contains(this)) {</span>
+<span class="nc" id="L118">          Long delay = getRateLimit();</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">          if (delay == null) delay = 0L;</span>
+
+<span class="nc" id="L121">          pool.schedule(this, delay, TimeUnit.MILLISECONDS);</span>
+<span class="nc" id="L122">          submittedBuckets.add(this);</span>
+        }
+<span class="nc" id="L124">      }</span>
+<span class="nc" id="L125">    }</span>
+
+    Long getRateLimit() {
+<span class="nc" id="L128">      long now = System.currentTimeMillis();</span>
+<span class="nc bnc" id="L129" title="All 2 branches missed.">      if (globalCooldown != null) // Are we on global cooldown?</span>
+      {
+<span class="nc bnc" id="L131" title="All 2 branches missed.">        if (now &gt; globalCooldown) // Verify that we should still be on cooldown.</span>
+        {
+<span class="nc" id="L133">          globalCooldown =</span>
+              null; // If we are done cooling down, reset the globalCooldown and continue.
+        } else {
+<span class="nc" id="L136">          return globalCooldown</span>
+              - now; // If we should still be on cooldown, return when we can go again.
+        }
+      }
+<span class="nc bnc" id="L140" title="All 2 branches missed.">      if (this.retryAfter &gt; now) {</span>
+<span class="nc" id="L141">        return this.retryAfter - now;</span>
+      } else {
+<span class="nc" id="L143">        return null;</span>
+      }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+<span class="nc bnc" id="L149" title="All 2 branches missed.">      if (!(o instanceof Bucket)) return false;</span>
+
+<span class="nc" id="L151">      Bucket oBucket = (Bucket) o;</span>
+<span class="nc" id="L152">      return route.equals(oBucket.route);</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="nc" id="L157">      return route.hashCode();</span>
+    }
+
+    @Override
+    public void run() {
+      try {
+<span class="nc" id="L163">        synchronized (requests) {</span>
+<span class="nc bnc" id="L164" title="All 2 branches missed.">          for (Iterator&lt;Request&gt; it = requests.iterator(); it.hasNext(); ) {</span>
+<span class="nc" id="L165">            Request request = null;</span>
+            try {
+<span class="nc" id="L167">              request = it.next();</span>
+<span class="nc bnc" id="L168" title="All 2 branches missed.">              if (isSkipped(it, request)) continue;</span>
+<span class="nc" id="L169">              Long retryAfter = requester.execute(request);</span>
+<span class="nc bnc" id="L170" title="All 2 branches missed.">              if (retryAfter != null) break;</span>
+<span class="nc" id="L171">              else it.remove();</span>
+<span class="nc" id="L172">            } catch (Throwable t) {</span>
+<span class="nc" id="L173">              Requester.LOG.error(&quot;Error executing REST request&quot;, t);</span>
+<span class="nc" id="L174">              it.remove();</span>
+<span class="nc bnc" id="L175" title="All 2 branches missed.">              if (request != null) request.onFailure(t);</span>
+<span class="nc" id="L176">            }</span>
+<span class="nc" id="L177">          }</span>
+
+<span class="nc" id="L179">          synchronized (submittedBuckets) {</span>
+<span class="nc" id="L180">            submittedBuckets.remove(this);</span>
+<span class="nc bnc" id="L181" title="All 2 branches missed.">            if (!requests.isEmpty()) {</span>
+              try {
+<span class="nc" id="L183">                this.submitForProcessing();</span>
+<span class="nc" id="L184">              } catch (RejectedExecutionException e) {</span>
+<span class="nc" id="L185">                Requester.LOG.debug(</span>
+                    &quot;Caught RejectedExecutionException when re-queuing a ratelimited request. The requester is probably shutdown, thus, this can be ignored.&quot;);
+<span class="nc" id="L187">              }</span>
+            }
+<span class="nc" id="L189">          }</span>
+<span class="nc" id="L190">        }</span>
+<span class="nc" id="L191">      } catch (Throwable err) {</span>
+<span class="nc" id="L192">        Requester.LOG.error(&quot;There was some exception in the ClientRateLimiter&quot;, err);</span>
+<span class="nc bnc" id="L193" title="All 2 branches missed.">        if (err instanceof Error) {</span>
+<span class="nc" id="L194">          JDAImpl api = requester.getJDA();</span>
+<span class="nc" id="L195">          api.getEventManager().handle(new ExceptionEvent(api, err, true));</span>
+        }
+<span class="nc" id="L197">      }</span>
+<span class="nc" id="L198">    }</span>
+
+    @Override
+    public RateLimit getRatelimit() {
+<span class="nc" id="L202">      return rateLimit;</span>
+    }
+
+    @Override
+    public String getRoute() {
+<span class="nc" id="L207">      return route;</span>
+    }
+
+    @Override
+    public Queue&lt;Request&gt; getRequests() {
+<span class="nc" id="L212">      return requests;</span>
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

@@ -1,0 +1,527 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Route.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">net.dv8tion.jda.core.requests</a> &gt; <span class="el_source">Route.java</span></div><h1>Route.java</h1><pre class="source lang-java linenums">/*
+ *     Copyright 2015-2018 Austin Keener &amp; Michael Ritter &amp; Florian Spieß
+ *     Copyright 2018-2018 &quot;Princess&quot; Lana Samson
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package net.dv8tion.jda.core.requests;
+
+import static net.dv8tion.jda.core.requests.Method.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import net.dv8tion.jda.core.utils.Checks;
+import net.dv8tion.jda.core.utils.Helpers;
+
+public class Route {
+<span class="nc" id="L29">  public static class Misc {</span>
+<span class="nc" id="L30">    public static final Route GET_VOICE_REGIONS = new Route(GET, &quot;voice/regions&quot;);</span>
+<span class="nc" id="L31">    public static final Route GATEWAY = new Route(GET, &quot;gateway&quot;);</span>
+<span class="nc" id="L32">    public static final Route GATEWAY_BOT = new Route(GET, &quot;gateway/bot&quot;);</span>
+<span class="nc" id="L33">    public static final Route TRACK = new Route(POST, &quot;track&quot;);</span>
+  }
+
+<span class="nc" id="L36">  public static class Applications {</span>
+    // Bot only
+<span class="nc" id="L38">    public static final Route GET_BOT_APPLICATION = new Route(GET, &quot;oauth2/applications/@me&quot;);</span>
+
+    // Client only
+<span class="nc" id="L41">    public static final Route GET_APPLICATIONS = new Route(GET, &quot;oauth2/applications&quot;);</span>
+<span class="nc" id="L42">    public static final Route CREATE_APPLICATION = new Route(POST, &quot;oauth2/applications&quot;);</span>
+<span class="nc" id="L43">    public static final Route GET_APPLICATION =</span>
+        new Route(GET, &quot;oauth2/applications/{application_id}&quot;);
+<span class="nc" id="L45">    public static final Route MODIFY_APPLICATION =</span>
+        new Route(PUT, &quot;oauth2/applications/{application_id}&quot;);
+<span class="nc" id="L47">    public static final Route DELETE_APPLICATION =</span>
+        new Route(DELETE, &quot;oauth2/applications/{application_id}&quot;);
+
+<span class="nc" id="L50">    public static final Route CREATE_BOT =</span>
+        new Route(POST, &quot;oauth2/applications/{application_id}/bot&quot;);
+
+<span class="nc" id="L53">    public static final Route RESET_APPLICATION_SECRET =</span>
+        new Route(POST, &quot;oauth2/applications/{application_id}/reset&quot;);
+<span class="nc" id="L55">    public static final Route RESET_BOT_TOKEN =</span>
+        new Route(POST, &quot;oauth2/applications/{application_id}/bot/reset&quot;);
+
+<span class="nc" id="L58">    public static final Route GET_AUTHORIZED_APPLICATIONS = new Route(GET, &quot;oauth2/tokens&quot;);</span>
+<span class="nc" id="L59">    public static final Route GET_AUTHORIZED_APPLICATION =</span>
+        new Route(GET, &quot;oauth2/tokens/{auth_id}&quot;);
+<span class="nc" id="L61">    public static final Route DELETE_AUTHORIZED_APPLICATION =</span>
+        new Route(DELETE, &quot;oauth2/tokens/{auth_id}&quot;);
+  }
+
+<span class="nc" id="L65">  public static class Self {</span>
+<span class="nc" id="L66">    public static final Route GET_SELF = new Route(GET, &quot;users/@me&quot;);</span>
+<span class="nc" id="L67">    public static final Route MODIFY_SELF = new Route(PATCH, &quot;users/@me&quot;);</span>
+<span class="nc" id="L68">    public static final Route GET_GUILDS = new Route(GET, &quot;users/@me/guilds&quot;);</span>
+<span class="nc" id="L69">    public static final Route LEAVE_GUILD = new Route(DELETE, &quot;users/@me/guilds/{guild_id}&quot;);</span>
+<span class="nc" id="L70">    public static final Route GET_PRIVATE_CHANNELS = new Route(GET, &quot;users/@me/channels&quot;);</span>
+<span class="nc" id="L71">    public static final Route CREATE_PRIVATE_CHANNEL = new Route(POST, &quot;users/@me/channels&quot;);</span>
+
+<span class="nc" id="L73">    public static final Route GATEWAY_BOT = new Route(GET, &quot;gateway/bot&quot;);</span>
+
+    // Client only
+<span class="nc" id="L76">    public static final Route USER_SETTINGS = new Route(GET, &quot;users/@me/settings&quot;);</span>
+<span class="nc" id="L77">    public static final Route GET_CONNECTIONS = new Route(GET, &quot;users/@me/connections&quot;);</span>
+<span class="nc" id="L78">    public static final Route FRIEND_SUGGESTIONS = new Route(GET, &quot;friend-suggestions&quot;);</span>
+<span class="nc" id="L79">    public static final Route GET_RECENT_MENTIONS = new Route(GET, &quot;users/@me/mentions&quot;);</span>
+  }
+
+<span class="nc" id="L82">  public static class Users {</span>
+<span class="nc" id="L83">    public static final Route GET_USER = new Route(GET, &quot;users/{user_id}&quot;);</span>
+<span class="nc" id="L84">    public static final Route GET_PROFILE = new Route(GET, &quot;users/{user_id}/profile&quot;);</span>
+<span class="nc" id="L85">    public static final Route GET_NOTE = new Route(GET, &quot;users/@me/notes/{user_id}&quot;);</span>
+<span class="nc" id="L86">    public static final Route SET_NOTE = new Route(PUT, &quot;users/@me/notes/{user_id}&quot;);</span>
+  }
+
+<span class="nc" id="L89">  public static class Relationships {</span>
+<span class="nc" id="L90">    public static final Route GET_RELATIONSHIPS =</span>
+        new Route(GET, &quot;users/@me/relationships&quot;); // Get Friends/Blocks/Incoming/Outgoing
+<span class="nc" id="L92">    public static final Route GET_RELATIONSHIP =</span>
+        new Route(GET, &quot;users/@me/relationships/{user_id}&quot;);
+<span class="nc" id="L94">    public static final Route ADD_RELATIONSHIP =</span>
+        new Route(PUT, &quot;users/@me/relationships/{user_id}&quot;); // Add Friend/ Block
+<span class="nc" id="L96">    public static final Route DELETE_RELATIONSHIP =</span>
+        new Route(
+            DELETE,
+            &quot;users/@me/relationships/{user_id}&quot;); // Delete Block/Unfriend/Ignore Request/Cancel
+    // Outgoing
+  }
+
+<span class="nc" id="L103">  public static class Guilds {</span>
+<span class="nc" id="L104">    public static final Route GET_GUILD = new Route(GET, &quot;guilds/{guild_id}&quot;, &quot;guild_id&quot;);</span>
+<span class="nc" id="L105">    public static final Route MODIFY_GUILD = new Route(PATCH, &quot;guilds/{guild_id}&quot;, &quot;guild_id&quot;);</span>
+<span class="nc" id="L106">    public static final Route GET_VANITY_URL =</span>
+        new Route(GET, &quot;guilds/{guild_id}/vanity-url&quot;, &quot;guild_id&quot;);
+<span class="nc" id="L108">    public static final Route CREATE_CHANNEL =</span>
+        new Route(POST, &quot;guilds/{guild_id}/channels&quot;, &quot;guild_id&quot;);
+<span class="nc" id="L110">    public static final Route GET_CHANNELS =</span>
+        new Route(GET, &quot;guilds/{guild_id}/channels&quot;, &quot;guild_id&quot;);
+<span class="nc" id="L112">    public static final Route MODIFY_CHANNELS =</span>
+        new Route(PATCH, &quot;guilds/{guild_id}/channels&quot;, &quot;guild_id&quot;);
+<span class="nc" id="L114">    public static final Route MODIFY_ROLES =</span>
+        new Route(PATCH, &quot;guilds/{guild_id}/roles&quot;, &quot;guild_id&quot;);
+<span class="nc" id="L116">    public static final Route GET_BANS = new Route(GET, &quot;guilds/{guild_id}/bans&quot;, &quot;guild_id&quot;);</span>
+<span class="nc" id="L117">    public static final Route UNBAN =</span>
+        new Route(DELETE, &quot;guilds/{guild_id}/bans/{user_id}&quot;, &quot;guild_id&quot;);
+<span class="nc" id="L119">    public static final Route BAN = new Route(PUT, &quot;guilds/{guild_id}/bans/{user_id}&quot;, &quot;guild_id&quot;);</span>
+<span class="nc" id="L120">    public static final Route KICK_MEMBER =</span>
+        new Route(DELETE, &quot;guilds/{guild_id}/members/{user_id}&quot;, &quot;guild_id&quot;);
+<span class="nc" id="L122">    public static final Route MODIFY_MEMBER =</span>
+        new Route(PATCH, &quot;guilds/{guild_id}/members/{user_id}&quot;, &quot;guild_id&quot;);
+<span class="nc" id="L124">    public static final Route MODIFY_SELF_NICK =</span>
+        new Route(PATCH, &quot;guilds/{guild_id}/members/@me/nick&quot;, &quot;guild_id&quot;);
+<span class="nc" id="L126">    public static final Route PRUNABLE_COUNT =</span>
+        new Route(GET, &quot;guilds/{guild_id}/prune&quot;, &quot;guild_id&quot;);
+<span class="nc" id="L128">    public static final Route PRUNE_MEMBERS =</span>
+        new Route(POST, &quot;guilds/{guild_id}/prune&quot;, &quot;guild_id&quot;);
+<span class="nc" id="L130">    public static final Route GET_WEBHOOKS =</span>
+        new Route(GET, &quot;guilds/{guild_id}/webhooks&quot;, &quot;guild_id&quot;);
+<span class="nc" id="L132">    public static final Route GET_GUILD_EMBED =</span>
+        new Route(GET, &quot;guilds/{guild_id}/embed&quot;, &quot;guild_id&quot;);
+<span class="nc" id="L134">    public static final Route MODIFY_GUILD_EMBED =</span>
+        new Route(PATCH, &quot;guilds/{guild_id}/embed&quot;, &quot;guild_id&quot;);
+<span class="nc" id="L136">    public static final Route GET_GUILD_EMOTES =</span>
+        new Route(GET, &quot;guilds/{guild_id}/emojis&quot;, &quot;guild_id&quot;);
+<span class="nc" id="L138">    public static final Route GET_AUDIT_LOGS =</span>
+        new Route(GET, &quot;guilds/{guild_id}/audit-logs&quot;, &quot;guild_id&quot;);
+
+<span class="nc" id="L141">    public static final Route GET_INTEGRATIONS =</span>
+        new Route(GET, &quot;guilds/{guild_id}/integrations&quot;, &quot;guild_id&quot;);
+<span class="nc" id="L143">    public static final Route CREATE_INTEGRATION =</span>
+        new Route(POST, &quot;guilds/{guild_id}/integrations&quot;, &quot;guild_id&quot;);
+<span class="nc" id="L145">    public static final Route DELETE_INTEGRATION =</span>
+        new Route(DELETE, &quot;guilds/{guild_id}/integrations/{integration_id}&quot;, &quot;guild_id&quot;);
+<span class="nc" id="L147">    public static final Route MODIFY_INTEGRATION =</span>
+        new Route(PATCH, &quot;guilds/{guild_id}/integrations/{integration_id}&quot;, &quot;guild_id&quot;);
+<span class="nc" id="L149">    public static final Route SYNC_INTEGRATION =</span>
+        new Route(POST, &quot;guilds/{guild_id}/integrations/{integration_id}/sync&quot;, &quot;guild_id&quot;);
+
+<span class="nc" id="L152">    public static final Route ADD_MEMBER_ROLE =</span>
+        new Route(PUT, &quot;guilds/{guild_id}/members/{user_id}/roles/{role_id}&quot;, &quot;guild_id&quot;);
+<span class="nc" id="L154">    public static final Route REMOVE_MEMBER_ROLE =</span>
+        new Route(DELETE, &quot;guilds/{guild_id}/members/{user_id}/roles/{role_id}&quot;, &quot;guild_id&quot;);
+
+    // Client Only
+<span class="nc" id="L158">    public static final Route CREATE_GUILD = new Route(POST, &quot;guilds&quot;);</span>
+<span class="nc" id="L159">    public static final Route DELETE_GUILD = new Route(POST, &quot;guilds/{guild_id}/delete&quot;);</span>
+<span class="nc" id="L160">    public static final Route ACK_GUILD = new Route(POST, &quot;guilds/{guild_id}/ack&quot;);</span>
+
+<span class="nc" id="L162">    public static final Route MODIFY_NOTIFICATION_SETTINGS =</span>
+        new Route(PATCH, &quot;users/@me/guilds/{guild_id}/settings&quot;);
+  }
+
+<span class="nc" id="L166">  public static class Emotes {</span>
+    // These are all client endpoints and thus don't need defined major parameters
+<span class="nc" id="L168">    public static final Route MODIFY_EMOTE =</span>
+        new Route(PATCH, &quot;guilds/{guild_id}/emojis/{emote_id}&quot;);
+<span class="nc" id="L170">    public static final Route DELETE_EMOTE =</span>
+        new Route(DELETE, &quot;guilds/{guild_id}/emojis/{emote_id}&quot;);
+<span class="nc" id="L172">    public static final Route CREATE_EMOTE = new Route(POST, &quot;guilds/{guild_id}/emojis&quot;);</span>
+  }
+
+<span class="nc" id="L175">  public static class Webhooks {</span>
+<span class="nc" id="L176">    public static final Route GET_WEBHOOK = new Route(GET, &quot;webhooks/{webhook_id}&quot;);</span>
+<span class="nc" id="L177">    public static final Route GET_TOKEN_WEBHOOK = new Route(GET, &quot;webhooks/{webhook_id}/{token}&quot;);</span>
+<span class="nc" id="L178">    public static final Route DELETE_WEBHOOK = new Route(DELETE, &quot;webhooks/{webhook_id}&quot;);</span>
+<span class="nc" id="L179">    public static final Route DELETE_TOKEN_WEBHOOK =</span>
+        new Route(DELETE, &quot;webhooks/{webhook_id}/{token}&quot;);
+<span class="nc" id="L181">    public static final Route MODIFY_WEBHOOK = new Route(PATCH, &quot;webhooks/{webhook_id}&quot;);</span>
+<span class="nc" id="L182">    public static final Route MODIFY_TOKEN_WEBHOOK =</span>
+        new Route(PATCH, &quot;webhooks/{webhook_id}/{token}&quot;);
+
+    // Separate
+<span class="nc" id="L186">    public static final Route EXECUTE_WEBHOOK =</span>
+        new Route(POST, &quot;webhooks/{webhook_id}/{token}&quot;, &quot;webhook_id&quot;);
+<span class="nc" id="L188">    public static final Route EXECUTE_WEBHOOK_SLACK =</span>
+        new Route(POST, &quot;webhooks/{webhook_id}/{token}/slack&quot;, &quot;webhook_id&quot;);
+<span class="nc" id="L190">    public static final Route EXECUTE_WEBHOOK_GITHUB =</span>
+        new Route(POST, &quot;webhooks/{webhook_id}/{token}/github&quot;, &quot;webhook_id&quot;);
+  }
+
+<span class="nc" id="L194">  public static class Roles {</span>
+<span class="nc" id="L195">    public static final Route GET_ROLES = new Route(GET, &quot;guilds/{guild_id}/roles&quot;, &quot;guild_id&quot;);</span>
+<span class="nc" id="L196">    public static final Route CREATE_ROLE = new Route(POST, &quot;guilds/{guild_id}/roles&quot;, &quot;guild_id&quot;);</span>
+<span class="nc" id="L197">    public static final Route GET_ROLE =</span>
+        new Route(GET, &quot;guilds/{guild_id}/roles/{role_id}&quot;, &quot;guild_id&quot;);
+<span class="nc" id="L199">    public static final Route MODIFY_ROLE =</span>
+        new Route(PATCH, &quot;guilds/{guild_id}/roles/{role_id}&quot;, &quot;guild_id&quot;);
+<span class="nc" id="L201">    public static final Route DELETE_ROLE =</span>
+        new Route(DELETE, &quot;guilds/{guild_id}/roles/{role_id}&quot;, &quot;guild_id&quot;);
+  }
+
+<span class="nc" id="L205">  public static class Channels {</span>
+<span class="nc" id="L206">    public static final Route DELETE_CHANNEL = new Route(DELETE, &quot;channels/{channel_id}&quot;);</span>
+<span class="nc" id="L207">    public static final Route MODIFY_CHANNEL =</span>
+        new Route(PATCH, &quot;channels/{channel_id}&quot;, &quot;channel_id&quot;);
+<span class="nc" id="L209">    public static final Route SEND_TYPING =</span>
+        new Route(POST, &quot;channels/{channel_id}/typing&quot;, &quot;channel_id&quot;);
+<span class="nc" id="L211">    public static final Route GET_PERMISSIONS =</span>
+        new Route(GET, &quot;channels/{channel_id}/permissions&quot;, &quot;channel_id&quot;);
+<span class="nc" id="L213">    public static final Route GET_PERM_OVERRIDE =</span>
+        new Route(GET, &quot;channels/{channel_id}/permissions/{permoverride_id}&quot;, &quot;channel_id&quot;);
+<span class="nc" id="L215">    public static final Route GET_WEBHOOKS =</span>
+        new Route(GET, &quot;channels/{channel_id}/webhooks&quot;, &quot;channel_id&quot;);
+<span class="nc" id="L217">    public static final Route CREATE_WEBHOOK =</span>
+        new Route(POST, &quot;channels/{channel_id}/webhooks&quot;, &quot;channel_id&quot;);
+<span class="nc" id="L219">    public static final Route CREATE_PERM_OVERRIDE =</span>
+        new Route(PUT, &quot;channels/{channel_id}/permissions/{permoverride_id}&quot;, &quot;channel_id&quot;);
+<span class="nc" id="L221">    public static final Route MODIFY_PERM_OVERRIDE =</span>
+        new Route(PUT, &quot;channels/{channel_id}/permissions/{permoverride_id}&quot;, &quot;channel_id&quot;);
+<span class="nc" id="L223">    public static final Route DELETE_PERM_OVERRIDE =</span>
+        new Route(DELETE, &quot;channels/{channel_id}/permissions/{permoverride_id}&quot;, &quot;channel_id&quot;);
+
+    // Client Only
+<span class="nc" id="L227">    public static final Route GET_RECIPIENTS = new Route(GET, &quot;channels/{channel_id}/recipients&quot;);</span>
+<span class="nc" id="L228">    public static final Route GET_RECIPIENT =</span>
+        new Route(GET, &quot;channels/{channel_id}/recipients/{user_id}&quot;);
+<span class="nc" id="L230">    public static final Route ADD_RECIPIENT =</span>
+        new Route(PUT, &quot;channels/{channel_id}/recipients/{user_id}&quot;);
+<span class="nc" id="L232">    public static final Route REMOVE_RECIPIENT =</span>
+        new Route(DELETE, &quot;channels/{channel_id}/recipients/{user_id}&quot;);
+<span class="nc" id="L234">    public static final Route START_CALL = new Route(POST, &quot;channels/{channel_id}/call/ring&quot;);</span>
+<span class="nc" id="L235">    public static final Route STOP_CALL =</span>
+        new Route(POST, &quot;channels/{channel_id}/call/stop_ringing&quot;); // aka deny or end call
+  }
+
+<span class="nc" id="L239">  public static class Messages {</span>
+<span class="nc" id="L240">    public static final Route SEND_MESSAGE =</span>
+        new Route(POST, &quot;channels/{channel_id}/messages&quot;, &quot;channel_id&quot;);
+<span class="nc" id="L242">    public static final Route EDIT_MESSAGE =</span>
+        new Route(PATCH, &quot;channels/{channel_id}/messages/{message_id}&quot;, &quot;channel_id&quot;);
+<span class="nc" id="L244">    public static final Route DELETE_MESSAGE =</span>
+        new Route(DELETE, &quot;channels/{channel_id}/messages/{message_id}&quot;, &quot;channel_id&quot;);
+<span class="nc" id="L246">    public static final Route GET_PINNED_MESSAGES =</span>
+        new Route(GET, &quot;channels/{channel_id}/pins&quot;, &quot;channel_id&quot;);
+<span class="nc" id="L248">    public static final Route ADD_PINNED_MESSAGE =</span>
+        new Route(PUT, &quot;channels/{channel_id}/pins/{message_id}&quot;, &quot;channel_id&quot;);
+<span class="nc" id="L250">    public static final Route REMOVE_PINNED_MESSAGE =</span>
+        new Route(DELETE, &quot;channels/{channel_id}/pins/{message_id}&quot;, &quot;channel_id&quot;);
+
+<span class="nc" id="L253">    public static final Route ADD_REACTION =</span>
+        new Route(
+            PUT,
+            new RateLimit(1, 250),
+            &quot;channels/{channel_id}/messages/{message_id}/reactions/{reaction_code}/@me&quot;,
+            &quot;channel_id&quot;);
+<span class="nc" id="L259">    public static final Route REMOVE_OWN_REACTION =</span>
+        new Route(
+            DELETE,
+            &quot;channels/{channel_id}/messages/{message_id}/reactions/{reaction_code}/@me&quot;,
+            &quot;channel_id&quot;);
+<span class="nc" id="L264">    public static final Route REMOVE_REACTION =</span>
+        new Route(
+            DELETE,
+            &quot;channels/{channel_id}/messages/{message_id}/reactions/{reaction_code}/{user_id}&quot;,
+            &quot;channel_id&quot;);
+<span class="nc" id="L269">    public static final Route REMOVE_ALL_REACTIONS =</span>
+        new Route(DELETE, &quot;channels/{channel_id}/messages/{message_id}/reactions&quot;, &quot;channel_id&quot;);
+<span class="nc" id="L271">    public static final Route GET_REACTION_USERS =</span>
+        new Route(
+            GET,
+            &quot;channels/{channel_id}/messages/{message_id}/reactions/{reaction_code}&quot;,
+            &quot;channel_id&quot;);
+
+<span class="nc" id="L277">    public static final Route GET_MESSAGE_HISTORY =</span>
+        new Route(GET, &quot;channels/{channel_id}/messages&quot;, &quot;channel_id&quot;);
+
+    // Bot only
+<span class="nc" id="L281">    public static final Route GET_MESSAGE =</span>
+        new Route(GET, &quot;channels/{channel_id}/messages/{message_id}&quot;, &quot;channel_id&quot;);
+<span class="nc" id="L283">    public static final Route DELETE_MESSAGES =</span>
+        new Route(POST, &quot;channels/{channel_id}/messages/bulk-delete&quot;, &quot;channel_id&quot;);
+
+    // Client only
+<span class="nc" id="L287">    public static final Route ACK_MESSAGE =</span>
+        new Route(POST, &quot;channels/{channel_id}/messages/{message_id}/ack&quot;);
+  }
+
+<span class="nc" id="L291">  public static class Invites {</span>
+<span class="nc" id="L292">    public static final Route GET_INVITE = new Route(GET, &quot;invites/{code}&quot;);</span>
+<span class="nc" id="L293">    public static final Route DELETE_INVITE = new Route(DELETE, &quot;invites/{code}&quot;);</span>
+<span class="nc" id="L294">    public static final Route GET_GUILD_INVITES =</span>
+        new Route(GET, &quot;guilds/{guild_id}/invites&quot;, &quot;guild_id&quot;);
+<span class="nc" id="L296">    public static final Route GET_CHANNEL_INVITES =</span>
+        new Route(GET, &quot;channels/{channel_id}/invites&quot;, &quot;channel_id&quot;);
+<span class="nc" id="L298">    public static final Route CREATE_INVITE =</span>
+        new Route(POST, &quot;channels/{channel_id}/invites&quot;, &quot;channel_id&quot;);
+  }
+
+<span class="nc" id="L302">  public static class Custom {</span>
+<span class="nc" id="L303">    public static final Route DELETE_ROUTE = new Route(DELETE, &quot;{}&quot;);</span>
+<span class="nc" id="L304">    public static final Route GET_ROUTE = new Route(GET, &quot;{}&quot;);</span>
+<span class="nc" id="L305">    public static final Route POST_ROUTE = new Route(POST, &quot;{}&quot;);</span>
+<span class="nc" id="L306">    public static final Route PUT_ROUTE = new Route(PUT, &quot;{}&quot;);</span>
+<span class="nc" id="L307">    public static final Route PATCH_ROUTE = new Route(PATCH, &quot;{}&quot;);</span>
+  }
+
+  private final String route;
+  private final String ratelimitRoute;
+  private final String compilableRoute;
+  private final int paramCount;
+  private final Method method;
+<span class="nc" id="L315">  private final List&lt;Integer&gt; majorParamIndexes = new ArrayList&lt;&gt;();</span>
+  private final RateLimit ratelimit;
+
+  private Route(Method method, String route, String... majorParameters) {
+<span class="nc" id="L319">    this(method, null, route, majorParameters);</span>
+<span class="nc" id="L320">  }</span>
+
+<span class="nc" id="L322">  private Route(Method method, RateLimit rateLimit, String route, String... majorParameters) {</span>
+<span class="nc" id="L323">    this.method = method;</span>
+<span class="nc" id="L324">    this.ratelimit = rateLimit;</span>
+<span class="nc" id="L325">    this.route = route;</span>
+<span class="nc" id="L326">    this.paramCount = Helpers.countMatches(route, '{'); // All parameters start with {</span>
+
+<span class="nc bnc" id="L328" title="All 2 branches missed.">    if (paramCount != Helpers.countMatches(route, '}'))</span>
+<span class="nc" id="L329">      throw new IllegalArgumentException(</span>
+          &quot;An argument does not have both {}'s for route: &quot; + method + &quot;  &quot; + route);
+
+    // Create a String.format compilable route for parameter compiling.
+<span class="nc" id="L333">    compilableRoute = route.replaceAll(&quot;\\{.*?\\}&quot;, &quot;%s&quot;);</span>
+
+    // If this route has major parameters that are unique markers for the ratelimit route, then we
+    // need to
+    // create a ratelimit compilable route. This goes through and replaces the parameters specified
+    // by majorParameters
+    // and records the parameter index so that when we compile it later we can select the proper
+    // parameters
+    // from the ones provided to make sure we inject in the proper indexes.
+<span class="nc bnc" id="L342" title="All 2 branches missed.">    if (majorParameters.length != 0) {</span>
+<span class="nc" id="L343">      int paramIndex = 0;</span>
+<span class="nc" id="L344">      String replaceRoute = route;</span>
+<span class="nc" id="L345">      Pattern keyP = Pattern.compile(&quot;\\{(.*?)\\}&quot;);</span>
+<span class="nc" id="L346">      Matcher keyM = keyP.matcher(route);</span>
+      // Search the route for all parameters
+<span class="nc bnc" id="L348" title="All 2 branches missed.">      while (keyM.find()) {</span>
+<span class="nc" id="L349">        String param = keyM.group(1);</span>
+        // Attempt to match the found parameter with any of our majorParameters
+<span class="nc bnc" id="L351" title="All 2 branches missed.">        for (String majorParam : majorParameters) {</span>
+          // If the parameter is a major parameter, replace it with a string token and record its
+          // parameter index for later ratelimitRoute compiling.
+<span class="nc bnc" id="L354" title="All 2 branches missed.">          if (param.equals(majorParam)) {</span>
+<span class="nc" id="L355">            replaceRoute = replaceRoute.replace(keyM.group(0), &quot;%s&quot;);</span>
+<span class="nc" id="L356">            majorParamIndexes.add(paramIndex);</span>
+          }
+        }
+<span class="nc" id="L359">        paramIndex++;</span>
+<span class="nc" id="L360">      }</span>
+<span class="nc" id="L361">      ratelimitRoute = replaceRoute;</span>
+<span class="nc" id="L362">    } else ratelimitRoute = route;</span>
+<span class="nc" id="L363">  }</span>
+
+  public Method getMethod() {
+<span class="nc" id="L366">    return method;</span>
+  }
+
+  public String getRoute() {
+<span class="nc" id="L370">    return route;</span>
+  }
+
+  public String getRatelimitRoute() {
+<span class="nc" id="L374">    return ratelimitRoute;</span>
+  }
+
+  public final RateLimit getRatelimit() {
+<span class="nc" id="L378">    return this.ratelimit;</span>
+  }
+
+  public String getCompilableRoute() {
+<span class="nc" id="L382">    return compilableRoute;</span>
+  }
+
+  public int getParamCount() {
+<span class="nc" id="L386">    return paramCount;</span>
+  }
+
+  public CompiledRoute compile(String... params) {
+<span class="nc bnc" id="L390" title="All 2 branches missed.">    if (params.length != paramCount) {</span>
+<span class="nc" id="L391">      throw new IllegalArgumentException(</span>
+          &quot;Error Compiling Route: [&quot;
+              + route
+              + &quot;], incorrect amount of parameters provided.&quot;
+              + &quot;Expected: &quot;
+              + paramCount
+              + &quot;, Provided: &quot;
+              + params.length);
+    }
+
+    // Compile the route for interfacing with discord.
+<span class="nc" id="L402">    String compiledRoute = String.format(compilableRoute, (Object[]) params);</span>
+<span class="nc" id="L403">    String compiledRatelimitRoute = ratelimitRoute;</span>
+
+    // If this route has major parameters which help to uniquely distinguish it from others of this
+    // route type then
+    // compile it using the major parameter indexes we discovered in the constructor.
+<span class="nc bnc" id="L408" title="All 2 branches missed.">    if (!majorParamIndexes.isEmpty()) {</span>
+
+<span class="nc" id="L410">      String[] majorParams = new String[majorParamIndexes.size()];</span>
+<span class="nc bnc" id="L411" title="All 2 branches missed.">      for (int i = 0; i &lt; majorParams.length; i++) {</span>
+<span class="nc" id="L412">        majorParams[i] = params[majorParamIndexes.get(i)];</span>
+      }
+<span class="nc" id="L414">      compiledRatelimitRoute = String.format(compiledRatelimitRoute, (Object[]) majorParams);</span>
+    }
+
+<span class="nc" id="L417">    return new CompiledRoute(this, compiledRatelimitRoute, compiledRoute);</span>
+  }
+
+  @Override
+  public int hashCode() {
+<span class="nc" id="L422">    return (route + method.toString()).hashCode();</span>
+  }
+
+  @Override
+  public boolean equals(Object o) {
+<span class="nc bnc" id="L427" title="All 2 branches missed.">    if (!(o instanceof Route)) return false;</span>
+
+<span class="nc" id="L429">    Route oRoute = (Route) o;</span>
+<span class="nc bnc" id="L430" title="All 4 branches missed.">    return method.equals(oRoute.method) &amp;&amp; route.equals(oRoute.route);</span>
+  }
+
+  @Override
+  public String toString() {
+<span class="nc" id="L435">    return &quot;Route(&quot; + method + &quot;: &quot; + route + &quot;)&quot;;</span>
+  }
+
+  public class CompiledRoute {
+    private final Route baseRoute;
+    private final String ratelimitRoute;
+    private final String compiledRoute;
+    private final boolean hasQueryParams;
+
+    private CompiledRoute(
+<span class="nc" id="L445">        Route baseRoute, String ratelimitRoute, String compiledRoute, boolean hasQueryParams) {</span>
+<span class="nc" id="L446">      this.baseRoute = baseRoute;</span>
+<span class="nc" id="L447">      this.ratelimitRoute = ratelimitRoute;</span>
+<span class="nc" id="L448">      this.compiledRoute = compiledRoute;</span>
+<span class="nc" id="L449">      this.hasQueryParams = hasQueryParams;</span>
+<span class="nc" id="L450">    }</span>
+
+    private CompiledRoute(Route baseRoute, String ratelimitRoute, String compiledRoute) {
+<span class="nc" id="L453">      this(baseRoute, ratelimitRoute, compiledRoute, false);</span>
+<span class="nc" id="L454">    }</span>
+
+    public CompiledRoute withQueryParams(String... params) {
+<span class="nc bnc" id="L457" title="All 2 branches missed.">      Checks.check(params.length &gt;= 2, &quot;params length must be at least 2&quot;);</span>
+<span class="nc bnc" id="L458" title="All 2 branches missed.">      Checks.check(params.length % 2 == 0, &quot;params length must be a multiple of 2&quot;);</span>
+
+<span class="nc" id="L460">      StringBuilder newRoute = new StringBuilder(compiledRoute);</span>
+
+<span class="nc bnc" id="L462" title="All 2 branches missed.">      for (int i = 0; i &lt; params.length; i++)</span>
+<span class="nc bnc" id="L463" title="All 4 branches missed.">        newRoute</span>
+<span class="nc" id="L464">            .append(!hasQueryParams &amp;&amp; i == 0 ? '?' : '&amp;')</span>
+<span class="nc" id="L465">            .append(params[i])</span>
+<span class="nc" id="L466">            .append('=')</span>
+<span class="nc" id="L467">            .append(params[++i]);</span>
+
+<span class="nc" id="L469">      return new CompiledRoute(baseRoute, ratelimitRoute, newRoute.toString(), true);</span>
+    }
+
+    public String getRatelimitRoute() {
+<span class="nc" id="L473">      return ratelimitRoute;</span>
+    }
+
+    public String getCompiledRoute() {
+<span class="nc" id="L477">      return compiledRoute;</span>
+    }
+
+    public Route getBaseRoute() {
+<span class="nc" id="L481">      return baseRoute;</span>
+    }
+
+    public Method getMethod() {
+<span class="nc" id="L485">      return baseRoute.method;</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="nc" id="L490">      return (compiledRoute + method.toString()).hashCode();</span>
+    }
+
+    @Override
+    public boolean equals(Object o) {
+<span class="nc bnc" id="L495" title="All 2 branches missed.">      if (!(o instanceof CompiledRoute)) return false;</span>
+
+<span class="nc" id="L497">      CompiledRoute oCompiled = (CompiledRoute) o;</span>
+
+<span class="nc bnc" id="L499" title="All 2 branches missed.">      return baseRoute.equals(oCompiled.getBaseRoute())</span>
+<span class="nc bnc" id="L500" title="All 2 branches missed.">          &amp;&amp; compiledRoute.equals(oCompiled.compiledRoute);</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="nc" id="L505">      return &quot;CompiledRoute(&quot; + method + &quot;: &quot; + compiledRoute + &quot;)&quot;;</span>
+    }
+  }
+
+  public static class RateLimit {
+    final int usageLimit;
+    final int resetTime; // in ms
+
+<span class="nc" id="L513">    public RateLimit(int usageLimit, int resetTime) {</span>
+<span class="nc" id="L514">      this.usageLimit = usageLimit;</span>
+<span class="nc" id="L515">      this.resetTime = resetTime;</span>
+<span class="nc" id="L516">    }</span>
+
+    public final int getUsageLimit() {
+<span class="nc" id="L519">      return this.usageLimit;</span>
+    }
+
+    public final int getResetTime() {
+<span class="nc" id="L523">      return this.resetTime;</span>
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

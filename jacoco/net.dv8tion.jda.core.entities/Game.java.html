@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Game.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">net.dv8tion.jda.core.entities</a> &gt; <span class="el_source">Game.java</span></div><h1>Game.java</h1><pre class="source lang-java linenums">/*
+ *     Copyright 2015-2018 Austin Keener &amp; Michael Ritter &amp; Florian Spieß
+ *     Copyright 2018-2018 &quot;Princess&quot; Lana Samson
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package net.dv8tion.jda.core.entities;
+
+import java.util.Objects;
+import net.dv8tion.jda.core.utils.Checks;
+
+/**
+ * Represents a Discord {@link net.dv8tion.jda.core.entities.Game Game}. &lt;br&gt;
+ * This should contain all information provided from Discord about a Game.
+ *
+ * @since 2.1
+ * @author John A. Grosh
+ */
+public class Game {
+  protected final String name;
+  protected final String url;
+  protected final Game.GameType type;
+
+  protected Game(String name) {
+<span class="nc" id="L35">    this(name, null, GameType.DEFAULT);</span>
+<span class="nc" id="L36">  }</span>
+
+  protected Game(String name, String url) {
+<span class="nc" id="L39">    this(name, url, GameType.STREAMING);</span>
+<span class="nc" id="L40">  }</span>
+
+<span class="nc" id="L42">  protected Game(String name, String url, GameType type) {</span>
+<span class="nc" id="L43">    this.name = name;</span>
+<span class="nc" id="L44">    this.url = url;</span>
+<span class="nc" id="L45">    this.type = type;</span>
+<span class="nc" id="L46">  }</span>
+
+  /**
+   * Whether this is a &lt;a href=&quot;https://discordapp.com/developers/docs/rich-presence/best-practices&quot;
+   * target=&quot;_blank&quot;&gt;Rich Presence&lt;/a&gt; &lt;br&gt;
+   * If {@code false} the result of {@link #asRichPresence()} is {@code null}
+   *
+   * @return {@code true} if this is a {@link net.dv8tion.jda.core.entities.RichPresence
+   *     RichPresence}
+   */
+  public boolean isRich() {
+<span class="nc" id="L57">    return false;</span>
+  }
+
+  /**
+   * {@link net.dv8tion.jda.core.entities.RichPresence RichPresence} representation of this Game.
+   *
+   * @return RichPresence or {@code null} if {@link #isRich()} returns {@code false}
+   */
+  public RichPresence asRichPresence() {
+<span class="nc" id="L66">    return null;</span>
+  }
+
+  /**
+   * The displayed name of the {@link net.dv8tion.jda.core.entities.Game Game}. If no name has been
+   * set, this returns null.
+   *
+   * @return Possibly-null String containing the Game's name.
+   */
+  public String getName() {
+<span class="nc" id="L76">    return name;</span>
+  }
+
+  /**
+   * The URL of the {@link net.dv8tion.jda.core.entities.Game Game} if the game is actually a
+   * Stream. &lt;br&gt;
+   * This will return null for regular games.
+   *
+   * @return Possibly-null String containing the Game's URL.
+   */
+  public String getUrl() {
+<span class="nc" id="L87">    return url;</span>
+  }
+
+  /**
+   * The type of {@link net.dv8tion.jda.core.entities.Game Game}.
+   *
+   * @return Never-null {@link net.dv8tion.jda.core.entities.Game.GameType GameType} representing
+   *     the type of Game
+   */
+  public GameType getType() {
+<span class="nc" id="L97">    return type;</span>
+  }
+
+  @Override
+  public boolean equals(Object o) {
+<span class="nc bnc" id="L102" title="All 2 branches missed.">    if (!(o instanceof Game)) return false;</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">    if (o == this) return true;</span>
+
+<span class="nc" id="L105">    Game oGame = (Game) o;</span>
+<span class="nc bnc" id="L106" title="All 2 branches missed.">    return oGame.getType() == type</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">        &amp;&amp; Objects.equals(name, oGame.getName())</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">        &amp;&amp; Objects.equals(url, oGame.getUrl());</span>
+  }
+
+  @Override
+  public int hashCode() {
+<span class="nc" id="L113">    return Objects.hash(name, type, url);</span>
+  }
+
+  @Override
+  public String toString() {
+<span class="nc bnc" id="L118" title="All 2 branches missed.">    if (url != null) return String.format(&quot;Game(%s | %s)&quot;, name, url);</span>
+<span class="nc" id="L119">    else return String.format(&quot;Game(%s)&quot;, name);</span>
+  }
+
+  /**
+   * Creates a new Game instance with the specified name. &lt;br&gt;
+   * In order to appear as &quot;streaming&quot; in the official client you must provide a valid (see
+   * documentation of method) streaming URL in {@link #streaming(String, String)
+   * Game.streaming(String, String)}.
+   *
+   * @param name The not-null name of the newly created game
+   * @throws IllegalArgumentException if the specified name is null, empty or blank
+   * @return A valid Game instance with the provided name with {@link GameType#DEFAULT}
+   */
+  public static Game playing(String name) {
+<span class="nc" id="L133">    Checks.notBlank(name, &quot;Name&quot;);</span>
+<span class="nc" id="L134">    return new Game(name, null, GameType.DEFAULT);</span>
+  }
+
+  /**
+   * Creates a new Game instance with the specified name and url. &lt;br&gt;
+   * The specified URL must be valid according to discord standards in order to display as
+   * &quot;streaming&quot; in the official client. A valid streaming URL must be derived from {@code
+   * https://twitch.tv/} and can be verified using {@link #isValidStreamingUrl(String)}. (see
+   * documentation)
+   *
+   * @param name The not-null name of the newly created game
+   * @param url The streaming url to use, required to display as &quot;streaming&quot;
+   * @throws IllegalArgumentException If the specified name is null or empty
+   * @return A valid Game instance with the provided name and url
+   * @see #isValidStreamingUrl(String)
+   */
+  public static Game streaming(String name, String url) {
+<span class="nc" id="L151">    Checks.notEmpty(name, &quot;Provided game name&quot;);</span>
+    GameType type;
+<span class="nc bnc" id="L153" title="All 2 branches missed.">    if (isValidStreamingUrl(url)) type = GameType.STREAMING;</span>
+<span class="nc" id="L154">    else type = GameType.DEFAULT;</span>
+<span class="nc" id="L155">    return new Game(name, url, type);</span>
+  }
+
+  /**
+   * Creates a new Game instance with the specified name. &lt;br&gt;
+   * This will display as {@code Listening name} in the official client
+   *
+   * @param name The not-null name of the newly created game
+   * @throws IllegalArgumentException if the specified name is null, empty or blank
+   * @return A valid Game instance with the provided name with {@link GameType#LISTENING}
+   */
+  public static Game listening(String name) {
+<span class="nc" id="L167">    Checks.notBlank(name, &quot;Name&quot;);</span>
+<span class="nc" id="L168">    return new Game(name, null, GameType.LISTENING);</span>
+  }
+
+  /**
+   * Creates a new Game instance with the specified name. &lt;br&gt;
+   * This will display as {@code Watching name} in the official client
+   *
+   * @param name The not-null name of the newly created game
+   * @throws IllegalArgumentException if the specified name is null, empty or blank
+   * @return A valid Game instance with the provided name with {@link GameType#WATCHING}
+   */
+  public static Game watching(String name) {
+<span class="nc" id="L180">    Checks.notBlank(name, &quot;Name&quot;);</span>
+<span class="nc" id="L181">    return new Game(name, null, GameType.WATCHING);</span>
+  }
+
+  /**
+   * Creates a new Game instance with the specified name and url.
+   *
+   * @param type The {@link net.dv8tion.jda.core.entities.Game.GameType GameType} to use
+   * @param name The not-null name of the newly created game
+   * @throws IllegalArgumentException If the specified name is null or empty
+   * @return A valid Game instance with the provided name and url
+   */
+  public static Game of(GameType type, String name) {
+<span class="nc" id="L193">    return of(type, name, null);</span>
+  }
+
+  /**
+   * Creates a new Game instance with the specified name and url. &lt;br&gt;
+   * The provided url would only be used for {@link
+   * net.dv8tion.jda.core.entities.Game.GameType#STREAMING GameType.STREAMING} and should be a
+   * twitch url.
+   *
+   * @param type The {@link net.dv8tion.jda.core.entities.Game.GameType GameType} to use
+   * @param name The not-null name of the newly created game
+   * @param url The streaming url to use, required to display as &quot;streaming&quot;.
+   * @throws IllegalArgumentException If the specified name is null or empty
+   * @return A valid Game instance with the provided name and url
+   * @see #isValidStreamingUrl(String)
+   */
+  public static Game of(GameType type, String name, String url) {
+<span class="nc" id="L210">    Checks.notNull(type, &quot;Type&quot;);</span>
+<span class="nc bnc" id="L211" title="All 5 branches missed.">    switch (type) {</span>
+      case DEFAULT:
+<span class="nc" id="L213">        return playing(name);</span>
+      case STREAMING:
+<span class="nc" id="L215">        return streaming(name, url);</span>
+      case LISTENING:
+<span class="nc" id="L217">        return listening(name);</span>
+      case WATCHING:
+<span class="nc" id="L219">        return watching(name);</span>
+      default:
+<span class="nc" id="L221">        throw new IllegalArgumentException(&quot;GameType &quot; + type + &quot; is not supported!&quot;);</span>
+    }
+  }
+
+  /**
+   * Checks if a given String is a valid Twitch url (ie, one that will display &quot;Streaming&quot; on the
+   * Discord client).
+   *
+   * @param url The url to check.
+   * @return True if the provided url is valid for triggering Discord's streaming status
+   */
+  public static boolean isValidStreamingUrl(String url) {
+<span class="nc bnc" id="L233" title="All 4 branches missed.">    return url != null &amp;&amp; url.matches(&quot;https?://(www\\.)?twitch\\.tv/.+&quot;);</span>
+  }
+
+  /** The type game being played, differentiating between a game and stream types. */
+<span class="nc" id="L237">  public enum GameType {</span>
+    /**
+     * The GameType used to represent a normal {@link net.dv8tion.jda.core.entities.Game Game}
+     * status.
+     */
+<span class="nc" id="L242">    DEFAULT(0),</span>
+    /**
+     * Used to indicate that the {@link net.dv8tion.jda.core.entities.Game Game} is a stream &lt;br&gt;
+     * This type is displayed as &quot;Streaming&quot; in the discord client.
+     */
+<span class="nc" id="L247">    STREAMING(1),</span>
+    /**
+     * Used to indicate that the {@link net.dv8tion.jda.core.entities.Game Game} should display as
+     * {@code Listening...} in the official client.
+     */
+<span class="nc" id="L252">    LISTENING(2),</span>
+    /**
+     * Used to indicate that the {@link net.dv8tion.jda.core.entities.Game Game} should display as
+     * {@code Watching...} in the official client.
+     */
+<span class="nc" id="L257">    WATCHING(3);</span>
+
+    private final int key;
+
+<span class="nc" id="L261">    GameType(int key) {</span>
+<span class="nc" id="L262">      this.key = key;</span>
+<span class="nc" id="L263">    }</span>
+
+    /**
+     * The Discord defined id key for this GameType.
+     *
+     * @return the id key.
+     */
+    public int getKey() {
+<span class="nc" id="L271">      return key;</span>
+    }
+
+    /**
+     * Gets the GameType related to the provided key. &lt;br&gt;
+     * If an unknown key is provided, this returns {@link #DEFAULT}
+     *
+     * @param key The Discord key referencing a GameType.
+     * @return The GameType that has the key provided, or {@link #DEFAULT} for unknown key.
+     */
+    public static GameType fromKey(int key) {
+<span class="nc bnc" id="L282" title="All 4 branches missed.">      switch (key) {</span>
+        case 0:
+        default:
+<span class="nc" id="L285">          return DEFAULT;</span>
+        case 1:
+<span class="nc" id="L287">          return STREAMING;</span>
+        case 2:
+<span class="nc" id="L289">          return LISTENING;</span>
+        case 3:
+<span class="nc" id="L291">          return WATCHING;</span>
+      }
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

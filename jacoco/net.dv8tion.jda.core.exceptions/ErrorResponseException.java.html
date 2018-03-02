@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ErrorResponseException.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">net.dv8tion.jda.core.exceptions</a> &gt; <span class="el_source">ErrorResponseException.java</span></div><h1>ErrorResponseException.java</h1><pre class="source lang-java linenums">/*
+ *     Copyright 2015-2018 Austin Keener &amp; Michael Ritter &amp; Florian Spieß
+ *     Copyright 2018-2018 &quot;Princess&quot; Lana Samson
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package net.dv8tion.jda.core.exceptions;
+
+import net.dv8tion.jda.core.requests.ErrorResponse;
+import net.dv8tion.jda.core.requests.Response;
+import org.json.JSONObject;
+
+/**
+ * Indicates an unhandled error that is returned by Discord API Request using {@link
+ * net.dv8tion.jda.core.requests.RestAction RestAction} &lt;br&gt;
+ * It holds an {@link net.dv8tion.jda.core.requests.ErrorResponse ErrorResponse}
+ */
+public class ErrorResponseException extends RuntimeException {
+  private final ErrorResponse errorResponse;
+  private final Response response;
+  private final String meaning;
+  private final int code;
+
+  /**
+   * Creates a new ErrorResponseException instance
+   *
+   * @param errorResponse The {@link net.dv8tion.jda.core.requests.ErrorResponse ErrorResponse}
+   *     corresponding for the received error response from Discord
+   * @param response The Discord Response causing the ErrorResponse
+   */
+  private ErrorResponseException(
+      ErrorResponse errorResponse, Response response, int code, String meaning) {
+<span class="nc" id="L43">    super(code + &quot;: &quot; + meaning);</span>
+
+<span class="nc" id="L45">    this.response = response;</span>
+<span class="nc" id="L46">    this.errorResponse = errorResponse;</span>
+<span class="nc" id="L47">    this.code = code;</span>
+<span class="nc" id="L48">    this.meaning = meaning;</span>
+<span class="nc" id="L49">  }</span>
+
+  /**
+   * Whether this is an internal server error from discord (status 500)
+   *
+   * @return True, if this is an internal server error {@link
+   *     net.dv8tion.jda.core.requests.ErrorResponse#SERVER_ERROR ErrorResponse.SERVER_ERROR}
+   */
+  public boolean isServerError() {
+<span class="nc bnc" id="L58" title="All 2 branches missed.">    return errorResponse == ErrorResponse.SERVER_ERROR;</span>
+  }
+
+  /**
+   * The meaning for this error. &lt;br&gt;
+   * It is possible that the value from this method is different for {@link #isServerError() server
+   * errors}
+   *
+   * @return Never-null meaning of this error.
+   */
+  public String getMeaning() {
+<span class="nc" id="L69">    return meaning;</span>
+  }
+
+  /**
+   * The discord error code for this error response.
+   *
+   * @return The discord error code.
+   * @see &lt;a href=&quot;https://discordapp.com/developers/docs/topics/response-codes#json-error-response&quot;
+   *     target=&quot;_blank&quot;&gt;Discord Error Codes&lt;/a&gt;
+   */
+  public int getErrorCode() {
+<span class="nc" id="L80">    return code;</span>
+  }
+
+  /**
+   * The {@link net.dv8tion.jda.core.requests.ErrorResponse ErrorResponse} corresponding for the
+   * received error response from Discord
+   *
+   * @return {@link net.dv8tion.jda.core.requests.ErrorResponse ErrorResponse}
+   */
+  public ErrorResponse getErrorResponse() {
+<span class="nc" id="L90">    return errorResponse;</span>
+  }
+
+  /**
+   * The Discord Response causing the ErrorResponse
+   *
+   * @return {@link net.dv8tion.jda.core.requests.Response Response}
+   */
+  public Response getResponse() {
+<span class="nc" id="L99">    return response;</span>
+  }
+
+  public static ErrorResponseException create(ErrorResponse errorResponse, Response response) {
+<span class="nc" id="L103">    JSONObject obj = response.getObject();</span>
+<span class="nc" id="L104">    String meaning = errorResponse.getMeaning();</span>
+<span class="nc" id="L105">    int code = errorResponse.getCode();</span>
+<span class="nc bnc" id="L106" title="All 4 branches missed.">    if (response.isError() &amp;&amp; response.getException() != null) {</span>
+      // this generally means that an exception occurred trying to
+      // make an http request. e.g.:
+      // SocketTimeoutException/ UnknownHostException
+<span class="nc" id="L110">      code = response.code;</span>
+<span class="nc" id="L111">      meaning = response.getException().getClass().getName();</span>
+<span class="nc bnc" id="L112" title="All 2 branches missed.">    } else if (obj != null) {</span>
+<span class="nc bnc" id="L113" title="All 4 branches missed.">      if (!obj.isNull(&quot;code&quot;) || !obj.isNull(&quot;message&quot;)) {</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">        if (!obj.isNull(&quot;code&quot;)) code = obj.getInt(&quot;code&quot;);</span>
+<span class="nc bnc" id="L115" title="All 2 branches missed.">        if (!obj.isNull(&quot;message&quot;)) meaning = obj.getString(&quot;message&quot;);</span>
+      } else {
+        // This means that neither code or message is provided
+        // In that case we simply put the raw response in place!
+<span class="nc" id="L119">        code = response.code;</span>
+<span class="nc" id="L120">        meaning = response.getString();</span>
+      }
+    } else {
+      // error response body is not JSON
+<span class="nc" id="L124">      code = response.code;</span>
+<span class="nc" id="L125">      meaning = response.getString();</span>
+    }
+
+<span class="nc" id="L128">    return new ErrorResponseException(errorResponse, response, code, meaning);</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

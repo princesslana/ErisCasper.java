@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>VoiceChannelImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">net.dv8tion.jda.core.entities.impl</a> &gt; <span class="el_source">VoiceChannelImpl.java</span></div><h1>VoiceChannelImpl.java</h1><pre class="source lang-java linenums">/*
+ *     Copyright 2015-2018 Austin Keener &amp; Michael Ritter &amp; Florian Spieß
+ *     Copyright 2018-2018 &quot;Princess&quot; Lana Samson
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package net.dv8tion.jda.core.entities.impl;
+
+import gnu.trove.map.TLongObjectMap;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.requests.restaction.ChannelAction;
+import net.dv8tion.jda.core.utils.Checks;
+import net.dv8tion.jda.core.utils.MiscUtil;
+
+public class VoiceChannelImpl extends AbstractChannelImpl&lt;VoiceChannelImpl&gt;
+    implements VoiceChannel {
+<span class="nc" id="L30">  private final TLongObjectMap&lt;Member&gt; connectedMembers = MiscUtil.newLongMap();</span>
+  private int userLimit;
+  private int bitrate;
+
+  public VoiceChannelImpl(long id, GuildImpl guild) {
+<span class="nc" id="L35">    super(id, guild);</span>
+<span class="nc" id="L36">  }</span>
+
+  @Override
+  public int getUserLimit() {
+<span class="nc" id="L40">    return userLimit;</span>
+  }
+
+  @Override
+  public int getBitrate() {
+<span class="nc" id="L45">    return bitrate;</span>
+  }
+
+  @Override
+  public ChannelType getType() {
+<span class="nc" id="L50">    return ChannelType.VOICE;</span>
+  }
+
+  @Override
+  public List&lt;Member&gt; getMembers() {
+<span class="nc" id="L55">    return Collections.unmodifiableList(new ArrayList&lt;&gt;(connectedMembers.valueCollection()));</span>
+  }
+
+  @Override
+  public int getPosition() {
+<span class="nc" id="L60">    List&lt;VoiceChannel&gt; channels = getGuild().getVoiceChannels();</span>
+<span class="nc bnc" id="L61" title="All 2 branches missed.">    for (int i = 0; i &lt; channels.size(); i++) {</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">      if (channels.get(i) == this) return i;</span>
+    }
+<span class="nc" id="L64">    throw new AssertionError(</span>
+        &quot;Somehow when determining position we never found the VoiceChannel in the Guild's channels? wtf?&quot;);
+  }
+
+  @Override
+  public ChannelAction createCopy(Guild guild) {
+<span class="nc" id="L70">    Checks.notNull(guild, &quot;Guild&quot;);</span>
+<span class="nc" id="L71">    ChannelAction action =</span>
+<span class="nc" id="L72">        guild.getController().createVoiceChannel(name).setBitrate(bitrate).setUserlimit(userLimit);</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">    if (guild.equals(getGuild())) {</span>
+<span class="nc" id="L74">      Category parent = getParent();</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">      if (parent != null) action.setParent(parent);</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">      for (PermissionOverride o : overrides.valueCollection()) {</span>
+<span class="nc bnc" id="L77" title="All 2 branches missed.">        if (o.isMemberOverride())</span>
+<span class="nc" id="L78">          action.addPermissionOverride(o.getMember(), o.getAllowedRaw(), o.getDeniedRaw());</span>
+<span class="nc" id="L79">        else action.addPermissionOverride(o.getRole(), o.getAllowedRaw(), o.getDeniedRaw());</span>
+<span class="nc" id="L80">      }</span>
+    }
+<span class="nc" id="L82">    return action;</span>
+  }
+
+  @Override
+  public boolean equals(Object o) {
+<span class="nc bnc" id="L87" title="All 2 branches missed.">    if (!(o instanceof VoiceChannel)) return false;</span>
+<span class="nc" id="L88">    VoiceChannel oVChannel = (VoiceChannel) o;</span>
+<span class="nc bnc" id="L89" title="All 4 branches missed.">    return this == oVChannel || this.getIdLong() == oVChannel.getIdLong();</span>
+  }
+
+  @Override
+  public String toString() {
+<span class="nc" id="L94">    return &quot;VC:&quot; + getName() + '(' + id + ')';</span>
+  }
+
+  @Override
+  public int compareTo(VoiceChannel chan) {
+<span class="nc" id="L99">    Checks.notNull(chan, &quot;Other VoiceChannel&quot;);</span>
+<span class="nc bnc" id="L100" title="All 2 branches missed.">    if (this == chan) return 0;</span>
+<span class="nc" id="L101">    Checks.check(</span>
+<span class="nc" id="L102">        getGuild().equals(chan.getGuild()),</span>
+        &quot;Cannot compare VoiceChannels that aren't from the same guild!&quot;);
+<span class="nc bnc" id="L104" title="All 2 branches missed.">    if (this.getPositionRaw() == chan.getPositionRaw()) return Long.compare(id, chan.getIdLong());</span>
+<span class="nc" id="L105">    return Integer.compare(rawPosition, chan.getPositionRaw());</span>
+  }
+
+  // -- Setters --
+
+  public VoiceChannelImpl setUserLimit(int userLimit) {
+<span class="nc" id="L111">    this.userLimit = userLimit;</span>
+<span class="nc" id="L112">    return this;</span>
+  }
+
+  public VoiceChannelImpl setBitrate(int bitrate) {
+<span class="nc" id="L116">    this.bitrate = bitrate;</span>
+<span class="nc" id="L117">    return this;</span>
+  }
+
+  // -- Map Getters --
+
+  public TLongObjectMap&lt;Member&gt; getConnectedMembersMap() {
+<span class="nc" id="L123">    return connectedMembers;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

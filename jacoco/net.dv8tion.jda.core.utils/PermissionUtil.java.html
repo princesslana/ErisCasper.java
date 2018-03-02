@@ -1,0 +1,594 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PermissionUtil.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">net.dv8tion.jda.core.utils</a> &gt; <span class="el_source">PermissionUtil.java</span></div><h1>PermissionUtil.java</h1><pre class="source lang-java linenums">/*
+ *     Copyright 2015-2018 Austin Keener &amp; Michael Ritter &amp; Florian Spieß
+ *     Copyright 2018-2018 &quot;Princess&quot; Lana Samson
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package net.dv8tion.jda.core.utils;
+
+import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
+import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.entities.impl.GuildImpl;
+import org.apache.commons.collections4.CollectionUtils;
+
+<span class="nc" id="L26">public class PermissionUtil {</span>
+  /**
+   * Checks if one given Member can interact with a 2nd given Member - in a permission sense
+   * (kick/ban/modify perms). This only checks the Role-Position and does not check the actual
+   * permission (kick/ban/manage_role/...)
+   *
+   * @param issuer The member that tries to interact with 2nd member
+   * @param target The member that is the target of the interaction
+   * @throws IllegalArgumentException if any of the provided parameters is {@code null} or the
+   *     provided entities are not from the same guild
+   * @return True, if issuer can interact with target in guild
+   */
+  public static boolean canInteract(Member issuer, Member target) {
+<span class="nc" id="L39">    Checks.notNull(issuer, &quot;Issuer Member&quot;);</span>
+<span class="nc" id="L40">    Checks.notNull(target, &quot;Target Member&quot;);</span>
+
+<span class="nc" id="L42">    Guild guild = issuer.getGuild();</span>
+<span class="nc bnc" id="L43" title="All 2 branches missed.">    if (!guild.equals(target.getGuild()))</span>
+<span class="nc" id="L44">      throw new IllegalArgumentException(</span>
+          &quot;Provided members must both be Member objects of the same Guild!&quot;);
+<span class="nc bnc" id="L46" title="All 2 branches missed.">    if (guild.getOwner().equals(issuer)) return true;</span>
+<span class="nc bnc" id="L47" title="All 2 branches missed.">    if (guild.getOwner().equals(target)) return false;</span>
+<span class="nc" id="L48">    List&lt;Role&gt; issuerRoles = issuer.getRoles();</span>
+<span class="nc" id="L49">    List&lt;Role&gt; targetRoles = target.getRoles();</span>
+<span class="nc bnc" id="L50" title="All 2 branches missed.">    return !issuerRoles.isEmpty()</span>
+<span class="nc bnc" id="L51" title="All 4 branches missed.">        &amp;&amp; (targetRoles.isEmpty() || canInteract(issuerRoles.get(0), targetRoles.get(0)));</span>
+  }
+
+  /**
+   * Checks if a given Member can interact with a given Role - in a permission sense
+   * (kick/ban/modify perms). This only checks the Role-Position and does not check the actual
+   * permission (kick/ban/manage_role/...)
+   *
+   * @param issuer The member that tries to interact with the role
+   * @param target The role that is the target of the interaction
+   * @throws IllegalArgumentException if any of the provided parameters is {@code null} or the
+   *     provided entities are not from the same guild
+   * @return True, if issuer can interact with target
+   */
+  public static boolean canInteract(Member issuer, Role target) {
+<span class="nc" id="L66">    Checks.notNull(issuer, &quot;Issuer Member&quot;);</span>
+<span class="nc" id="L67">    Checks.notNull(target, &quot;Target Role&quot;);</span>
+
+<span class="nc" id="L69">    Guild guild = issuer.getGuild();</span>
+<span class="nc bnc" id="L70" title="All 2 branches missed.">    if (!guild.equals(target.getGuild()))</span>
+<span class="nc" id="L71">      throw new IllegalArgumentException(</span>
+          &quot;Provided Member issuer and Role target must be from the same Guild!&quot;);
+<span class="nc bnc" id="L73" title="All 2 branches missed.">    if (guild.getOwner().equals(issuer)) return true;</span>
+<span class="nc" id="L74">    List&lt;Role&gt; issuerRoles = issuer.getRoles();</span>
+<span class="nc bnc" id="L75" title="All 4 branches missed.">    return !issuerRoles.isEmpty() &amp;&amp; canInteract(issuerRoles.get(0), target);</span>
+  }
+
+  /**
+   * Checks if one given Role can interact with a 2nd given Role - in a permission sense
+   * (kick/ban/modify perms). This only checks the Role-Position and does not check the actual
+   * permission (kick/ban/manage_role/...)
+   *
+   * @param issuer The role that tries to interact with 2nd role
+   * @param target The role that is the target of the interaction
+   * @throws IllegalArgumentException if any of the provided parameters is {@code null} or the
+   *     provided entities are not from the same guild
+   * @return True, if issuer can interact with target
+   */
+  public static boolean canInteract(Role issuer, Role target) {
+<span class="nc" id="L90">    Checks.notNull(issuer, &quot;Issuer Role&quot;);</span>
+<span class="nc" id="L91">    Checks.notNull(target, &quot;Target Role&quot;);</span>
+
+<span class="nc bnc" id="L93" title="All 2 branches missed.">    if (!issuer.getGuild().equals(target.getGuild()))</span>
+<span class="nc" id="L94">      throw new IllegalArgumentException(&quot;The 2 Roles are not from same Guild!&quot;);</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">    return target.getPosition() &lt; issuer.getPosition();</span>
+  }
+
+  /**
+   * Check whether the provided {@link net.dv8tion.jda.core.entities.Member Member} can use the
+   * specified {@link net.dv8tion.jda.core.entities.Emote Emote}.
+   *
+   * &lt;p&gt;If the specified Member is not in the emote's guild or the emote provided is fake this will
+   * return false. Otherwise it will check if the emote is restricted to any roles and if that is
+   * the case if the Member has one of these.
+   *
+   * &lt;p&gt;In the case of an {@link net.dv8tion.jda.core.entities.Emote#isAnimated() animated} Emote,
+   * this will check if the issuer is the currently logged in account, and then check if the account
+   * has {@link net.dv8tion.jda.core.entities.SelfUser#isNitro() nitro}, and return false if it
+   * doesn't. &lt;br&gt;
+   * For other accounts, this method will not take into account whether the emote is animated, as
+   * there is no real way to check if the Member can interact with them. &lt;br&gt;
+   * &lt;b&gt;Note&lt;/b&gt;: This is not checking if the issuer owns the Guild or not.
+   *
+   * @param issuer The member that tries to interact with the Emote
+   * @param emote The emote that is the target interaction
+   * @throws IllegalArgumentException if any of the provided parameters is {@code null} or the
+   *     provided entities are not from the same guild
+   * @return True, if the issuer can interact with the emote
+   */
+  public static boolean canInteract(Member issuer, Emote emote) {
+<span class="nc" id="L121">    Checks.notNull(issuer, &quot;Issuer Member&quot;);</span>
+<span class="nc" id="L122">    Checks.notNull(emote, &quot;Target Emote&quot;);</span>
+
+<span class="nc bnc" id="L124" title="All 2 branches missed.">    if (!issuer.getGuild().equals(emote.getGuild()))</span>
+<span class="nc" id="L125">      throw new IllegalArgumentException(&quot;The issuer and target are not in the same Guild&quot;);</span>
+
+    // We don't need to check based on the fact it is animated if it's a BOT account
+    // because BOT accounts cannot have nitro, and have access to animated Emotes naturally.
+<span class="nc bnc" id="L129" title="All 4 branches missed.">    if (emote.isAnimated() &amp;&amp; !issuer.getUser().isBot()) {</span>
+      // This is a currently logged in client, meaning we can check if they have nitro or not.
+      // If this isn't the currently logged in account, we just check it like a normal emote,
+      // since there is no way to verify if they have nitro or not.
+<span class="nc bnc" id="L133" title="All 2 branches missed.">      if (issuer.getUser() instanceof SelfUser) {</span>
+        // If they don't have nitro, we immediately return
+        // false, otherwise we proceed with the remaining checks.
+<span class="nc bnc" id="L136" title="All 2 branches missed.">        if (!((SelfUser) issuer.getUser()).isNitro()) return false;</span>
+      }
+    }
+
+<span class="nc bnc" id="L140" title="All 2 branches missed.">    return (emote.getRoles().isEmpty() // Emote restricted to roles -&gt; check if the issuer has them</span>
+<span class="nc bnc" id="L141" title="All 2 branches missed.">        || CollectionUtils.containsAny(issuer.getRoles(), emote.getRoles()));</span>
+  }
+
+  /**
+   * Checks whether the specified {@link net.dv8tion.jda.core.entities.Emote Emote} can be used by
+   * the provided {@link net.dv8tion.jda.core.entities.User User} in the {@link
+   * net.dv8tion.jda.core.entities.MessageChannel MessageChannel}.
+   *
+   * @param issuer The user that tries to interact with the Emote
+   * @param emote The emote that is the target interaction
+   * @param channel The MessageChannel this emote should be interacted within
+   * @param botOverride Whether bots can use non-managed emotes in other guilds
+   * @throws IllegalArgumentException if any of the provided parameters is {@code null} or the
+   *     provided entities are not from the same guild
+   * @return True, if the issuer can interact with the emote within the specified MessageChannel
+   */
+  public static boolean canInteract(
+      User issuer, Emote emote, MessageChannel channel, boolean botOverride) {
+<span class="nc" id="L159">    Checks.notNull(issuer, &quot;Issuer Member&quot;);</span>
+<span class="nc" id="L160">    Checks.notNull(emote, &quot;Target Emote&quot;);</span>
+<span class="nc" id="L161">    Checks.notNull(channel, &quot;Target Channel&quot;);</span>
+
+<span class="nc bnc" id="L163" title="All 4 branches missed.">    if (emote.isFake() || !emote.getGuild().isMember(issuer))</span>
+<span class="nc" id="L164">      return false; // cannot use an emote if you're not in its guild</span>
+<span class="nc" id="L165">    Member member = emote.getGuild().getMemberById(issuer.getIdLong());</span>
+<span class="nc bnc" id="L166" title="All 2 branches missed.">    if (!canInteract(member, emote)) return false;</span>
+    // external means it is available outside of its own guild - works for bots or if its managed
+    // currently we cannot check whether other users have nitro, we assume no here
+<span class="nc" id="L169">    final boolean external =</span>
+<span class="nc bnc" id="L170" title="All 8 branches missed.">        emote.isManaged() || (issuer.isBot() &amp;&amp; botOverride) || isNitro(issuer);</span>
+<span class="nc bnc" id="L171" title="All 2 branches missed.">    switch (channel.getType()) {</span>
+      case TEXT:
+<span class="nc" id="L173">        TextChannel text = (TextChannel) channel;</span>
+<span class="nc" id="L174">        member = text.getGuild().getMemberById(issuer.getIdLong());</span>
+<span class="nc bnc" id="L175" title="All 4 branches missed.">        return emote.getGuild().equals(text.getGuild()) // within the same guild</span>
+            || (external
+<span class="nc bnc" id="L177" title="All 2 branches missed.">                &amp;&amp; member.hasPermission(text, Permission.MESSAGE_EXT_EMOJI)); // in different guild</span>
+      default:
+<span class="nc" id="L179">        return external; // In Group or Private it only needs to be external</span>
+    }
+  }
+
+  private static boolean isNitro(User issuer) {
+<span class="nc bnc" id="L184" title="All 4 branches missed.">    return issuer instanceof SelfUser &amp;&amp; ((SelfUser) issuer).isNitro();</span>
+  }
+
+  /**
+   * Checks whether the specified {@link net.dv8tion.jda.core.entities.Emote Emote} can be used by
+   * the provided {@link net.dv8tion.jda.core.entities.User User} in the {@link
+   * net.dv8tion.jda.core.entities.MessageChannel MessageChannel}.
+   *
+   * @param issuer The user that tries to interact with the Emote
+   * @param emote The emote that is the target interaction
+   * @param channel The MessageChannel this emote should be interacted within
+   * @throws IllegalArgumentException if any of the provided parameters is {@code null} or the
+   *     provided entities are not from the same guild
+   * @return True, if the issuer can interact with the emote within the specified MessageChannel
+   */
+  public static boolean canInteract(User issuer, Emote emote, MessageChannel channel) {
+<span class="nc" id="L200">    return canInteract(issuer, emote, channel, true);</span>
+  }
+
+  /**
+   * Checks to see if the {@link net.dv8tion.jda.core.entities.Member Member} has the specified
+   * {@link net.dv8tion.jda.core.Permission Permissions} in the specified {@link
+   * net.dv8tion.jda.core.entities.Guild Guild}. This method properly deals with Owner status.
+   *
+   * &lt;p&gt;&lt;b&gt;Note:&lt;/b&gt; this is based on effective permissions, not literal permissions. If a member
+   * has permissions that would enable them to do something without the literal permission to do it,
+   * this will still return true. &lt;br&gt;
+   * Example: If a member has the {@link net.dv8tion.jda.core.Permission#ADMINISTRATOR} permission,
+   * they will be able to {@link net.dv8tion.jda.core.Permission#MANAGE_SERVER} as well, even
+   * without the literal permissions.
+   *
+   * @param member The {@link net.dv8tion.jda.core.entities.Member Member} whose permissions are
+   *     being checked.
+   * @param permissions The {@link net.dv8tion.jda.core.Permission Permissions} being checked for.
+   * @throws IllegalArgumentException if any of the provided parameters is null
+   * @return True - if the {@link net.dv8tion.jda.core.entities.Member Member} effectively has the
+   *     specified {@link net.dv8tion.jda.core.Permission Permissions}.
+   */
+  public static boolean checkPermission(Member member, Permission... permissions) {
+<span class="nc" id="L223">    Checks.notNull(member, &quot;Member&quot;);</span>
+<span class="nc" id="L224">    Checks.notNull(permissions, &quot;Permissions&quot;);</span>
+
+<span class="nc" id="L226">    long effectivePerms = getEffectivePermission(member);</span>
+<span class="nc bnc" id="L227" title="All 2 branches missed.">    return isApplied(effectivePerms, Permission.ADMINISTRATOR.getRawValue())</span>
+<span class="nc bnc" id="L228" title="All 2 branches missed.">        || isApplied(effectivePerms, Permission.getRaw(permissions));</span>
+  }
+
+  /**
+   * Checks to see if the {@link net.dv8tion.jda.core.entities.Member Member} has the specified
+   * {@link net.dv8tion.jda.core.Permission Permissions} in the specified {@link
+   * net.dv8tion.jda.core.entities.Channel Channel}. This method properly deals with {@link
+   * net.dv8tion.jda.core.entities.PermissionOverride PermissionOverrides} and Owner status.
+   *
+   * &lt;p&gt;&lt;b&gt;Note:&lt;/b&gt; this is based on effective permissions, not literal permissions. If a member
+   * has permissions that would enable them to do something without the literal permission to do it,
+   * this will still return true. &lt;br&gt;
+   * Example: If a member has the {@link net.dv8tion.jda.core.Permission#ADMINISTRATOR} permission,
+   * they will be able to {@link net.dv8tion.jda.core.Permission#MESSAGE_WRITE} in every channel.
+   *
+   * @param member The {@link net.dv8tion.jda.core.entities.Member Member} whose permissions are
+   *     being checked.
+   * @param channel The {@link net.dv8tion.jda.core.entities.Channel Channel} being checked.
+   * @param permissions The {@link net.dv8tion.jda.core.Permission Permissions} being checked for.
+   * @throws IllegalArgumentException if any of the provided parameters is {@code null} or the
+   *     provided entities are not from the same guild
+   * @return True - if the {@link net.dv8tion.jda.core.entities.Member Member} effectively has the
+   *     specified {@link net.dv8tion.jda.core.Permission Permissions}.
+   */
+  public static boolean checkPermission(Channel channel, Member member, Permission... permissions) {
+<span class="nc" id="L253">    Checks.notNull(channel, &quot;Channel&quot;);</span>
+<span class="nc" id="L254">    Checks.notNull(member, &quot;Member&quot;);</span>
+<span class="nc" id="L255">    Checks.notNull(permissions, &quot;Permissions&quot;);</span>
+
+<span class="nc" id="L257">    GuildImpl guild = (GuildImpl) channel.getGuild();</span>
+<span class="nc" id="L258">    checkGuild(guild, member.getGuild(), &quot;Member&quot;);</span>
+
+    //        if (guild.getOwner().equals(member) // Admin or owner? If yes: no need to iterate
+    //                || guild.getPublicRole().hasPermission(Permission.ADMINISTRATOR)
+    //                || member.getRoles().stream().anyMatch(role -&gt;
+    // role.hasPermission(Permission.ADMINISTRATOR)))
+    //            return true; // can be removed as getEffectivePermissions calculates these cases
+    // in
+
+<span class="nc" id="L267">    long effectivePerms = getEffectivePermission(channel, member);</span>
+<span class="nc bnc" id="L268" title="All 2 branches missed.">    return isApplied(effectivePerms, Permission.ADMINISTRATOR.getRawValue())</span>
+<span class="nc bnc" id="L269" title="All 2 branches missed.">        || isApplied(effectivePerms, Permission.getRaw(permissions));</span>
+  }
+
+  /**
+   * Gets the {@code long} representation of the effective permissions allowed for this {@link
+   * net.dv8tion.jda.core.entities.Member Member} in this {@link net.dv8tion.jda.core.entities.Guild
+   * Guild}. This can be used in conjunction with {@link
+   * net.dv8tion.jda.core.Permission#getPermissions(long) Permission.getPermissions(int)} to easily
+   * get a list of all {@link net.dv8tion.jda.core.Permission Permissions} that this member has in
+   * this {@link net.dv8tion.jda.core.entities.Guild Guild}.
+   *
+   * &lt;p&gt;&lt;b&gt;This only returns the Guild-level permissions!&lt;/b&gt;
+   *
+   * @param member The {@link net.dv8tion.jda.core.entities.Member Member} whose permissions are
+   *     being checked.
+   * @throws IllegalArgumentException if any of the provided parameters is {@code null} or the
+   *     provided entities are not from the same guild
+   * @return The {@code long} representation of the literal permissions that this {@link
+   *     net.dv8tion.jda.core.entities.Member Member} has in this {@link
+   *     net.dv8tion.jda.core.entities.Guild Guild}.
+   */
+  public static long getEffectivePermission(Member member) {
+<span class="nc" id="L291">    Checks.notNull(member, &quot;Member&quot;);</span>
+
+<span class="nc bnc" id="L293" title="All 2 branches missed.">    if (member.isOwner()) return Permission.ALL_PERMISSIONS;</span>
+    // Default to binary OR of all global permissions in this guild
+<span class="nc" id="L295">    long permission = member.getGuild().getPublicRole().getPermissionsRaw();</span>
+<span class="nc bnc" id="L296" title="All 2 branches missed.">    for (Role role : member.getRoles()) {</span>
+<span class="nc" id="L297">      permission |= role.getPermissionsRaw();</span>
+<span class="nc bnc" id="L298" title="All 2 branches missed.">      if (isApplied(permission, Permission.ADMINISTRATOR.getRawValue()))</span>
+<span class="nc" id="L299">        return Permission.ALL_PERMISSIONS;</span>
+<span class="nc" id="L300">    }</span>
+
+<span class="nc" id="L302">    return permission;</span>
+  }
+
+  /**
+   * Gets the {@code long} representation of the effective permissions allowed for this {@link
+   * net.dv8tion.jda.core.entities.Member Member} in this {@link
+   * net.dv8tion.jda.core.entities.Channel Channel}. This can be used in conjunction with {@link
+   * net.dv8tion.jda.core.Permission#getPermissions(long) Permission.getPermissions(long)} to easily
+   * get a list of all {@link net.dv8tion.jda.core.Permission Permissions} that this member can use
+   * in this {@link net.dv8tion.jda.core.entities.Channel Channel}. &lt;br&gt;
+   * This functions very similarly to how {@link
+   * net.dv8tion.jda.core.entities.Role#getPermissionsRaw() Role.getPermissionsRaw()}.
+   *
+   * @param channel The {@link net.dv8tion.jda.core.entities.Channel Channel} being checked.
+   * @param member The {@link net.dv8tion.jda.core.entities.Member Member} whose permissions are
+   *     being checked.
+   * @throws IllegalArgumentException if any of the provided parameters is {@code null} or the
+   *     provided entities are not from the same guild
+   * @return The {@code long} representation of the effective permissions that this {@link
+   *     net.dv8tion.jda.core.entities.Member Member} has in this {@link
+   *     net.dv8tion.jda.core.entities.Channel Channel}.
+   */
+  public static long getEffectivePermission(Channel channel, Member member) {
+<span class="nc" id="L325">    Checks.notNull(channel, &quot;Channel&quot;);</span>
+<span class="nc" id="L326">    Checks.notNull(member, &quot;Member&quot;);</span>
+
+<span class="nc" id="L328">    Checks.check(</span>
+<span class="nc" id="L329">        channel.getGuild().equals(member.getGuild()),</span>
+        &quot;Provided channel and provided member are not of the same guild!&quot;);
+
+<span class="nc bnc" id="L332" title="All 2 branches missed.">    if (member.isOwner()) {</span>
+      // Owner effectively has all permissions
+<span class="nc" id="L334">      return Permission.ALL_PERMISSIONS;</span>
+    }
+
+<span class="nc" id="L337">    long permission = getEffectivePermission(member);</span>
+<span class="nc" id="L338">    final long admin = Permission.ADMINISTRATOR.getRawValue();</span>
+<span class="nc bnc" id="L339" title="All 2 branches missed.">    if (isApplied(permission, admin)) return Permission.ALL_PERMISSIONS;</span>
+
+<span class="nc" id="L341">    AtomicLong allow = new AtomicLong(0);</span>
+<span class="nc" id="L342">    AtomicLong deny = new AtomicLong(0);</span>
+<span class="nc" id="L343">    getExplicitOverrides(channel, member, allow, deny);</span>
+<span class="nc" id="L344">    permission = apply(permission, allow.get(), deny.get());</span>
+<span class="nc" id="L345">    final long viewChannel = Permission.VIEW_CHANNEL.getRawValue();</span>
+
+    // When the permission to view the channel is not applied it is not granted
+    // This means that we have no access to this channel at all
+<span class="nc bnc" id="L349" title="All 2 branches missed.">    return isApplied(permission, viewChannel) ? permission : 0;</span>
+    /*
+    // currently discord doesn't implicitly grant permissions that the user can grant others
+    // so instead the user has to explicitly make an override to grant them the permission in order to be granted that permission
+    // yes this makes no sense but what can i do, the devs don't like changing things apparently...
+    // I've been told half a year ago this would be changed but nothing happens
+    // so instead I'll just bend over for them so people get &quot;correct&quot; permission checks...
+    //
+    // only time will tell if something happens and I can finally re-implement this section wew
+    final long managePerms = Permission.MANAGE_PERMISSIONS.getRawValue();
+    final long manageChannel = Permission.MANAGE_CHANNEL.getRawValue();
+    if ((permission &amp; (managePerms | manageChannel)) != 0)
+    {
+        // In channels, MANAGE_CHANNEL and MANAGE_PERMISSIONS grant full text/voice permissions
+        permission |= Permission.ALL_TEXT_PERMISSIONS | Permission.ALL_VOICE_PERMISSIONS;
+    }
+    */
+  }
+
+  /**
+   * Gets the {@code long} representation of the effective permissions allowed for this {@link
+   * net.dv8tion.jda.core.entities.Role Role} in this {@link net.dv8tion.jda.core.entities.Channel
+   * Channel}. This can be used in conjunction with {@link
+   * net.dv8tion.jda.core.Permission#getPermissions(long) Permission.getPermissions(long)} to easily
+   * get a list of all {@link net.dv8tion.jda.core.Permission Permissions} that this role can use in
+   * this {@link net.dv8tion.jda.core.entities.Channel Channel}.
+   *
+   * @param channel The {@link net.dv8tion.jda.core.entities.Channel Channel} in which permissions
+   *     are being checked.
+   * @param role The {@link net.dv8tion.jda.core.entities.Role Role} whose permissions are being
+   *     checked.
+   * @throws IllegalArgumentException if any of the provided parameters is {@code null} or the
+   *     provided entities are not from the same guild
+   * @return The {@code long} representation of the effective permissions that this {@link
+   *     net.dv8tion.jda.core.entities.Role Role} has in this {@link
+   *     net.dv8tion.jda.core.entities.Channel Channel}
+   */
+  public static long getEffectivePermission(Channel channel, Role role) {
+<span class="nc" id="L387">    Checks.notNull(channel, &quot;Channel&quot;);</span>
+<span class="nc" id="L388">    Checks.notNull(role, &quot;Role&quot;);</span>
+
+<span class="nc" id="L390">    Guild guild = channel.getGuild();</span>
+<span class="nc bnc" id="L391" title="All 2 branches missed.">    if (!guild.equals(role.getGuild()))</span>
+<span class="nc" id="L392">      throw new IllegalArgumentException(&quot;Provided channel and role are not of the same guild!&quot;);</span>
+
+<span class="nc" id="L394">    long permissions = role.getPermissionsRaw() | guild.getPublicRole().getPermissionsRaw();</span>
+
+<span class="nc" id="L396">    PermissionOverride publicOverride = channel.getPermissionOverride(guild.getPublicRole());</span>
+<span class="nc" id="L397">    PermissionOverride roleOverride = channel.getPermissionOverride(role);</span>
+
+<span class="nc bnc" id="L399" title="All 2 branches missed.">    if (publicOverride != null) {</span>
+<span class="nc" id="L400">      permissions &amp;= ~publicOverride.getDeniedRaw();</span>
+<span class="nc" id="L401">      permissions |= publicOverride.getAllowedRaw();</span>
+    }
+
+<span class="nc bnc" id="L404" title="All 2 branches missed.">    if (roleOverride != null) {</span>
+<span class="nc" id="L405">      permissions &amp;= ~roleOverride.getDeniedRaw();</span>
+<span class="nc" id="L406">      permissions |= roleOverride.getAllowedRaw();</span>
+    }
+
+<span class="nc" id="L409">    return permissions;</span>
+  }
+
+  /**
+   * Retrieves the explicit permissions of the specified {@link net.dv8tion.jda.core.entities.Member
+   * Member} in its hosting {@link net.dv8tion.jda.core.entities.Guild Guild}. &lt;br&gt;
+   * This method does not calculate the owner in.
+   *
+   * &lt;p&gt;All permissions returned are explicitly granted to this Member via its {@link
+   * net.dv8tion.jda.core.entities.Role Roles}. &lt;br&gt;
+   * Permissions like {@link net.dv8tion.jda.core.Permission#ADMINISTRATOR Permission.ADMINISTRATOR}
+   * do not grant other permissions in this value.
+   *
+   * @param member The non-null {@link net.dv8tion.jda.core.entities.Member Member} for which to get
+   *     implicit permissions
+   * @throws IllegalArgumentException If the specified member is {@code null}
+   * @return Primitive (unsigned) long value with the implicit permissions of the specified member
+   * @since 3.1
+   */
+  public static long getExplicitPermission(Member member) {
+<span class="nc" id="L429">    Checks.notNull(member, &quot;Member&quot;);</span>
+
+<span class="nc" id="L431">    final Guild guild = member.getGuild();</span>
+<span class="nc" id="L432">    long permission = guild.getPublicRole().getPermissionsRaw();</span>
+
+<span class="nc bnc" id="L434" title="All 2 branches missed.">    for (Role role : member.getRoles()) permission |= role.getPermissionsRaw();</span>
+
+<span class="nc" id="L436">    return permission;</span>
+  }
+
+  /**
+   * Retrieves the explicit permissions of the specified {@link net.dv8tion.jda.core.entities.Member
+   * Member} in its hosting {@link net.dv8tion.jda.core.entities.Guild Guild} and specific {@link
+   * net.dv8tion.jda.core.entities.Channel Channel}. &lt;br&gt;
+   * This method does not calculate the owner in. &lt;b&gt;Allowed permissions override denied permissions
+   * of {@link net.dv8tion.jda.core.entities.PermissionOverride PermissionOverrides}!&lt;/b&gt;
+   *
+   * &lt;p&gt;All permissions returned are explicitly granted to this Member via its {@link
+   * net.dv8tion.jda.core.entities.Role Roles}. &lt;br&gt;
+   * Permissions like {@link net.dv8tion.jda.core.Permission#ADMINISTRATOR Permission.ADMINISTRATOR}
+   * do not grant other permissions in this value.
+   *
+   * &lt;p&gt;This factor in all {@link net.dv8tion.jda.core.entities.PermissionOverride
+   * PermissionOverrides} that affect this member and only grants the ones that are explicitly
+   * given.
+   *
+   * @param channel The target channel of which to check {@link
+   *     net.dv8tion.jda.core.entities.PermissionOverride PermissionOverrides}
+   * @param member The non-null {@link net.dv8tion.jda.core.entities.Member Member} for which to get
+   *     implicit permissions
+   * @throws IllegalArgumentException If any of the arguments is {@code null} or the specified
+   *     entities are not from the same {@link net.dv8tion.jda.core.entities.Guild Guild}
+   * @return Primitive (unsigned) long value with the implicit permissions of the specified member
+   *     in the specified channel
+   * @since 3.1
+   */
+  public static long getExplicitPermission(Channel channel, Member member) {
+<span class="nc" id="L466">    Checks.notNull(channel, &quot;Channel&quot;);</span>
+<span class="nc" id="L467">    Checks.notNull(member, &quot;Member&quot;);</span>
+
+<span class="nc" id="L469">    final Guild guild = member.getGuild();</span>
+<span class="nc" id="L470">    checkGuild(channel.getGuild(), guild, &quot;Member&quot;);</span>
+
+<span class="nc" id="L472">    long permission = getExplicitPermission(member);</span>
+
+<span class="nc" id="L474">    AtomicLong allow = new AtomicLong(0);</span>
+<span class="nc" id="L475">    AtomicLong deny = new AtomicLong(0);</span>
+
+    // populates allow/deny
+<span class="nc" id="L478">    getExplicitOverrides(channel, member, allow, deny);</span>
+
+<span class="nc" id="L480">    return apply(permission, allow.get(), deny.get());</span>
+  }
+
+  /**
+   * Retrieves the explicit permissions of the specified {@link net.dv8tion.jda.core.entities.Role
+   * Role} in its hosting {@link net.dv8tion.jda.core.entities.Guild Guild} and specific {@link
+   * net.dv8tion.jda.core.entities.Channel Channel}. &lt;br&gt;
+   * &lt;b&gt;Allowed permissions override denied permissions of {@link
+   * net.dv8tion.jda.core.entities.PermissionOverride PermissionOverrides}!&lt;/b&gt;
+   *
+   * &lt;p&gt;All permissions returned are explicitly granted to this Role. &lt;br&gt;
+   * Permissions like {@link net.dv8tion.jda.core.Permission#ADMINISTRATOR Permission.ADMINISTRATOR}
+   * do not grant other permissions in this value.
+   *
+   * &lt;p&gt;This factor in existing {@link net.dv8tion.jda.core.entities.PermissionOverride
+   * PermissionOverrides} if possible.
+   *
+   * @param channel The target channel of which to check {@link
+   *     net.dv8tion.jda.core.entities.PermissionOverride PermissionOverrides}
+   * @param role The non-null {@link net.dv8tion.jda.core.entities.Role Role} for which to get
+   *     implicit permissions
+   * @throws IllegalArgumentException If any of the arguments is {@code null} or the specified
+   *     entities are not from the same {@link net.dv8tion.jda.core.entities.Guild Guild}
+   * @return Primitive (unsigned) long value with the implicit permissions of the specified role in
+   *     the specified channel
+   * @since 3.1
+   */
+  public static long getExplicitPermission(Channel channel, Role role) {
+<span class="nc" id="L508">    Checks.notNull(channel, &quot;Channel&quot;);</span>
+<span class="nc" id="L509">    Checks.notNull(role, &quot;Role&quot;);</span>
+
+<span class="nc" id="L511">    final Guild guild = role.getGuild();</span>
+<span class="nc" id="L512">    checkGuild(channel.getGuild(), guild, &quot;Role&quot;);</span>
+
+<span class="nc" id="L514">    long permission = role.getPermissionsRaw() | guild.getPublicRole().getPermissionsRaw();</span>
+<span class="nc" id="L515">    PermissionOverride override = channel.getPermissionOverride(guild.getPublicRole());</span>
+<span class="nc bnc" id="L516" title="All 2 branches missed.">    if (override != null)</span>
+<span class="nc" id="L517">      permission = apply(permission, override.getAllowedRaw(), override.getDeniedRaw());</span>
+<span class="nc bnc" id="L518" title="All 2 branches missed.">    if (role.isPublicRole()) return permission;</span>
+
+<span class="nc" id="L520">    override = channel.getPermissionOverride(role);</span>
+
+<span class="nc bnc" id="L522" title="All 2 branches missed.">    return override == null</span>
+        ? permission
+<span class="nc" id="L524">        : apply(permission, override.getAllowedRaw(), override.getDeniedRaw());</span>
+  }
+
+  /**
+   * Pushes all deny/allow values to the specified BiConsumer &lt;br&gt;
+   * First parameter is allow, second is deny
+   */
+  private static void getExplicitOverrides(
+      Channel channel, Member member, AtomicLong allow, AtomicLong deny) {
+<span class="nc" id="L533">    PermissionOverride override = channel.getPermissionOverride(member.getGuild().getPublicRole());</span>
+<span class="nc" id="L534">    long allowRaw = 0;</span>
+<span class="nc" id="L535">    long denyRaw = 0;</span>
+<span class="nc bnc" id="L536" title="All 2 branches missed.">    if (override != null) {</span>
+<span class="nc" id="L537">      denyRaw = override.getDeniedRaw();</span>
+<span class="nc" id="L538">      allowRaw = override.getAllowedRaw();</span>
+    }
+
+<span class="nc" id="L541">    long allowRole = 0;</span>
+<span class="nc" id="L542">    long denyRole = 0;</span>
+    // create temporary bit containers for role cascade
+<span class="nc bnc" id="L544" title="All 2 branches missed.">    for (Role role : member.getRoles()) {</span>
+<span class="nc" id="L545">      override = channel.getPermissionOverride(role);</span>
+<span class="nc bnc" id="L546" title="All 2 branches missed.">      if (override != null) {</span>
+        // important to update role cascade not others
+<span class="nc" id="L548">        denyRole |= override.getDeniedRaw();</span>
+<span class="nc" id="L549">        allowRole |= override.getAllowedRaw();</span>
+      }
+<span class="nc" id="L551">    }</span>
+    // Override the raw values of public role then apply role cascade
+<span class="nc" id="L553">    allowRaw = (allowRaw &amp; ~denyRole) | allowRole;</span>
+<span class="nc" id="L554">    denyRaw = (denyRaw &amp; ~allowRole) | denyRole;</span>
+
+<span class="nc" id="L556">    override = channel.getPermissionOverride(member);</span>
+<span class="nc bnc" id="L557" title="All 2 branches missed.">    if (override != null) {</span>
+      // finally override the role cascade with member overrides
+<span class="nc" id="L559">      final long oDeny = override.getDeniedRaw();</span>
+<span class="nc" id="L560">      final long oAllow = override.getAllowedRaw();</span>
+<span class="nc" id="L561">      allowRaw = (allowRaw &amp; ~oDeny) | oAllow;</span>
+<span class="nc" id="L562">      denyRaw = (denyRaw &amp; ~oAllow) | oDeny;</span>
+      // this time we need to exclude new allowed bits from old denied ones and OR the new denied
+      // bits as final overrides
+    }
+    // set as resulting values
+<span class="nc" id="L567">    allow.set(allowRaw);</span>
+<span class="nc" id="L568">    deny.set(denyRaw);</span>
+<span class="nc" id="L569">  }</span>
+
+  /*
+   * Check whether the specified permission is applied in the bits
+   */
+  private static boolean isApplied(long permissions, long perms) {
+<span class="nc bnc" id="L575" title="All 2 branches missed.">    return (permissions &amp; perms) == perms;</span>
+  }
+
+  private static long apply(long permission, long allow, long deny) {
+<span class="nc" id="L579">    permission &amp;= ~deny; // Deny everything that the cascade of roles denied.</span>
+<span class="nc" id="L580">    permission |= allow; // Allow all the things that the cascade of roles allowed</span>
+    // The allowed bits override the denied ones!
+<span class="nc" id="L582">    return permission;</span>
+  }
+
+  private static void checkGuild(Guild o1, Guild o2, String name) {
+<span class="nc" id="L586">    Checks.check(</span>
+<span class="nc" id="L587">        o1.equals(o2),</span>
+        &quot;Specified %s is not in the same guild! (%s / %s)&quot;,
+        name,
+<span class="nc" id="L590">        o1.toString(),</span>
+<span class="nc" id="L591">        o2.toString());</span>
+<span class="nc" id="L592">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

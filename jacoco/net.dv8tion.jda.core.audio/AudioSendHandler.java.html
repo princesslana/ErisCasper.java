@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AudioSendHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">net.dv8tion.jda.core.audio</a> &gt; <span class="el_source">AudioSendHandler.java</span></div><h1>AudioSendHandler.java</h1><pre class="source lang-java linenums">/*
+ *     Copyright 2015-2018 Austin Keener &amp; Michael Ritter &amp; Florian Spieß
+ *     Copyright 2018-2018 &quot;Princess&quot; Lana Samson
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package net.dv8tion.jda.core.audio;
+
+import javax.sound.sampled.AudioFormat;
+
+/** Interface used to send audio to Discord through JDA. */
+public interface AudioSendHandler {
+  /**
+   * Audio Input Format expected by JDA if {@link #isOpus()} returns false. 48KHz 16bit stereo
+   * signed BigEndian PCM.
+   */
+<span class="nc" id="L27">  AudioFormat INPUT_FORMAT = new AudioFormat(48000f, 16, 2, true, true);</span>
+
+  /**
+   * If this method returns true JDA will attempt to retrieve audio data from this handler by
+   * calling {@link #provide20MsAudio()}. The return value is checked each time JDA attempts send
+   * audio, so if the developer wanted to start and stop sending audio it could be done by changing
+   * the value returned by this method at runtime.
+   *
+   * @return If true, JDA will attempt to retrieve audio data from {@link #provide20MsAudio()}
+   */
+  boolean canProvide();
+
+  /**
+   * If {@link #canProvide()} returns true JDA will call this method in an attempt to retrieve audio
+   * data from the handler. This method need to provide 20 Milliseconds of audio data as a byte
+   * array.
+   *
+   * &lt;p&gt;Considering this system needs to be low-latency / high-speed, it is recommended that the
+   * loading of audio data be done before hand or in parallel and not loaded from disk when this
+   * method is called by JDA. Attempting to load all audio data from disk when this method is called
+   * will most likely cause issues due to IO blocking this thread.
+   *
+   * &lt;p&gt;The provided audio data needs to be in the format: 48KHz 16bit stereo signed BigEndian PCM.
+   * &lt;br&gt;
+   * Defined by: {@link net.dv8tion.jda.core.audio.AudioSendHandler#INPUT_FORMAT
+   * AudioSendHandler.INPUT_FORMAT}. &lt;br&gt;
+   * If {@link #isOpus()} is set to return true, then it should be in pre-encoded Opus format
+   * instead.
+   *
+   * @return Should return a byte[] containing 20 Milliseconds of audio.
+   */
+  byte[] provide20MsAudio();
+
+  /**
+   * If this method returns true JDA will treat the audio data provided by {@link
+   * #provide20MsAudio()} as a pre-encoded 20 Millisecond packet of Opus audio. This means that JDA
+   * &lt;b&gt;WILL NOT&lt;/b&gt; attempt to encode the audio as Opus, but will provide it to Discord &lt;b&gt;exactly
+   * as it is given&lt;/b&gt;.
+   *
+   * @return If true, JDA will not attempt to encode the provided audio data as Opus. &lt;br&gt;
+   *     Default - False.
+   */
+  default boolean isOpus() {
+<span class="nc" id="L70">    return false;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

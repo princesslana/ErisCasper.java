@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BotRateLimiter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">net.dv8tion.jda.core.requests.ratelimit</a> &gt; <span class="el_source">BotRateLimiter.java</span></div><h1>BotRateLimiter.java</h1><pre class="source lang-java linenums">/*
+ *     Copyright 2015-2018 Austin Keener &amp; Michael Ritter &amp; Florian Spieß
+ *     Copyright 2018-2018 &quot;Princess&quot; Lana Samson
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package net.dv8tion.jda.core.requests.ratelimit;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Iterator;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.TimeUnit;
+import net.dv8tion.jda.core.entities.impl.JDAImpl;
+import net.dv8tion.jda.core.events.ExceptionEvent;
+import net.dv8tion.jda.core.requests.RateLimiter;
+import net.dv8tion.jda.core.requests.Request;
+import net.dv8tion.jda.core.requests.Requester;
+import net.dv8tion.jda.core.requests.Route;
+import net.dv8tion.jda.core.requests.Route.RateLimit;
+import okhttp3.Headers;
+import org.json.JSONObject;
+import org.json.JSONTokener;
+
+public class BotRateLimiter extends RateLimiter {
+<span class="nc" id="L40">  protected volatile Long timeOffset = null;</span>
+
+  public BotRateLimiter(Requester requester, int poolSize) {
+<span class="nc" id="L43">    super(requester, poolSize);</span>
+<span class="nc" id="L44">  }</span>
+
+  @Override
+  public Long getRateLimit(Route.CompiledRoute route) {
+<span class="nc" id="L48">    Bucket bucket = getBucket(route);</span>
+<span class="nc" id="L49">    synchronized (bucket) {</span>
+<span class="nc" id="L50">      return bucket.getRateLimit();</span>
+    }
+  }
+
+  @Override
+  protected void queueRequest(Request request) {
+<span class="nc" id="L56">    Bucket bucket = getBucket(request.getRoute());</span>
+<span class="nc" id="L57">    synchronized (bucket) {</span>
+<span class="nc" id="L58">      bucket.addToQueue(request);</span>
+<span class="nc" id="L59">    }</span>
+<span class="nc" id="L60">  }</span>
+
+  @Override
+  protected Long handleResponse(Route.CompiledRoute route, okhttp3.Response response) {
+<span class="nc" id="L64">    Bucket bucket = getBucket(route);</span>
+<span class="nc" id="L65">    synchronized (bucket) {</span>
+<span class="nc" id="L66">      Headers headers = response.headers();</span>
+<span class="nc" id="L67">      int code = response.code();</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">      if (timeOffset == null) setTimeOffset(headers);</span>
+
+<span class="nc bnc" id="L70" title="All 2 branches missed.">      if (code == 429) {</span>
+<span class="nc" id="L71">        String global = headers.get(&quot;X-RateLimit-Global&quot;);</span>
+<span class="nc" id="L72">        String retry = headers.get(&quot;Retry-After&quot;);</span>
+<span class="nc bnc" id="L73" title="All 4 branches missed.">        if (retry == null || retry.isEmpty()) {</span>
+<span class="nc" id="L74">          try (InputStream in = Requester.getBody(response)) {</span>
+<span class="nc" id="L75">            JSONObject limitObj = new JSONObject(new JSONTokener(in));</span>
+<span class="nc" id="L76">            retry = limitObj.get(&quot;retry_after&quot;).toString();</span>
+<span class="nc" id="L77">          } catch (IOException e) {</span>
+<span class="nc" id="L78">            throw new IllegalStateException(e);</span>
+<span class="nc" id="L79">          }</span>
+        }
+<span class="nc" id="L81">        long retryAfter = Long.parseLong(retry);</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">        if (!Boolean.parseBoolean(global)) // Not global ratelimit</span>
+        {
+<span class="nc" id="L84">          updateBucket(bucket, headers);</span>
+        } else {
+          // If it is global, lock down the threads.
+<span class="nc" id="L87">          requester.getJDA().getSessionController().setGlobalRatelimit(getNow() + retryAfter);</span>
+        }
+
+<span class="nc" id="L90">        return retryAfter;</span>
+      } else {
+<span class="nc" id="L92">        updateBucket(bucket, headers);</span>
+<span class="nc" id="L93">        return null;</span>
+      }
+    }
+  }
+
+  private Bucket getBucket(Route.CompiledRoute route) {
+<span class="nc" id="L99">    String rateLimitRoute = route.getRatelimitRoute();</span>
+<span class="nc" id="L100">    Bucket bucket = (Bucket) buckets.get(rateLimitRoute);</span>
+<span class="nc bnc" id="L101" title="All 2 branches missed.">    if (bucket == null) {</span>
+<span class="nc" id="L102">      synchronized (buckets) {</span>
+<span class="nc" id="L103">        bucket = (Bucket) buckets.get(rateLimitRoute);</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">        if (bucket == null) {</span>
+<span class="nc" id="L105">          bucket = new Bucket(rateLimitRoute, route.getBaseRoute().getRatelimit());</span>
+<span class="nc" id="L106">          buckets.put(rateLimitRoute, bucket);</span>
+        }
+<span class="nc" id="L108">      }</span>
+    }
+<span class="nc" id="L110">    return bucket;</span>
+  }
+
+  public long getNow() {
+<span class="nc" id="L114">    return System.currentTimeMillis() + getTimeOffset();</span>
+  }
+
+  public long getTimeOffset() {
+<span class="nc bnc" id="L118" title="All 2 branches missed.">    return timeOffset == null ? 0 : timeOffset;</span>
+  }
+
+  private void setTimeOffset(Headers headers) {
+    // Store as soon as possible to get the most accurate time difference;
+<span class="nc" id="L123">    long time = System.currentTimeMillis();</span>
+<span class="nc bnc" id="L124" title="All 2 branches missed.">    if (timeOffset == null) {</span>
+      // Get the date header provided by Discord.
+      // Format:  &quot;date&quot; : &quot;Fri, 16 Sep 2016 05:49:36 GMT&quot;
+<span class="nc" id="L127">      String date = headers.get(&quot;Date&quot;);</span>
+<span class="nc bnc" id="L128" title="All 2 branches missed.">      if (date != null) {</span>
+<span class="nc" id="L129">        OffsetDateTime tDate = OffsetDateTime.parse(date, DateTimeFormatter.RFC_1123_DATE_TIME);</span>
+<span class="nc" id="L130">        long lDate =</span>
+<span class="nc" id="L131">            tDate.toInstant().toEpochMilli(); // We want to work in milliseconds, not seconds</span>
+<span class="nc" id="L132">        timeOffset = lDate - time; // Get offset in milliseconds.</span>
+      }
+    }
+<span class="nc" id="L135">  }</span>
+
+  private void updateBucket(Bucket bucket, Headers headers) {
+    try {
+<span class="nc bnc" id="L139" title="All 2 branches missed.">      if (bucket.hasRatelimit()) // Check if there's a hardcoded rate limit</span>
+      {
+<span class="nc" id="L141">        bucket.resetTime = getNow() + bucket.getRatelimit().getResetTime();</span>
+        // routeUsageLimit provided by the ratelimit object already in the bucket.
+      } else {
+<span class="nc" id="L144">        bucket.resetTime =</span>
+<span class="nc" id="L145">            Long.parseLong(headers.get(&quot;X-RateLimit-Reset&quot;)) * 1000; // Seconds to milliseconds</span>
+<span class="nc" id="L146">        bucket.routeUsageLimit = Integer.parseInt(headers.get(&quot;X-RateLimit-Limit&quot;));</span>
+      }
+
+      // Currently, we check the remaining amount even for hardcoded ratelimits just to further
+      // respect Discord
+      // however, if there should ever be a case where Discord informs that the remaining is less
+      // than what
+      // it actually is and we add a custom ratelimit to handle that, we will need to instead move
+      // this to the
+      // above else statement and add a bucket.routeUsageRemaining-- decrement to the above if body.
+      // An example of this statement needing to be moved would be if the custom ratelimit reset
+      // time interval is
+      // equal to or greater than 1000ms, and the remaining count provided by discord is less than
+      // the ACTUAL
+      // amount that their systems allow in such a way that isn't a bug.
+      // The custom ratelimit system is primarily for ratelimits that can't be properly represented
+      // by Discord's
+      // header system due to their headers only supporting accuracy to the second. The custom
+      // ratelimit system
+      // allows for hardcoded ratelimits that allow accuracy to the millisecond which is important
+      // for some
+      // ratelimits like Reactions which is 1/0.25s, but discord reports the ratelimit as 1/1s with
+      // headers.
+<span class="nc" id="L169">      bucket.routeUsageRemaining = Integer.parseInt(headers.get(&quot;X-RateLimit-Remaining&quot;));</span>
+<span class="nc" id="L170">    } catch (NumberFormatException ex) {</span>
+<span class="nc bnc" id="L171" title="All 4 branches missed.">      if (!bucket.getRoute().equals(&quot;gateway&quot;) &amp;&amp; !bucket.getRoute().equals(&quot;users/@me&quot;)) {</span>
+<span class="nc" id="L172">        Requester.LOG.debug(</span>
+            &quot;Encountered issue with headers when updating a bucket\nRoute: {}\nHeaders: {}&quot;,
+<span class="nc" id="L174">            bucket.getRoute(),</span>
+            headers);
+      }
+<span class="nc" id="L177">    }</span>
+<span class="nc" id="L178">  }</span>
+
+  private class Bucket implements IBucket, Runnable {
+    final String route;
+    final RateLimit rateLimit;
+<span class="nc" id="L183">    final ConcurrentLinkedQueue&lt;Request&gt; requests = new ConcurrentLinkedQueue&lt;&gt;();</span>
+<span class="nc" id="L184">    volatile long resetTime = 0;</span>
+<span class="nc" id="L185">    volatile int routeUsageRemaining =</span>
+        1; // These are default values to only allow 1 request until we have properly
+<span class="nc" id="L187">    volatile int routeUsageLimit = 1; // ratelimit information.</span>
+
+<span class="nc" id="L189">    public Bucket(String route, RateLimit rateLimit) {</span>
+<span class="nc" id="L190">      this.route = route;</span>
+<span class="nc" id="L191">      this.rateLimit = rateLimit;</span>
+<span class="nc bnc" id="L192" title="All 2 branches missed.">      if (rateLimit != null) {</span>
+<span class="nc" id="L193">        this.routeUsageRemaining = rateLimit.getUsageLimit();</span>
+<span class="nc" id="L194">        this.routeUsageLimit = rateLimit.getUsageLimit();</span>
+      }
+<span class="nc" id="L196">    }</span>
+
+    void addToQueue(Request request) {
+<span class="nc" id="L199">      requests.add(request);</span>
+<span class="nc" id="L200">      submitForProcessing();</span>
+<span class="nc" id="L201">    }</span>
+
+    void submitForProcessing() {
+<span class="nc" id="L204">      synchronized (submittedBuckets) {</span>
+<span class="nc bnc" id="L205" title="All 2 branches missed.">        if (!submittedBuckets.contains(this)) {</span>
+<span class="nc" id="L206">          Long delay = getRateLimit();</span>
+<span class="nc bnc" id="L207" title="All 2 branches missed.">          if (delay == null) delay = 0L;</span>
+
+<span class="nc" id="L209">          pool.schedule(this, delay, TimeUnit.MILLISECONDS);</span>
+<span class="nc" id="L210">          submittedBuckets.add(this);</span>
+        }
+<span class="nc" id="L212">      }</span>
+<span class="nc" id="L213">    }</span>
+
+    Long getRateLimit() {
+<span class="nc" id="L216">      long gCooldown = requester.getJDA().getSessionController().getGlobalRatelimit();</span>
+<span class="nc bnc" id="L217" title="All 2 branches missed.">      if (gCooldown &gt; 0) // Are we on global cooldown?</span>
+      {
+<span class="nc" id="L219">        long now = getNow();</span>
+<span class="nc bnc" id="L220" title="All 2 branches missed.">        if (now &gt; gCooldown) // Verify that we should still be on cooldown.</span>
+        {
+          // If we are done cooling down, reset the globalCooldown and continue.
+<span class="nc" id="L223">          requester.getJDA().getSessionController().setGlobalRatelimit(Long.MIN_VALUE);</span>
+        } else {
+          // If we should still be on cooldown, return when we can go again.
+<span class="nc" id="L226">          return gCooldown - now;</span>
+        }
+      }
+<span class="nc bnc" id="L229" title="All 2 branches missed.">      if (this.routeUsageRemaining &lt;= 0) {</span>
+<span class="nc bnc" id="L230" title="All 2 branches missed.">        if (getNow() &gt; this.resetTime) {</span>
+<span class="nc" id="L231">          this.routeUsageRemaining = this.routeUsageLimit;</span>
+<span class="nc" id="L232">          this.resetTime = 0;</span>
+        }
+      }
+<span class="nc bnc" id="L235" title="All 2 branches missed.">      if (this.routeUsageRemaining &gt; 0) return null;</span>
+<span class="nc" id="L236">      else return this.resetTime - getNow();</span>
+    }
+
+    @Override
+    public boolean equals(Object o) {
+<span class="nc bnc" id="L241" title="All 2 branches missed.">      if (!(o instanceof Bucket)) return false;</span>
+
+<span class="nc" id="L243">      Bucket oBucket = (Bucket) o;</span>
+<span class="nc" id="L244">      return route.equals(oBucket.route);</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="nc" id="L249">      return route.hashCode();</span>
+    }
+
+    @Override
+    public void run() {
+      try {
+<span class="nc" id="L255">        synchronized (requests) {</span>
+<span class="nc bnc" id="L256" title="All 2 branches missed.">          for (Iterator&lt;Request&gt; it = requests.iterator(); it.hasNext(); ) {</span>
+<span class="nc" id="L257">            Long limit = getRateLimit();</span>
+<span class="nc bnc" id="L258" title="All 4 branches missed.">            if (limit != null &amp;&amp; limit &gt; 0) break; // possible global cooldown here</span>
+<span class="nc" id="L259">            Request request = null;</span>
+            try {
+<span class="nc" id="L261">              request = it.next();</span>
+<span class="nc bnc" id="L262" title="All 2 branches missed.">              if (isSkipped(it, request)) continue;</span>
+<span class="nc" id="L263">              Long retryAfter = requester.execute(request);</span>
+<span class="nc bnc" id="L264" title="All 2 branches missed.">              if (retryAfter != null) break;</span>
+<span class="nc" id="L265">              else it.remove();</span>
+<span class="nc" id="L266">            } catch (Throwable t) {</span>
+<span class="nc" id="L267">              Requester.LOG.error(&quot;Requester system encountered an internal error&quot;, t);</span>
+<span class="nc" id="L268">              it.remove();</span>
+<span class="nc bnc" id="L269" title="All 2 branches missed.">              if (request != null) request.onFailure(t);</span>
+<span class="nc" id="L270">            }</span>
+<span class="nc" id="L271">          }</span>
+
+<span class="nc" id="L273">          synchronized (submittedBuckets) {</span>
+<span class="nc" id="L274">            submittedBuckets.remove(this);</span>
+<span class="nc bnc" id="L275" title="All 2 branches missed.">            if (!requests.isEmpty()) {</span>
+              try {
+<span class="nc" id="L277">                this.submitForProcessing();</span>
+<span class="nc" id="L278">              } catch (RejectedExecutionException e) {</span>
+<span class="nc" id="L279">                Requester.LOG.debug(</span>
+                    &quot;Caught RejectedExecutionException when re-queuing a ratelimited request. The requester is probably shutdown, thus, this can be ignored.&quot;);
+<span class="nc" id="L281">              }</span>
+            }
+<span class="nc" id="L283">          }</span>
+<span class="nc" id="L284">        }</span>
+<span class="nc" id="L285">      } catch (Throwable err) {</span>
+<span class="nc" id="L286">        Requester.LOG.error(</span>
+            &quot;Requester system encountered an internal error from beyond the synchronized execution blocks. NOT GOOD!&quot;,
+            err);
+<span class="nc bnc" id="L289" title="All 2 branches missed.">        if (err instanceof Error) {</span>
+<span class="nc" id="L290">          JDAImpl api = requester.getJDA();</span>
+<span class="nc" id="L291">          api.getEventManager().handle(new ExceptionEvent(api, err, true));</span>
+        }
+<span class="nc" id="L293">      }</span>
+<span class="nc" id="L294">    }</span>
+
+    @Override
+    public RateLimit getRatelimit() {
+<span class="nc" id="L298">      return rateLimit;</span>
+    }
+
+    @Override
+    public String getRoute() {
+<span class="nc" id="L303">      return route;</span>
+    }
+
+    @Override
+    public Queue&lt;Request&gt; getRequests() {
+<span class="nc" id="L308">      return requests;</span>
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

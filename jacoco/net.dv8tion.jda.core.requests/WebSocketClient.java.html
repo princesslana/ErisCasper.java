@@ -1,0 +1,1314 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WebSocketClient.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">net.dv8tion.jda.core.requests</a> &gt; <span class="el_source">WebSocketClient.java</span></div><h1>WebSocketClient.java</h1><pre class="source lang-java linenums">/*
+ *     Copyright 2015-2018 Austin Keener &amp; Michael Ritter &amp; Florian Spieß
+ *     Copyright 2018-2018 &quot;Princess&quot; Lana Samson
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package net.dv8tion.jda.core.requests;
+
+import com.neovisionaries.ws.client.*;
+import gnu.trove.iterator.TLongObjectIterator;
+import gnu.trove.map.TLongObjectMap;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.time.OffsetDateTime;
+import java.util.*;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Supplier;
+import java.util.zip.DataFormatException;
+import java.util.zip.Inflater;
+import java.util.zip.InflaterOutputStream;
+import net.dv8tion.jda.client.entities.impl.JDAClientImpl;
+import net.dv8tion.jda.client.handle.*;
+import net.dv8tion.jda.core.AccountType;
+import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.WebSocketCode;
+import net.dv8tion.jda.core.audio.ConnectionRequest;
+import net.dv8tion.jda.core.audio.ConnectionStage;
+import net.dv8tion.jda.core.audio.hooks.ConnectionListener;
+import net.dv8tion.jda.core.audio.hooks.ConnectionStatus;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.GuildVoiceState;
+import net.dv8tion.jda.core.entities.VoiceChannel;
+import net.dv8tion.jda.core.entities.impl.GuildImpl;
+import net.dv8tion.jda.core.entities.impl.JDAImpl;
+import net.dv8tion.jda.core.events.*;
+import net.dv8tion.jda.core.handle.*;
+import net.dv8tion.jda.core.managers.AudioManager;
+import net.dv8tion.jda.core.managers.impl.AudioManagerImpl;
+import net.dv8tion.jda.core.managers.impl.PresenceImpl;
+import net.dv8tion.jda.core.utils.JDALogger;
+import net.dv8tion.jda.core.utils.MiscUtil;
+import net.dv8tion.jda.core.utils.SessionController;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.MDC;
+
+public class WebSocketClient extends WebSocketAdapter implements WebSocketListener {
+<span class="nc" id="L62">  public static final Logger LOG = JDALogger.getLog(WebSocketClient.class);</span>
+  public static final int DISCORD_GATEWAY_VERSION = 6;
+  public static final int IDENTIFY_DELAY = 5;
+  public static final int ZLIB_SUFFIX = 0x0000FFFF;
+
+  private static final String INVALIDATE_REASON = &quot;INVALIDATE_SESSION&quot;;
+
+  protected final JDAImpl api;
+  protected final JDA.ShardInfo shardInfo;
+<span class="nc" id="L71">  protected final Map&lt;String, SocketHandler&gt; handlers = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L72">  protected final Set&lt;String&gt; cfRays = new HashSet&lt;&gt;();</span>
+<span class="nc" id="L73">  protected final Set&lt;String&gt; traces = new HashSet&lt;&gt;();</span>
+
+  public WebSocket socket;
+<span class="nc" id="L76">  protected String sessionId = null;</span>
+<span class="nc" id="L77">  protected Inflater zlibContext = new Inflater();</span>
+  protected ByteArrayOutputStream readBuffer;
+
+  protected volatile Thread keepAliveThread;
+  protected boolean initiating; // cache all events?
+<span class="nc" id="L82">  protected final List&lt;JSONObject&gt; cachedEvents = new LinkedList&lt;&gt;();</span>
+
+<span class="nc" id="L84">  protected int reconnectTimeoutS = 2;</span>
+  protected long heartbeatStartTime;
+
+  // GuildId, &lt;TimeOfNextAttempt, ConnectionStage, AudioConnection&gt;
+<span class="nc" id="L88">  protected final TLongObjectMap&lt;ConnectionRequest&gt; queuedAudioConnections = MiscUtil.newLongMap();</span>
+<span class="nc" id="L89">  protected final ReentrantLock audioQueueLock = new ReentrantLock();</span>
+
+<span class="nc" id="L91">  protected final LinkedList&lt;String&gt; chunkSyncQueue = new LinkedList&lt;&gt;();</span>
+<span class="nc" id="L92">  protected final LinkedList&lt;String&gt; ratelimitQueue = new LinkedList&lt;&gt;();</span>
+<span class="nc" id="L93">  protected volatile Thread ratelimitThread = null;</span>
+  protected volatile long ratelimitResetTime;
+  protected volatile int messagesSent;
+
+<span class="nc" id="L97">  protected volatile boolean shutdown = false;</span>
+<span class="nc" id="L98">  protected boolean shouldReconnect = true;</span>
+<span class="nc" id="L99">  protected boolean handleIdentifyRateLimit = false;</span>
+<span class="nc" id="L100">  protected boolean connected = false;</span>
+
+<span class="nc" id="L102">  protected volatile boolean chunkingAndSyncing = false;</span>
+<span class="nc" id="L103">  protected volatile boolean printedRateLimitMessage = false;</span>
+<span class="nc" id="L104">  protected boolean sentAuthInfo = false;</span>
+<span class="nc" id="L105">  protected boolean firstInit = true;</span>
+<span class="nc" id="L106">  protected boolean processingReady = true;</span>
+
+<span class="nc" id="L108">  protected volatile ConnectNode connectNode = null;</span>
+
+<span class="nc" id="L110">  public WebSocketClient(JDAImpl api) {</span>
+<span class="nc" id="L111">    this.api = api;</span>
+<span class="nc" id="L112">    this.shardInfo = api.getShardInfo();</span>
+<span class="nc" id="L113">    this.shouldReconnect = api.isAutoReconnect();</span>
+<span class="nc" id="L114">    this.connectNode = new StartingNode();</span>
+    try {
+<span class="nc" id="L116">      api.getSessionController().appendSession(connectNode);</span>
+<span class="nc" id="L117">    } catch (RuntimeException | Error e) {</span>
+<span class="nc" id="L118">      LOG.error(&quot;Failed to append new session to session controller queue. Shutting down!&quot;, e);</span>
+<span class="nc" id="L119">      this.api.setStatus(JDA.Status.SHUTDOWN);</span>
+<span class="nc" id="L120">      this.api.getEventManager().handle(new ShutdownEvent(api, OffsetDateTime.now(), 1006));</span>
+<span class="nc bnc" id="L121" title="All 2 branches missed.">      if (e instanceof RuntimeException) throw (RuntimeException) e;</span>
+<span class="nc" id="L122">      else throw (Error) e;</span>
+<span class="nc" id="L123">    }</span>
+<span class="nc" id="L124">  }</span>
+
+  public JDA getJDA() {
+<span class="nc" id="L127">    return api;</span>
+  }
+
+  public Set&lt;String&gt; getCfRays() {
+<span class="nc" id="L131">    return cfRays;</span>
+  }
+
+  public Set&lt;String&gt; getTraces() {
+<span class="nc" id="L135">    return traces;</span>
+  }
+
+  protected void updateTraces(JSONArray arr, String type, int opCode) {
+<span class="nc" id="L139">    WebSocketClient.LOG.debug(&quot;Received a _trace for {} (OP: {}) with {}&quot;, type, opCode, arr);</span>
+<span class="nc" id="L140">    traces.clear();</span>
+<span class="nc bnc" id="L141" title="All 2 branches missed.">    for (Object o : arr) traces.add(String.valueOf(o));</span>
+<span class="nc" id="L142">  }</span>
+
+  protected void allocateBuffer(byte[] binary) throws IOException {
+<span class="nc" id="L145">    this.readBuffer = new ByteArrayOutputStream(binary.length * 2);</span>
+<span class="nc" id="L146">    this.readBuffer.write(binary);</span>
+<span class="nc" id="L147">  }</span>
+
+  protected void extendBuffer(byte[] binary) throws IOException {
+<span class="nc bnc" id="L150" title="All 2 branches missed.">    if (this.readBuffer != null) this.readBuffer.write(binary);</span>
+<span class="nc" id="L151">  }</span>
+
+  public void setAutoReconnect(boolean reconnect) {
+<span class="nc" id="L154">    this.shouldReconnect = reconnect;</span>
+<span class="nc" id="L155">  }</span>
+
+  public boolean isConnected() {
+<span class="nc" id="L158">    return connected;</span>
+  }
+
+  public void ready() {
+<span class="nc bnc" id="L162" title="All 2 branches missed.">    if (initiating) {</span>
+<span class="nc" id="L163">      initiating = false;</span>
+<span class="nc" id="L164">      processingReady = false;</span>
+<span class="nc bnc" id="L165" title="All 2 branches missed.">      if (firstInit) {</span>
+<span class="nc" id="L166">        firstInit = false;</span>
+<span class="nc bnc" id="L167" title="All 2 branches missed.">        if (api.getGuilds().size() &gt;= 2000) // Show large warning when connected to &gt;=2000 guilds</span>
+        {
+<span class="nc" id="L169">          JDAImpl.LOG.warn(&quot; __      __ _    ___  _  _  ___  _  _   ___  _ &quot;);</span>
+<span class="nc" id="L170">          JDAImpl.LOG.warn(&quot; \\ \\    / //_\\  | _ \\| \\| ||_ _|| \\| | / __|| |&quot;);</span>
+<span class="nc" id="L171">          JDAImpl.LOG.warn(&quot;  \\ \\/\\/ // _ \\ |   /| .` | | | | .` || (_ ||_|&quot;);</span>
+<span class="nc" id="L172">          JDAImpl.LOG.warn(&quot;   \\_/\\_//_/ \\_\\|_|_\\|_|\\_||___||_|\\_| \\___|(_)&quot;);</span>
+<span class="nc" id="L173">          JDAImpl.LOG.warn(&quot;You're running a session with over 2000 connected&quot;);</span>
+<span class="nc" id="L174">          JDAImpl.LOG.warn(&quot;guilds. You should shard the connection in order&quot;);</span>
+<span class="nc" id="L175">          JDAImpl.LOG.warn(&quot;to split the load or things like resuming&quot;);</span>
+<span class="nc" id="L176">          JDAImpl.LOG.warn(&quot;connection might not work as expected.&quot;);</span>
+<span class="nc" id="L177">          JDAImpl.LOG.warn(&quot;For more info see https://git.io/vrFWP&quot;);</span>
+        }
+<span class="nc" id="L179">        JDAImpl.LOG.info(&quot;Finished Loading!&quot;);</span>
+<span class="nc" id="L180">        api.getEventManager().handle(new ReadyEvent(api, api.getResponseTotal()));</span>
+      } else {
+<span class="nc" id="L182">        updateAudioManagerReferences();</span>
+<span class="nc" id="L183">        JDAImpl.LOG.info(&quot;Finished (Re)Loading!&quot;);</span>
+<span class="nc" id="L184">        api.getEventManager().handle(new ReconnectedEvent(api, api.getResponseTotal()));</span>
+      }
+    } else {
+<span class="nc" id="L187">      JDAImpl.LOG.info(&quot;Successfully resumed Session!&quot;);</span>
+<span class="nc" id="L188">      api.getEventManager().handle(new ResumedEvent(api, api.getResponseTotal()));</span>
+    }
+<span class="nc" id="L190">    api.setStatus(JDA.Status.CONNECTED);</span>
+<span class="nc" id="L191">    LOG.debug(&quot;Resending {} cached events...&quot;, cachedEvents.size());</span>
+<span class="nc" id="L192">    handle(cachedEvents);</span>
+<span class="nc" id="L193">    LOG.debug(&quot;Sending of cached events finished.&quot;);</span>
+<span class="nc" id="L194">    cachedEvents.clear();</span>
+<span class="nc" id="L195">  }</span>
+
+  public boolean isReady() {
+<span class="nc bnc" id="L198" title="All 2 branches missed.">    return !initiating;</span>
+  }
+
+  public void handle(List&lt;JSONObject&gt; events) {
+<span class="nc" id="L202">    events.forEach(this::handleEvent);</span>
+<span class="nc" id="L203">  }</span>
+
+  public void send(String message) {
+<span class="nc" id="L206">    ratelimitQueue.addLast(message);</span>
+<span class="nc" id="L207">  }</span>
+
+  public void chunkOrSyncRequest(JSONObject request) {
+<span class="nc" id="L210">    chunkSyncQueue.addLast(request.toString());</span>
+<span class="nc" id="L211">  }</span>
+
+  private boolean send(String message, boolean skipQueue) {
+<span class="nc bnc" id="L214" title="All 2 branches missed.">    if (!connected) return false;</span>
+
+<span class="nc" id="L216">    long now = System.currentTimeMillis();</span>
+
+<span class="nc bnc" id="L218" title="All 2 branches missed.">    if (this.ratelimitResetTime &lt;= now) {</span>
+<span class="nc" id="L219">      this.messagesSent = 0;</span>
+<span class="nc" id="L220">      this.ratelimitResetTime = now + 60000; // 60 seconds</span>
+<span class="nc" id="L221">      this.printedRateLimitMessage = false;</span>
+    }
+
+    // Allows 115 messages to be sent before limiting.
+<span class="nc bnc" id="L225" title="All 6 branches missed.">    if (this.messagesSent &lt;= 115</span>
+        || (skipQueue
+            &amp;&amp; this.messagesSent
+                &lt;= 119)) // technically we could go to 120, but we aren't going to chance it
+    {
+<span class="nc" id="L230">      LOG.trace(&quot;&lt;- {}&quot;, message);</span>
+<span class="nc" id="L231">      socket.sendText(message);</span>
+<span class="nc" id="L232">      this.messagesSent++;</span>
+<span class="nc" id="L233">      return true;</span>
+    } else {
+<span class="nc bnc" id="L235" title="All 2 branches missed.">      if (!printedRateLimitMessage) {</span>
+<span class="nc" id="L236">        LOG.warn(</span>
+            &quot;Hit the WebSocket RateLimit! If you see this message a lot then you might need to talk to DV8FromTheWorld.&quot;);
+<span class="nc" id="L238">        printedRateLimitMessage = true;</span>
+      }
+<span class="nc" id="L240">      return false;</span>
+    }
+  }
+
+  private void setupSendingThread() {
+<span class="nc" id="L245">    ratelimitThread =</span>
+        new Thread(
+            () -&gt; {
+<span class="nc bnc" id="L248" title="All 2 branches missed.">              if (api.getContextMap() != null) MDC.setContextMap(api.getContextMap());</span>
+              boolean needRatelimit;
+              boolean attemptedToSend;
+<span class="nc bnc" id="L251" title="All 2 branches missed.">              while (!Thread.currentThread().isInterrupted()) {</span>
+                try {
+                  // Make sure that we don't send any packets before sending auth info.
+<span class="nc bnc" id="L254" title="All 2 branches missed.">                  if (!sentAuthInfo) {</span>
+<span class="nc" id="L255">                    Thread.sleep(500);</span>
+                    continue;
+                  }
+<span class="nc" id="L258">                  attemptedToSend = false;</span>
+<span class="nc" id="L259">                  needRatelimit = false;</span>
+<span class="nc" id="L260">                  audioQueueLock.lockInterruptibly();</span>
+
+<span class="nc" id="L262">                  ConnectionRequest audioRequest = getNextAudioConnectRequest();</span>
+<span class="nc" id="L263">                  String chunkOrSyncRequest = chunkSyncQueue.peekFirst();</span>
+
+                  // if lock isn't needed we already unlock here
+<span class="nc bnc" id="L266" title="All 4 branches missed.">                  if (audioRequest == null || chunkOrSyncRequest != null) maybeUnlock();</span>
+<span class="nc bnc" id="L267" title="All 2 branches missed.">                  if (chunkOrSyncRequest != null) {</span>
+<span class="nc bnc" id="L268" title="All 2 branches missed.">                    needRatelimit = !send(chunkOrSyncRequest, false);</span>
+<span class="nc bnc" id="L269" title="All 2 branches missed.">                    if (!needRatelimit) chunkSyncQueue.removeFirst();</span>
+
+<span class="nc" id="L271">                    attemptedToSend = true;</span>
+<span class="nc bnc" id="L272" title="All 2 branches missed.">                  } else if (audioRequest != null) {</span>
+<span class="nc" id="L273">                    VoiceChannel channel = audioRequest.getChannel();</span>
+<span class="nc" id="L274">                    Guild guild = api.getGuildById(audioRequest.getGuildIdLong());</span>
+<span class="nc bnc" id="L275" title="All 2 branches missed.">                    if (guild == null) {</span>
+                      // race condition on guild delete, avoid NPE on DISCONNECT requests
+<span class="nc" id="L277">                      queuedAudioConnections.remove(audioRequest.getGuildIdLong());</span>
+
+<span class="nc" id="L279">                      maybeUnlock();</span>
+                      continue;
+                    }
+<span class="nc" id="L282">                    ConnectionStage stage = audioRequest.getStage();</span>
+<span class="nc" id="L283">                    AudioManager audioManager = guild.getAudioManager();</span>
+                    JSONObject packet;
+<span class="nc bnc" id="L285" title="All 2 branches missed.">                    switch (stage) {</span>
+                      case RECONNECT:
+                      case DISCONNECT:
+<span class="nc" id="L288">                        packet = newVoiceClose(audioRequest.getGuildIdLong());</span>
+<span class="nc" id="L289">                        break;</span>
+                      default:
+                      case CONNECT:
+<span class="nc" id="L292">                        packet = newVoiceOpen(audioManager, channel);</span>
+                    }
+<span class="nc bnc" id="L294" title="All 2 branches missed.">                    needRatelimit = !send(packet.toString(), false);</span>
+<span class="nc bnc" id="L295" title="All 2 branches missed.">                    if (!needRatelimit) {</span>
+                      // If we didn't get RateLimited, Next request attempt will be 2 seconds from
+                      // now
+                      // we remove it in VoiceStateUpdateHandler once we hear that it has updated
+                      // our status
+                      // in 2 seconds we will attempt again in case we did not receive an update
+<span class="nc" id="L301">                      audioRequest.setNextAttemptEpoch(System.currentTimeMillis() + 2000);</span>
+                      // If we are already in the correct state according to voice state
+                      // we will not receive a VOICE_STATE_UPDATE that would remove it
+                      // thus we update it here
+<span class="nc" id="L305">                      final GuildVoiceState voiceState = guild.getSelfMember().getVoiceState();</span>
+<span class="nc" id="L306">                      updateAudioConnection0(guild.getIdLong(), voiceState.getChannel());</span>
+                    }
+<span class="nc" id="L308">                    maybeUnlock();</span>
+<span class="nc" id="L309">                    attemptedToSend = true;</span>
+<span class="nc" id="L310">                  } else {</span>
+<span class="nc" id="L311">                    String message = ratelimitQueue.peekFirst();</span>
+<span class="nc bnc" id="L312" title="All 2 branches missed.">                    if (message != null) {</span>
+<span class="nc bnc" id="L313" title="All 2 branches missed.">                      needRatelimit = !send(message, false);</span>
+<span class="nc bnc" id="L314" title="All 2 branches missed.">                      if (!needRatelimit) ratelimitQueue.removeFirst();</span>
+<span class="nc" id="L315">                      attemptedToSend = true;</span>
+                    }
+                  }
+
+<span class="nc bnc" id="L319" title="All 4 branches missed.">                  if (needRatelimit || !attemptedToSend) Thread.sleep(1000);</span>
+<span class="nc" id="L320">                } catch (InterruptedException ignored) {</span>
+<span class="nc" id="L321">                  LOG.debug(</span>
+                      &quot;Main WS send thread interrupted. Most likely JDA is disconnecting the websocket.&quot;);
+                  break;
+                } finally {
+                  // on any exception that might cause this lock to not release
+<span class="nc" id="L326">                  maybeUnlock();</span>
+                }
+              }
+<span class="nc" id="L329">            });</span>
+<span class="nc" id="L330">    ratelimitThread.setUncaughtExceptionHandler(</span>
+        (thread, throwable) -&gt; {
+<span class="nc" id="L332">          handleCallbackError(socket, throwable);</span>
+<span class="nc" id="L333">          setupSendingThread();</span>
+<span class="nc" id="L334">        });</span>
+<span class="nc" id="L335">    ratelimitThread.setName(api.getIdentifierString() + &quot; MainWS-Sending Thread&quot;);</span>
+<span class="nc" id="L336">    ratelimitThread.start();</span>
+<span class="nc" id="L337">  }</span>
+
+  private JSONObject newVoiceClose(long guildId) {
+<span class="nc" id="L340">    return new JSONObject()</span>
+<span class="nc" id="L341">        .put(&quot;op&quot;, WebSocketCode.VOICE_STATE)</span>
+<span class="nc" id="L342">        .put(</span>
+            &quot;d&quot;,
+            new JSONObject()
+<span class="nc" id="L345">                .put(&quot;guild_id&quot;, Long.toUnsignedString(guildId))</span>
+<span class="nc" id="L346">                .put(&quot;channel_id&quot;, JSONObject.NULL)</span>
+<span class="nc" id="L347">                .put(&quot;self_mute&quot;, false)</span>
+<span class="nc" id="L348">                .put(&quot;self_deaf&quot;, false));</span>
+  }
+
+  private JSONObject newVoiceOpen(AudioManager manager, VoiceChannel channel) {
+<span class="nc" id="L352">    return new JSONObject()</span>
+<span class="nc" id="L353">        .put(&quot;op&quot;, WebSocketCode.VOICE_STATE)</span>
+<span class="nc" id="L354">        .put(</span>
+            &quot;d&quot;,
+            new JSONObject()
+<span class="nc" id="L357">                .put(&quot;guild_id&quot;, channel.getGuild().getId())</span>
+<span class="nc" id="L358">                .put(&quot;channel_id&quot;, channel.getId())</span>
+<span class="nc" id="L359">                .put(&quot;self_mute&quot;, manager.isSelfMuted())</span>
+<span class="nc" id="L360">                .put(&quot;self_deaf&quot;, manager.isSelfDeafened()));</span>
+  }
+
+  public void close() {
+<span class="nc bnc" id="L364" title="All 2 branches missed.">    if (socket != null) socket.sendClose(1000);</span>
+<span class="nc" id="L365">  }</span>
+
+  public void close(int code) {
+<span class="nc bnc" id="L368" title="All 2 branches missed.">    if (socket != null) socket.sendClose(code);</span>
+<span class="nc" id="L369">  }</span>
+
+  public void close(int code, String reason) {
+<span class="nc bnc" id="L372" title="All 2 branches missed.">    if (socket != null) socket.sendClose(code, reason);</span>
+<span class="nc" id="L373">  }</span>
+
+  public synchronized void shutdown() {
+<span class="nc" id="L376">    shutdown = true;</span>
+<span class="nc" id="L377">    shouldReconnect = false;</span>
+<span class="nc bnc" id="L378" title="All 2 branches missed.">    if (connectNode != null) api.getSessionController().removeSession(connectNode);</span>
+<span class="nc" id="L379">    close(1000, &quot;Shutting down&quot;);</span>
+<span class="nc" id="L380">  }</span>
+
+  /*
+     ### Start Internal methods ###
+  */
+
+  protected synchronized void connect() {
+<span class="nc bnc" id="L387" title="All 2 branches missed.">    if (api.getStatus() != JDA.Status.ATTEMPTING_TO_RECONNECT)</span>
+<span class="nc" id="L388">      api.setStatus(JDA.Status.CONNECTING_TO_WEBSOCKET);</span>
+<span class="nc bnc" id="L389" title="All 2 branches missed.">    if (shutdown) throw new RejectedExecutionException(&quot;JDA is shutdown!&quot;);</span>
+<span class="nc" id="L390">    initiating = true;</span>
+
+<span class="nc" id="L392">    String url =</span>
+<span class="nc" id="L393">        api.getGatewayUrl() + &quot;?encoding=json&amp;compress=zlib-stream&amp;v=&quot; + DISCORD_GATEWAY_VERSION;</span>
+
+    try {
+<span class="nc" id="L396">      socket =</span>
+<span class="nc" id="L397">          api.getWebSocketFactory()</span>
+<span class="nc" id="L398">              .createSocket(url)</span>
+<span class="nc" id="L399">              .addHeader(&quot;Accept-Encoding&quot;, &quot;gzip&quot;)</span>
+<span class="nc" id="L400">              .addListener(this);</span>
+<span class="nc" id="L401">      socket.connect();</span>
+<span class="nc" id="L402">    } catch (IOException | WebSocketException e) {</span>
+      // Completely fail here. We couldn't make the connection.
+<span class="nc" id="L404">      throw new IllegalStateException(e);</span>
+<span class="nc" id="L405">    }</span>
+<span class="nc" id="L406">  }</span>
+
+  protected String getGateway() {
+    try {
+<span class="nc" id="L410">      return api.getSessionController().getGateway(api)</span>
+          + &quot;?encoding=json&amp;compress=zlib-stream&amp;v=&quot;
+          + DISCORD_GATEWAY_VERSION;
+<span class="nc" id="L413">    } catch (Exception ex) {</span>
+<span class="nc" id="L414">      return null;</span>
+    }
+  }
+
+  @Override
+  public void onConnected(WebSocket websocket, Map&lt;String, List&lt;String&gt;&gt; headers) {
+    // writing thread
+<span class="nc bnc" id="L421" title="All 2 branches missed.">    if (api.getContextMap() != null) MDC.setContextMap(api.getContextMap());</span>
+<span class="nc" id="L422">    api.setStatus(JDA.Status.IDENTIFYING_SESSION);</span>
+<span class="nc" id="L423">    LOG.info(&quot;Connected to WebSocket&quot;);</span>
+<span class="nc bnc" id="L424" title="All 2 branches missed.">    if (headers.containsKey(&quot;cf-ray&quot;)) {</span>
+<span class="nc" id="L425">      List&lt;String&gt; values = headers.get(&quot;cf-ray&quot;);</span>
+<span class="nc bnc" id="L426" title="All 2 branches missed.">      if (!values.isEmpty()) {</span>
+<span class="nc" id="L427">        String ray = values.get(0);</span>
+<span class="nc" id="L428">        cfRays.add(ray);</span>
+<span class="nc" id="L429">        LOG.debug(&quot;Received new CF-RAY: {}&quot;, ray);</span>
+      }
+    }
+<span class="nc" id="L432">    connected = true;</span>
+<span class="nc" id="L433">    reconnectTimeoutS = 2;</span>
+<span class="nc" id="L434">    messagesSent = 0;</span>
+<span class="nc" id="L435">    ratelimitResetTime = System.currentTimeMillis() + 60000;</span>
+<span class="nc bnc" id="L436" title="All 2 branches missed.">    if (sessionId == null) sendIdentify();</span>
+<span class="nc" id="L437">    else sendResume();</span>
+<span class="nc" id="L438">  }</span>
+
+  @Override
+  public void onDisconnected(
+      WebSocket websocket,
+      WebSocketFrame serverCloseFrame,
+      WebSocketFrame clientCloseFrame,
+      boolean closedByServer) {
+<span class="nc" id="L446">    sentAuthInfo = false;</span>
+<span class="nc" id="L447">    connected = false;</span>
+<span class="nc" id="L448">    api.setStatus(JDA.Status.DISCONNECTED);</span>
+
+<span class="nc" id="L450">    CloseCode closeCode = null;</span>
+<span class="nc" id="L451">    int rawCloseCode = 1000;</span>
+    // When we get 1000 from remote close we will try to resume
+    // as apparently discord doesn't understand what &quot;graceful disconnect&quot; means
+<span class="nc" id="L454">    boolean isInvalidate = false;</span>
+
+<span class="nc bnc" id="L456" title="All 2 branches missed.">    if (keepAliveThread != null) {</span>
+<span class="nc" id="L457">      keepAliveThread.interrupt();</span>
+<span class="nc" id="L458">      keepAliveThread = null;</span>
+    }
+<span class="nc bnc" id="L460" title="All 2 branches missed.">    if (serverCloseFrame != null) {</span>
+<span class="nc" id="L461">      rawCloseCode = serverCloseFrame.getCloseCode();</span>
+<span class="nc" id="L462">      closeCode = CloseCode.from(rawCloseCode);</span>
+<span class="nc bnc" id="L463" title="All 2 branches missed.">      if (closeCode == CloseCode.RATE_LIMITED)</span>
+<span class="nc" id="L464">        LOG.error(</span>
+            &quot;WebSocket connection closed due to ratelimit! Sent more than 120 websocket messages in under 60 seconds!&quot;);
+<span class="nc bnc" id="L466" title="All 2 branches missed.">      else if (closeCode != null) LOG.debug(&quot;WebSocket connection closed with code {}&quot;, closeCode);</span>
+      else
+<span class="nc" id="L468">        LOG.warn(</span>
+<span class="nc" id="L469">            &quot;WebSocket connection closed with unknown meaning for close-code {}&quot;, rawCloseCode);</span>
+    }
+<span class="nc bnc" id="L471" title="All 2 branches missed.">    if (clientCloseFrame != null</span>
+<span class="nc bnc" id="L472" title="All 2 branches missed.">        &amp;&amp; clientCloseFrame.getCloseCode() == 1000</span>
+<span class="nc bnc" id="L473" title="All 2 branches missed.">        &amp;&amp; Objects.equals(clientCloseFrame.getCloseReason(), INVALIDATE_REASON)) {</span>
+      // When we close with 1000 we properly dropped our session due to invalidation
+      // in that case we can be sure that resume will not work and instead we invalidate and
+      // reconnect here
+<span class="nc" id="L477">      isInvalidate = true;</span>
+    }
+
+    // null is considered -reconnectable- as we do not know the close-code meaning
+<span class="nc bnc" id="L481" title="All 4 branches missed.">    boolean closeCodeIsReconnect = closeCode == null || closeCode.isReconnect();</span>
+<span class="nc bnc" id="L482" title="All 4 branches missed.">    if (!shouldReconnect || !closeCodeIsReconnect) // we should not reconnect</span>
+    {
+<span class="nc bnc" id="L484" title="All 2 branches missed.">      if (ratelimitThread != null) ratelimitThread.interrupt();</span>
+
+<span class="nc bnc" id="L486" title="All 2 branches missed.">      if (!closeCodeIsReconnect) {</span>
+        // it is possible that a token can be invalidated due to too many reconnect attempts
+        // or that a bot reached a new shard minimum and cannot connect with the current settings
+        // if that is the case we have to drop our connection and inform the user with a fatal error
+        // message
+<span class="nc" id="L491">        LOG.error(</span>
+            &quot;WebSocket connection was closed and cannot be recovered due to identification issues\n{}&quot;,
+            closeCode);
+      }
+
+<span class="nc" id="L496">      api.setStatus(JDA.Status.SHUTDOWN);</span>
+<span class="nc" id="L497">      api.getEventManager().handle(new ShutdownEvent(api, OffsetDateTime.now(), rawCloseCode));</span>
+    } else {
+      // reset our zlib decompression tools
+<span class="nc" id="L500">      zlibContext = new Inflater();</span>
+<span class="nc" id="L501">      readBuffer = null;</span>
+<span class="nc bnc" id="L502" title="All 2 branches missed.">      if (isInvalidate) invalidate(); // 1000 means our session is dropped so we cannot resume</span>
+<span class="nc" id="L503">      api.getEventManager()</span>
+<span class="nc" id="L504">          .handle(</span>
+              new DisconnectEvent(
+<span class="nc" id="L506">                  api, serverCloseFrame, clientCloseFrame, closedByServer, OffsetDateTime.now()));</span>
+      try {
+<span class="nc bnc" id="L508" title="All 2 branches missed.">        if (sessionId == null) queueReconnect();</span>
+        else // if resume is possible
+<span class="nc" id="L510">        reconnect();</span>
+<span class="nc" id="L511">      } catch (InterruptedException e) {</span>
+<span class="nc" id="L512">        LOG.error(&quot;Failed to resume due to interrupted thread&quot;, e);</span>
+<span class="nc" id="L513">        invalidate();</span>
+<span class="nc" id="L514">        queueReconnect();</span>
+<span class="nc" id="L515">      }</span>
+    }
+<span class="nc" id="L517">  }</span>
+
+  protected void queueReconnect() {
+<span class="nc bnc" id="L520" title="All 2 branches missed.">    if (!handleIdentifyRateLimit)</span>
+<span class="nc" id="L521">      LOG.warn(</span>
+          &quot;Got disconnected from WebSocket (Internet?!)... Appending session to reconnect queue&quot;);
+    try {
+<span class="nc" id="L524">      this.api.setStatus(JDA.Status.RECONNECT_QUEUED);</span>
+<span class="nc" id="L525">      this.connectNode = new ReconnectNode();</span>
+<span class="nc" id="L526">      this.api.getSessionController().appendSession(connectNode);</span>
+<span class="nc" id="L527">    } catch (IllegalStateException ex) {</span>
+<span class="nc" id="L528">      LOG.error(&quot;Reconnect queue rejected session. Shutting down...&quot;);</span>
+<span class="nc" id="L529">      this.api.setStatus(JDA.Status.SHUTDOWN);</span>
+<span class="nc" id="L530">      this.api.getEventManager().handle(new ShutdownEvent(api, OffsetDateTime.now(), 1006));</span>
+<span class="nc" id="L531">    }</span>
+<span class="nc" id="L532">  }</span>
+
+  protected void reconnect() throws InterruptedException {
+<span class="nc" id="L535">    reconnect(false, true);</span>
+<span class="nc" id="L536">  }</span>
+
+  /**
+   * This method is used to start the reconnect of the JDA instance. It is public for access from
+   * SessionReconnectQueue extensions.
+   *
+   * @param callFromQueue whether this was in SessionReconnectQueue and got polled
+   * @param shouldHandleIdentify whether SessionReconnectQueue already handled an IDENTIFY rate
+   *     limit for this session
+   */
+  public void reconnect(boolean callFromQueue, boolean shouldHandleIdentify)
+      throws InterruptedException {
+<span class="nc bnc" id="L548" title="All 4 branches missed.">    if (callFromQueue &amp;&amp; api.getContextMap() != null) api.getContextMap().forEach(MDC::put);</span>
+<span class="nc bnc" id="L549" title="All 2 branches missed.">    if (shutdown) {</span>
+<span class="nc" id="L550">      api.setStatus(JDA.Status.SHUTDOWN);</span>
+<span class="nc" id="L551">      api.getEventManager().handle(new ShutdownEvent(api, OffsetDateTime.now(), 1000));</span>
+<span class="nc" id="L552">      return;</span>
+    }
+<span class="nc bnc" id="L554" title="All 2 branches missed.">    if (!handleIdentifyRateLimit) {</span>
+<span class="nc bnc" id="L555" title="All 2 branches missed.">      if (callFromQueue)</span>
+<span class="nc" id="L556">        LOG.warn(</span>
+            &quot;Queue is attempting to reconnect a shard...{}&quot;,
+<span class="nc" id="L558">            JDALogger.getLazyString(</span>
+<span class="nc bnc" id="L559" title="All 2 branches missed.">                () -&gt; shardInfo != null ? &quot; Shard: &quot; + shardInfo.getShardString() : &quot;&quot;));</span>
+<span class="nc" id="L560">      else LOG.warn(&quot;Got disconnected from WebSocket (Internet?!)...&quot;);</span>
+<span class="nc" id="L561">      LOG.warn(&quot;Attempting to reconnect in {}s&quot;, reconnectTimeoutS);</span>
+    }
+<span class="nc bnc" id="L563" title="All 2 branches missed.">    while (shouldReconnect) {</span>
+<span class="nc" id="L564">      api.setStatus(JDA.Status.WAITING_TO_RECONNECT);</span>
+<span class="nc" id="L565">      int delay = IDENTIFY_DELAY;</span>
+<span class="nc bnc" id="L566" title="All 4 branches missed.">      if (handleIdentifyRateLimit &amp;&amp; shouldHandleIdentify)</span>
+<span class="nc" id="L567">        LOG.error(</span>
+            &quot;Encountered IDENTIFY (OP {}) Rate Limit! Waiting {} seconds before trying again!&quot;,
+<span class="nc" id="L569">            WebSocketCode.IDENTIFY,</span>
+<span class="nc" id="L570">            IDENTIFY_DELAY);</span>
+<span class="nc" id="L571">      else delay = reconnectTimeoutS;</span>
+<span class="nc" id="L572">      Thread.sleep(delay * 1000);</span>
+<span class="nc" id="L573">      handleIdentifyRateLimit = false;</span>
+<span class="nc" id="L574">      api.setStatus(JDA.Status.ATTEMPTING_TO_RECONNECT);</span>
+<span class="nc" id="L575">      LOG.warn(&quot;Attempting to reconnect!&quot;);</span>
+      try {
+<span class="nc" id="L577">        connect();</span>
+<span class="nc" id="L578">        break;</span>
+<span class="nc" id="L579">      } catch (RejectedExecutionException ex) {</span>
+        // JDA has already been shutdown so we can stop here
+<span class="nc" id="L581">        api.setStatus(JDA.Status.SHUTDOWN);</span>
+<span class="nc" id="L582">        api.getEventManager().handle(new ShutdownEvent(api, OffsetDateTime.now(), 1000));</span>
+<span class="nc" id="L583">        return;</span>
+<span class="nc" id="L584">      } catch (RuntimeException ex) {</span>
+<span class="nc" id="L585">        reconnectTimeoutS = Math.min(reconnectTimeoutS &lt;&lt; 1, api.getMaxReconnectDelay());</span>
+<span class="nc" id="L586">        LOG.warn(&quot;Reconnect failed! Next attempt in {}s&quot;, reconnectTimeoutS);</span>
+      }
+<span class="nc" id="L588">    }</span>
+<span class="nc" id="L589">  }</span>
+
+  @Override
+  public void onTextMessage(WebSocket websocket, String message) {
+    // reading thread
+<span class="nc bnc" id="L594" title="All 2 branches missed.">    if (api.getContextMap() != null) MDC.setContextMap(api.getContextMap());</span>
+<span class="nc" id="L595">    JSONObject content = new JSONObject(message);</span>
+    try {
+<span class="nc" id="L597">      int opCode = content.getInt(&quot;op&quot;);</span>
+
+<span class="nc bnc" id="L599" title="All 2 branches missed.">      if (!content.isNull(&quot;s&quot;)) {</span>
+<span class="nc" id="L600">        api.setResponseTotal(content.getInt(&quot;s&quot;));</span>
+      }
+
+<span class="nc bnc" id="L603" title="All 7 branches missed.">      switch (opCode) {</span>
+        case WebSocketCode.DISPATCH:
+<span class="nc" id="L605">          handleEvent(content);</span>
+<span class="nc" id="L606">          break;</span>
+        case WebSocketCode.HEARTBEAT:
+<span class="nc" id="L608">          LOG.debug(&quot;Got Keep-Alive request (OP 1). Sending response...&quot;);</span>
+<span class="nc" id="L609">          sendKeepAlive();</span>
+<span class="nc" id="L610">          break;</span>
+        case WebSocketCode.RECONNECT:
+<span class="nc" id="L612">          LOG.debug(&quot;Got Reconnect request (OP 7). Closing connection now...&quot;);</span>
+<span class="nc" id="L613">          close(4000, &quot;OP 7: RECONNECT&quot;);</span>
+<span class="nc" id="L614">          break;</span>
+        case WebSocketCode.INVALIDATE_SESSION:
+<span class="nc" id="L616">          LOG.debug(&quot;Got Invalidate request (OP 9). Invalidating...&quot;);</span>
+<span class="nc" id="L617">          sentAuthInfo = false;</span>
+<span class="nc" id="L618">          final boolean isResume = content.getBoolean(&quot;d&quot;);</span>
+          // When d: true we can wait a bit and then try to resume again
+          // sending 4000 to not drop session
+<span class="nc bnc" id="L621" title="All 2 branches missed.">          int closeCode = isResume ? 4000 : 1000;</span>
+<span class="nc bnc" id="L622" title="All 2 branches missed.">          if (isResume)</span>
+<span class="nc" id="L623">            LOG.debug(&quot;Session can be recovered... Closing and sending new RESUME request&quot;);</span>
+<span class="nc" id="L624">          else invalidate();</span>
+
+<span class="nc" id="L626">          close(closeCode, INVALIDATE_REASON);</span>
+<span class="nc" id="L627">          break;</span>
+        case WebSocketCode.HELLO:
+<span class="nc" id="L629">          LOG.debug(&quot;Got HELLO packet (OP 10). Initializing keep-alive.&quot;);</span>
+<span class="nc" id="L630">          final JSONObject data = content.getJSONObject(&quot;d&quot;);</span>
+<span class="nc" id="L631">          setupKeepAlive(data.getLong(&quot;heartbeat_interval&quot;));</span>
+<span class="nc bnc" id="L632" title="All 2 branches missed.">          if (!data.isNull(&quot;_trace&quot;))</span>
+<span class="nc" id="L633">            updateTraces(data.getJSONArray(&quot;_trace&quot;), &quot;HELLO&quot;, WebSocketCode.HELLO);</span>
+          break;
+        case WebSocketCode.HEARTBEAT_ACK:
+<span class="nc" id="L636">          LOG.trace(&quot;Got Heartbeat Ack (OP 11).&quot;);</span>
+<span class="nc" id="L637">          api.setPing(System.currentTimeMillis() - heartbeatStartTime);</span>
+<span class="nc" id="L638">          break;</span>
+        default:
+<span class="nc" id="L640">          LOG.debug(&quot;Got unknown op-code: {} with content: {}&quot;, opCode, message);</span>
+      }
+<span class="nc" id="L642">    } catch (Exception ex) {</span>
+<span class="nc" id="L643">      LOG.error(&quot;Encountered exception on lifecycle level\nJSON: {}&quot;, content, ex);</span>
+<span class="nc" id="L644">      api.getEventManager().handle(new ExceptionEvent(api, ex, true));</span>
+<span class="nc" id="L645">    }</span>
+<span class="nc" id="L646">  }</span>
+
+  protected void setupKeepAlive(long timeout) {
+<span class="nc" id="L649">    keepAliveThread =</span>
+        new Thread(
+            () -&gt; {
+<span class="nc bnc" id="L652" title="All 2 branches missed.">              if (api.getContextMap() != null) MDC.setContextMap(api.getContextMap());</span>
+<span class="nc bnc" id="L653" title="All 2 branches missed.">              while (connected) {</span>
+                try {
+<span class="nc" id="L655">                  sendKeepAlive();</span>
+
+                  // Sleep for heartbeat interval
+<span class="nc" id="L658">                  Thread.sleep(timeout);</span>
+<span class="nc" id="L659">                } catch (InterruptedException ex) {</span>
+                  // connection got cut... terminating keepAliveThread
+<span class="nc" id="L661">                  break;</span>
+<span class="nc" id="L662">                }</span>
+              }
+<span class="nc" id="L664">            });</span>
+<span class="nc" id="L665">    keepAliveThread.setUncaughtExceptionHandler(</span>
+        (thread, throwable) -&gt; {
+<span class="nc" id="L667">          handleCallbackError(socket, throwable);</span>
+<span class="nc" id="L668">          setupKeepAlive(timeout);</span>
+<span class="nc" id="L669">        });</span>
+<span class="nc" id="L670">    keepAliveThread.setName(api.getIdentifierString() + &quot; MainWS-KeepAlive Thread&quot;);</span>
+<span class="nc" id="L671">    keepAliveThread.setPriority(Thread.MAX_PRIORITY);</span>
+<span class="nc" id="L672">    keepAliveThread.setDaemon(true);</span>
+<span class="nc" id="L673">    keepAliveThread.start();</span>
+<span class="nc" id="L674">  }</span>
+
+  protected void sendKeepAlive() {
+<span class="nc" id="L677">    String keepAlivePacket =</span>
+        new JSONObject()
+<span class="nc" id="L679">            .put(&quot;op&quot;, WebSocketCode.HEARTBEAT)</span>
+<span class="nc" id="L680">            .put(&quot;d&quot;, api.getResponseTotal())</span>
+<span class="nc" id="L681">            .toString();</span>
+
+<span class="nc bnc" id="L683" title="All 2 branches missed.">    if (!send(keepAlivePacket, true)) ratelimitQueue.addLast(keepAlivePacket);</span>
+<span class="nc" id="L684">    heartbeatStartTime = System.currentTimeMillis();</span>
+<span class="nc" id="L685">  }</span>
+
+  protected void sendIdentify() {
+<span class="nc" id="L688">    LOG.debug(&quot;Sending Identify-packet...&quot;);</span>
+<span class="nc" id="L689">    PresenceImpl presenceObj = (PresenceImpl) api.getPresence();</span>
+<span class="nc" id="L690">    JSONObject connectionProperties =</span>
+        new JSONObject()
+<span class="nc" id="L692">            .put(&quot;$os&quot;, System.getProperty(&quot;os.name&quot;))</span>
+<span class="nc" id="L693">            .put(&quot;$browser&quot;, &quot;JDA&quot;)</span>
+<span class="nc" id="L694">            .put(&quot;$device&quot;, &quot;JDA&quot;)</span>
+<span class="nc" id="L695">            .put(&quot;$referring_domain&quot;, &quot;&quot;)</span>
+<span class="nc" id="L696">            .put(&quot;$referrer&quot;, &quot;&quot;);</span>
+<span class="nc" id="L697">    JSONObject payload =</span>
+        new JSONObject()
+<span class="nc" id="L699">            .put(&quot;presence&quot;, presenceObj.getFullPresence())</span>
+<span class="nc" id="L700">            .put(&quot;token&quot;, getToken())</span>
+<span class="nc" id="L701">            .put(&quot;properties&quot;, connectionProperties)</span>
+<span class="nc" id="L702">            .put(&quot;v&quot;, DISCORD_GATEWAY_VERSION)</span>
+<span class="nc" id="L703">            .put(&quot;large_threshold&quot;, 250)</span>
+            // Used to make the READY event be given
+            // as compressed binary data when over a certain size. TY @ShadowLordAlpha
+<span class="nc" id="L706">            .put(&quot;compress&quot;, true);</span>
+<span class="nc" id="L707">    JSONObject identify = new JSONObject().put(&quot;op&quot;, WebSocketCode.IDENTIFY).put(&quot;d&quot;, payload);</span>
+<span class="nc bnc" id="L708" title="All 2 branches missed.">    if (shardInfo != null) {</span>
+<span class="nc" id="L709">      payload.put(</span>
+<span class="nc" id="L710">          &quot;shard&quot;, new JSONArray().put(shardInfo.getShardId()).put(shardInfo.getShardTotal()));</span>
+    }
+<span class="nc" id="L712">    send(identify.toString(), true);</span>
+<span class="nc" id="L713">    handleIdentifyRateLimit = true;</span>
+<span class="nc" id="L714">    sentAuthInfo = true;</span>
+<span class="nc" id="L715">    api.setStatus(JDA.Status.AWAITING_LOGIN_CONFIRMATION);</span>
+<span class="nc" id="L716">  }</span>
+
+  protected void sendResume() {
+<span class="nc" id="L719">    LOG.debug(&quot;Sending Resume-packet...&quot;);</span>
+<span class="nc" id="L720">    JSONObject resume =</span>
+        new JSONObject()
+<span class="nc" id="L722">            .put(&quot;op&quot;, WebSocketCode.RESUME)</span>
+<span class="nc" id="L723">            .put(</span>
+                &quot;d&quot;,
+                new JSONObject()
+<span class="nc" id="L726">                    .put(&quot;session_id&quot;, sessionId)</span>
+<span class="nc" id="L727">                    .put(&quot;token&quot;, getToken())</span>
+<span class="nc" id="L728">                    .put(&quot;seq&quot;, api.getResponseTotal()));</span>
+<span class="nc" id="L729">    send(resume.toString(), true);</span>
+    // sentAuthInfo = true; set on RESUMED response as this could fail
+<span class="nc" id="L731">    api.setStatus(JDA.Status.AWAITING_LOGIN_CONFIRMATION);</span>
+<span class="nc" id="L732">  }</span>
+
+  protected void invalidate() {
+<span class="nc" id="L735">    sessionId = null;</span>
+<span class="nc" id="L736">    chunkingAndSyncing = false;</span>
+<span class="nc" id="L737">    sentAuthInfo = false;</span>
+
+<span class="nc" id="L739">    chunkSyncQueue.clear();</span>
+<span class="nc" id="L740">    api.getTextChannelMap().clear();</span>
+<span class="nc" id="L741">    api.getVoiceChannelMap().clear();</span>
+<span class="nc" id="L742">    api.getCategoryMap().clear();</span>
+<span class="nc" id="L743">    api.getGuildMap().clear();</span>
+<span class="nc" id="L744">    api.getUserMap().clear();</span>
+<span class="nc" id="L745">    api.getPrivateChannelMap().clear();</span>
+<span class="nc" id="L746">    api.getFakeUserMap().clear();</span>
+<span class="nc" id="L747">    api.getFakePrivateChannelMap().clear();</span>
+<span class="nc" id="L748">    api.getEntityBuilder().clearCache();</span>
+<span class="nc" id="L749">    api.getEventCache().clear();</span>
+<span class="nc" id="L750">    api.getGuildLock().clear();</span>
+<span class="nc" id="L751">    this.&lt;ReadyHandler&gt;getHandler(&quot;READY&quot;).clearCache();</span>
+<span class="nc" id="L752">    this.&lt;GuildMembersChunkHandler&gt;getHandler(&quot;GUILD_MEMBERS_CHUNK&quot;).clearCache();</span>
+
+<span class="nc bnc" id="L754" title="All 2 branches missed.">    if (api.getAccountType() == AccountType.CLIENT) {</span>
+<span class="nc" id="L755">      JDAClientImpl client = api.asClient();</span>
+
+<span class="nc" id="L757">      client.getRelationshipMap().clear();</span>
+<span class="nc" id="L758">      client.getGroupMap().clear();</span>
+<span class="nc" id="L759">      client.getCallUserMap().clear();</span>
+    }
+<span class="nc" id="L761">  }</span>
+
+  protected void updateAudioManagerReferences() {
+<span class="nc" id="L764">    final TLongObjectMap&lt;AudioManager&gt; managerMap = api.getAudioManagerMap();</span>
+<span class="nc bnc" id="L765" title="All 2 branches missed.">    if (managerMap.size() &gt; 0) LOG.trace(&quot;Updating AudioManager references&quot;);</span>
+
+<span class="nc" id="L767">    synchronized (managerMap) {</span>
+<span class="nc bnc" id="L768" title="All 2 branches missed.">      for (TLongObjectIterator&lt;AudioManager&gt; it = managerMap.iterator(); it.hasNext(); ) {</span>
+<span class="nc" id="L769">        it.advance();</span>
+<span class="nc" id="L770">        final long guildId = it.key();</span>
+<span class="nc" id="L771">        final AudioManagerImpl mng = (AudioManagerImpl) it.value();</span>
+<span class="nc" id="L772">        ConnectionListener listener = mng.getConnectionListener();</span>
+
+<span class="nc" id="L774">        GuildImpl guild = (GuildImpl) api.getGuildById(guildId);</span>
+<span class="nc bnc" id="L775" title="All 2 branches missed.">        if (guild == null) {</span>
+          // We no longer have access to the guild that this audio manager was for. Set the value to
+          // null.
+<span class="nc" id="L778">          queuedAudioConnections.remove(guildId);</span>
+<span class="nc bnc" id="L779" title="All 2 branches missed.">          if (listener != null)</span>
+<span class="nc" id="L780">            listener.onStatusChange(ConnectionStatus.DISCONNECTED_REMOVED_FROM_GUILD);</span>
+<span class="nc" id="L781">          it.remove();</span>
+        } else {
+<span class="nc" id="L783">          final AudioManagerImpl newMng = new AudioManagerImpl(guild);</span>
+<span class="nc" id="L784">          newMng.setSelfMuted(mng.isSelfMuted());</span>
+<span class="nc" id="L785">          newMng.setSelfDeafened(mng.isSelfDeafened());</span>
+<span class="nc" id="L786">          newMng.setQueueTimeout(mng.getConnectTimeout());</span>
+<span class="nc" id="L787">          newMng.setSendingHandler(mng.getSendingHandler());</span>
+<span class="nc" id="L788">          newMng.setReceivingHandler(mng.getReceiveHandler());</span>
+<span class="nc" id="L789">          newMng.setConnectionListener(listener);</span>
+<span class="nc" id="L790">          newMng.setAutoReconnect(mng.isAutoReconnect());</span>
+
+<span class="nc bnc" id="L792" title="All 4 branches missed.">          if (mng.isConnected() || mng.isAttemptingToConnect()) {</span>
+<span class="nc" id="L793">            final long channelId =</span>
+<span class="nc bnc" id="L794" title="All 2 branches missed.">                mng.isConnected()</span>
+<span class="nc" id="L795">                    ? mng.getConnectedChannel().getIdLong()</span>
+<span class="nc" id="L796">                    : mng.getQueuedAudioConnection().getIdLong();</span>
+
+<span class="nc" id="L798">            final VoiceChannel channel = api.getVoiceChannelById(channelId);</span>
+<span class="nc bnc" id="L799" title="All 2 branches missed.">            if (channel != null) {</span>
+<span class="nc bnc" id="L800" title="All 2 branches missed.">              if (mng.isConnected()) mng.closeAudioConnection(ConnectionStatus.ERROR_CANNOT_RESUME);</span>
+              // closing old connection in order to reconnect later
+<span class="nc" id="L802">              newMng.setQueuedAudioConnection(channel);</span>
+            } else {
+              // The voice channel is not cached. It was probably deleted.
+<span class="nc" id="L805">              queuedAudioConnections.remove(guildId);</span>
+<span class="nc bnc" id="L806" title="All 2 branches missed.">              if (listener != null)</span>
+<span class="nc" id="L807">                listener.onStatusChange(ConnectionStatus.DISCONNECTED_CHANNEL_DELETED);</span>
+            }
+          }
+<span class="nc" id="L810">          it.setValue(newMng);</span>
+        }
+<span class="nc" id="L812">      }</span>
+<span class="nc" id="L813">    }</span>
+<span class="nc" id="L814">  }</span>
+
+  protected String getToken() {
+<span class="nc bnc" id="L817" title="All 2 branches missed.">    if (api.getAccountType() == AccountType.BOT) return api.getToken().substring(&quot;Bot &quot;.length());</span>
+<span class="nc" id="L818">    return api.getToken();</span>
+  }
+
+  private List&lt;JSONObject&gt; convertPresencesReplace(long responseTotal, JSONArray array) {
+    // Needs special handling due to content of &quot;d&quot; being an array
+<span class="nc" id="L823">    List&lt;JSONObject&gt; output = new LinkedList&lt;&gt;();</span>
+<span class="nc bnc" id="L824" title="All 2 branches missed.">    for (int i = 0; i &lt; array.length(); i++) {</span>
+<span class="nc" id="L825">      JSONObject presence = array.getJSONObject(i);</span>
+<span class="nc" id="L826">      final JSONObject obj = new JSONObject();</span>
+<span class="nc" id="L827">      obj.put(&quot;jda-field&quot;, &quot;This was constructed from a PRESENCES_REPLACE payload&quot;)</span>
+<span class="nc" id="L828">          .put(&quot;op&quot;, WebSocketCode.DISPATCH)</span>
+<span class="nc" id="L829">          .put(&quot;s&quot;, responseTotal)</span>
+<span class="nc" id="L830">          .put(&quot;d&quot;, presence)</span>
+<span class="nc" id="L831">          .put(&quot;t&quot;, &quot;PRESENCE_UPDATE&quot;);</span>
+<span class="nc" id="L832">      output.add(obj);</span>
+    }
+<span class="nc" id="L834">    return output;</span>
+  }
+
+  protected void handleEvent(JSONObject raw) {
+<span class="nc" id="L838">    String type = raw.getString(&quot;t&quot;);</span>
+<span class="nc" id="L839">    long responseTotal = api.getResponseTotal();</span>
+
+<span class="nc bnc" id="L841" title="All 2 branches missed.">    if (type.equals(&quot;GUILD_MEMBER_ADD&quot;))</span>
+<span class="nc" id="L842">      ((GuildMembersChunkHandler) getHandler(&quot;GUILD_MEMBERS_CHUNK&quot;))</span>
+<span class="nc" id="L843">          .modifyExpectedGuildMember(raw.getJSONObject(&quot;d&quot;).getLong(&quot;guild_id&quot;), 1);</span>
+<span class="nc bnc" id="L844" title="All 2 branches missed.">    if (type.equals(&quot;GUILD_MEMBER_REMOVE&quot;))</span>
+<span class="nc" id="L845">      ((GuildMembersChunkHandler) getHandler(&quot;GUILD_MEMBERS_CHUNK&quot;))</span>
+<span class="nc" id="L846">          .modifyExpectedGuildMember(raw.getJSONObject(&quot;d&quot;).getLong(&quot;guild_id&quot;), -1);</span>
+
+<span class="nc" id="L848">    boolean isJSON = raw.opt(&quot;d&quot;) instanceof JSONObject;</span>
+    // If initiating, only allows READY, RESUMED, GUILD_MEMBERS_CHUNK, GUILD_SYNC, and GUILD_CREATE
+    // through.
+    // If we are currently chunking, we don't allow GUILD_CREATE through anymore.
+<span class="nc bnc" id="L852" title="All 2 branches missed.">    if (initiating</span>
+<span class="nc bnc" id="L853" title="All 2 branches missed.">        &amp;&amp; !(type.equals(&quot;READY&quot;)</span>
+<span class="nc bnc" id="L854" title="All 2 branches missed.">            || type.equals(&quot;GUILD_MEMBERS_CHUNK&quot;)</span>
+<span class="nc bnc" id="L855" title="All 2 branches missed.">            || type.equals(&quot;RESUMED&quot;)</span>
+<span class="nc bnc" id="L856" title="All 4 branches missed.">            || type.equals(&quot;GUILD_SYNC&quot;)</span>
+<span class="nc bnc" id="L857" title="All 2 branches missed.">            || (!chunkingAndSyncing &amp;&amp; type.equals(&quot;GUILD_CREATE&quot;)))) {</span>
+<span class="nc bnc" id="L858" title="All 2 branches missed.">      if (!isJSON) {</span>
+<span class="nc bnc" id="L859" title="All 2 branches missed.">        if (type.equals(&quot;PRESENCES_REPLACE&quot;)) {</span>
+<span class="nc" id="L860">          List&lt;JSONObject&gt; converted =</span>
+<span class="nc" id="L861">              convertPresencesReplace(responseTotal, raw.getJSONArray(&quot;d&quot;));</span>
+<span class="nc" id="L862">          LOG.debug(&quot;Caching PRESENCES_REPLACE event during init as PRESENCE_UPDATE dispatches!&quot;);</span>
+<span class="nc" id="L863">          cachedEvents.addAll(converted);</span>
+<span class="nc" id="L864">        } else {</span>
+<span class="nc" id="L865">          LOG.debug(&quot;Received event with unhandled body type during init JSON: {}&quot;, raw);</span>
+        }
+<span class="nc" id="L867">        return;</span>
+      }
+      // If we are currently GuildStreaming, and we get a GUILD_DELETE informing us that a Guild is
+      // unavailable
+      // convert it to a GUILD_CREATE for handling.
+<span class="nc" id="L872">      JSONObject content = raw.getJSONObject(&quot;d&quot;);</span>
+<span class="nc bnc" id="L873" title="All 2 branches missed.">      if (!chunkingAndSyncing</span>
+<span class="nc bnc" id="L874" title="All 2 branches missed.">          &amp;&amp; type.equals(&quot;GUILD_DELETE&quot;)</span>
+<span class="nc bnc" id="L875" title="All 2 branches missed.">          &amp;&amp; content.has(&quot;unavailable&quot;)</span>
+<span class="nc bnc" id="L876" title="All 2 branches missed.">          &amp;&amp; content.getBoolean(&quot;unavailable&quot;)) {</span>
+<span class="nc" id="L877">        type = &quot;GUILD_CREATE&quot;;</span>
+<span class="nc" id="L878">        raw.put(&quot;t&quot;, &quot;GUILD_CREATE&quot;)</span>
+<span class="nc" id="L879">            .put(</span>
+                &quot;jda-field&quot;,
+                &quot;This event was originally a GUILD_DELETE but was converted to GUILD_CREATE for WS init Guild streaming&quot;);
+      } else {
+<span class="nc" id="L883">        LOG.debug(&quot;Caching {} event during init!&quot;, type);</span>
+<span class="nc" id="L884">        cachedEvents.add(raw);</span>
+<span class="nc" id="L885">        return;</span>
+      }
+    }
+
+<span class="nc bnc" id="L889" title="All 2 branches missed.">    if (!isJSON) {</span>
+      // Needs special handling due to content of &quot;d&quot; being an array
+<span class="nc bnc" id="L891" title="All 2 branches missed.">      if (type.equals(&quot;PRESENCES_REPLACE&quot;)) {</span>
+<span class="nc" id="L892">        final JSONArray payload = raw.getJSONArray(&quot;d&quot;);</span>
+<span class="nc" id="L893">        final List&lt;JSONObject&gt; converted = convertPresencesReplace(responseTotal, payload);</span>
+<span class="nc" id="L894">        final PresenceUpdateHandler handler = getHandler(&quot;PRESENCE_UPDATE&quot;);</span>
+<span class="nc" id="L895">        LOG.trace(String.format(&quot;%s -&gt; %s&quot;, type, payload.toString()));</span>
+<span class="nc bnc" id="L896" title="All 2 branches missed.">        for (JSONObject o : converted) handler.handle(responseTotal, o);</span>
+<span class="nc" id="L897">      } else {</span>
+<span class="nc" id="L898">        LOG.debug(&quot;Received event with unhandled body type JSON: {}&quot;, raw);</span>
+      }
+<span class="nc" id="L900">      return;</span>
+    }
+
+<span class="nc" id="L903">    JSONObject content = raw.getJSONObject(&quot;d&quot;);</span>
+<span class="nc" id="L904">    LOG.trace(&quot;{} -&gt; {}&quot;, type, content);</span>
+
+    try {
+<span class="nc bnc" id="L907" title="All 10 branches missed.">      switch (type) {</span>
+          // INIT types
+        case &quot;READY&quot;:
+<span class="nc" id="L910">          api.setStatus(JDA.Status.LOADING_SUBSYSTEMS);</span>
+<span class="nc" id="L911">          processingReady = true;</span>
+<span class="nc" id="L912">          handleIdentifyRateLimit = false;</span>
+<span class="nc" id="L913">          sessionId = content.getString(&quot;session_id&quot;);</span>
+<span class="nc bnc" id="L914" title="All 2 branches missed.">          if (!content.isNull(&quot;_trace&quot;))</span>
+<span class="nc" id="L915">            updateTraces(content.getJSONArray(&quot;_trace&quot;), &quot;READY&quot;, WebSocketCode.DISPATCH);</span>
+<span class="nc" id="L916">          handlers.get(&quot;READY&quot;).handle(responseTotal, raw);</span>
+<span class="nc" id="L917">          break;</span>
+        case &quot;RESUMED&quot;:
+<span class="nc" id="L919">          sentAuthInfo = true;</span>
+<span class="nc bnc" id="L920" title="All 2 branches missed.">          if (!processingReady) {</span>
+<span class="nc" id="L921">            api.setStatus(JDA.Status.LOADING_SUBSYSTEMS);</span>
+<span class="nc" id="L922">            initiating = false;</span>
+<span class="nc" id="L923">            ready();</span>
+          }
+<span class="nc bnc" id="L925" title="All 2 branches missed.">          if (!content.isNull(&quot;_trace&quot;))</span>
+<span class="nc" id="L926">            updateTraces(content.getJSONArray(&quot;_trace&quot;), &quot;RESUMED&quot;, WebSocketCode.DISPATCH);</span>
+          break;
+        default:
+<span class="nc" id="L929">          SocketHandler handler = handlers.get(type);</span>
+<span class="nc bnc" id="L930" title="All 2 branches missed.">          if (handler != null) handler.handle(responseTotal, raw);</span>
+<span class="nc" id="L931">          else LOG.debug(&quot;Unrecognized event:\n{}&quot;, raw);</span>
+      }
+<span class="nc" id="L933">    } catch (JSONException ex) {</span>
+<span class="nc" id="L934">      LOG.warn(</span>
+          &quot;Got an unexpected Json-parse error. Please redirect following message to the devs:\n\t{}\n\t{} -&gt; {}&quot;,
+<span class="nc" id="L936">          ex.getMessage(),</span>
+          type,
+          content,
+          ex);
+<span class="nc" id="L940">    } catch (Exception ex) {</span>
+<span class="nc" id="L941">      LOG.error(</span>
+          &quot;Got an unexpected error. Please redirect following message to the devs:\n\t{} -&gt; {}&quot;,
+          type,
+          content,
+          ex);
+<span class="nc" id="L946">    }</span>
+<span class="nc" id="L947">  }</span>
+
+  protected boolean onBufferMessage(byte[] binary) throws IOException {
+<span class="nc bnc" id="L950" title="All 4 branches missed.">    if (binary.length &gt;= 4 &amp;&amp; getInt(binary, binary.length - 4) == ZLIB_SUFFIX) {</span>
+<span class="nc" id="L951">      extendBuffer(binary);</span>
+<span class="nc" id="L952">      return true;</span>
+    }
+
+<span class="nc bnc" id="L955" title="All 2 branches missed.">    if (readBuffer != null) extendBuffer(binary);</span>
+<span class="nc" id="L956">    else allocateBuffer(binary);</span>
+
+<span class="nc" id="L958">    return false;</span>
+  }
+
+  @Override
+  public void onBinaryMessage(WebSocket websocket, byte[] binary)
+      throws IOException, DataFormatException {
+<span class="nc bnc" id="L964" title="All 2 branches missed.">    if (!onBufferMessage(binary)) return;</span>
+    // Thanks to ShadowLordAlpha and Shredder121 for code and debugging.
+    // Get the compressed message and inflate it
+<span class="nc bnc" id="L967" title="All 2 branches missed.">    final int size = readBuffer != null ? readBuffer.size() : binary.length;</span>
+<span class="nc" id="L968">    ByteArrayOutputStream out = new ByteArrayOutputStream(size * 2);</span>
+<span class="nc" id="L969">    try (InflaterOutputStream decompressor = new InflaterOutputStream(out, zlibContext)) {</span>
+<span class="nc bnc" id="L970" title="All 2 branches missed.">      if (readBuffer != null) readBuffer.writeTo(decompressor);</span>
+<span class="nc" id="L971">      else decompressor.write(binary);</span>
+      // send the inflated message to the TextMessage method
+<span class="nc" id="L973">      onTextMessage(websocket, out.toString(&quot;UTF-8&quot;));</span>
+<span class="nc" id="L974">    } catch (IOException e) {</span>
+<span class="nc" id="L975">      throw (DataFormatException) new DataFormatException(&quot;Malformed&quot;).initCause(e);</span>
+    } finally {
+<span class="nc" id="L977">      readBuffer = null;</span>
+    }
+<span class="nc" id="L979">  }</span>
+
+  private static int getInt(byte[] sink, int offset) {
+<span class="nc" id="L982">    return sink[offset + 3] &amp; 0xFF</span>
+        | (sink[offset + 2] &amp; 0xFF) &lt;&lt; 8
+        | (sink[offset + 1] &amp; 0xFF) &lt;&lt; 16
+        | (sink[offset] &amp; 0xFF) &lt;&lt; 24;
+  }
+
+  @Override
+  public void onUnexpectedError(WebSocket websocket, WebSocketException cause) throws Exception {
+<span class="nc" id="L990">    handleCallbackError(websocket, cause);</span>
+<span class="nc" id="L991">  }</span>
+
+  @Override
+  public void handleCallbackError(WebSocket websocket, Throwable cause) {
+<span class="nc" id="L995">    LOG.error(&quot;There was an error in the WebSocket connection&quot;, cause);</span>
+<span class="nc" id="L996">    api.getEventManager().handle(new ExceptionEvent(api, cause, true));</span>
+<span class="nc" id="L997">  }</span>
+
+  @Override
+  public void onThreadCreated(WebSocket websocket, ThreadType threadType, Thread thread)
+      throws Exception {
+<span class="nc" id="L1002">    String identifier = api.getIdentifierString();</span>
+<span class="nc bnc" id="L1003" title="All 5 branches missed.">    switch (threadType) {</span>
+      case CONNECT_THREAD:
+<span class="nc" id="L1005">        thread.setName(identifier + &quot; MainWS-ConnectThread&quot;);</span>
+<span class="nc" id="L1006">        break;</span>
+      case FINISH_THREAD:
+<span class="nc" id="L1008">        thread.setName(identifier + &quot; MainWS-FinishThread&quot;);</span>
+<span class="nc" id="L1009">        break;</span>
+      case READING_THREAD:
+<span class="nc" id="L1011">        thread.setName(identifier + &quot; MainWS-ReadThread&quot;);</span>
+<span class="nc" id="L1012">        break;</span>
+      case WRITING_THREAD:
+<span class="nc" id="L1014">        thread.setName(identifier + &quot; MainWS-WriteThread&quot;);</span>
+<span class="nc" id="L1015">        break;</span>
+      default:
+<span class="nc" id="L1017">        thread.setName(identifier + &quot; MainWS-&quot; + threadType);</span>
+    }
+<span class="nc" id="L1019">  }</span>
+
+  public void setChunkingAndSyncing(boolean active) {
+<span class="nc" id="L1022">    chunkingAndSyncing = active;</span>
+<span class="nc" id="L1023">  }</span>
+
+  private void maybeUnlock() {
+<span class="nc bnc" id="L1026" title="All 2 branches missed.">    if (audioQueueLock.isHeldByCurrentThread()) audioQueueLock.unlock();</span>
+<span class="nc" id="L1027">  }</span>
+
+  private void locked(String comment, Runnable task) {
+    try {
+<span class="nc" id="L1031">      audioQueueLock.lockInterruptibly();</span>
+<span class="nc" id="L1032">      task.run();</span>
+<span class="nc" id="L1033">    } catch (InterruptedException e) {</span>
+<span class="nc" id="L1034">      LOG.error(comment, e);</span>
+    } finally {
+<span class="nc" id="L1036">      maybeUnlock();</span>
+    }
+<span class="nc" id="L1038">  }</span>
+
+  private &lt;T&gt; T locked(String comment, Supplier&lt;T&gt; task) {
+    try {
+<span class="nc" id="L1042">      audioQueueLock.lockInterruptibly();</span>
+<span class="nc" id="L1043">      return task.get();</span>
+<span class="nc" id="L1044">    } catch (InterruptedException e) {</span>
+<span class="nc" id="L1045">      LOG.error(comment, e);</span>
+<span class="nc" id="L1046">      return null;</span>
+    } finally {
+<span class="nc" id="L1048">      maybeUnlock();</span>
+    }
+  }
+
+  public void queueAudioReconnect(VoiceChannel channel) {
+<span class="nc" id="L1053">    locked(</span>
+        &quot;There was an error queueing the audio reconnect&quot;,
+        () -&gt; {
+<span class="nc" id="L1056">          final long guildId = channel.getGuild().getIdLong();</span>
+<span class="nc" id="L1057">          ConnectionRequest request = queuedAudioConnections.get(guildId);</span>
+
+<span class="nc bnc" id="L1059" title="All 2 branches missed.">          if (request == null) {</span>
+            // If no request, then just reconnect
+<span class="nc" id="L1061">            request = new ConnectionRequest(channel, ConnectionStage.RECONNECT);</span>
+<span class="nc" id="L1062">            queuedAudioConnections.put(guildId, request);</span>
+          } else {
+            // If there is a request we change it to reconnect, no matter what it is
+<span class="nc" id="L1065">            request.setStage(ConnectionStage.RECONNECT);</span>
+          }
+          // in all cases, update to this channel
+<span class="nc" id="L1068">          request.setChannel(channel);</span>
+<span class="nc" id="L1069">        });</span>
+<span class="nc" id="L1070">  }</span>
+
+  public void queueAudioConnect(VoiceChannel channel) {
+<span class="nc" id="L1073">    locked(</span>
+        &quot;There was an error queueing the audio connect&quot;,
+        () -&gt; {
+<span class="nc" id="L1076">          final long guildId = channel.getGuild().getIdLong();</span>
+<span class="nc" id="L1077">          ConnectionRequest request = queuedAudioConnections.get(guildId);</span>
+
+<span class="nc bnc" id="L1079" title="All 2 branches missed.">          if (request == null) {</span>
+            // starting a whole new connection
+<span class="nc" id="L1081">            request = new ConnectionRequest(channel, ConnectionStage.CONNECT);</span>
+<span class="nc" id="L1082">            queuedAudioConnections.put(guildId, request);</span>
+<span class="nc bnc" id="L1083" title="All 2 branches missed.">          } else if (request.getStage() == ConnectionStage.DISCONNECT) {</span>
+            // if planned to disconnect, we want to reconnect
+<span class="nc" id="L1085">            request.setStage(ConnectionStage.RECONNECT);</span>
+          }
+
+          // in all cases, update to this channel
+<span class="nc" id="L1089">          request.setChannel(channel);</span>
+<span class="nc" id="L1090">        });</span>
+<span class="nc" id="L1091">  }</span>
+
+  public void queueAudioDisconnect(Guild guild) {
+<span class="nc" id="L1094">    locked(</span>
+        &quot;There was an error queueing the audio disconnect&quot;,
+        () -&gt; {
+<span class="nc" id="L1097">          final long guildId = guild.getIdLong();</span>
+<span class="nc" id="L1098">          ConnectionRequest request = queuedAudioConnections.get(guildId);</span>
+
+<span class="nc bnc" id="L1100" title="All 2 branches missed.">          if (request == null) {</span>
+            // If we do not have a request
+<span class="nc" id="L1102">            queuedAudioConnections.put(guildId, new ConnectionRequest(guild));</span>
+          } else {
+            // If we have a request, change to DISCONNECT
+<span class="nc" id="L1105">            request.setStage(ConnectionStage.DISCONNECT);</span>
+          }
+<span class="nc" id="L1107">        });</span>
+<span class="nc" id="L1108">  }</span>
+
+  public ConnectionRequest removeAudioConnection(long guildId) {
+    // This will only be used by GuildDeleteHandler to ensure that
+    // no further voice state updates are sent for this Guild
+    // TODO: users may still queue new requests via the old AudioManager, how could we prevent this?
+<span class="nc" id="L1114">    return locked(</span>
+        &quot;There was an error cleaning up audio connections for deleted guild&quot;,
+<span class="nc" id="L1116">        () -&gt; queuedAudioConnections.remove(guildId));</span>
+  }
+
+  public ConnectionRequest updateAudioConnection(long guildId, VoiceChannel connectedChannel) {
+<span class="nc" id="L1120">    return locked(</span>
+        &quot;There was an error updating the audio connection&quot;,
+<span class="nc" id="L1122">        () -&gt; updateAudioConnection0(guildId, connectedChannel));</span>
+  }
+
+  public ConnectionRequest updateAudioConnection0(long guildId, VoiceChannel connectedChannel) {
+    // Called by VoiceStateUpdateHandler when we receive a response from discord
+    // about our request to CONNECT or DISCONNECT.
+    // &quot;stage&quot; should never be RECONNECT here thus we don't check for that case
+<span class="nc" id="L1129">    ConnectionRequest request = queuedAudioConnections.get(guildId);</span>
+
+<span class="nc bnc" id="L1131" title="All 2 branches missed.">    if (request == null) return null;</span>
+<span class="nc" id="L1132">    ConnectionStage requestStage = request.getStage();</span>
+<span class="nc bnc" id="L1133" title="All 2 branches missed.">    if (connectedChannel == null) {</span>
+      // If we got an update that DISCONNECT happened
+      // -&gt; If it was on RECONNECT we now switch to CONNECT
+      // -&gt; If it was on DISCONNECT we can now remove it
+      // -&gt; Otherwise we ignore it
+<span class="nc bnc" id="L1138" title="All 3 branches missed.">      switch (requestStage) {</span>
+        case DISCONNECT:
+<span class="nc" id="L1140">          return queuedAudioConnections.remove(guildId);</span>
+        case RECONNECT:
+<span class="nc" id="L1142">          request.setStage(ConnectionStage.CONNECT);</span>
+<span class="nc" id="L1143">          request.setNextAttemptEpoch(System.currentTimeMillis());</span>
+        default:
+<span class="nc" id="L1145">          return null;</span>
+      }
+<span class="nc bnc" id="L1147" title="All 2 branches missed.">    } else if (requestStage == ConnectionStage.CONNECT) {</span>
+      // If the removeRequest was related to a channel that isn't the currently queued
+      // request, then don't remove it.
+<span class="nc bnc" id="L1150" title="All 2 branches missed.">      if (request.getChannel().getIdLong() == connectedChannel.getIdLong())</span>
+<span class="nc" id="L1151">        return queuedAudioConnections.remove(guildId);</span>
+    }
+    // If the channel is not the one we are looking for!
+<span class="nc" id="L1154">    return null;</span>
+  }
+
+  //    public TLongObjectMap&lt;ConnectionRequest&gt; getQueuedAudioConnectionMap()
+  //    {
+  //        return queuedAudioConnections;
+  //    }
+
+  protected ConnectionRequest getNextAudioConnectRequest() {
+    // Don't try to setup audio connections before JDA has finished loading.
+<span class="nc bnc" id="L1164" title="All 2 branches missed.">    if (!isReady()) return null;</span>
+
+<span class="nc" id="L1166">    long now = System.currentTimeMillis();</span>
+<span class="nc" id="L1167">    TLongObjectIterator&lt;ConnectionRequest&gt; it = queuedAudioConnections.iterator();</span>
+<span class="nc bnc" id="L1168" title="All 2 branches missed.">    while (it.hasNext()) {</span>
+<span class="nc" id="L1169">      it.advance();</span>
+<span class="nc" id="L1170">      ConnectionRequest audioRequest = it.value();</span>
+<span class="nc bnc" id="L1171" title="All 2 branches missed.">      if (audioRequest.getNextAttemptEpoch() &lt; now) {</span>
+<span class="nc" id="L1172">        Guild guild = api.getGuildById(audioRequest.getGuildIdLong());</span>
+<span class="nc bnc" id="L1173" title="All 2 branches missed.">        if (guild == null) {</span>
+<span class="nc" id="L1174">          it.remove();</span>
+          // if (listener != null)
+          //    listener.onStatusChange(ConnectionStatus.DISCONNECTED_REMOVED_FROM_GUILD);
+          // already handled by event handling
+<span class="nc" id="L1178">          continue;</span>
+        }
+
+<span class="nc" id="L1181">        ConnectionListener listener = guild.getAudioManager().getConnectionListener();</span>
+<span class="nc bnc" id="L1182" title="All 2 branches missed.">        if (audioRequest.getStage() != ConnectionStage.DISCONNECT) {</span>
+<span class="nc" id="L1183">          VoiceChannel channel = guild.getVoiceChannelById(audioRequest.getChannel().getIdLong());</span>
+<span class="nc bnc" id="L1184" title="All 2 branches missed.">          if (channel == null) {</span>
+<span class="nc" id="L1185">            it.remove();</span>
+<span class="nc bnc" id="L1186" title="All 2 branches missed.">            if (listener != null)</span>
+<span class="nc" id="L1187">              listener.onStatusChange(ConnectionStatus.DISCONNECTED_CHANNEL_DELETED);</span>
+            continue;
+          }
+
+<span class="nc bnc" id="L1191" title="All 2 branches missed.">          if (!guild.getSelfMember().hasPermission(channel, Permission.VOICE_CONNECT)) {</span>
+<span class="nc" id="L1192">            it.remove();</span>
+<span class="nc bnc" id="L1193" title="All 2 branches missed.">            if (listener != null)</span>
+<span class="nc" id="L1194">              listener.onStatusChange(ConnectionStatus.DISCONNECTED_LOST_PERMISSION);</span>
+            continue;
+          }
+        }
+
+<span class="nc" id="L1199">        return audioRequest;</span>
+      }
+<span class="nc" id="L1201">    }</span>
+
+<span class="nc" id="L1203">    return null;</span>
+  }
+
+  public Map&lt;String, SocketHandler&gt; getHandlers() {
+<span class="nc" id="L1207">    return handlers;</span>
+  }
+
+  public &lt;T&gt; T getHandler(String type) {
+<span class="nc" id="L1211">    return (T) handlers.get(type);</span>
+  }
+
+  private void setupHandlers() {
+<span class="nc" id="L1215">    final SocketHandler.NOPHandler nopHandler = new SocketHandler.NOPHandler(api);</span>
+<span class="nc" id="L1216">    handlers.put(&quot;CHANNEL_CREATE&quot;, new ChannelCreateHandler(api));</span>
+<span class="nc" id="L1217">    handlers.put(&quot;CHANNEL_DELETE&quot;, new ChannelDeleteHandler(api));</span>
+<span class="nc" id="L1218">    handlers.put(&quot;CHANNEL_UPDATE&quot;, new ChannelUpdateHandler(api));</span>
+<span class="nc" id="L1219">    handlers.put(&quot;GUILD_BAN_ADD&quot;, new GuildBanHandler(api, true));</span>
+<span class="nc" id="L1220">    handlers.put(&quot;GUILD_BAN_REMOVE&quot;, new GuildBanHandler(api, false));</span>
+<span class="nc" id="L1221">    handlers.put(&quot;GUILD_CREATE&quot;, new GuildCreateHandler(api));</span>
+<span class="nc" id="L1222">    handlers.put(&quot;GUILD_DELETE&quot;, new GuildDeleteHandler(api));</span>
+<span class="nc" id="L1223">    handlers.put(&quot;GUILD_EMOJIS_UPDATE&quot;, new GuildEmojisUpdateHandler(api));</span>
+<span class="nc" id="L1224">    handlers.put(&quot;GUILD_MEMBER_ADD&quot;, new GuildMemberAddHandler(api));</span>
+<span class="nc" id="L1225">    handlers.put(&quot;GUILD_MEMBER_REMOVE&quot;, new GuildMemberRemoveHandler(api));</span>
+<span class="nc" id="L1226">    handlers.put(&quot;GUILD_MEMBER_UPDATE&quot;, new GuildMemberUpdateHandler(api));</span>
+<span class="nc" id="L1227">    handlers.put(&quot;GUILD_MEMBERS_CHUNK&quot;, new GuildMembersChunkHandler(api));</span>
+<span class="nc" id="L1228">    handlers.put(&quot;GUILD_ROLE_CREATE&quot;, new GuildRoleCreateHandler(api));</span>
+<span class="nc" id="L1229">    handlers.put(&quot;GUILD_ROLE_DELETE&quot;, new GuildRoleDeleteHandler(api));</span>
+<span class="nc" id="L1230">    handlers.put(&quot;GUILD_ROLE_UPDATE&quot;, new GuildRoleUpdateHandler(api));</span>
+<span class="nc" id="L1231">    handlers.put(&quot;GUILD_SYNC&quot;, new GuildSyncHandler(api));</span>
+<span class="nc" id="L1232">    handlers.put(&quot;GUILD_UPDATE&quot;, new GuildUpdateHandler(api));</span>
+<span class="nc" id="L1233">    handlers.put(&quot;MESSAGE_CREATE&quot;, new MessageCreateHandler(api));</span>
+<span class="nc" id="L1234">    handlers.put(&quot;MESSAGE_DELETE&quot;, new MessageDeleteHandler(api));</span>
+<span class="nc" id="L1235">    handlers.put(&quot;MESSAGE_DELETE_BULK&quot;, new MessageBulkDeleteHandler(api));</span>
+<span class="nc" id="L1236">    handlers.put(&quot;MESSAGE_REACTION_ADD&quot;, new MessageReactionHandler(api, true));</span>
+<span class="nc" id="L1237">    handlers.put(&quot;MESSAGE_REACTION_REMOVE&quot;, new MessageReactionHandler(api, false));</span>
+<span class="nc" id="L1238">    handlers.put(&quot;MESSAGE_REACTION_REMOVE_ALL&quot;, new MessageReactionBulkRemoveHandler(api));</span>
+<span class="nc" id="L1239">    handlers.put(&quot;MESSAGE_UPDATE&quot;, new MessageUpdateHandler(api));</span>
+<span class="nc" id="L1240">    handlers.put(&quot;PRESENCE_UPDATE&quot;, new PresenceUpdateHandler(api));</span>
+<span class="nc" id="L1241">    handlers.put(&quot;READY&quot;, new ReadyHandler(api));</span>
+<span class="nc" id="L1242">    handlers.put(&quot;TYPING_START&quot;, new TypingStartHandler(api));</span>
+<span class="nc" id="L1243">    handlers.put(&quot;USER_UPDATE&quot;, new UserUpdateHandler(api));</span>
+<span class="nc" id="L1244">    handlers.put(&quot;VOICE_SERVER_UPDATE&quot;, new VoiceServerUpdateHandler(api));</span>
+<span class="nc" id="L1245">    handlers.put(&quot;VOICE_STATE_UPDATE&quot;, new VoiceStateUpdateHandler(api));</span>
+
+    // Unused events
+<span class="nc" id="L1248">    handlers.put(&quot;CHANNEL_PINS_ACK&quot;, nopHandler);</span>
+<span class="nc" id="L1249">    handlers.put(&quot;CHANNEL_PINS_UPDATE&quot;, nopHandler);</span>
+<span class="nc" id="L1250">    handlers.put(&quot;GUILD_INTEGRATIONS_UPDATE&quot;, nopHandler);</span>
+<span class="nc" id="L1251">    handlers.put(&quot;PRESENCES_REPLACE&quot;, nopHandler);</span>
+<span class="nc" id="L1252">    handlers.put(&quot;WEBHOOKS_UPDATE&quot;, nopHandler);</span>
+
+<span class="nc bnc" id="L1254" title="All 2 branches missed.">    if (api.getAccountType() == AccountType.CLIENT) {</span>
+<span class="nc" id="L1255">      handlers.put(&quot;CALL_CREATE&quot;, new CallCreateHandler(api));</span>
+<span class="nc" id="L1256">      handlers.put(&quot;CALL_DELETE&quot;, new CallDeleteHandler(api));</span>
+<span class="nc" id="L1257">      handlers.put(&quot;CALL_UPDATE&quot;, new CallUpdateHandler(api));</span>
+<span class="nc" id="L1258">      handlers.put(&quot;CHANNEL_RECIPIENT_ADD&quot;, new ChannelRecipientAddHandler(api));</span>
+<span class="nc" id="L1259">      handlers.put(&quot;CHANNEL_RECIPIENT_REMOVE&quot;, new ChannelRecipientRemoveHandler(api));</span>
+<span class="nc" id="L1260">      handlers.put(&quot;RELATIONSHIP_ADD&quot;, new RelationshipAddHandler(api));</span>
+<span class="nc" id="L1261">      handlers.put(&quot;RELATIONSHIP_REMOVE&quot;, new RelationshipRemoveHandler(api));</span>
+
+      // Unused client events
+<span class="nc" id="L1264">      handlers.put(&quot;MESSAGE_ACK&quot;, nopHandler);</span>
+    }
+<span class="nc" id="L1266">  }</span>
+
+<span class="nc" id="L1268">  protected abstract class ConnectNode implements SessionController.SessionConnectNode {</span>
+    @Override
+    public JDA getJDA() {
+<span class="nc" id="L1271">      return api;</span>
+    }
+
+    @Override
+    public JDA.ShardInfo getShardInfo() {
+<span class="nc" id="L1276">      return api.getShardInfo();</span>
+    }
+  }
+
+<span class="nc" id="L1280">  protected class StartingNode extends ConnectNode {</span>
+    @Override
+    public boolean isReconnect() {
+<span class="nc" id="L1283">      return false;</span>
+    }
+
+    @Override
+    public void run(boolean isLast) throws InterruptedException {
+<span class="nc bnc" id="L1288" title="All 2 branches missed.">      if (shutdown) return;</span>
+<span class="nc" id="L1289">      setupHandlers();</span>
+<span class="nc" id="L1290">      setupSendingThread();</span>
+<span class="nc" id="L1291">      connect();</span>
+<span class="nc bnc" id="L1292" title="All 2 branches missed.">      while (!isLast</span>
+<span class="nc bnc" id="L1293" title="All 2 branches missed.">          &amp;&amp; api.getStatus().ordinal() &lt; JDA.Status.AWAITING_LOGIN_CONFIRMATION.ordinal())</span>
+<span class="nc" id="L1294">        Thread.sleep(50);</span>
+<span class="nc" id="L1295">    }</span>
+  }
+
+<span class="nc" id="L1298">  protected class ReconnectNode extends ConnectNode {</span>
+    @Override
+    public boolean isReconnect() {
+<span class="nc" id="L1301">      return true;</span>
+    }
+
+    @Override
+    public void run(boolean isLast) throws InterruptedException {
+<span class="nc bnc" id="L1306" title="All 2 branches missed.">      if (shutdown) return;</span>
+<span class="nc bnc" id="L1307" title="All 2 branches missed.">      reconnect(true, !isLast);</span>
+<span class="nc bnc" id="L1308" title="All 2 branches missed.">      while (!isLast</span>
+<span class="nc bnc" id="L1309" title="All 2 branches missed.">          &amp;&amp; api.getStatus().ordinal() &lt; JDA.Status.AWAITING_LOGIN_CONFIRMATION.ordinal())</span>
+<span class="nc" id="L1310">        Thread.sleep(50);</span>
+<span class="nc" id="L1311">    }</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

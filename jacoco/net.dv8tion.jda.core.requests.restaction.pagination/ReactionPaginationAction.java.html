@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ReactionPaginationAction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">net.dv8tion.jda.core.requests.restaction.pagination</a> &gt; <span class="el_source">ReactionPaginationAction.java</span></div><h1>ReactionPaginationAction.java</h1><pre class="source lang-java linenums">/*
+ *     Copyright 2015-2018 Austin Keener &amp; Michael Ritter &amp; Florian Spieß
+ *     Copyright 2018-2018 &quot;Princess&quot; Lana Samson
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package net.dv8tion.jda.core.requests.restaction.pagination;
+
+import java.util.LinkedList;
+import java.util.List;
+import net.dv8tion.jda.core.entities.EntityBuilder;
+import net.dv8tion.jda.core.entities.MessageReaction;
+import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.requests.Request;
+import net.dv8tion.jda.core.requests.Response;
+import net.dv8tion.jda.core.requests.Route;
+import net.dv8tion.jda.core.utils.MiscUtil;
+import org.json.JSONArray;
+import org.json.JSONException;
+
+/**
+ * {@link net.dv8tion.jda.core.requests.restaction.pagination.PaginationAction PaginationAction}
+ * that paginates the endpoint {@link
+ * net.dv8tion.jda.core.requests.Route.Messages#GET_REACTION_USERS
+ * Route.Messages.GET_REACTION_USERS}.
+ *
+ * &lt;p&gt;&lt;b&gt;Must provide not-null {@link net.dv8tion.jda.core.entities.MessageReaction MessageReaction}
+ * to compile a valid pagination route.&lt;/b&gt;
+ *
+ * &lt;h2&gt;Limits:&lt;/h2&gt;
+ *
+ * Minimum - 1 &lt;br&gt;
+ * Maximum - 100
+ *
+ * &lt;h1&gt;Example&lt;/h1&gt;
+ *
+ * &lt;pre&gt;&lt;code&gt;
+ * ReactionPaginationAction users = reaction.getUsers();
+ *
+ * {@literal Optional&lt;User&gt;} optUser = users.stream().skip(ThreadLocalRandom.current().nextInt(reaction.getCount())).findFirst();
+ * optUser.ifPresent( (user) {@literal -&gt;} user.openPrivateChannel().queue(
+ *         (channel) {@literal -&gt;} channel.sendMessage(&quot;I see you reacted to my message :eyes:&quot;).queue()
+ * ));
+ * &lt;/code&gt;&lt;/pre&gt;
+ *
+ * @since 3.1
+ * @author Florian Spieß
+ */
+public class ReactionPaginationAction extends PaginationAction&lt;User, ReactionPaginationAction&gt; {
+
+  protected final MessageReaction reaction;
+
+  /**
+   * Creates a new PaginationAction instance
+   *
+   * @param reaction The target {@link net.dv8tion.jda.core.entities.MessageReaction
+   *     MessageReaction}
+   */
+  public ReactionPaginationAction(MessageReaction reaction) {
+<span class="nc" id="L70">    super(</span>
+<span class="nc" id="L71">        reaction.getJDA(),</span>
+<span class="nc" id="L72">        Route.Messages.GET_REACTION_USERS.compile(</span>
+<span class="nc" id="L73">            reaction.getChannel().getId(), reaction.getMessageId(), getCode(reaction)),</span>
+        1,
+        100,
+        100);
+<span class="nc" id="L77">    this.reaction = reaction;</span>
+<span class="nc" id="L78">  }</span>
+
+  protected static String getCode(MessageReaction reaction) {
+<span class="nc" id="L81">    MessageReaction.ReactionEmote emote = reaction.getReactionEmote();</span>
+
+<span class="nc bnc" id="L83" title="All 2 branches missed.">    return emote.isEmote()</span>
+<span class="nc" id="L84">        ? emote.getName() + &quot;:&quot; + emote.getId()</span>
+<span class="nc" id="L85">        : MiscUtil.encodeUTF8(emote.getName());</span>
+  }
+
+  /**
+   * The current target {@link net.dv8tion.jda.core.entities.MessageReaction MessageReaction}
+   *
+   * @return The current MessageReaction
+   */
+  public MessageReaction getReaction() {
+<span class="nc" id="L94">    return reaction;</span>
+  }
+
+  @Override
+  protected Route.CompiledRoute finalizeRoute() {
+<span class="nc" id="L99">    Route.CompiledRoute route = super.finalizeRoute();</span>
+
+<span class="nc" id="L101">    String after = null;</span>
+<span class="nc" id="L102">    String limit = String.valueOf(getLimit());</span>
+<span class="nc" id="L103">    User last = this.last;</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">    if (last != null) after = last.getId();</span>
+
+<span class="nc" id="L106">    route = route.withQueryParams(&quot;limit&quot;, limit);</span>
+
+<span class="nc bnc" id="L108" title="All 2 branches missed.">    if (after != null) route = route.withQueryParams(&quot;after&quot;, after);</span>
+
+<span class="nc" id="L110">    return route;</span>
+  }
+
+  @Override
+  protected void handleResponse(Response response, Request&lt;List&lt;User&gt;&gt; request) {
+<span class="nc bnc" id="L115" title="All 2 branches missed.">    if (!response.isOk()) {</span>
+<span class="nc" id="L116">      request.onFailure(response);</span>
+<span class="nc" id="L117">      return;</span>
+    }
+
+<span class="nc" id="L120">    final EntityBuilder builder = api.getEntityBuilder();</span>
+    ;
+<span class="nc" id="L122">    final JSONArray array = response.getArray();</span>
+<span class="nc" id="L123">    final List&lt;User&gt; users = new LinkedList&lt;&gt;();</span>
+<span class="nc bnc" id="L124" title="All 2 branches missed.">    for (int i = 0; i &lt; array.length(); i++) {</span>
+      try {
+<span class="nc" id="L126">        final User user = builder.createFakeUser(array.getJSONObject(i), false);</span>
+<span class="nc" id="L127">        users.add(user);</span>
+<span class="nc bnc" id="L128" title="All 2 branches missed.">        if (useCache) cached.add(user);</span>
+<span class="nc" id="L129">        last = user;</span>
+<span class="nc" id="L130">      } catch (JSONException | NullPointerException e) {</span>
+<span class="nc" id="L131">        LOG.warn(&quot;Encountered exception in ReactionPagination&quot;, e);</span>
+<span class="nc" id="L132">      }</span>
+    }
+
+<span class="nc" id="L135">    request.onSuccess(users);</span>
+<span class="nc" id="L136">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

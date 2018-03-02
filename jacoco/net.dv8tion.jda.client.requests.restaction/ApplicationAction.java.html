@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ApplicationAction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">net.dv8tion.jda.client.requests.restaction</a> &gt; <span class="el_source">ApplicationAction.java</span></div><h1>ApplicationAction.java</h1><pre class="source lang-java linenums">/*
+ *     Copyright 2015-2018 Austin Keener &amp; Michael Ritter &amp; Florian Spieß
+ *     Copyright 2018-2018 &quot;Princess&quot; Lana Samson
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package net.dv8tion.jda.client.requests.restaction;
+
+import java.util.function.BooleanSupplier;
+import net.dv8tion.jda.client.entities.Application;
+import net.dv8tion.jda.core.entities.Icon;
+import net.dv8tion.jda.core.entities.impl.JDAImpl;
+import net.dv8tion.jda.core.requests.Request;
+import net.dv8tion.jda.core.requests.Response;
+import net.dv8tion.jda.core.requests.RestAction;
+import net.dv8tion.jda.core.requests.Route;
+import okhttp3.RequestBody;
+import org.json.JSONObject;
+
+/**
+ * Extension of {@link net.dv8tion.jda.core.requests.RestAction RestAction} specifically designed to
+ * create a {@link net.dv8tion.jda.client.entities.Application Application}. This extension allows
+ * setting properties before executing the action.
+ *
+ * @since 3.0
+ * @author Aljoscha Grebe
+ */
+public class ApplicationAction extends RestAction&lt;Application&gt; {
+<span class="nc" id="L39">  protected String description = null;</span>
+<span class="nc" id="L40">  protected Icon icon = null;</span>
+<span class="nc" id="L41">  protected String name = null;</span>
+
+  public ApplicationAction(final JDAImpl api, String name) {
+<span class="nc" id="L44">    super(api, Route.Applications.CREATE_APPLICATION.compile());</span>
+
+<span class="nc" id="L46">    this.setName(name);</span>
+<span class="nc" id="L47">  }</span>
+
+  @Override
+  public ApplicationAction setCheck(BooleanSupplier checks) {
+<span class="nc" id="L51">    return (ApplicationAction) super.setCheck(checks);</span>
+  }
+
+  @Override
+  protected RequestBody finalizeData() {
+<span class="nc" id="L56">    final JSONObject object = new JSONObject();</span>
+
+<span class="nc" id="L58">    object.put(&quot;name&quot;, this.name); // required</span>
+
+<span class="nc bnc" id="L60" title="All 4 branches missed.">    if (this.description != null &amp;&amp; !this.description.isEmpty())</span>
+<span class="nc" id="L61">      object.put(&quot;description&quot;, this.description);</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">    if (this.icon != null) object.put(&quot;icon&quot;, this.icon.getEncoding());</span>
+
+<span class="nc" id="L64">    return getRequestBody(object);</span>
+  }
+
+  @Override
+  protected void handleResponse(final Response response, final Request&lt;Application&gt; request) {
+<span class="nc bnc" id="L69" title="All 2 branches missed.">    if (response.isOk()) {</span>
+<span class="nc" id="L70">      request.onSuccess(api.getEntityBuilder().createApplication(response.getObject()));</span>
+<span class="nc" id="L71">    } else request.onFailure(response);</span>
+<span class="nc" id="L72">  }</span>
+
+  /**
+   * Sets the &lt;b&gt;&lt;u&gt;description&lt;/u&gt;&lt;/b&gt; for the new {@link
+   * net.dv8tion.jda.client.entities.Application Application}. Passing {@code null} or an empty
+   * {@link String} will reset the description.
+   *
+   * &lt;p&gt;A description &lt;b&gt;must not&lt;/b&gt; be than 400 characters long!
+   *
+   * @param description The description for new {@link net.dv8tion.jda.client.entities.Application
+   *     Application}
+   * @throws IllegalArgumentException If the provided description is more than 400 characters long
+   * @return The current ApplicationAction for chaining
+   */
+  public ApplicationAction setDescription(final String description) {
+<span class="nc bnc" id="L87" title="All 4 branches missed.">    if (description != null &amp;&amp; description.length() &gt; 400)</span>
+<span class="nc" id="L88">      throw new IllegalArgumentException(&quot;The description must not be more than 400 characters!&quot;);</span>
+
+<span class="nc" id="L90">    this.description = description;</span>
+<span class="nc" id="L91">    return this;</span>
+  }
+
+  /**
+   * Sets the {@link net.dv8tion.jda.core.entities.Icon Icon} of the selected {@link
+   * net.dv8tion.jda.client.entities.Application Application}.
+   *
+   * @param icon The {@link net.dv8tion.jda.core.entities.Icon Icon} for new {@link
+   *     net.dv8tion.jda.client.entities.Application Application}
+   * @return The current ApplicationAction for chaining
+   */
+  public ApplicationAction setIcon(final Icon icon) {
+<span class="nc" id="L103">    this.icon = icon;</span>
+<span class="nc" id="L104">    return this;</span>
+  }
+
+  /**
+   * Sets the &lt;b&gt;&lt;u&gt;name&lt;/u&gt;&lt;/b&gt; for the new {@link net.dv8tion.jda.client.entities.Application
+   * Application}.
+   *
+   * &lt;p&gt;A name &lt;b&gt;must not&lt;/b&gt; be {@code null} nor less than 2 characters or more than 32 characters
+   * long!
+   *
+   * @param name The name for new {@link net.dv8tion.jda.client.entities.Application Application}
+   * @throws IllegalArgumentException If the provided name is {@code null}, less than 2 or more than
+   *     32 characters long
+   * @return The current ApplicationAction for chaining
+   */
+  public ApplicationAction setName(final String name) {
+<span class="nc bnc" id="L120" title="All 6 branches missed.">    if (name == null || name.length() &lt; 2 || name.length() &gt; 32)</span>
+<span class="nc" id="L121">      throw new IllegalArgumentException(</span>
+          &quot;The application name must not be null and in the range of 2-32!&quot;);
+<span class="nc" id="L123">    this.name = name;</span>
+<span class="nc" id="L124">    return this;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

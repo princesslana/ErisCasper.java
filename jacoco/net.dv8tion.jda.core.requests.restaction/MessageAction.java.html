@@ -1,0 +1,529 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MessageAction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">net.dv8tion.jda.core.requests.restaction</a> &gt; <span class="el_source">MessageAction.java</span></div><h1>MessageAction.java</h1><pre class="source lang-java linenums">/*
+ *     Copyright 2015-2018 Austin Keener &amp; Michael Ritter &amp; Florian Spieß
+ *     Copyright 2018-2018 &quot;Princess&quot; Lana Samson
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package net.dv8tion.jda.core.requests.restaction;
+
+import java.io.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import net.dv8tion.jda.core.AccountType;
+import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.exceptions.InsufficientPermissionException;
+import net.dv8tion.jda.core.requests.*;
+import net.dv8tion.jda.core.utils.Checks;
+import net.dv8tion.jda.core.utils.Helpers;
+import net.dv8tion.jda.core.utils.MiscUtil;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import org.json.JSONObject;
+
+/**
+ * Extension of a default {@link net.dv8tion.jda.core.requests.RestAction RestAction} that allows
+ * setting message information before sending!
+ *
+ * &lt;p&gt;This is available as return type of all sendMessage/sendFile methods in {@link
+ * net.dv8tion.jda.core.entities.MessageChannel MessageChannel} or by using {@link
+ * net.dv8tion.jda.core.MessageBuilder#sendTo(net.dv8tion.jda.core.entities.MessageChannel)
+ * MessageBuilder.sendTo(MessageChannel)}
+ *
+ * &lt;p&gt;When updating a Message, unset fields will be ignored by default. To override existing fields
+ * with no value (remove content) you can use {@link #override(boolean) override(true)}. Setting
+ * this to {@code true} will cause all fields to be considered and will override the Message
+ * entirely causing unset values to be removed from that message. &lt;br&gt;
+ * This can be used to remove existing embeds from a message: &lt;br&gt;
+ * {@code message.editMessage(&quot;This message had an embed&quot;).override(true).queue()}
+ *
+ * &lt;h1&gt;Example&lt;/h1&gt;
+ *
+ * &lt;pre&gt;&lt;code&gt;
+ * {@literal @Override}
+ *  public void onMessageReceived(MessageReceivedEvent event)
+ *  {
+ *      MessageChannel channel = event.getChannel();
+ *      channel.sendMessage(&quot;This has an embed with an image!&quot;)
+ *             .addFile(new File(&quot;dog.png&quot;))
+ *             .embed(new EmbedBuilder()
+ *                 .setImage(&quot;attachment://dog.png&quot;)
+ *                 .build())
+ *             .queue(); // this actually sends the information to discord
+ *  }
+ * &lt;/code&gt;&lt;/pre&gt;
+ *
+ * @since 3.4.0
+ */
+public class MessageAction extends RestAction&lt;Message&gt; implements Appendable {
+<span class="nc" id="L72">  private static final String CONTENT_TOO_BIG =</span>
+<span class="nc" id="L73">      String.format(</span>
+          &quot;A message may not exceed %d characters. Please limit your input!&quot;,
+<span class="nc" id="L75">          Message.MAX_CONTENT_LENGTH);</span>
+<span class="nc" id="L76">  protected final Map&lt;String, InputStream&gt; files = new HashMap&lt;&gt;();</span>
+  protected final StringBuilder content;
+  protected final MessageChannel channel;
+<span class="nc" id="L79">  protected MessageEmbed embed = null;</span>
+<span class="nc" id="L80">  protected String nonce = null;</span>
+<span class="nc" id="L81">  protected boolean tts = false, override = false;</span>
+
+  public MessageAction(JDA api, Route.CompiledRoute route, MessageChannel channel) {
+<span class="nc" id="L84">    super(api, route);</span>
+<span class="nc" id="L85">    this.content = new StringBuilder();</span>
+<span class="nc" id="L86">    this.channel = channel;</span>
+<span class="nc" id="L87">  }</span>
+
+  public MessageAction(
+      JDA api, Route.CompiledRoute route, MessageChannel channel, StringBuilder contentBuilder) {
+<span class="nc" id="L91">    super(api, route);</span>
+<span class="nc" id="L92">    Checks.check(</span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">        contentBuilder.length() &lt;= Message.MAX_CONTENT_LENGTH,</span>
+        &quot;Cannot build a Message with more than %d characters. Please limit your input.&quot;,
+<span class="nc" id="L95">        Message.MAX_CONTENT_LENGTH);</span>
+<span class="nc" id="L96">    this.content = contentBuilder;</span>
+<span class="nc" id="L97">    this.channel = channel;</span>
+<span class="nc" id="L98">  }</span>
+
+  /**
+   * Whether this MessageAction has no values set. &lt;br&gt;
+   * Trying to execute with {@code isEmpty() == true} will result in an {@link
+   * java.lang.IllegalStateException IllegalStateException}!
+   *
+   * &lt;p&gt;&lt;b&gt;This does not check for files!&lt;/b&gt;
+   *
+   * @return True, if no settings have been applied
+   */
+  public boolean isEmpty() {
+<span class="nc bnc" id="L110" title="All 4 branches missed.">    return Helpers.isBlank(content)</span>
+<span class="nc bnc" id="L111" title="All 4 branches missed.">        &amp;&amp; (embed == null || embed.isEmpty() || !hasPermission(Permission.MESSAGE_EMBED_LINKS));</span>
+  }
+
+  /**
+   * Whether this MessageAction will be used to update an existing message.
+   *
+   * @return True, if this MessageAction targets an existing message
+   */
+  public boolean isEdit() {
+<span class="nc bnc" id="L120" title="All 2 branches missed.">    return finalizeRoute().getMethod() == Method.PATCH;</span>
+  }
+
+  /**
+   * Applies the sendable information of the provided {@link net.dv8tion.jda.core.entities.Message
+   * Message} to this MessageAction settings. &lt;br&gt;
+   * This will override all existing settings &lt;b&gt;if&lt;/b&gt; new settings are available.
+   *
+   * &lt;p&gt;&lt;b&gt;This does not copy files!&lt;/b&gt;
+   *
+   * @param message The nullable Message to apply settings from
+   * @throws java.lang.IllegalArgumentException If the message contains an {@link
+   *     net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed} that exceeds the sendable
+   *     character limit, see {@link
+   *     net.dv8tion.jda.core.entities.MessageEmbed#isSendable(net.dv8tion.jda.core.AccountType)
+   *     MessageEmbed.isSendable(AccountType)}
+   * @return Updated MessageAction for chaining convenience
+   */
+  public MessageAction apply(final Message message) {
+<span class="nc bnc" id="L139" title="All 4 branches missed.">    if (message == null || message.getType() != MessageType.DEFAULT) return this;</span>
+<span class="nc" id="L140">    final List&lt;MessageEmbed&gt; embeds = message.getEmbeds();</span>
+<span class="nc bnc" id="L141" title="All 4 branches missed.">    if (embeds != null &amp;&amp; !embeds.isEmpty()) embed(embeds.get(0));</span>
+<span class="nc" id="L142">    files.clear();</span>
+
+<span class="nc" id="L144">    return content(message.getContentRaw()).tts(message.isTTS());</span>
+  }
+
+  /**
+   * Enable/Disable Text-To-Speech for the resulting message. &lt;br&gt;
+   * This is only relevant to MessageActions that are not {@code isEdit() == true}!
+   *
+   * @param isTTS True, if this should cause a Text-To-Speech effect when sent to the channel
+   * @return Updated MessageAction for chaining convenience
+   */
+  public MessageAction tts(final boolean isTTS) {
+<span class="nc" id="L155">    this.tts = isTTS;</span>
+<span class="nc" id="L156">    return this;</span>
+  }
+
+  /**
+   * Resets this MessageAction to empty state &lt;br&gt;
+   * {@link #isEmpty()} will result in {@code true} after this has been performed!
+   *
+   * &lt;p&gt;Convenience over using {@code
+   * content(null).nonce(null).embed(null).tts(false).override(false).clearFiles()}
+   *
+   * @return Updated MessageAction for chaining convenience
+   */
+  public MessageAction reset() {
+<span class="nc" id="L169">    return content(null).nonce(null).embed(null).tts(false).override(false).clearFiles();</span>
+  }
+
+  /**
+   * Sets the validation nonce for the outgoing Message
+   *
+   * &lt;p&gt;For more information see {@link net.dv8tion.jda.core.MessageBuilder#setNonce(String)
+   * MessageBuilder.setNonce(String)} and {@link net.dv8tion.jda.core.entities.Message#getNonce()
+   * Message.getNonce()}
+   *
+   * @param nonce The nonce that shall be used
+   * @return Updated MessageAction for chaining convenience
+   * @see net.dv8tion.jda.core.entities.Message#getNonce()
+   * @see net.dv8tion.jda.core.MessageBuilder#setNonce(String)
+   * @see &lt;a href=&quot;https://en.wikipedia.org/wiki/Cryptographic_nonce&quot; target=&quot;_blank&quot;&gt;Cryptographic
+   *     Nonce - Wikipedia&lt;/a&gt;
+   */
+  public MessageAction nonce(final String nonce) {
+<span class="nc" id="L187">    this.nonce = nonce;</span>
+<span class="nc" id="L188">    return this;</span>
+  }
+
+  /**
+   * Overrides existing content with the provided input &lt;br&gt;
+   * The content of a Message may not exceed {@value Message#MAX_CONTENT_LENGTH}!
+   *
+   * @param content Sets the specified content and overrides previous content or {@code null} to
+   *     reset content
+   * @throws java.lang.IllegalArgumentException If the provided content exceeds the {@value
+   *     Message#MAX_CONTENT_LENGTH} character limit
+   * @return Updated MessageAction for chaining convenience
+   */
+  public MessageAction content(final String content) {
+<span class="nc bnc" id="L202" title="All 4 branches missed.">    if (content == null || content.isEmpty()) this.content.setLength(0);</span>
+<span class="nc bnc" id="L203" title="All 2 branches missed.">    else if (content.length() &lt;= Message.MAX_CONTENT_LENGTH)</span>
+<span class="nc" id="L204">      this.content.replace(0, this.content.length(), content);</span>
+<span class="nc" id="L205">    else throw new IllegalArgumentException(CONTENT_TOO_BIG);</span>
+<span class="nc" id="L206">    return this;</span>
+  }
+
+  /**
+   * Sets the {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed} that should be used
+   * for this Message. Refer to {@link net.dv8tion.jda.core.EmbedBuilder EmbedBuilder} for more
+   * information.
+   *
+   * @param embed The {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed} that should be
+   *     attached to this message, {@code null} to use no embed.
+   * @throws java.lang.IllegalArgumentException If the provided MessageEmbed is not sendable
+   *     according to {@link
+   *     net.dv8tion.jda.core.entities.MessageEmbed#isSendable(net.dv8tion.jda.core.AccountType)
+   *     MessageEmbed.isSendable(AccountType)}! If the provided MessageEmbed is an unknown
+   *     implementation this operation will fail as we are unable to deserialize it.
+   * @return Updated MessageAction for chaining convenience
+   */
+  public MessageAction embed(final MessageEmbed embed) {
+<span class="nc bnc" id="L224" title="All 2 branches missed.">    if (embed != null) {</span>
+<span class="nc" id="L225">      final AccountType type = getJDA().getAccountType();</span>
+<span class="nc" id="L226">      Checks.check(</span>
+<span class="nc bnc" id="L227" title="All 2 branches missed.">          embed.isSendable(type),</span>
+          &quot;Provided Message contains an empty embed or an embed with a length greater than %d characters, which is the max for %s accounts!&quot;,
+<span class="nc" id="L229">          type == AccountType.BOT</span>
+              ? MessageEmbed.EMBED_MAX_LENGTH_BOT
+              : MessageEmbed.EMBED_MAX_LENGTH_CLIENT,
+          type);
+    }
+<span class="nc" id="L234">    this.embed = embed;</span>
+<span class="nc" id="L235">    return this;</span>
+  }
+
+  /**
+   * {@inheritDoc}
+   *
+   * @throws java.lang.IllegalArgumentException If the appended CharSequence is too big and will
+   *     cause the content to exceed the {@value
+   *     net.dv8tion.jda.core.entities.Message#MAX_CONTENT_LENGTH} character limit
+   * @return Updated MessageAction for chaining convenience
+   */
+  @Override
+  public MessageAction append(final CharSequence csq) {
+<span class="nc" id="L248">    return append(csq, 0, csq.length());</span>
+  }
+
+  /**
+   * {@inheritDoc}
+   *
+   * @throws java.lang.IllegalArgumentException If the appended CharSequence is too big and will
+   *     cause the content to exceed the {@value
+   *     net.dv8tion.jda.core.entities.Message#MAX_CONTENT_LENGTH} character limit
+   * @return Updated MessageAction for chaining convenience
+   */
+  @Override
+  public MessageAction append(final CharSequence csq, final int start, final int end) {
+<span class="nc bnc" id="L261" title="All 2 branches missed.">    if (content.length() + end - start &gt; Message.MAX_CONTENT_LENGTH)</span>
+<span class="nc" id="L262">      throw new IllegalArgumentException(</span>
+          &quot;A message may not exceed 2000 characters. Please limit your input!&quot;);
+<span class="nc" id="L264">    content.append(csq, start, end);</span>
+<span class="nc" id="L265">    return this;</span>
+  }
+
+  /**
+   * {@inheritDoc}
+   *
+   * @throws java.lang.IllegalArgumentException If the appended CharSequence is too big and will
+   *     cause the content to exceed the {@value
+   *     net.dv8tion.jda.core.entities.Message#MAX_CONTENT_LENGTH} character limit
+   * @return Updated MessageAction for chaining convenience
+   */
+  @Override
+  public MessageAction append(final char c) {
+<span class="nc bnc" id="L278" title="All 2 branches missed.">    if (content.length() == Message.MAX_CONTENT_LENGTH)</span>
+<span class="nc" id="L279">      throw new IllegalArgumentException(</span>
+          &quot;A message may not exceed 2000 characters. Please limit your input!&quot;);
+<span class="nc" id="L281">    content.append(c);</span>
+<span class="nc" id="L282">    return this;</span>
+  }
+
+  /**
+   * Applies the result of {@link String#format(String, Object...) String.format(String, Object...)}
+   * as content.
+   *
+   * &lt;p&gt;For more information of formatting review the {@link java.util.Formatter Formatter}
+   * documentation!
+   *
+   * @param format The format String
+   * @param args The arguments that should be used for conversion
+   * @throws java.lang.IllegalArgumentException If the appended formatting is too big and will cause
+   *     the content to exceed the {@value net.dv8tion.jda.core.entities.Message#MAX_CONTENT_LENGTH}
+   *     character limit
+   * @throws java.util.IllegalFormatException If a format string contains an illegal syntax, a
+   *     format specifier that is incompatible with the given arguments, insufficient arguments
+   *     given the format string, or other illegal conditions. For specification of all possible
+   *     formatting errors, see the &lt;a href=&quot;../util/Formatter.html#detail&quot;&gt;Details&lt;/a&gt; section of
+   *     the formatter class specification.
+   * @return Updated MessageAction for chaining convenience
+   */
+  public MessageAction appendFormat(final String format, final Object... args) {
+<span class="nc" id="L305">    return append(String.format(format, args));</span>
+  }
+
+  /**
+   * Adds the provided {@link java.io.InputStream InputStream} as file data.
+   *
+   * &lt;p&gt;To reset all files use {@link #clearFiles()}
+   *
+   * @param data The InputStream that will be interpreted as file data
+   * @param name The file name that should be used to interpret the type of the given data using the
+   *     file-name extension. This name is similar to what will be visible through {@link
+   *     net.dv8tion.jda.core.entities.Message.Attachment#getFileName()
+   *     Message.Attachment.getFileName()}
+   * @throws java.lang.IllegalStateException If the file limit of {@value Message#MAX_FILE_AMOUNT}
+   *     has been reached prior to calling this method, or if this MessageAction will perform an
+   *     edit operation on an existing Message (see {@link #isEdit()})
+   * @throws java.lang.IllegalArgumentException If the provided data is {@code null} or the provided
+   *     name is blank or {@code null}
+   * @throws net.dv8tion.jda.core.exceptions.InsufficientPermissionException If this is targeting a
+   *     TextChannel and the currently logged in account does not have {@link
+   *     net.dv8tion.jda.core.Permission#MESSAGE_ATTACH_FILES Permission.MESSAGE_ATTACH_FILES}
+   * @return Updated MessageAction for chaining convenience
+   */
+  public MessageAction addFile(final InputStream data, final String name) {
+<span class="nc" id="L329">    checkEdit();</span>
+<span class="nc" id="L330">    Checks.notNull(data, &quot;Data&quot;);</span>
+<span class="nc" id="L331">    Checks.notBlank(name, &quot;Name&quot;);</span>
+<span class="nc" id="L332">    checkFileAmount();</span>
+<span class="nc" id="L333">    checkPermission(Permission.MESSAGE_ATTACH_FILES);</span>
+<span class="nc" id="L334">    files.put(name, data);</span>
+<span class="nc" id="L335">    return this;</span>
+  }
+
+  /**
+   * Adds the provided byte[] as file data.
+   *
+   * &lt;p&gt;To reset all files use {@link #clearFiles()}
+   *
+   * @param data The byte[] that will be interpreted as file data
+   * @param name The file name that should be used to interpret the type of the given data using the
+   *     file-name extension. This name is similar to what will be visible through {@link
+   *     net.dv8tion.jda.core.entities.Message.Attachment#getFileName()
+   *     Message.Attachment.getFileName()}
+   * @throws java.lang.IllegalStateException If the file limit of {@value Message#MAX_FILE_AMOUNT}
+   *     has been reached prior to calling this method, or if this MessageAction will perform an
+   *     edit operation on an existing Message (see {@link #isEdit()})
+   * @throws java.lang.IllegalArgumentException If the provided data is {@code null} or the provided
+   *     name is blank or {@code null} or if the provided data exceeds the maximum file size of the
+   *     currently logged in account
+   * @throws net.dv8tion.jda.core.exceptions.InsufficientPermissionException If this is targeting a
+   *     TextChannel and the currently logged in account does not have {@link
+   *     net.dv8tion.jda.core.Permission#MESSAGE_ATTACH_FILES Permission.MESSAGE_ATTACH_FILES}
+   * @return Updated MessageAction for chaining convenience
+   * @see net.dv8tion.jda.core.entities.SelfUser#getAllowedFileSize() SelfUser.getAllowedFileSize()
+   */
+  public MessageAction addFile(final byte[] data, final String name) {
+<span class="nc" id="L361">    Checks.notNull(data, &quot;Data&quot;);</span>
+<span class="nc" id="L362">    final long maxSize = getJDA().getSelfUser().getAllowedFileSize();</span>
+<span class="nc bnc" id="L363" title="All 2 branches missed.">    Checks.check(</span>
+        data.length &lt;= maxSize,
+        &quot;File may not exceed the maximum file length of %d bytes!&quot;,
+<span class="nc" id="L366">        maxSize);</span>
+<span class="nc" id="L367">    return addFile(new ByteArrayInputStream(data), name);</span>
+  }
+
+  /**
+   * Adds the provided {@link java.io.File File} as file data. &lt;br&gt;
+   * Shortcut for {@link #addFile(java.io.File, String) addFile(file, file.getName())}
+   *
+   * &lt;p&gt;To reset all files use {@link #clearFiles()}
+   *
+   * @param file The File that will be interpreted as file data
+   * @throws java.lang.IllegalStateException If the file limit of {@value Message#MAX_FILE_AMOUNT}
+   *     has been reached prior to calling this method, or if this MessageAction will perform an
+   *     edit operation on an existing Message (see {@link #isEdit()})
+   * @throws java.lang.IllegalArgumentException If the provided file is {@code null} or if the
+   *     provided File is bigger than the maximum file size of the currently logged in account
+   * @throws net.dv8tion.jda.core.exceptions.InsufficientPermissionException If this is targeting a
+   *     TextChannel and the currently logged in account does not have {@link
+   *     net.dv8tion.jda.core.Permission#MESSAGE_ATTACH_FILES Permission.MESSAGE_ATTACH_FILES}
+   * @return Updated MessageAction for chaining convenience
+   * @see net.dv8tion.jda.core.entities.SelfUser#getAllowedFileSize() SelfUser.getAllowedFileSize()
+   */
+  public MessageAction addFile(final File file) {
+<span class="nc" id="L389">    Checks.notNull(file, &quot;File&quot;);</span>
+<span class="nc" id="L390">    return addFile(file, file.getName());</span>
+  }
+
+  /**
+   * Adds the provided {@link java.io.File File} as file data.
+   *
+   * &lt;p&gt;To reset all files use {@link #clearFiles()}
+   *
+   * @param file The File that will be interpreted as file data
+   * @param name The file name that should be used to interpret the type of the given data using the
+   *     file-name extension. This name is similar to what will be visible through {@link
+   *     net.dv8tion.jda.core.entities.Message.Attachment#getFileName()
+   *     Message.Attachment.getFileName()}
+   * @throws java.lang.IllegalStateException If the file limit of {@value Message#MAX_FILE_AMOUNT}
+   *     has been reached prior to calling this method, or if this MessageAction will perform an
+   *     edit operation on an existing Message (see {@link #isEdit()})
+   * @throws java.lang.IllegalArgumentException If the provided file is {@code null} or the provided
+   *     name is blank or {@code null} or if the provided file is bigger than the maximum file size
+   *     of the currently logged in account, or if the provided file does not exist/ is not readable
+   * @throws net.dv8tion.jda.core.exceptions.InsufficientPermissionException If this is targeting a
+   *     TextChannel and the currently logged in account does not have {@link
+   *     net.dv8tion.jda.core.Permission#MESSAGE_ATTACH_FILES Permission.MESSAGE_ATTACH_FILES}
+   * @return Updated MessageAction for chaining convenience
+   * @see net.dv8tion.jda.core.entities.SelfUser#getAllowedFileSize() SelfUser.getAllowedFileSize()
+   */
+  public MessageAction addFile(final File file, final String name) {
+<span class="nc" id="L416">    Checks.notNull(file, &quot;File&quot;);</span>
+<span class="nc" id="L417">    Checks.check(</span>
+<span class="nc bnc" id="L418" title="All 4 branches missed.">        file.exists() &amp;&amp; file.canRead(),</span>
+        &quot;Provided file either does not exist or cannot be read from!&quot;);
+<span class="nc" id="L420">    final long maxSize = getJDA().getSelfUser().getAllowedFileSize();</span>
+<span class="nc" id="L421">    Checks.check(</span>
+<span class="nc bnc" id="L422" title="All 2 branches missed.">        file.length() &lt;= maxSize,</span>
+        &quot;File may not exceed the maximum file length of %d bytes!&quot;,
+<span class="nc" id="L424">        maxSize);</span>
+    try {
+<span class="nc" id="L426">      return addFile(new FileInputStream(file), name);</span>
+<span class="nc" id="L427">    } catch (FileNotFoundException e) {</span>
+<span class="nc" id="L428">      throw new IllegalArgumentException(e);</span>
+    }
+  }
+
+  /**
+   * Clears all previously added files
+   *
+   * @return Updated MessageAction for chaining convenience
+   */
+  public MessageAction clearFiles() {
+<span class="nc" id="L438">    files.clear();</span>
+<span class="nc" id="L439">    return this;</span>
+  }
+
+  /**
+   * Whether all fields should be considered when editing a message
+   *
+   * @param bool True, to override all fields even if they are not set
+   * @return Updated MessageAction for chaining convenience
+   */
+  public MessageAction override(final boolean bool) {
+<span class="nc bnc" id="L449" title="All 4 branches missed.">    this.override = isEdit() &amp;&amp; bool;</span>
+<span class="nc" id="L450">    return this;</span>
+  }
+
+  protected RequestBody asMultipart() {
+<span class="nc" id="L454">    final MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);</span>
+<span class="nc" id="L455">    final MediaType type = MediaType.parse(&quot;application/octet-stream&quot;);</span>
+<span class="nc" id="L456">    int index = 0;</span>
+<span class="nc bnc" id="L457" title="All 2 branches missed.">    for (Map.Entry&lt;String, InputStream&gt; entry : files.entrySet()) {</span>
+<span class="nc" id="L458">      final RequestBody body = MiscUtil.createRequestBody(type, entry.getValue());</span>
+<span class="nc" id="L459">      builder.addFormDataPart(&quot;file&quot; + index++, entry.getKey(), body);</span>
+<span class="nc" id="L460">    }</span>
+<span class="nc bnc" id="L461" title="All 2 branches missed.">    if (!isEmpty()) builder.addFormDataPart(&quot;payload_json&quot;, getJSON().toString());</span>
+<span class="nc" id="L462">    return builder.build();</span>
+  }
+
+  protected RequestBody asJSON() {
+<span class="nc" id="L466">    return RequestBody.create(Requester.MEDIA_TYPE_JSON, getJSON().toString());</span>
+  }
+
+  protected JSONObject getJSON() {
+<span class="nc" id="L470">    final JSONObject obj = new JSONObject();</span>
+<span class="nc bnc" id="L471" title="All 2 branches missed.">    if (override) {</span>
+<span class="nc bnc" id="L472" title="All 2 branches missed.">      if (embed == null) obj.put(&quot;embed&quot;, JSONObject.NULL);</span>
+<span class="nc" id="L473">      else obj.put(&quot;embed&quot;, getJSONEmbed(embed));</span>
+<span class="nc bnc" id="L474" title="All 2 branches missed.">      if (content.length() == 0) obj.put(&quot;content&quot;, JSONObject.NULL);</span>
+<span class="nc" id="L475">      else obj.put(&quot;content&quot;, content.toString());</span>
+<span class="nc bnc" id="L476" title="All 2 branches missed.">      if (nonce == null) obj.put(&quot;nonce&quot;, JSONObject.NULL);</span>
+<span class="nc" id="L477">      else obj.put(&quot;nonce&quot;, nonce);</span>
+<span class="nc" id="L478">      obj.put(&quot;tts&quot;, tts);</span>
+    } else {
+<span class="nc bnc" id="L480" title="All 2 branches missed.">      if (embed != null) obj.put(&quot;embed&quot;, getJSONEmbed(embed));</span>
+<span class="nc bnc" id="L481" title="All 2 branches missed.">      if (content.length() &gt; 0) obj.put(&quot;content&quot;, content.toString());</span>
+<span class="nc bnc" id="L482" title="All 2 branches missed.">      if (nonce != null) obj.put(&quot;nonce&quot;, nonce);</span>
+<span class="nc" id="L483">      obj.put(&quot;tts&quot;, tts);</span>
+    }
+<span class="nc" id="L485">    return obj;</span>
+  }
+
+  protected static JSONObject getJSONEmbed(final MessageEmbed embed) {
+<span class="nc" id="L489">    return embed.toJSONObject();</span>
+  }
+
+  protected void checkFileAmount() {
+<span class="nc bnc" id="L493" title="All 2 branches missed.">    if (files.size() &gt;= Message.MAX_FILE_AMOUNT)</span>
+<span class="nc" id="L494">      throw new IllegalStateException(</span>
+          &quot;Cannot add more than &quot; + Message.MAX_FILE_AMOUNT + &quot; files!&quot;);
+<span class="nc" id="L496">  }</span>
+
+  protected void checkEdit() {
+<span class="nc bnc" id="L499" title="All 2 branches missed.">    if (isEdit())</span>
+<span class="nc" id="L500">      throw new IllegalStateException(</span>
+          &quot;Cannot add files to an existing message! Edit-Message does not support this operation!&quot;);
+<span class="nc" id="L502">  }</span>
+
+  protected void checkPermission(Permission perm) {
+<span class="nc bnc" id="L505" title="All 2 branches missed.">    if (!hasPermission(perm)) throw new InsufficientPermissionException(perm);</span>
+<span class="nc" id="L506">  }</span>
+
+  protected boolean hasPermission(Permission perm) {
+<span class="nc bnc" id="L509" title="All 2 branches missed.">    if (channel.getType() != ChannelType.TEXT) return true;</span>
+<span class="nc" id="L510">    TextChannel text = (TextChannel) channel;</span>
+<span class="nc" id="L511">    Member self = text.getGuild().getSelfMember();</span>
+<span class="nc" id="L512">    return self.hasPermission(text, perm);</span>
+  }
+
+  @Override
+  protected RequestBody finalizeData() {
+<span class="nc bnc" id="L517" title="All 2 branches missed.">    if (!files.isEmpty()) return asMultipart();</span>
+<span class="nc bnc" id="L518" title="All 2 branches missed.">    else if (!isEmpty()) return asJSON();</span>
+<span class="nc" id="L519">    throw new IllegalStateException(&quot;Cannot build a message without content!&quot;);</span>
+  }
+
+  @Override
+  protected void handleResponse(Response response, Request&lt;Message&gt; request) {
+<span class="nc bnc" id="L524" title="All 2 branches missed.">    if (response.isOk())</span>
+<span class="nc" id="L525">      request.onSuccess(api.getEntityBuilder().createMessage(response.getObject(), channel, false));</span>
+<span class="nc" id="L526">    else request.onFailure(response);</span>
+<span class="nc" id="L527">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

@@ -1,0 +1,412 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WebhookClient.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">net.dv8tion.jda.webhook</a> &gt; <span class="el_source">WebhookClient.java</span></div><h1>WebhookClient.java</h1><pre class="source lang-java linenums">/*
+ *     Copyright 2015-2018 Austin Keener &amp; Michael Ritter &amp; Florian Spieß
+ *     Copyright 2018-2018 &quot;Princess&quot; Lana Samson
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package net.dv8tion.jda.webhook;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.Collection;
+import java.util.concurrent.*;
+import net.dv8tion.jda.core.JDAInfo;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageEmbed;
+import net.dv8tion.jda.core.exceptions.HttpException;
+import net.dv8tion.jda.core.requests.RequestFuture;
+import net.dv8tion.jda.core.requests.Requester;
+import net.dv8tion.jda.core.utils.Checks;
+import net.dv8tion.jda.core.utils.IOUtil;
+import net.dv8tion.jda.core.utils.JDALogger;
+import net.dv8tion.jda.core.utils.Promise;
+import net.dv8tion.jda.core.utils.tuple.ImmutablePair;
+import net.dv8tion.jda.core.utils.tuple.Pair;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import org.json.JSONObject;
+import org.json.JSONTokener;
+import org.slf4j.Logger;
+
+/**
+ * WebhookClient representing an executable {@link net.dv8tion.jda.core.entities.Webhook Webhook}
+ * &lt;br&gt;
+ * This client allows to send messages to a Discord Webhook without reliance on a JDA
+ * instance/Webhook entity.
+ *
+ * &lt;p&gt;Instances of this class can be retrieved using {@link
+ * net.dv8tion.jda.webhook.WebhookClientBuilder WebhookClientBuilders}
+ */
+public class WebhookClient implements AutoCloseable {
+  public static final String WEBHOOK_URL = &quot;https://discordapp.com/api/v6/webhooks/%s/%s&quot;;
+<span class="nc" id="L59">  public static final String USER_AGENT =</span>
+      &quot;JDA Webhook(https://github.com/DV8FromTheWorld/JDA | &quot; + JDAInfo.VERSION + &quot;)&quot;;
+<span class="nc" id="L61">  public static final Logger LOG = JDALogger.getLog(WebhookClient.class);</span>
+
+  protected final String url;
+  protected final long id;
+  protected final OkHttpClient client;
+  protected final ScheduledExecutorService pool;
+  protected final Bucket bucket;
+  protected final BlockingQueue&lt;Pair&lt;RequestBody, CompletableFuture&lt;?&gt;&gt;&gt; queue;
+  protected volatile boolean isQueued;
+  protected boolean isShutdown;
+
+  protected WebhookClient(
+      final long id,
+      final String token,
+      final OkHttpClient client,
+<span class="nc" id="L76">      final ScheduledExecutorService pool) {</span>
+<span class="nc" id="L77">    this.client = client;</span>
+<span class="nc" id="L78">    this.id = id;</span>
+<span class="nc" id="L79">    this.url = String.format(WEBHOOK_URL, Long.toUnsignedString(id), token);</span>
+<span class="nc" id="L80">    this.pool = pool;</span>
+<span class="nc" id="L81">    this.bucket = new Bucket();</span>
+<span class="nc" id="L82">    this.queue = new LinkedBlockingQueue&lt;&gt;();</span>
+<span class="nc" id="L83">    this.isQueued = false;</span>
+<span class="nc" id="L84">  }</span>
+
+  /**
+   * The snowflake id of the target Webhook
+   *
+   * @return id of the target Webhook
+   */
+  public long getIdLong() {
+<span class="nc" id="L92">    return id;</span>
+  }
+
+  /**
+   * The snowflake id of the target Webhook
+   *
+   * @return id of the target Webhook
+   */
+  public String getId() {
+<span class="nc" id="L101">    return Long.toUnsignedString(id);</span>
+  }
+
+  /**
+   * The URL of this WebhookClient
+   *
+   * @return The URL of this client
+   */
+  public String getUrl() {
+<span class="nc" id="L110">    return url;</span>
+  }
+
+  /**
+   * Sends the provided {@link net.dv8tion.jda.webhook.WebhookMessage WebhookMessage} to this
+   * webhook.
+   *
+   * &lt;p&gt;Hint: Use {@link net.dv8tion.jda.webhook.WebhookMessageBuilder WebhookMessageBuilder} to
+   * create a {@link net.dv8tion.jda.webhook.WebhookMessage WebhookMessage} instance!
+   *
+   * @param message The message to send
+   * @throws net.dv8tion.jda.core.exceptions.HttpException If the HTTP request fails
+   * @return {@link net.dv8tion.jda.core.requests.RequestFuture RequestFuture} representing the
+   *     execution task, this will be completed once the message was sent.
+   */
+  public RequestFuture&lt;?&gt; send(WebhookMessage message) {
+<span class="nc" id="L126">    Checks.notNull(message, &quot;WebhookMessage&quot;);</span>
+<span class="nc" id="L127">    return execute(message.getBody());</span>
+  }
+
+  /**
+   * Sends the provided {@link java.io.File File} to this webhook.
+   *
+   * @param file The file to send
+   * @throws java.lang.IllegalArgumentException If the provided file is {@code null}, does not exist
+   *     or is not readable
+   * @throws java.util.concurrent.RejectedExecutionException If this client was closed
+   * @throws net.dv8tion.jda.core.exceptions.HttpException If the HTTP request fails
+   * @return {@link net.dv8tion.jda.core.requests.RequestFuture RequestFuture} representing the
+   *     execution task, this will be completed once the message was sent.
+   */
+  public RequestFuture&lt;?&gt; send(File file) {
+<span class="nc" id="L142">    return send(new WebhookMessageBuilder().setFile(file).build());</span>
+  }
+
+  /**
+   * Sends the provided {@link java.io.File File} to this webhook.
+   *
+   * @param file The file to send
+   * @param fileName The name that should be used for this file
+   * @throws java.lang.IllegalArgumentException If the provided file is {@code null}, does not exist
+   *     or is not readable
+   * @throws java.util.concurrent.RejectedExecutionException If this client was closed
+   * @throws net.dv8tion.jda.core.exceptions.HttpException If the HTTP request fails
+   * @return {@link net.dv8tion.jda.core.requests.RequestFuture RequestFuture} representing the
+   *     execution task, this will be completed once the message was sent.
+   */
+  public RequestFuture&lt;?&gt; send(File file, String fileName) {
+<span class="nc" id="L158">    return send(new WebhookMessageBuilder().setFile(file, fileName).build());</span>
+  }
+
+  /**
+   * Sends the provided {@code byte[]} data to this webhook.
+   *
+   * @param data The file data to send
+   * @param fileName The name that should be used for this file
+   * @throws java.lang.IllegalArgumentException If the provided data is {@code null} or exceeds the
+   *     limit of 8MB
+   * @throws java.util.concurrent.RejectedExecutionException If this client was closed
+   * @throws net.dv8tion.jda.core.exceptions.HttpException If the HTTP request fails
+   * @return {@link net.dv8tion.jda.core.requests.RequestFuture RequestFuture} representing the
+   *     execution task, this will be completed once the message was sent.
+   */
+  public RequestFuture&lt;?&gt; send(byte[] data, String fileName) {
+<span class="nc" id="L174">    return send(new WebhookMessageBuilder().setFile(data, fileName).build());</span>
+  }
+
+  /**
+   * Sends the provided {@link java.io.InputStream InputStream} data to this webhook.
+   *
+   * @param data The file data to send
+   * @param fileName The name that should be used for this file
+   * @throws java.lang.IllegalArgumentException If the provided data is {@code null}
+   * @throws java.util.concurrent.RejectedExecutionException If this client was closed
+   * @throws net.dv8tion.jda.core.exceptions.HttpException If the HTTP request fails
+   * @return {@link net.dv8tion.jda.core.requests.RequestFuture RequestFuture} representing the
+   *     execution task, this will be completed once the message was sent.
+   */
+  public RequestFuture&lt;?&gt; send(InputStream data, String fileName) {
+<span class="nc" id="L189">    return send(new WebhookMessageBuilder().setFile(data, fileName).build());</span>
+  }
+
+  /**
+   * Sends the provided {@link net.dv8tion.jda.core.entities.Message Message} to this webhook.
+   *
+   * &lt;p&gt;Hint: Use {@link net.dv8tion.jda.core.MessageBuilder MessageBuilder} to create a {@link
+   * net.dv8tion.jda.core.entities.Message Message} instance!
+   *
+   * @param message The message to send
+   * @throws net.dv8tion.jda.core.exceptions.HttpException If the HTTP request fails
+   * @return {@link net.dv8tion.jda.core.requests.RequestFuture RequestFuture} representing the
+   *     execution task, this will be completed once the message was sent.
+   */
+  public RequestFuture&lt;?&gt; send(Message message) {
+<span class="nc" id="L204">    return send(WebhookMessage.from(message));</span>
+  }
+
+  /**
+   * Sends the provided {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbeds} to this
+   * webhook.
+   *
+   * &lt;p&gt;&lt;b&gt;You can send up to 10 embeds per message! If more are sent they will not be
+   * displayed.&lt;/b&gt;
+   *
+   * &lt;p&gt;Hint: Use {@link net.dv8tion.jda.core.EmbedBuilder EmbedBuilder} to create a {@link
+   * net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed} instance!
+   *
+   * @param embeds The embeds to send
+   * @throws java.lang.IllegalArgumentException If any of the provided embeds is {@code null}
+   * @throws java.util.concurrent.RejectedExecutionException If this client was closed
+   * @throws net.dv8tion.jda.core.exceptions.HttpException If the HTTP request fails
+   * @return {@link net.dv8tion.jda.core.requests.RequestFuture RequestFuture} representing the
+   *     execution task, this will be completed once the message was sent.
+   */
+  public RequestFuture&lt;?&gt; send(MessageEmbed... embeds) {
+<span class="nc" id="L225">    return send(WebhookMessage.of(embeds));</span>
+  }
+
+  /**
+   * Sends the provided {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbeds} to this
+   * webhook.
+   *
+   * &lt;p&gt;&lt;b&gt;You can send up to 10 embeds per message! If more are sent they will not be
+   * displayed.&lt;/b&gt;
+   *
+   * &lt;p&gt;Hint: Use {@link net.dv8tion.jda.core.EmbedBuilder EmbedBuilder} to create a {@link
+   * net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed} instance!
+   *
+   * @param embeds The embeds to send
+   * @throws java.lang.IllegalArgumentException If any of the provided embeds is {@code null}
+   * @throws java.util.concurrent.RejectedExecutionException If this client was closed
+   * @throws net.dv8tion.jda.core.exceptions.HttpException If the HTTP request fails
+   * @return {@link net.dv8tion.jda.core.requests.RequestFuture RequestFuture} representing the
+   *     execution task, this will be completed once the message was sent.
+   */
+  public RequestFuture&lt;?&gt; send(Collection&lt;MessageEmbed&gt; embeds) {
+<span class="nc" id="L246">    return send(WebhookMessage.of(embeds));</span>
+  }
+
+  /**
+   * Sends the provided text message to this webhook.
+   *
+   * @param content The text message to send
+   * @throws java.lang.IllegalArgumentException If any of the provided message is {@code null},
+   *     blank or exceeds 2000 characters in length
+   * @throws java.util.concurrent.RejectedExecutionException If this client was closed
+   * @throws net.dv8tion.jda.core.exceptions.HttpException If the HTTP request fails
+   * @return {@link net.dv8tion.jda.core.requests.RequestFuture RequestFuture} representing the
+   *     execution task, this will be completed once the message was sent.
+   */
+  public RequestFuture&lt;?&gt; send(String content) {
+<span class="nc" id="L261">    Checks.notBlank(content, &quot;Content&quot;);</span>
+<span class="nc bnc" id="L262" title="All 2 branches missed.">    Checks.check(content.length() &lt;= 2000, &quot;Content may not exceed 2000 characters!&quot;);</span>
+<span class="nc" id="L263">    return execute(newBody(new JSONObject().put(&quot;content&quot;, content).toString()));</span>
+  }
+
+  @Override
+  public void close() {
+<span class="nc" id="L268">    isShutdown = true;</span>
+<span class="nc" id="L269">    pool.shutdown();</span>
+<span class="nc" id="L270">  }</span>
+
+  @Override
+  protected void finalize() throws Throwable {
+<span class="nc bnc" id="L274" title="All 2 branches missed.">    if (!isShutdown) LOG.warn(&quot;Detected unclosed WebhookClient! Did you forget to close it?&quot;);</span>
+<span class="nc" id="L275">  }</span>
+
+  protected void checkShutdown() {
+<span class="nc bnc" id="L278" title="All 2 branches missed.">    if (isShutdown) throw new RejectedExecutionException(&quot;Cannot send to closed client!&quot;);</span>
+<span class="nc" id="L279">  }</span>
+
+  protected static RequestBody newBody(String object) {
+<span class="nc" id="L282">    return RequestBody.create(Requester.MEDIA_TYPE_JSON, object);</span>
+  }
+
+  protected RequestFuture&lt;?&gt; execute(RequestBody body) {
+<span class="nc" id="L286">    checkShutdown();</span>
+<span class="nc" id="L287">    return queueRequest(body);</span>
+  }
+
+  protected static HttpException failure(Response response) throws IOException {
+<span class="nc" id="L291">    final InputStream stream = Requester.getBody(response);</span>
+<span class="nc" id="L292">    final String responseBody = new String(IOUtil.readFully(stream));</span>
+<span class="nc" id="L293">    return new HttpException(&quot;Request returned failure &quot; + response.code() + &quot;: &quot; + responseBody);</span>
+  }
+
+  protected RequestFuture&lt;?&gt; queueRequest(RequestBody body) {
+<span class="nc" id="L297">    final boolean wasQueued = isQueued;</span>
+<span class="nc" id="L298">    isQueued = true;</span>
+<span class="nc" id="L299">    Promise&lt;?&gt; callback = new Promise&lt;&gt;();</span>
+<span class="nc" id="L300">    queue.add(ImmutablePair.of(body, callback));</span>
+<span class="nc bnc" id="L301" title="All 2 branches missed.">    if (!wasQueued) backoffQueue();</span>
+<span class="nc" id="L302">    return callback;</span>
+  }
+
+  protected Request newRequest(RequestBody body) {
+<span class="nc" id="L306">    return new Request.Builder()</span>
+<span class="nc" id="L307">        .url(url)</span>
+<span class="nc" id="L308">        .method(&quot;POST&quot;, body)</span>
+<span class="nc" id="L309">        .header(&quot;accept-encoding&quot;, &quot;gzip&quot;)</span>
+<span class="nc" id="L310">        .header(&quot;user-agent&quot;, USER_AGENT)</span>
+<span class="nc" id="L311">        .build();</span>
+  }
+
+  protected void backoffQueue() {
+<span class="nc" id="L315">    pool.schedule(this::drainQueue, bucket.retryAfter(), TimeUnit.MILLISECONDS);</span>
+<span class="nc" id="L316">  }</span>
+
+  protected void drainQueue() {
+<span class="nc bnc" id="L319" title="All 2 branches missed.">    while (!queue.isEmpty()) {</span>
+<span class="nc" id="L320">      final Pair&lt;RequestBody, CompletableFuture&lt;?&gt;&gt; pair = queue.peek();</span>
+<span class="nc bnc" id="L321" title="All 2 branches missed.">      if (pair.getRight().isCancelled()) {</span>
+<span class="nc" id="L322">        queue.poll();</span>
+<span class="nc" id="L323">        continue;</span>
+      }
+
+<span class="nc" id="L326">      final Request request = newRequest(pair.getLeft());</span>
+<span class="nc" id="L327">      try (Response response = client.newCall(request).execute()) {</span>
+<span class="nc" id="L328">        bucket.update(response);</span>
+<span class="nc bnc" id="L329" title="All 2 branches missed.">        if (response.code() == Bucket.RATE_LIMIT_CODE) {</span>
+<span class="nc" id="L330">          backoffQueue();</span>
+<span class="nc" id="L331">          return;</span>
+<span class="nc bnc" id="L332" title="All 2 branches missed.">        } else if (!response.isSuccessful()) {</span>
+<span class="nc" id="L333">          final HttpException exception = failure(response);</span>
+<span class="nc" id="L334">          LOG.error(&quot;Sending a webhook message failed with non-OK http response&quot;, exception);</span>
+<span class="nc" id="L335">          queue.poll().getRight().completeExceptionally(exception);</span>
+          continue;
+        }
+<span class="nc" id="L338">        queue.poll().getRight().complete(null);</span>
+<span class="nc bnc" id="L339" title="All 2 branches missed.">        if (bucket.isRateLimit()) {</span>
+<span class="nc" id="L340">          backoffQueue();</span>
+<span class="nc" id="L341">          return;</span>
+        }
+<span class="nc" id="L343">      } catch (IOException e) {</span>
+<span class="nc" id="L344">        LOG.error(&quot;There was some error while sending a webhook message&quot;, e);</span>
+<span class="nc" id="L345">        queue.poll().getRight().completeExceptionally(e);</span>
+<span class="nc" id="L346">      }</span>
+<span class="nc" id="L347">    }</span>
+<span class="nc" id="L348">    isQueued = false;</span>
+<span class="nc" id="L349">  }</span>
+
+<span class="nc" id="L351">  protected static final class Bucket {</span>
+    public static final int RATE_LIMIT_CODE = 429;
+    public long resetTime;
+    public int remainingUses;
+<span class="nc" id="L355">    public int limit = Integer.MAX_VALUE;</span>
+
+    public synchronized boolean isRateLimit() {
+<span class="nc bnc" id="L358" title="All 2 branches missed.">      if (retryAfter() &lt;= 0) remainingUses = limit;</span>
+<span class="nc bnc" id="L359" title="All 2 branches missed.">      return remainingUses &lt;= 0;</span>
+    }
+
+    public synchronized long retryAfter() {
+<span class="nc" id="L363">      return resetTime - System.currentTimeMillis();</span>
+    }
+
+    private synchronized void handleRatelimit(Response response, long current) throws IOException {
+<span class="nc" id="L367">      final String retryAfter = response.header(&quot;Retry-After&quot;);</span>
+      long delay;
+<span class="nc bnc" id="L369" title="All 2 branches missed.">      if (retryAfter == null) {</span>
+<span class="nc" id="L370">        final JSONObject body = new JSONObject(new JSONTokener(Requester.getBody(response)));</span>
+<span class="nc" id="L371">        delay = body.getLong(&quot;retry_after&quot;);</span>
+<span class="nc" id="L372">      } else {</span>
+<span class="nc" id="L373">        delay = Long.parseLong(retryAfter);</span>
+      }
+<span class="nc" id="L375">      resetTime = current + delay;</span>
+<span class="nc" id="L376">    }</span>
+
+    private synchronized void update0(Response response) throws IOException {
+<span class="nc" id="L379">      final long current = System.currentTimeMillis();</span>
+<span class="nc bnc" id="L380" title="All 2 branches missed.">      final boolean is429 = response.code() == RATE_LIMIT_CODE;</span>
+<span class="nc bnc" id="L381" title="All 2 branches missed.">      if (is429) {</span>
+<span class="nc" id="L382">        handleRatelimit(response, current);</span>
+<span class="nc bnc" id="L383" title="All 2 branches missed.">      } else if (!response.isSuccessful()) {</span>
+<span class="nc" id="L384">        LOG.debug(</span>
+            &quot;Failed to update buckets due to unsuccessful response with code: {} and body: \n{}&quot;,
+<span class="nc" id="L386">            response.code(),</span>
+<span class="nc" id="L387">            JDALogger.getLazyString(</span>
+<span class="nc" id="L388">                () -&gt; new String(IOUtil.readFully(Requester.getBody(response)))));</span>
+<span class="nc" id="L389">        return;</span>
+      }
+<span class="nc" id="L391">      remainingUses = Integer.parseInt(response.header(&quot;X-RateLimit-Remaining&quot;));</span>
+<span class="nc" id="L392">      limit = Integer.parseInt(response.header(&quot;X-RateLimit-Limit&quot;));</span>
+<span class="nc" id="L393">      final String date = response.header(&quot;Date&quot;);</span>
+
+<span class="nc bnc" id="L395" title="All 4 branches missed.">      if (date != null &amp;&amp; !is429) {</span>
+<span class="nc" id="L396">        final long reset = Long.parseLong(response.header(&quot;X-RateLimit-Reset&quot;)); // epoch seconds</span>
+<span class="nc" id="L397">        OffsetDateTime tDate = OffsetDateTime.parse(date, DateTimeFormatter.RFC_1123_DATE_TIME);</span>
+<span class="nc" id="L398">        final long delay = tDate.toInstant().until(Instant.ofEpochSecond(reset), ChronoUnit.MILLIS);</span>
+<span class="nc" id="L399">        resetTime = current + delay;</span>
+      }
+<span class="nc" id="L401">    }</span>
+
+    public void update(Response response) {
+      try {
+<span class="nc" id="L405">        update0(response);</span>
+<span class="nc" id="L406">      } catch (Exception ex) {</span>
+<span class="nc" id="L407">        LOG.error(&quot;Could not read http response&quot;, ex);</span>
+<span class="nc" id="L408">      }</span>
+<span class="nc" id="L409">    }</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PermissionOverrideImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">net.dv8tion.jda.core.entities.impl</a> &gt; <span class="el_source">PermissionOverrideImpl.java</span></div><h1>PermissionOverrideImpl.java</h1><pre class="source lang-java linenums">/*
+ *     Copyright 2015-2018 Austin Keener &amp; Michael Ritter &amp; Florian Spieß
+ *     Copyright 2018-2018 &quot;Princess&quot; Lana Samson
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package net.dv8tion.jda.core.entities.impl;
+
+import java.util.Collections;
+import java.util.List;
+import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.exceptions.InsufficientPermissionException;
+import net.dv8tion.jda.core.managers.PermOverrideManager;
+import net.dv8tion.jda.core.managers.PermOverrideManagerUpdatable;
+import net.dv8tion.jda.core.requests.Request;
+import net.dv8tion.jda.core.requests.Response;
+import net.dv8tion.jda.core.requests.Route;
+import net.dv8tion.jda.core.requests.restaction.AuditableRestAction;
+
+public class PermissionOverrideImpl implements PermissionOverride {
+  private final long id;
+  private final Channel channel;
+  private final IPermissionHolder permissionHolder;
+
+<span class="nc" id="L37">  protected final Object mngLock = new Object();</span>
+  protected volatile PermOverrideManager manager;
+  protected volatile PermOverrideManagerUpdatable managerUpdatable;
+
+  private long allow;
+  private long deny;
+
+<span class="nc" id="L44">  public PermissionOverrideImpl(Channel channel, long id, IPermissionHolder permissionHolder) {</span>
+<span class="nc" id="L45">    this.channel = channel;</span>
+<span class="nc" id="L46">    this.id = id;</span>
+<span class="nc" id="L47">    this.permissionHolder = permissionHolder;</span>
+<span class="nc" id="L48">  }</span>
+
+  @Override
+  public long getAllowedRaw() {
+<span class="nc" id="L52">    return allow;</span>
+  }
+
+  @Override
+  public long getInheritRaw() {
+<span class="nc" id="L57">    return ~(allow | deny);</span>
+  }
+
+  @Override
+  public long getDeniedRaw() {
+<span class="nc" id="L62">    return deny;</span>
+  }
+
+  @Override
+  public List&lt;Permission&gt; getAllowed() {
+<span class="nc" id="L67">    return Collections.unmodifiableList(Permission.getPermissions(allow));</span>
+  }
+
+  @Override
+  public List&lt;Permission&gt; getInherit() {
+<span class="nc" id="L72">    return Collections.unmodifiableList(Permission.getPermissions(getInheritRaw()));</span>
+  }
+
+  @Override
+  public List&lt;Permission&gt; getDenied() {
+<span class="nc" id="L77">    return Collections.unmodifiableList(Permission.getPermissions(deny));</span>
+  }
+
+  @Override
+  public JDA getJDA() {
+<span class="nc" id="L82">    return channel.getJDA();</span>
+  }
+
+  @Override
+  public Member getMember() {
+<span class="nc bnc" id="L87" title="All 2 branches missed.">    return isMemberOverride() ? (Member) permissionHolder : null;</span>
+  }
+
+  @Override
+  public Role getRole() {
+<span class="nc bnc" id="L92" title="All 2 branches missed.">    return isRoleOverride() ? (Role) permissionHolder : null;</span>
+  }
+
+  @Override
+  public Channel getChannel() {
+<span class="nc" id="L97">    return channel;</span>
+  }
+
+  @Override
+  public Guild getGuild() {
+<span class="nc" id="L102">    return channel.getGuild();</span>
+  }
+
+  @Override
+  public boolean isMemberOverride() {
+<span class="nc" id="L107">    return permissionHolder instanceof Member;</span>
+  }
+
+  @Override
+  public boolean isRoleOverride() {
+<span class="nc" id="L112">    return permissionHolder instanceof Role;</span>
+  }
+
+  @Override
+  public PermOverrideManager getManager() {
+<span class="nc" id="L117">    PermOverrideManager mng = manager;</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">    if (mng == null) {</span>
+<span class="nc" id="L119">      synchronized (mngLock) {</span>
+<span class="nc" id="L120">        mng = manager;</span>
+<span class="nc bnc" id="L121" title="All 2 branches missed.">        if (mng == null) mng = manager = new PermOverrideManager(this);</span>
+<span class="nc" id="L122">      }</span>
+    }
+<span class="nc" id="L124">    return mng;</span>
+  }
+
+  @Override
+  public PermOverrideManagerUpdatable getManagerUpdatable() {
+<span class="nc" id="L129">    PermOverrideManagerUpdatable mng = managerUpdatable;</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">    if (mng == null) {</span>
+<span class="nc" id="L131">      synchronized (mngLock) {</span>
+<span class="nc" id="L132">        mng = managerUpdatable;</span>
+<span class="nc bnc" id="L133" title="All 2 branches missed.">        if (mng == null) mng = managerUpdatable = new PermOverrideManagerUpdatable(this);</span>
+<span class="nc" id="L134">      }</span>
+    }
+<span class="nc" id="L136">    return mng;</span>
+  }
+
+  @Override
+  public AuditableRestAction&lt;Void&gt; delete() {
+<span class="nc bnc" id="L141" title="All 2 branches missed.">    if (!channel.getGuild().getSelfMember().hasPermission(channel, Permission.MANAGE_PERMISSIONS))</span>
+<span class="nc" id="L142">      throw new InsufficientPermissionException(Permission.MANAGE_PERMISSIONS);</span>
+
+<span class="nc bnc" id="L144" title="All 2 branches missed.">    String targetId = isRoleOverride() ? getRole().getId() : getMember().getUser().getId();</span>
+<span class="nc" id="L145">    Route.CompiledRoute route =</span>
+<span class="nc" id="L146">        Route.Channels.DELETE_PERM_OVERRIDE.compile(channel.getId(), targetId);</span>
+<span class="nc" id="L147">    return new AuditableRestAction&lt;Void&gt;(getJDA(), route) {</span>
+      @Override
+      protected void handleResponse(Response response, Request&lt;Void&gt; request) {
+<span class="nc bnc" id="L150" title="All 2 branches missed.">        if (response.isOk()) request.onSuccess(null);</span>
+<span class="nc" id="L151">        else request.onFailure(response);</span>
+<span class="nc" id="L152">      }</span>
+    };
+  }
+
+  public PermissionOverrideImpl setAllow(long allow) {
+<span class="nc" id="L157">    this.allow = allow;</span>
+<span class="nc" id="L158">    return this;</span>
+  }
+
+  public PermissionOverrideImpl setDeny(long deny) {
+<span class="nc" id="L162">    this.deny = deny;</span>
+<span class="nc" id="L163">    return this;</span>
+  }
+
+  @Override
+  public boolean equals(Object o) {
+<span class="nc bnc" id="L168" title="All 2 branches missed.">    if (!(o instanceof PermissionOverrideImpl)) return false;</span>
+<span class="nc" id="L169">    PermissionOverrideImpl oPerm = (PermissionOverrideImpl) o;</span>
+<span class="nc bnc" id="L170" title="All 2 branches missed.">    return this == oPerm</span>
+<span class="nc bnc" id="L171" title="All 2 branches missed.">        || ((this.permissionHolder.equals(oPerm.permissionHolder))</span>
+<span class="nc bnc" id="L172" title="All 2 branches missed.">            &amp;&amp; this.channel.equals(oPerm.channel));</span>
+  }
+
+  @Override
+  public int hashCode() {
+<span class="nc" id="L177">    return toString().hashCode();</span>
+  }
+
+  @Override
+  public String toString() {
+<span class="nc" id="L182">    return &quot;PermOver:(&quot;</span>
+<span class="nc bnc" id="L183" title="All 2 branches missed.">        + (isMemberOverride() ? &quot;M&quot; : &quot;R&quot;)</span>
+        + &quot;)(&quot;
+<span class="nc" id="L185">        + channel.getId()</span>
+        + &quot; | &quot;
+        + id
+        + &quot;)&quot;;
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

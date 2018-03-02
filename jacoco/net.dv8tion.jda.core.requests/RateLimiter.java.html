@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RateLimiter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">net.dv8tion.jda.core.requests</a> &gt; <span class="el_source">RateLimiter.java</span></div><h1>RateLimiter.java</h1><pre class="source lang-java linenums">/*
+ *     Copyright 2015-2018 Austin Keener &amp; Michael Ritter &amp; Florian Spieß
+ *     Copyright 2018-2018 &quot;Princess&quot; Lana Samson
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package net.dv8tion.jda.core.requests;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import net.dv8tion.jda.core.entities.impl.JDAImpl;
+import net.dv8tion.jda.core.requests.ratelimit.IBucket;
+import org.slf4j.MDC;
+
+public abstract class RateLimiter {
+  // Implementations of this class exist in the net.dv8tion.jda.core.requests.ratelimit package.
+
+  protected final Requester requester;
+  protected final ScheduledThreadPoolExecutor pool;
+<span class="nc" id="L34">  protected volatile boolean isShutdown = false;</span>
+<span class="nc" id="L35">  protected volatile ConcurrentHashMap&lt;String, IBucket&gt; buckets = new ConcurrentHashMap&lt;&gt;();</span>
+<span class="nc" id="L36">  protected volatile ConcurrentLinkedQueue&lt;IBucket&gt; submittedBuckets =</span>
+      new ConcurrentLinkedQueue&lt;&gt;();
+
+<span class="nc" id="L39">  protected RateLimiter(Requester requester, int poolSize) {</span>
+<span class="nc" id="L40">    this.requester = requester;</span>
+<span class="nc" id="L41">    this.pool =</span>
+<span class="nc" id="L42">        new ScheduledThreadPoolExecutor(poolSize, new RateLimitThreadFactory(requester.getJDA()));</span>
+<span class="nc" id="L43">  }</span>
+
+  protected boolean isSkipped(Iterator&lt;Request&gt; it, Request request) {
+    try {
+<span class="nc bnc" id="L47" title="All 4 branches missed.">      if (request.isCanceled() || !request.runChecks()) {</span>
+<span class="nc" id="L48">        cancel(it, request, new CancellationException(&quot;RestAction has been cancelled&quot;));</span>
+<span class="nc" id="L49">        return true;</span>
+      }
+<span class="nc" id="L51">    } catch (Throwable exception) {</span>
+<span class="nc" id="L52">      cancel(it, request, exception);</span>
+<span class="nc" id="L53">      return true;</span>
+<span class="nc" id="L54">    }</span>
+<span class="nc" id="L55">    return false;</span>
+  }
+
+  private void cancel(Iterator&lt;Request&gt; it, Request request, Throwable exception) {
+<span class="nc" id="L59">    request.onFailure(exception);</span>
+<span class="nc" id="L60">    it.remove();</span>
+<span class="nc" id="L61">  }</span>
+
+  // -- Required Implementations --
+  public abstract Long getRateLimit(Route.CompiledRoute route);
+
+  protected abstract void queueRequest(Request request);
+
+  protected abstract Long handleResponse(Route.CompiledRoute route, okhttp3.Response response);
+
+  // --- Default Implementations --
+
+  public boolean isRateLimited(Route.CompiledRoute route) {
+<span class="nc bnc" id="L73" title="All 2 branches missed.">    return getRateLimit(route) != null;</span>
+  }
+
+  public List&lt;IBucket&gt; getRouteBuckets() {
+<span class="nc" id="L77">    synchronized (buckets) {</span>
+<span class="nc" id="L78">      return Collections.unmodifiableList(new ArrayList&lt;&gt;(buckets.values()));</span>
+    }
+  }
+
+  public List&lt;IBucket&gt; getQueuedRouteBuckets() {
+<span class="nc" id="L83">    synchronized (submittedBuckets) {</span>
+<span class="nc" id="L84">      return Collections.unmodifiableList(new ArrayList&lt;&gt;(submittedBuckets));</span>
+    }
+  }
+
+  protected void shutdown(long time, TimeUnit unit) {
+<span class="nc" id="L89">    isShutdown = true;</span>
+
+<span class="nc" id="L91">    pool.setKeepAliveTime(time, unit);</span>
+<span class="nc" id="L92">    pool.allowCoreThreadTimeOut(true);</span>
+<span class="nc" id="L93">  }</span>
+
+  public void forceShutdown() {
+<span class="nc" id="L96">    pool.shutdownNow();</span>
+<span class="nc" id="L97">  }</span>
+
+  private class RateLimitThreadFactory implements ThreadFactory {
+    final String identifier;
+<span class="nc" id="L101">    final AtomicInteger threadCount = new AtomicInteger(1);</span>
+
+<span class="nc" id="L103">    public RateLimitThreadFactory(JDAImpl api) {</span>
+<span class="nc" id="L104">      identifier = api.getIdentifierString() + &quot; RateLimit-Queue Pool&quot;;</span>
+<span class="nc" id="L105">    }</span>
+
+    @Override
+    public Thread newThread(Runnable r) {
+<span class="nc" id="L109">      Thread t =</span>
+          new Thread(
+              () -&gt; {
+<span class="nc bnc" id="L112" title="All 2 branches missed.">                if (requester.api.getContextMap() != null)</span>
+<span class="nc" id="L113">                  MDC.setContextMap(requester.api.getContextMap());</span>
+<span class="nc" id="L114">                r.run();</span>
+<span class="nc" id="L115">              },</span>
+<span class="nc" id="L116">              identifier + &quot; - Thread &quot; + threadCount.getAndIncrement());</span>
+<span class="nc" id="L117">      t.setDaemon(true);</span>
+
+<span class="nc" id="L119">      return t;</span>
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

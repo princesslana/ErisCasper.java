@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PresenceUpdateHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">net.dv8tion.jda.core.handle</a> &gt; <span class="el_source">PresenceUpdateHandler.java</span></div><h1>PresenceUpdateHandler.java</h1><pre class="source lang-java linenums">/*
+ *     Copyright 2015-2018 Austin Keener &amp; Michael Ritter &amp; Florian Spieß
+ *     Copyright 2018-2018 &quot;Princess&quot; Lana Samson
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package net.dv8tion.jda.core.handle;
+
+import java.util.Objects;
+import net.dv8tion.jda.client.JDAClient;
+import net.dv8tion.jda.client.entities.impl.FriendImpl;
+import net.dv8tion.jda.core.AccountType;
+import net.dv8tion.jda.core.OnlineStatus;
+import net.dv8tion.jda.core.entities.EntityBuilder;
+import net.dv8tion.jda.core.entities.Game;
+import net.dv8tion.jda.core.entities.impl.GuildImpl;
+import net.dv8tion.jda.core.entities.impl.JDAImpl;
+import net.dv8tion.jda.core.entities.impl.MemberImpl;
+import net.dv8tion.jda.core.entities.impl.UserImpl;
+import net.dv8tion.jda.core.events.user.UserAvatarUpdateEvent;
+import net.dv8tion.jda.core.events.user.UserGameUpdateEvent;
+import net.dv8tion.jda.core.events.user.UserNameUpdateEvent;
+import net.dv8tion.jda.core.events.user.UserOnlineStatusUpdateEvent;
+import org.json.JSONObject;
+
+public class PresenceUpdateHandler extends SocketHandler {
+
+  public PresenceUpdateHandler(JDAImpl api) {
+<span class="nc" id="L39">    super(api);</span>
+<span class="nc" id="L40">  }</span>
+
+  @Override
+  protected Long handleInternally(JSONObject content) {
+<span class="nc" id="L44">    GuildImpl guild = null;</span>
+    // Do a pre-check to see if this is for a Guild, and if it is, if the guild is currently locked
+    // or not cached.
+<span class="nc bnc" id="L47" title="All 2 branches missed.">    if (!content.isNull(&quot;guild_id&quot;)) {</span>
+<span class="nc" id="L48">      final long guildId = content.getLong(&quot;guild_id&quot;);</span>
+<span class="nc bnc" id="L49" title="All 2 branches missed.">      if (api.getGuildLock().isLocked(guildId)) return guildId;</span>
+<span class="nc" id="L50">      guild = (GuildImpl) api.getGuildById(guildId);</span>
+<span class="nc bnc" id="L51" title="All 2 branches missed.">      if (guild == null) {</span>
+<span class="nc" id="L52">        api.getEventCache()</span>
+<span class="nc" id="L53">            .cache(EventCache.Type.GUILD, guildId, () -&gt; handle(responseNumber, allContent));</span>
+<span class="nc" id="L54">        EventCache.LOG.debug(</span>
+            &quot;Received a PRESENCE_UPDATE for a guild that is not yet cached! &quot;
+                + &quot;GuildId: &quot;
+                + guildId
+                + &quot; UserId: &quot;
+<span class="nc" id="L59">                + content.getJSONObject(&quot;user&quot;).get(&quot;id&quot;));</span>
+<span class="nc" id="L60">        return null;</span>
+      }
+    }
+
+<span class="nc" id="L64">    JSONObject jsonUser = content.getJSONObject(&quot;user&quot;);</span>
+<span class="nc" id="L65">    final long userId = jsonUser.getLong(&quot;id&quot;);</span>
+<span class="nc" id="L66">    UserImpl user = (UserImpl) api.getUserMap().get(userId);</span>
+
+    // If we do know about the user, lets update the user's specific info.
+    // Afterwards, we will see if we already have them cached in the specific guild
+    // or Relation. If not, we'll cache the OnlineStatus and Game for later handling
+    // unless OnlineStatus is OFFLINE, in which case we probably received this event
+    // due to a User leaving a guild or no longer being a relation.
+<span class="nc bnc" id="L73" title="All 2 branches missed.">    if (user != null) {</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">      if (jsonUser.has(&quot;username&quot;)) {</span>
+<span class="nc" id="L75">        String name = jsonUser.getString(&quot;username&quot;);</span>
+<span class="nc" id="L76">        String discriminator = jsonUser.get(&quot;discriminator&quot;).toString();</span>
+<span class="nc" id="L77">        String avatarId = jsonUser.optString(&quot;avatar&quot;, null);</span>
+
+<span class="nc bnc" id="L79" title="All 4 branches missed.">        if (!user.getName().equals(name) || !user.getDiscriminator().equals(discriminator)) {</span>
+<span class="nc" id="L80">          String oldUsername = user.getName();</span>
+<span class="nc" id="L81">          String oldDiscriminator = user.getDiscriminator();</span>
+<span class="nc" id="L82">          user.setName(name);</span>
+<span class="nc" id="L83">          user.setDiscriminator(discriminator);</span>
+<span class="nc" id="L84">          api.getEventManager()</span>
+<span class="nc" id="L85">              .handle(</span>
+                  new UserNameUpdateEvent(
+                      api, responseNumber, user, oldUsername, oldDiscriminator));
+        }
+<span class="nc" id="L89">        String oldAvatar = user.getAvatarId();</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">        if (!Objects.equals(avatarId, oldAvatar)) {</span>
+<span class="nc" id="L91">          String oldAvatarId = user.getAvatarId();</span>
+<span class="nc" id="L92">          user.setAvatarId(avatarId);</span>
+<span class="nc" id="L93">          api.getEventManager()</span>
+<span class="nc" id="L94">              .handle(</span>
+                  new UserAvatarUpdateEvent(
+                      api, responseNumber,
+                      user, oldAvatarId));
+        }
+      }
+
+      // Now that we've update the User's info, lets see if we need to set the specific Presence
+      // information.
+      // This is stored in the Member or Relation objects.
+<span class="nc bnc" id="L104" title="All 2 branches missed.">      final JSONObject game = content.isNull(&quot;game&quot;) ? null : content.optJSONObject(&quot;game&quot;);</span>
+<span class="nc" id="L105">      Game nextGame = null;</span>
+<span class="nc" id="L106">      boolean parsedGame = false;</span>
+      try {
+<span class="nc bnc" id="L108" title="All 2 branches missed.">        nextGame = game == null ? null : EntityBuilder.createGame(game);</span>
+<span class="nc" id="L109">        parsedGame = true;</span>
+<span class="nc" id="L110">      } catch (Exception ex) {</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">        if (EntityBuilder.LOG.isDebugEnabled())</span>
+<span class="nc" id="L112">          EntityBuilder.LOG.warn(</span>
+              &quot;Encountered exception trying to parse a presence! UserID: {} JSON: {}&quot;,
+<span class="nc" id="L114">              userId,</span>
+              game,
+              ex);
+        else
+<span class="nc" id="L118">          EntityBuilder.LOG.warn(</span>
+              &quot;Encountered exception trying to parse a presence! UserID: {} Message: {} Enable debug for details&quot;,
+<span class="nc" id="L120">              userId,</span>
+<span class="nc" id="L121">              ex.getMessage());</span>
+<span class="nc" id="L122">      }</span>
+<span class="nc" id="L123">      OnlineStatus status = OnlineStatus.fromKey(content.getString(&quot;status&quot;));</span>
+
+      // If we are in a Guild, then we will use Member.
+      // If we aren't we'll be dealing with the Relation system.
+<span class="nc bnc" id="L127" title="All 2 branches missed.">      if (guild != null) {</span>
+<span class="nc" id="L128">        MemberImpl member = (MemberImpl) guild.getMember(user);</span>
+
+        // If the Member is null, then User isn't in the Guild.
+        // This is either because this PRESENCE_UPDATE was received before the GUILD_MEMBER_ADD
+        // event
+        // or because a Member recently left and this PRESENCE_UPDATE came after the
+        // GUILD_MEMBER_REMOVE event.
+        // If it is because a Member recently left, then the status should be OFFLINE. As such, we
+        // will ignore
+        // the event if this is the case. If the status isn't OFFLINE, we will cache and use it when
+        // the
+        // Member object is setup during GUILD_MEMBER_ADD
+<span class="nc bnc" id="L140" title="All 2 branches missed.">        if (member == null) {</span>
+          // Cache the presence and return to finish up.
+<span class="nc bnc" id="L142" title="All 2 branches missed.">          if (status != OnlineStatus.OFFLINE) {</span>
+<span class="nc" id="L143">            guild.getCachedPresenceMap().put(userId, content);</span>
+<span class="nc" id="L144">            return null;</span>
+          }
+        } else {
+          // The member is already cached, so modify the presence values and fire events as needed.
+<span class="nc bnc" id="L148" title="All 2 branches missed.">          if (!member.getOnlineStatus().equals(status)) {</span>
+<span class="nc" id="L149">            OnlineStatus oldStatus = member.getOnlineStatus();</span>
+<span class="nc" id="L150">            member.setOnlineStatus(status);</span>
+<span class="nc" id="L151">            api.getEventManager()</span>
+<span class="nc" id="L152">                .handle(</span>
+                    new UserOnlineStatusUpdateEvent(api, responseNumber, user, guild, oldStatus));
+          }
+<span class="nc bnc" id="L155" title="All 4 branches missed.">          if (parsedGame &amp;&amp; !Objects.equals(member.getGame(), nextGame)) {</span>
+<span class="nc" id="L156">            Game oldGame = member.getGame();</span>
+<span class="nc" id="L157">            member.setGame(nextGame);</span>
+<span class="nc" id="L158">            api.getEventManager()</span>
+<span class="nc" id="L159">                .handle(new UserGameUpdateEvent(api, responseNumber, user, guild, oldGame));</span>
+          }
+        }
+<span class="nc" id="L162">      } else {</span>
+        // In this case, this PRESENCE_UPDATE is for a Relation.
+<span class="nc bnc" id="L164" title="All 2 branches missed.">        if (api.getAccountType() != AccountType.CLIENT) return null;</span>
+<span class="nc" id="L165">        JDAClient client = api.asClient();</span>
+<span class="nc" id="L166">        FriendImpl friend = (FriendImpl) client.getFriendById(userId);</span>
+
+<span class="nc bnc" id="L168" title="All 2 branches missed.">        if (friend != null) {</span>
+<span class="nc bnc" id="L169" title="All 2 branches missed.">          if (!friend.getOnlineStatus().equals(status)) {</span>
+<span class="nc" id="L170">            OnlineStatus oldStatus = friend.getOnlineStatus();</span>
+<span class="nc" id="L171">            friend.setOnlineStatus(status);</span>
+<span class="nc" id="L172">            api.getEventManager()</span>
+<span class="nc" id="L173">                .handle(</span>
+                    new UserOnlineStatusUpdateEvent(api, responseNumber, user, null, oldStatus));
+          }
+<span class="nc bnc" id="L176" title="All 4 branches missed.">          if (parsedGame &amp;&amp; !Objects.equals(friend.getGame(), nextGame)) {</span>
+<span class="nc" id="L177">            Game oldGame = friend.getGame();</span>
+<span class="nc" id="L178">            friend.setGame(nextGame);</span>
+<span class="nc" id="L179">            api.getEventManager()</span>
+<span class="nc" id="L180">                .handle(new UserGameUpdateEvent(api, responseNumber, user, null, oldGame));</span>
+          }
+        }
+      }
+<span class="nc" id="L184">    } else {</span>
+      // In this case, we don't have the User cached, which means that we can't update the User's
+      // information.
+      // This is most likely because this PRESENCE_UPDATE came before the GUILD_MEMBER_ADD that
+      // would have added
+      // this User to our User cache. Or, it could have come after a GUILD_MEMBER_REMOVE that caused
+      // the User
+      // to be removed from JDA's central User cache because there were no more connected Guilds. If
+      // this is
+      // the case, then the OnlineStatus will be OFFLINE and we can ignore this event.
+      // Either way, we don't have the User cached so we need to cache the Presence information if
+      // the OnlineStatus is not OFFLINE.
+
+      // If the OnlineStatus is OFFLINE, ignore the event and return.
+<span class="nc" id="L198">      OnlineStatus status = OnlineStatus.fromKey(content.getString(&quot;status&quot;));</span>
+
+      // If this was for a Guild, cache it in the Guild for later use in GUILD_MEMBER_ADD
+<span class="nc bnc" id="L201" title="All 4 branches missed.">      if (status != OnlineStatus.OFFLINE &amp;&amp; guild != null)</span>
+<span class="nc" id="L202">        guild.getCachedPresenceMap().put(userId, content);</span>
+    }
+<span class="nc" id="L204">    return null;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">net.dv8tion.jda.core.entities.impl</a> &gt; <span class="el_source">UserImpl.java</span></div><h1>UserImpl.java</h1><pre class="source lang-java linenums">/*
+ *     Copyright 2015-2018 Austin Keener &amp; Michael Ritter &amp; Florian Spieß
+ *     Copyright 2018-2018 &quot;Princess&quot; Lana Samson
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package net.dv8tion.jda.core.entities.impl;
+
+import java.util.FormattableFlags;
+import java.util.Formatter;
+import java.util.List;
+import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.PrivateChannel;
+import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.requests.Request;
+import net.dv8tion.jda.core.requests.Response;
+import net.dv8tion.jda.core.requests.RestAction;
+import net.dv8tion.jda.core.requests.Route;
+import net.dv8tion.jda.core.utils.MiscUtil;
+import org.json.JSONObject;
+
+public class UserImpl implements User {
+  protected final long id;
+  protected final JDAImpl api;
+
+  protected short discriminator;
+  protected String name;
+  protected String avatarId;
+  protected PrivateChannel privateChannel;
+  protected boolean bot;
+<span class="nc" id="L42">  protected boolean fake = false;</span>
+
+<span class="nc" id="L44">  public UserImpl(long id, JDAImpl api) {</span>
+<span class="nc" id="L45">    this.id = id;</span>
+<span class="nc" id="L46">    this.api = api;</span>
+<span class="nc" id="L47">  }</span>
+
+  @Override
+  public String getName() {
+<span class="nc" id="L51">    return name;</span>
+  }
+
+  @Override
+  public String getDiscriminator() {
+<span class="nc" id="L56">    return String.format(&quot;%04d&quot;, discriminator);</span>
+  }
+
+  @Override
+  public String getAvatarId() {
+<span class="nc" id="L61">    return avatarId;</span>
+  }
+
+  @Override
+  public String getAvatarUrl() {
+<span class="nc bnc" id="L66" title="All 2 branches missed.">    return getAvatarId() == null</span>
+        ? null
+        : &quot;https://cdn.discordapp.com/avatars/&quot;
+<span class="nc" id="L69">            + getId()</span>
+            + &quot;/&quot;
+<span class="nc" id="L71">            + getAvatarId()</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">            + (getAvatarId().startsWith(&quot;a_&quot;) ? &quot;.gif&quot; : &quot;.png&quot;);</span>
+  }
+
+  @Override
+  public String getDefaultAvatarId() {
+<span class="nc" id="L77">    return DefaultAvatar</span>
+<span class="nc" id="L78">        .values()[Integer.parseInt(getDiscriminator()) % DefaultAvatar.values().length].toString();</span>
+  }
+
+  @Override
+  public String getDefaultAvatarUrl() {
+<span class="nc" id="L83">    return &quot;https://discordapp.com/assets/&quot; + getDefaultAvatarId() + &quot;.png&quot;;</span>
+  }
+
+  @Override
+  public String getEffectiveAvatarUrl() {
+<span class="nc bnc" id="L88" title="All 2 branches missed.">    return getAvatarUrl() == null ? getDefaultAvatarUrl() : getAvatarUrl();</span>
+  }
+
+  @Override
+  public boolean hasPrivateChannel() {
+<span class="nc bnc" id="L93" title="All 2 branches missed.">    return privateChannel != null;</span>
+  }
+
+  @Override
+  public RestAction&lt;PrivateChannel&gt; openPrivateChannel() {
+<span class="nc bnc" id="L98" title="All 2 branches missed.">    if (privateChannel != null) return new RestAction.EmptyRestAction&lt;&gt;(getJDA(), privateChannel);</span>
+
+<span class="nc bnc" id="L100" title="All 2 branches missed.">    if (fake) throw new IllegalStateException(&quot;Cannot open a PrivateChannel with a Fake user.&quot;);</span>
+
+<span class="nc" id="L102">    Route.CompiledRoute route = Route.Self.CREATE_PRIVATE_CHANNEL.compile();</span>
+<span class="nc" id="L103">    JSONObject body = new JSONObject().put(&quot;recipient_id&quot;, getId());</span>
+<span class="nc" id="L104">    return new RestAction&lt;PrivateChannel&gt;(api, route, body) {</span>
+      @Override
+      protected void handleResponse(Response response, Request&lt;PrivateChannel&gt; request) {
+<span class="nc bnc" id="L107" title="All 2 branches missed.">        if (response.isOk()) {</span>
+<span class="nc" id="L108">          PrivateChannel priv = api.getEntityBuilder().createPrivateChannel(response.getObject());</span>
+<span class="nc" id="L109">          UserImpl.this.privateChannel = priv;</span>
+<span class="nc" id="L110">          request.onSuccess(priv);</span>
+<span class="nc" id="L111">        } else {</span>
+<span class="nc" id="L112">          request.onFailure(response);</span>
+        }
+<span class="nc" id="L114">      }</span>
+    };
+  }
+
+  @Override
+  public List&lt;Guild&gt; getMutualGuilds() {
+<span class="nc" id="L120">    return getJDA().getMutualGuilds(this);</span>
+  }
+
+  public PrivateChannel getPrivateChannel() {
+<span class="nc bnc" id="L124" title="All 2 branches missed.">    if (!hasPrivateChannel())</span>
+<span class="nc" id="L125">      throw new IllegalStateException(</span>
+          &quot;There is no PrivateChannel for this user yet! Use User#openPrivateChannel() first!&quot;);
+
+<span class="nc" id="L128">    return privateChannel;</span>
+  }
+
+  @Override
+  public boolean isBot() {
+<span class="nc" id="L133">    return bot;</span>
+  }
+
+  @Override
+  public JDA getJDA() {
+<span class="nc" id="L138">    return api;</span>
+  }
+
+  @Override
+  public String getAsMention() {
+<span class="nc" id="L143">    return &quot;&lt;@&quot; + id + '&gt;';</span>
+  }
+
+  @Override
+  public long getIdLong() {
+<span class="nc" id="L148">    return id;</span>
+  }
+
+  @Override
+  public boolean isFake() {
+<span class="nc" id="L153">    return fake;</span>
+  }
+
+  @Override
+  public boolean equals(Object o) {
+<span class="nc bnc" id="L158" title="All 2 branches missed.">    if (!(o instanceof UserImpl)) return false;</span>
+<span class="nc" id="L159">    UserImpl oUser = (UserImpl) o;</span>
+<span class="nc bnc" id="L160" title="All 4 branches missed.">    return this == oUser || this.id == oUser.id;</span>
+  }
+
+  @Override
+  public int hashCode() {
+<span class="nc" id="L165">    return Long.hashCode(id);</span>
+  }
+
+  @Override
+  public String toString() {
+<span class="nc" id="L170">    return &quot;U:&quot; + getName() + '(' + id + ')';</span>
+  }
+
+  // -- Setters --
+
+  public UserImpl setName(String name) {
+<span class="nc" id="L176">    this.name = name;</span>
+<span class="nc" id="L177">    return this;</span>
+  }
+
+  public UserImpl setDiscriminator(String discriminator) {
+<span class="nc" id="L181">    this.discriminator = Short.parseShort(discriminator);</span>
+<span class="nc" id="L182">    return this;</span>
+  }
+
+  public UserImpl setAvatarId(String avatarId) {
+<span class="nc" id="L186">    this.avatarId = avatarId;</span>
+<span class="nc" id="L187">    return this;</span>
+  }
+
+  public UserImpl setPrivateChannel(PrivateChannel privateChannel) {
+<span class="nc" id="L191">    this.privateChannel = privateChannel;</span>
+<span class="nc" id="L192">    return this;</span>
+  }
+
+  public UserImpl setBot(boolean bot) {
+<span class="nc" id="L196">    this.bot = bot;</span>
+<span class="nc" id="L197">    return this;</span>
+  }
+
+  public UserImpl setFake(boolean fake) {
+<span class="nc" id="L201">    this.fake = fake;</span>
+<span class="nc" id="L202">    return this;</span>
+  }
+
+  @Override
+  public void formatTo(Formatter formatter, int flags, int width, int precision) {
+<span class="nc bnc" id="L207" title="All 2 branches missed.">    boolean alt = (flags &amp; FormattableFlags.ALTERNATE) == FormattableFlags.ALTERNATE;</span>
+<span class="nc bnc" id="L208" title="All 2 branches missed.">    boolean upper = (flags &amp; FormattableFlags.UPPERCASE) == FormattableFlags.UPPERCASE;</span>
+<span class="nc bnc" id="L209" title="All 2 branches missed.">    boolean leftJustified =</span>
+        (flags &amp; FormattableFlags.LEFT_JUSTIFY) == FormattableFlags.LEFT_JUSTIFY;
+
+    String out;
+<span class="nc bnc" id="L213" title="All 2 branches missed.">    if (!alt) out = getAsMention();</span>
+<span class="nc bnc" id="L214" title="All 2 branches missed.">    else if (upper) out = String.format(formatter.locale(), &quot;%S#%s&quot;, getName(), getDiscriminator());</span>
+<span class="nc" id="L215">    else out = String.format(formatter.locale(), &quot;%s#%s&quot;, getName(), getDiscriminator());</span>
+
+<span class="nc" id="L217">    MiscUtil.appendTo(formatter, width, precision, leftJustified, out);</span>
+<span class="nc" id="L218">  }</span>
+
+<span class="nc" id="L220">  public enum DefaultAvatar {</span>
+<span class="nc" id="L221">    BLURPLE(&quot;6debd47ed13483642cf09e832ed0bc1b&quot;),</span>
+<span class="nc" id="L222">    GREY(&quot;322c936a8c8be1b803cd94861bdfa868&quot;),</span>
+<span class="nc" id="L223">    GREEN(&quot;dd4dbc0016779df1378e7812eabaa04d&quot;),</span>
+<span class="nc" id="L224">    ORANGE(&quot;0e291f67c9274a1abdddeb3fd919cbaa&quot;),</span>
+<span class="nc" id="L225">    RED(&quot;1cbd08c76f8af6dddce02c5138971129&quot;);</span>
+
+    private final String text;
+
+<span class="nc" id="L229">    DefaultAvatar(String text) {</span>
+<span class="nc" id="L230">      this.text = text;</span>
+<span class="nc" id="L231">    }</span>
+
+    @Override
+    public String toString() {
+<span class="nc" id="L235">      return text;</span>
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

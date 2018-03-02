@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>HttpRequestEvent.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">net.dv8tion.jda.core.events.http</a> &gt; <span class="el_source">HttpRequestEvent.java</span></div><h1>HttpRequestEvent.java</h1><pre class="source lang-java linenums">/*
+ *     Copyright 2015-2018 Austin Keener &amp; Michael Ritter &amp; Florian Spieß
+ *     Copyright 2018-2018 &quot;Princess&quot; Lana Samson
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package net.dv8tion.jda.core.events.http;
+
+import java.util.Set;
+import net.dv8tion.jda.core.events.Event;
+import net.dv8tion.jda.core.requests.Request;
+import net.dv8tion.jda.core.requests.Response;
+import net.dv8tion.jda.core.requests.RestAction;
+import net.dv8tion.jda.core.requests.Route.CompiledRoute;
+import okhttp3.Headers;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+/**
+ * Fired when a Rest request has been executed.
+ *
+ * &lt;p&gt;Depending on the request and its result not all values have to be populated.
+ */
+public class HttpRequestEvent extends Event {
+  private final Request&lt;?&gt; request;
+  private final Response response;
+
+  public HttpRequestEvent(final Request&lt;?&gt; request, final Response response) {
+<span class="nc" id="L41">    super(request.getJDA());</span>
+
+<span class="nc" id="L43">    this.request = request;</span>
+<span class="nc" id="L44">    this.response = response;</span>
+<span class="nc" id="L45">  }</span>
+
+  public Request&lt;?&gt; getRequest() {
+<span class="nc" id="L48">    return this.request;</span>
+  }
+
+  public RequestBody getRequestBody() {
+<span class="nc" id="L52">    return this.request.getBody();</span>
+  }
+
+  public Object getRequestBodyRaw() {
+<span class="nc" id="L56">    return this.request.getRawBody();</span>
+  }
+
+  public Headers getRequestHeaders() {
+<span class="nc bnc" id="L60" title="All 2 branches missed.">    return this.response.getRawResponse() == null</span>
+        ? null
+<span class="nc" id="L62">        : this.response.getRawResponse().request().headers();</span>
+  }
+
+  public okhttp3.Request getRequestRaw() {
+<span class="nc bnc" id="L66" title="All 2 branches missed.">    return this.response.getRawResponse() == null ? null : this.response.getRawResponse().request();</span>
+  }
+
+  public Response getResponse() {
+<span class="nc" id="L70">    return this.response;</span>
+  }
+
+  public ResponseBody getResponseBody() {
+<span class="nc bnc" id="L74" title="All 2 branches missed.">    return this.response.getRawResponse() == null ? null : this.response.getRawResponse().body();</span>
+  }
+
+  public JSONArray getResponseBodyAsArray() {
+<span class="nc" id="L78">    return this.response.getArray();</span>
+  }
+
+  public JSONObject getResponseBodyAsObject() {
+<span class="nc" id="L82">    return this.response.getObject();</span>
+  }
+
+  public String getResponseBodyAsString() {
+<span class="nc" id="L86">    return this.response.getString();</span>
+  }
+
+  public Headers getResponseHeaders() {
+<span class="nc bnc" id="L90" title="All 2 branches missed.">    return this.response.getRawResponse() == null ? null : this.response.getRawResponse().headers();</span>
+  }
+
+  public okhttp3.Response getResponseRaw() {
+<span class="nc" id="L94">    return this.response.getRawResponse();</span>
+  }
+
+  public Set&lt;String&gt; getCFRays() {
+<span class="nc" id="L98">    return this.response.getCFRays();</span>
+  }
+
+  public RestAction&lt;?&gt; getRestAction() {
+<span class="nc" id="L102">    return this.request.getRestAction();</span>
+  }
+
+  public CompiledRoute getRoute() {
+<span class="nc" id="L106">    return this.request.getRoute();</span>
+  }
+
+  public boolean isRateLimit() {
+<span class="nc" id="L110">    return this.response.isRateLimit();</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

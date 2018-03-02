@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CallImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">net.dv8tion.jda.client.entities.impl</a> &gt; <span class="el_source">CallImpl.java</span></div><h1>CallImpl.java</h1><pre class="source lang-java linenums">/*
+ *     Copyright 2015-2018 Austin Keener &amp; Michael Ritter &amp; Florian Spieß
+ *     Copyright 2018-2018 &quot;Princess&quot; Lana Samson
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package net.dv8tion.jda.client.entities.impl;
+
+import gnu.trove.map.TLongObjectMap;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+import net.dv8tion.jda.client.entities.Call;
+import net.dv8tion.jda.client.entities.CallUser;
+import net.dv8tion.jda.client.entities.CallableChannel;
+import net.dv8tion.jda.client.entities.Group;
+import net.dv8tion.jda.core.Region;
+import net.dv8tion.jda.core.entities.PrivateChannel;
+import net.dv8tion.jda.core.utils.MiscUtil;
+
+public class CallImpl implements Call {
+  private final CallableChannel callableChannel;
+  private final long messageId;
+
+<span class="nc" id="L36">  private final TLongObjectMap&lt;CallUser&gt; callUsers = MiscUtil.newLongMap();</span>
+<span class="nc" id="L37">  private final TLongObjectMap&lt;CallUser&gt; callUserHistory = MiscUtil.newLongMap();</span>
+
+  private Region region;
+
+<span class="nc" id="L41">  public CallImpl(CallableChannel callableChannel, long messageId) {</span>
+<span class="nc" id="L42">    this.callableChannel = callableChannel;</span>
+<span class="nc" id="L43">    this.messageId = messageId;</span>
+<span class="nc" id="L44">  }</span>
+
+  @Override
+  public Region getRegion() {
+<span class="nc" id="L48">    return region;</span>
+  }
+
+  @Override
+  public boolean isGroupCall() {
+<span class="nc" id="L53">    return callableChannel instanceof Group;</span>
+  }
+
+  @Override
+  public CallableChannel getCallableChannel() {
+<span class="nc" id="L58">    return callableChannel;</span>
+  }
+
+  @Override
+  public Group getGroup() {
+<span class="nc bnc" id="L63" title="All 2 branches missed.">    return isGroupCall() ? (Group) callableChannel : null;</span>
+  }
+
+  @Override
+  public PrivateChannel getPrivateChannel() {
+<span class="nc bnc" id="L68" title="All 2 branches missed.">    return !isGroupCall() ? (PrivateChannel) callableChannel : null;</span>
+  }
+
+  @Override
+  public String getMessageId() {
+<span class="nc" id="L73">    return Long.toUnsignedString(messageId);</span>
+  }
+
+  @Override
+  public long getMessageIdLong() {
+<span class="nc" id="L78">    return messageId;</span>
+  }
+
+  @Override
+  public List&lt;CallUser&gt; getRingingUsers() {
+<span class="nc" id="L83">    return Collections.unmodifiableList(</span>
+        callUsers
+<span class="nc" id="L85">            .valueCollection()</span>
+<span class="nc" id="L86">            .stream()</span>
+<span class="nc" id="L87">            .filter(CallUser::isRinging)</span>
+<span class="nc" id="L88">            .collect(Collectors.toList()));</span>
+  }
+
+  @Override
+  public List&lt;CallUser&gt; getConnectedUsers() {
+<span class="nc" id="L93">    return Collections.unmodifiableList(</span>
+        callUsers
+<span class="nc" id="L95">            .valueCollection()</span>
+<span class="nc" id="L96">            .stream()</span>
+<span class="nc" id="L97">            .filter(cu -&gt; cu.getVoiceState().isInCall())</span>
+<span class="nc" id="L98">            .collect(Collectors.toList()));</span>
+  }
+
+  @Override
+  public List&lt;CallUser&gt; getCallUserHistory() {
+<span class="nc" id="L103">    return Collections.unmodifiableList(new ArrayList&lt;&gt;(callUserHistory.valueCollection()));</span>
+  }
+
+  @Override
+  public List&lt;CallUser&gt; getAllCallUsers() {
+<span class="nc" id="L108">    return Collections.unmodifiableList(new ArrayList&lt;&gt;(callUsers.valueCollection()));</span>
+  }
+
+  @Override
+  public long getIdLong() {
+<span class="nc" id="L113">    return callableChannel.getIdLong();</span>
+  }
+
+  @Override
+  public String toString() {
+<span class="nc" id="L118">    return &quot;Call(&quot; + getIdLong() + &quot;)&quot;;</span>
+  }
+
+  @Override
+  public boolean equals(Object o) {
+<span class="nc bnc" id="L123" title="All 2 branches missed.">    if (!(o instanceof Call)) return false;</span>
+
+<span class="nc" id="L125">    Call oCall = (Call) o;</span>
+<span class="nc bnc" id="L126" title="All 4 branches missed.">    return getIdLong() == oCall.getIdLong() &amp;&amp; messageId == oCall.getMessageIdLong();</span>
+  }
+
+  @Override
+  public int hashCode() {
+<span class="nc" id="L131">    return (&quot;Call &quot; + getId()).hashCode();</span>
+  }
+
+  public CallImpl setRegion(Region region) {
+<span class="nc" id="L135">    this.region = region;</span>
+<span class="nc" id="L136">    return this;</span>
+  }
+
+  public TLongObjectMap&lt;CallUser&gt; getCallUserMap() {
+<span class="nc" id="L140">    return callUsers;</span>
+  }
+
+  public TLongObjectMap&lt;CallUser&gt; getCallUserHistoryMap() {
+<span class="nc" id="L144">    return callUserHistory;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

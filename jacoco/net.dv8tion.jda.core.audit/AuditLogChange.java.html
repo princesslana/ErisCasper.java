@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AuditLogChange.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">net.dv8tion.jda.core.audit</a> &gt; <span class="el_source">AuditLogChange.java</span></div><h1>AuditLogChange.java</h1><pre class="source lang-java linenums">/*
+ *     Copyright 2015-2018 Austin Keener &amp; Michael Ritter &amp; Florian Spieß
+ *     Copyright 2018-2018 &quot;Princess&quot; Lana Samson
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package net.dv8tion.jda.core.audit;
+
+import java.util.Objects;
+
+/**
+ * Plain-Old-Java-Object (POJO) representing a single change for an {@link
+ * net.dv8tion.jda.core.audit.AuditLogEntry AuditLogEntry}! &lt;br&gt;
+ * This object holds the {@link #getOldValue() old-} and {@link #getNewValue() new value} for the
+ * updated field. The field is specified by the {@link #getKey() key}.
+ */
+public class AuditLogChange {
+  protected final Object oldValue;
+  protected final Object newValue;
+  protected final String key;
+
+<span class="nc" id="L32">  public AuditLogChange(Object oldValue, Object newValue, String key) {</span>
+<span class="nc" id="L33">    this.oldValue = oldValue;</span>
+<span class="nc" id="L34">    this.newValue = newValue;</span>
+<span class="nc" id="L35">    this.key = key;</span>
+<span class="nc" id="L36">  }</span>
+
+  /**
+   * The previous value for the field specified by {@link #getKey()}.
+   *
+   * @param  &lt;T&gt; The expected generic type for this value. &lt;br&gt;
+   *     This will be used to cast the value.
+   * @throws java.lang.ClassCastException If the type cast to the generic type fails
+   * @return The old value
+   */
+  @SuppressWarnings(&quot;unchecked&quot;)
+  public &lt;T&gt; T getOldValue() {
+<span class="nc" id="L48">    return (T) oldValue;</span>
+  }
+
+  /**
+   * The updated value for the field specified by {@link #getKey()}.
+   *
+   * @param  &lt;T&gt; The expected generic type for this value. &lt;br&gt;
+   *     This will be used to cast the value.
+   * @throws java.lang.ClassCastException If the type cast to the generic type fails
+   * @return The new value
+   */
+  @SuppressWarnings(&quot;unchecked&quot;)
+  public &lt;T&gt; T getNewValue() {
+<span class="nc" id="L61">    return (T) newValue;</span>
+  }
+
+  /**
+   * The key which defines the field that was updated by this change
+   *
+   * @return The key
+   */
+  public String getKey() {
+<span class="nc" id="L70">    return key;</span>
+  }
+
+  @Override
+  public int hashCode() {
+<span class="nc" id="L75">    return Objects.hash(key, oldValue, newValue);</span>
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+<span class="nc bnc" id="L80" title="All 2 branches missed.">    if (!(obj instanceof AuditLogChange)) return false;</span>
+<span class="nc" id="L81">    AuditLogChange other = (AuditLogChange) obj;</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">    return other.key.equals(key)</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">        &amp;&amp; Objects.equals(other.oldValue, oldValue)</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">        &amp;&amp; Objects.equals(other.newValue, newValue);</span>
+  }
+
+  @Override
+  public String toString() {
+<span class="nc" id="L89">    return String.format(&quot;ALC:%s(%s -&gt; %s)&quot;, key, oldValue, newValue);</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

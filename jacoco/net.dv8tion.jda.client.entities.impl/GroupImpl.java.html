@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GroupImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">net.dv8tion.jda.client.entities.impl</a> &gt; <span class="el_source">GroupImpl.java</span></div><h1>GroupImpl.java</h1><pre class="source lang-java linenums">/*
+ *     Copyright 2015-2018 Austin Keener &amp; Michael Ritter &amp; Florian Spieß
+ *     Copyright 2018-2018 &quot;Princess&quot; Lana Samson
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package net.dv8tion.jda.client.entities.impl;
+
+import gnu.trove.map.TLongObjectMap;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import net.dv8tion.jda.client.entities.Call;
+import net.dv8tion.jda.client.entities.Friend;
+import net.dv8tion.jda.client.entities.Group;
+import net.dv8tion.jda.client.entities.Relationship;
+import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.entities.ChannelType;
+import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.impl.JDAImpl;
+import net.dv8tion.jda.core.requests.RestAction;
+import net.dv8tion.jda.core.utils.cache.SnowflakeCacheView;
+import net.dv8tion.jda.core.utils.cache.impl.SnowflakeCacheViewImpl;
+
+public class GroupImpl implements Group {
+  private final long id;
+  private final JDAImpl api;
+
+<span class="nc" id="L39">  private final SnowflakeCacheViewImpl&lt;User&gt; userCache =</span>
+      new SnowflakeCacheViewImpl&lt;&gt;(User::getName);
+
+  private Call currentCall;
+  private User owner;
+  private String name;
+  private String iconId;
+  private long lastMessageId;
+
+<span class="nc" id="L48">  public GroupImpl(long id, JDAImpl api) {</span>
+<span class="nc" id="L49">    this.id = id;</span>
+<span class="nc" id="L50">    this.api = api;</span>
+<span class="nc" id="L51">  }</span>
+
+  @Override
+  public long getLatestMessageIdLong() {
+<span class="nc" id="L55">    final long messageId = lastMessageId;</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">    if (messageId &lt; 0) throw new IllegalStateException(&quot;No last message id found.&quot;);</span>
+<span class="nc" id="L57">    return messageId;</span>
+  }
+
+  @Override
+  public boolean hasLatestMessage() {
+<span class="nc bnc" id="L62" title="All 2 branches missed.">    return lastMessageId &gt; 0;</span>
+  }
+
+  @Override
+  public String getName() {
+<span class="nc" id="L67">    return name;</span>
+  }
+
+  @Override
+  public ChannelType getType() {
+<span class="nc" id="L72">    return ChannelType.GROUP;</span>
+  }
+
+  @Override
+  public String getIconId() {
+<span class="nc" id="L77">    return iconId;</span>
+  }
+
+  @Override
+  public String getIconUrl() {
+<span class="nc bnc" id="L82" title="All 2 branches missed.">    return iconId == null</span>
+        ? null
+        : &quot;https://cdn.discordapp.com/channel-icons/&quot; + id + &quot;/&quot; + iconId + &quot;.jpg&quot;;
+  }
+
+  @Override
+  public User getOwner() {
+<span class="nc" id="L89">    return owner;</span>
+  }
+
+  @Override
+  public SnowflakeCacheView&lt;User&gt; getUserCache() {
+<span class="nc" id="L94">    return userCache;</span>
+  }
+
+  @Override
+  public List&lt;User&gt; getUsers() {
+<span class="nc" id="L99">    return userCache.asList();</span>
+  }
+
+  @Override
+  public List&lt;User&gt; getNonFriendUsers() {
+<span class="nc" id="L104">    List&lt;User&gt; nonFriends = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L105">    TLongObjectMap&lt;Relationship&gt; map = api.asClient().getRelationshipMap();</span>
+<span class="nc" id="L106">    userCache.forEach(</span>
+        (user) -&gt; {
+<span class="nc" id="L108">          Relationship relationship = map.get(user.getIdLong());</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">          Friend friend = relationship instanceof Friend ? (Friend) relationship : null;</span>
+<span class="nc bnc" id="L110" title="All 2 branches missed.">          if (friend == null) nonFriends.add(user);</span>
+<span class="nc" id="L111">        });</span>
+<span class="nc" id="L112">    return Collections.unmodifiableList(nonFriends);</span>
+  }
+
+  @Override
+  public List&lt;Friend&gt; getFriends() {
+<span class="nc" id="L117">    List&lt;Friend&gt; friends = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L118">    TLongObjectMap&lt;Relationship&gt; map = api.asClient().getRelationshipMap();</span>
+<span class="nc" id="L119">    userCache.forEach(</span>
+        user -&gt; {
+<span class="nc" id="L121">          Relationship relationship = map.get(user.getIdLong());</span>
+<span class="nc bnc" id="L122" title="All 2 branches missed.">          Friend friend = relationship instanceof Friend ? (Friend) relationship : null;</span>
+<span class="nc bnc" id="L123" title="All 2 branches missed.">          if (friend != null) friends.add(friend);</span>
+<span class="nc" id="L124">        });</span>
+<span class="nc" id="L125">    return Collections.unmodifiableList(friends);</span>
+  }
+
+  @Override
+  public RestAction&lt;Call&gt; startCall() {
+<span class="nc" id="L130">    return null;</span>
+  }
+
+  @Override
+  public Call getCurrentCall() {
+<span class="nc" id="L135">    return currentCall;</span>
+  }
+
+  @Override
+  public RestAction leaveGroup() {
+<span class="nc" id="L140">    return null;</span>
+  }
+
+  @Override
+  public JDA getJDA() {
+<span class="nc" id="L145">    return api;</span>
+  }
+
+  @Override
+  public String toString() {
+<span class="nc" id="L150">    return String.format(&quot;G:%s(%d)&quot;, getName(), id);</span>
+  }
+
+  @Override
+  public boolean equals(Object o) {
+<span class="nc bnc" id="L155" title="All 2 branches missed.">    if (!(o instanceof GroupImpl)) return false;</span>
+
+<span class="nc" id="L157">    GroupImpl oGroup = (GroupImpl) o;</span>
+<span class="nc bnc" id="L158" title="All 2 branches missed.">    return id == oGroup.id;</span>
+  }
+
+  @Override
+  public int hashCode() {
+<span class="nc" id="L163">    return Long.hashCode(id);</span>
+  }
+
+  public TLongObjectMap&lt;User&gt; getUserMap() {
+<span class="nc" id="L167">    return userCache.getMap();</span>
+  }
+
+  public GroupImpl setCurrentCall(Call call) {
+<span class="nc" id="L171">    this.currentCall = call;</span>
+<span class="nc" id="L172">    return this;</span>
+  }
+
+  public GroupImpl setOwner(User owner) {
+<span class="nc" id="L176">    this.owner = owner;</span>
+<span class="nc" id="L177">    return this;</span>
+  }
+
+  public GroupImpl setName(String name) {
+<span class="nc" id="L181">    this.name = name;</span>
+<span class="nc" id="L182">    return this;</span>
+  }
+
+  public GroupImpl setIconId(String iconId) {
+<span class="nc" id="L186">    this.iconId = iconId;</span>
+<span class="nc" id="L187">    return this;</span>
+  }
+
+  public GroupImpl setLastMessageId(long lastMessageId) {
+<span class="nc" id="L191">    this.lastMessageId = lastMessageId;</span>
+<span class="nc" id="L192">    return this;</span>
+  }
+
+  private void checkNull(Object obj, String name) {
+<span class="nc bnc" id="L196" title="All 2 branches missed.">    if (obj == null) throw new NullPointerException(&quot;Provided &quot; + name + &quot; was null!&quot;);</span>
+<span class="nc" id="L197">  }</span>
+
+  @Override
+  public long getIdLong() {
+<span class="nc" id="L201">    return id;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

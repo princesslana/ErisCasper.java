@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Icon.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">net.dv8tion.jda.core.entities</a> &gt; <span class="el_source">Icon.java</span></div><h1>Icon.java</h1><pre class="source lang-java linenums">/*
+ *     Copyright 2015-2018 Austin Keener &amp; Michael Ritter &amp; Florian Spieß
+ *     Copyright 2018-2018 &quot;Princess&quot; Lana Samson
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package net.dv8tion.jda.core.entities;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.util.Base64;
+import net.dv8tion.jda.core.utils.Checks;
+import net.dv8tion.jda.core.utils.IOUtil;
+
+/**
+ * Icon containing a base64 encoded jpeg/png/gif/gifv image. &lt;br&gt;
+ * Used to represent various base64 images in the Discord api. &lt;br&gt;
+ * Example: {@link net.dv8tion.jda.core.managers.AccountManager#setAvatar(Icon)}.
+ *
+ * @since 3.0
+ */
+public class Icon {
+  protected final String encoding;
+
+<span class="nc" id="L37">  protected Icon(String base64Encoding) {</span>
+    // Note: the usage of `image/jpeg` does not mean png/gif are not supported!
+<span class="nc" id="L39">    this.encoding = &quot;data:image/jpeg;base64,&quot; + base64Encoding;</span>
+<span class="nc" id="L40">  }</span>
+
+  /**
+   * The base64 encoded data for this Icon
+   *
+   * @return String representation of the encoded data for this icon
+   */
+  public String getEncoding() {
+<span class="nc" id="L48">    return encoding;</span>
+  }
+
+  /**
+   * Creates an {@link Icon Icon} with the specified {@link java.io.File File}. &lt;br&gt;
+   * We here read the specified File and forward the retrieved byte data to {@link #from(byte[])}.
+   *
+   * @param file An existing, not-null file.
+   * @throws IllegalArgumentException if the provided file is either null or does not exist
+   * @throws IOException if there is a problem while reading the file.
+   * @return An Icon instance representing the specified File
+   * @see net.dv8tion.jda.core.utils.IOUtil#readFully(File)
+   */
+  public static Icon from(File file) throws IOException {
+<span class="nc" id="L62">    Checks.notNull(file, &quot;Provided File&quot;);</span>
+<span class="nc" id="L63">    Checks.check(file.exists(), &quot;Provided file does not exist!&quot;);</span>
+
+<span class="nc" id="L65">    return from(IOUtil.readFully(file));</span>
+  }
+
+  /**
+   * Creates an {@link Icon Icon} with the specified {@link java.io.InputStream InputStream}. &lt;br&gt;
+   * We here read the specified InputStream and forward the retrieved byte data to {@link
+   * #from(byte[])}.
+   *
+   * @param stream A not-null InputStream.
+   * @throws IllegalArgumentException if the provided stream is null
+   * @throws IOException If the first byte cannot be read for any reason other than the end of the
+   *     file, if the input stream has been closed, or if some other I/O error occurs.
+   * @return An Icon instance representing the specified InputStream
+   * @see net.dv8tion.jda.core.utils.IOUtil#readFully(InputStream)
+   */
+  public static Icon from(InputStream stream) throws IOException {
+<span class="nc" id="L81">    Checks.notNull(stream, &quot;InputStream&quot;);</span>
+
+<span class="nc" id="L83">    return from(IOUtil.readFully(stream));</span>
+  }
+
+  /**
+   * Creates an {@link Icon Icon} with the specified image data.
+   *
+   * @param data not-null image data bytes.
+   * @throws IllegalArgumentException if the provided data is null
+   * @return An Icon instance representing the specified image data
+   */
+  public static Icon from(byte[] data) {
+<span class="nc" id="L94">    Checks.notNull(data, &quot;Provided byte[]&quot;);</span>
+
+    try {
+<span class="nc" id="L97">      return new Icon(new String(Base64.getEncoder().encode(data), &quot;UTF-8&quot;));</span>
+<span class="nc" id="L98">    } catch (UnsupportedEncodingException e) {</span>
+<span class="nc" id="L99">      throw new AssertionError(e); // thanks JDK 1.4</span>
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

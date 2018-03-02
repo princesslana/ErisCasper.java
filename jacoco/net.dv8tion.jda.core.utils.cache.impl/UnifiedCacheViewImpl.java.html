@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UnifiedCacheViewImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">net.dv8tion.jda.core.utils.cache.impl</a> &gt; <span class="el_source">UnifiedCacheViewImpl.java</span></div><h1>UnifiedCacheViewImpl.java</h1><pre class="source lang-java linenums">/*
+ *     Copyright 2015-2018 Austin Keener &amp; Michael Ritter &amp; Florian Spieß
+ *     Copyright 2018-2018 &quot;Princess&quot; Lana Samson
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package net.dv8tion.jda.core.utils.cache.impl;
+
+import java.util.*;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import net.dv8tion.jda.core.entities.ISnowflake;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Role;
+import net.dv8tion.jda.core.utils.cache.CacheView;
+import net.dv8tion.jda.core.utils.cache.MemberCacheView;
+import net.dv8tion.jda.core.utils.cache.SnowflakeCacheView;
+import net.dv8tion.jda.core.utils.cache.UnifiedMemberCacheView;
+
+public class UnifiedCacheViewImpl&lt;T, E extends CacheView&lt;T&gt;&gt; implements CacheView&lt;T&gt; {
+  protected final Supplier&lt;Stream&lt;E&gt;&gt; generator;
+
+<span class="nc" id="L34">  public UnifiedCacheViewImpl(Supplier&lt;Stream&lt;E&gt;&gt; generator) {</span>
+<span class="nc" id="L35">    this.generator = generator;</span>
+<span class="nc" id="L36">  }</span>
+
+  @Override
+  public long size() {
+<span class="nc" id="L40">    return generator.get().distinct().mapToLong(CacheView::size).sum();</span>
+  }
+
+  @Override
+  public boolean isEmpty() {
+<span class="nc" id="L45">    return generator.get().allMatch(CacheView::isEmpty);</span>
+  }
+
+  @Override
+  public List&lt;T&gt; asList() {
+<span class="nc" id="L50">    List&lt;T&gt; list = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L51">    stream().forEach(list::add);</span>
+<span class="nc" id="L52">    return Collections.unmodifiableList(list);</span>
+  }
+
+  @Override
+  public Set&lt;T&gt; asSet() {
+<span class="nc" id="L57">    Set&lt;T&gt; set = new HashSet&lt;&gt;();</span>
+<span class="nc" id="L58">    generator.get().forEach(view -&gt; view.forEach(set::add));</span>
+<span class="nc" id="L59">    return Collections.unmodifiableSet(set);</span>
+  }
+
+  @Override
+  public List&lt;T&gt; getElementsByName(String name, boolean ignoreCase) {
+<span class="nc" id="L64">    return Collections.unmodifiableList(</span>
+        generator
+<span class="nc" id="L66">            .get()</span>
+<span class="nc" id="L67">            .distinct()</span>
+<span class="nc" id="L68">            .flatMap(view -&gt; view.getElementsByName(name, ignoreCase).stream())</span>
+<span class="nc" id="L69">            .collect(Collectors.toList()));</span>
+  }
+
+  @Override
+  public Stream&lt;T&gt; stream() {
+<span class="nc" id="L74">    return generator.get().flatMap(CacheView::stream).distinct();</span>
+  }
+
+  @Override
+  public Stream&lt;T&gt; parallelStream() {
+<span class="nc" id="L79">    return generator.get().flatMap(CacheView::parallelStream).distinct();</span>
+  }
+
+  @Override
+  public Iterator&lt;T&gt; iterator() {
+<span class="nc" id="L84">    return asList().iterator();</span>
+  }
+
+  public static class UnifiedSnowflakeCacheView&lt;T extends ISnowflake&gt;
+      extends UnifiedCacheViewImpl&lt;T, SnowflakeCacheView&lt;T&gt;&gt; implements SnowflakeCacheView&lt;T&gt; {
+    public UnifiedSnowflakeCacheView(Supplier&lt;Stream&lt;SnowflakeCacheView&lt;T&gt;&gt;&gt; generator) {
+<span class="nc" id="L90">      super(generator);</span>
+<span class="nc" id="L91">    }</span>
+
+    @Override
+    public T getElementById(long id) {
+<span class="nc" id="L95">      return generator</span>
+<span class="nc" id="L96">          .get()</span>
+<span class="nc" id="L97">          .map(view -&gt; view.getElementById(id))</span>
+<span class="nc" id="L98">          .filter(Objects::nonNull)</span>
+<span class="nc" id="L99">          .findFirst()</span>
+<span class="nc" id="L100">          .orElse(null);</span>
+    }
+  }
+
+  public static class UnifiedMemberCacheViewImpl
+      extends UnifiedCacheViewImpl&lt;Member, MemberCacheView&gt; implements UnifiedMemberCacheView {
+
+    public UnifiedMemberCacheViewImpl(Supplier&lt;Stream&lt;MemberCacheView&gt;&gt; generator) {
+<span class="nc" id="L108">      super(generator);</span>
+<span class="nc" id="L109">    }</span>
+
+    @Override
+    public List&lt;Member&gt; getElementsById(long id) {
+<span class="nc" id="L113">      return Collections.unmodifiableList(</span>
+          generator
+<span class="nc" id="L115">              .get()</span>
+<span class="nc" id="L116">              .distinct()</span>
+<span class="nc" id="L117">              .map(view -&gt; view.getElementById(id))</span>
+<span class="nc" id="L118">              .filter(Objects::nonNull)</span>
+<span class="nc" id="L119">              .collect(Collectors.toList()));</span>
+    }
+
+    @Override
+    public List&lt;Member&gt; getElementsByUsername(String name, boolean ignoreCase) {
+<span class="nc" id="L124">      return Collections.unmodifiableList(</span>
+          generator
+<span class="nc" id="L126">              .get()</span>
+<span class="nc" id="L127">              .distinct()</span>
+<span class="nc" id="L128">              .flatMap(view -&gt; view.getElementsByUsername(name, ignoreCase).stream())</span>
+<span class="nc" id="L129">              .collect(Collectors.toList()));</span>
+    }
+
+    @Override
+    public List&lt;Member&gt; getElementsByNickname(String name, boolean ignoreCase) {
+<span class="nc" id="L134">      return Collections.unmodifiableList(</span>
+          generator
+<span class="nc" id="L136">              .get()</span>
+<span class="nc" id="L137">              .distinct()</span>
+<span class="nc" id="L138">              .flatMap(view -&gt; view.getElementsByNickname(name, ignoreCase).stream())</span>
+<span class="nc" id="L139">              .collect(Collectors.toList()));</span>
+    }
+
+    @Override
+    public List&lt;Member&gt; getElementsWithRoles(Role... roles) {
+<span class="nc" id="L144">      return Collections.unmodifiableList(</span>
+          generator
+<span class="nc" id="L146">              .get()</span>
+<span class="nc" id="L147">              .distinct()</span>
+<span class="nc" id="L148">              .flatMap(view -&gt; view.getElementsWithRoles(roles).stream())</span>
+<span class="nc" id="L149">              .collect(Collectors.toList()));</span>
+    }
+
+    @Override
+    public List&lt;Member&gt; getElementsWithRoles(Collection&lt;Role&gt; roles) {
+<span class="nc" id="L154">      return Collections.unmodifiableList(</span>
+          generator
+<span class="nc" id="L156">              .get()</span>
+<span class="nc" id="L157">              .distinct()</span>
+<span class="nc" id="L158">              .flatMap(view -&gt; view.getElementsWithRoles(roles).stream())</span>
+<span class="nc" id="L159">              .collect(Collectors.toList()));</span>
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

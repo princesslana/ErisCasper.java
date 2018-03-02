@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RelationshipRemoveHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">net.dv8tion.jda.client.handle</a> &gt; <span class="el_source">RelationshipRemoveHandler.java</span></div><h1>RelationshipRemoveHandler.java</h1><pre class="source lang-java linenums">/*
+ *     Copyright 2015-2018 Austin Keener &amp; Michael Ritter &amp; Florian Spieß
+ *     Copyright 2018-2018 &quot;Princess&quot; Lana Samson
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package net.dv8tion.jda.client.handle;
+
+import net.dv8tion.jda.client.entities.Group;
+import net.dv8tion.jda.client.entities.Relationship;
+import net.dv8tion.jda.client.entities.RelationshipType;
+import net.dv8tion.jda.client.events.relationship.FriendRemovedEvent;
+import net.dv8tion.jda.client.events.relationship.FriendRequestCanceledEvent;
+import net.dv8tion.jda.client.events.relationship.FriendRequestIgnoredEvent;
+import net.dv8tion.jda.client.events.relationship.UserUnblockedEvent;
+import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.impl.GuildImpl;
+import net.dv8tion.jda.core.entities.impl.JDAImpl;
+import net.dv8tion.jda.core.entities.impl.PrivateChannelImpl;
+import net.dv8tion.jda.core.entities.impl.UserImpl;
+import net.dv8tion.jda.core.handle.EventCache;
+import net.dv8tion.jda.core.handle.SocketHandler;
+import net.dv8tion.jda.core.requests.WebSocketClient;
+import org.json.JSONObject;
+
+public class RelationshipRemoveHandler extends SocketHandler {
+  public RelationshipRemoveHandler(JDAImpl api) {
+<span class="nc" id="L38">    super(api);</span>
+<span class="nc" id="L39">  }</span>
+
+  @Override
+  protected Long handleInternally(JSONObject content) {
+<span class="nc" id="L43">    final long userId = content.getLong(&quot;id&quot;);</span>
+<span class="nc" id="L44">    RelationshipType type = RelationshipType.fromKey(content.getInt(&quot;type&quot;));</span>
+
+    // Technically this could be used to detect when another user has unblocked us,
+    // but it seems like functionality that may change so I'm not supporting it.
+<span class="nc bnc" id="L48" title="All 2 branches missed.">    if (type == RelationshipType.NO_RELATIONSHIP) return null;</span>
+
+    // Make sure that we get the proper relationship, not just any one cached by this userId.
+    // Deals with possibly out of order RELATIONSHIP_REMOVE and RELATIONSHIP_ADD when blocking a
+    // Friend.
+<span class="nc" id="L53">    Relationship relationship = api.asClient().getRelationshipById(userId, type);</span>
+<span class="nc bnc" id="L54" title="All 2 branches missed.">    if (relationship == null) {</span>
+<span class="nc" id="L55">      api.getEventCache()</span>
+<span class="nc" id="L56">          .cache(EventCache.Type.RELATIONSHIP, userId, () -&gt; handle(responseNumber, allContent));</span>
+<span class="nc" id="L57">      EventCache.LOG.debug(</span>
+          &quot;Received a RELATIONSHIP_REMOVE for a relationship that was not yet cached! JSON: {}&quot;,
+          content);
+<span class="nc" id="L60">      return null;</span>
+    }
+<span class="nc" id="L62">    api.asClient().getRelationshipMap().remove(userId);</span>
+
+<span class="nc bnc" id="L64" title="All 2 branches missed.">    if (relationship.getType() == RelationshipType.FRIEND) {</span>
+      // The user is not in a different guild that we share
+<span class="nc" id="L66">      if (api.getGuildMap()</span>
+<span class="nc" id="L67">          .valueCollection()</span>
+<span class="nc" id="L68">          .stream()</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">          .noneMatch(g -&gt; ((GuildImpl) g).getMembersMap().containsKey(userId))) {</span>
+<span class="nc" id="L70">        UserImpl user = (UserImpl) api.getUserMap().remove(userId);</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">        if (user.hasPrivateChannel()) {</span>
+<span class="nc" id="L72">          PrivateChannelImpl priv = (PrivateChannelImpl) user.getPrivateChannel();</span>
+<span class="nc" id="L73">          user.setFake(true);</span>
+<span class="nc" id="L74">          priv.setFake(true);</span>
+<span class="nc" id="L75">          api.getFakeUserMap().put(user.getIdLong(), user);</span>
+<span class="nc" id="L76">          api.getFakePrivateChannelMap().put(priv.getIdLong(), priv);</span>
+<span class="nc" id="L77">        } else {</span>
+          // While the user might not have a private channel, if this is a client account then the
+          // user
+          // could be in a Group, and if so we need to change the User object to be fake and
+          // place it in the FakeUserMap
+<span class="nc bnc" id="L82" title="All 2 branches missed.">          for (Group grp : api.asClient().getGroups()) {</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">            if (grp.getNonFriendUsers().contains(user)) {</span>
+<span class="nc" id="L84">              user.setFake(true);</span>
+<span class="nc" id="L85">              api.getFakeUserMap().put(user.getIdLong(), user);</span>
+<span class="nc" id="L86">              break;</span>
+            }
+<span class="nc" id="L88">          }</span>
+        }
+<span class="nc" id="L90">        api.getEventCache().clear(EventCache.Type.USER, userId);</span>
+<span class="nc" id="L91">      }</span>
+    } else {
+      // Checks that the user is fake, has no privateChannel,and is not in any other groups
+      // then we remove the fake user from the fake cache as it was only in this group
+      // Note: we getGroups() which gets all groups, however we already removed the user from the
+      // current group.
+<span class="nc" id="L97">      User user = relationship.getUser();</span>
+<span class="nc bnc" id="L98" title="All 2 branches missed.">      if (user.isFake()</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">          &amp;&amp; !user.hasPrivateChannel()</span>
+<span class="nc bnc" id="L100" title="All 2 branches missed.">          &amp;&amp; api.asClient().getGroups().stream().noneMatch(g -&gt; g.getUsers().contains(user))) {</span>
+<span class="nc" id="L101">        api.getFakeUserMap().remove(userId);</span>
+      }
+    }
+
+<span class="nc bnc" id="L105" title="All 5 branches missed.">    switch (type) {</span>
+      case FRIEND:
+<span class="nc" id="L107">        api.getEventManager().handle(new FriendRemovedEvent(api, responseNumber, relationship));</span>
+<span class="nc" id="L108">        break;</span>
+      case BLOCKED:
+<span class="nc" id="L110">        api.getEventManager().handle(new UserUnblockedEvent(api, responseNumber, relationship));</span>
+<span class="nc" id="L111">        break;</span>
+      case INCOMING_FRIEND_REQUEST:
+<span class="nc" id="L113">        api.getEventManager()</span>
+<span class="nc" id="L114">            .handle(new FriendRequestIgnoredEvent(api, responseNumber, relationship));</span>
+<span class="nc" id="L115">        break;</span>
+      case OUTGOING_FRIEND_REQUEST:
+<span class="nc" id="L117">        api.getEventManager()</span>
+<span class="nc" id="L118">            .handle(new FriendRequestCanceledEvent(api, responseNumber, relationship));</span>
+<span class="nc" id="L119">        break;</span>
+      default:
+<span class="nc" id="L121">        WebSocketClient.LOG.warn(</span>
+            &quot;Received a RELATIONSHIP_REMOVE with an unknown RelationshipType! JSON: {}&quot;, content);
+<span class="nc" id="L123">        return null;</span>
+    }
+<span class="nc" id="L125">    api.getEventCache().clear(EventCache.Type.RELATIONSHIP, userId);</span>
+<span class="nc" id="L126">    return null;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

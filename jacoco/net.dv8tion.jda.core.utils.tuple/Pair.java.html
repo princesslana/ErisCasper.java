@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Pair.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">net.dv8tion.jda.core.utils.tuple</a> &gt; <span class="el_source">Pair.java</span></div><h1>Pair.java</h1><pre class="source lang-java linenums">/*
+ *     Copyright 2015-2018 Austin Keener &amp; Michael Ritter &amp; Florian Spieß
+ *     Copyright 2018-2018 &quot;Princess&quot; Lana Samson
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package net.dv8tion.jda.core.utils.tuple;
+
+import java.io.Serializable;
+import java.util.Objects;
+
+/**
+ * This class has been copied from &lt;a href=&quot;https://commons.apache.org/proper/commons-lang/&quot;
+ * target=&quot;_blank&quot;&gt;Lang 3&lt;/a&gt;
+ *
+ * &lt;p&gt;A pair consisting of two elements.
+ *
+ * &lt;p&gt;This class is an abstract implementation defining the basic API. It refers to the elements as
+ * 'left' and 'right'.
+ *
+ * &lt;p&gt;Subclass implementations may be mutable or immutable. However, there is no restriction on the
+ * type of the stored objects that may be stored. If mutable objects are stored in the pair, then
+ * the pair itself effectively becomes mutable.
+ *
+ * @param &lt;L&gt; the left element type
+ * @param &lt;R&gt; the right element type
+ * @since Lang 3.0
+ */
+<span class="nc" id="L39">public abstract class Pair&lt;L, R&gt;</span>
+    implements /*Map.Entry&lt;L, R&gt;, Comparable&lt;Pair&lt;L, R&gt;&gt;,*/ Serializable {
+
+  /**
+   * Obtains an immutable pair of from two objects inferring the generic types.
+   *
+   * &lt;p&gt;This factory allows the pair to be created using inference to obtain the generic types.
+   *
+   * @param &lt;L&gt; the left element type
+   * @param &lt;R&gt; the right element type
+   * @param left the left element, may be null
+   * @param right the right element, may be null
+   * @return a pair formed from the two parameters, not null
+   */
+  public static &lt;L, R&gt; Pair&lt;L, R&gt; of(final L left, final R right) {
+<span class="nc" id="L54">    return new ImmutablePair&lt;&gt;(left, right);</span>
+  }
+
+  // -----------------------------------------------------------------------
+  /**
+   * Gets the left element from this pair.
+   *
+   * &lt;p&gt;When treated as a key-value pair, this is the key.
+   *
+   * @return the left element, may be null
+   */
+  public abstract L getLeft();
+
+  /**
+   * Gets the right element from this pair.
+   *
+   * &lt;p&gt;When treated as a key-value pair, this is the value.
+   *
+   * @return the right element, may be null
+   */
+  public abstract R getRight();
+
+  /**
+   * Compares this pair to another based on the two elements.
+   *
+   * @param obj the object to compare to, null returns false
+   * @return true if the elements of the pair are equal
+   */
+  @Override
+  public boolean equals(final Object obj) {
+<span class="nc bnc" id="L84" title="All 2 branches missed.">    if (obj == this) {</span>
+<span class="nc" id="L85">      return true;</span>
+    }
+<span class="nc bnc" id="L87" title="All 2 branches missed.">    if (obj instanceof Pair&lt;?, ?&gt;) {</span>
+<span class="nc" id="L88">      final Pair&lt;?, ?&gt; other = (Pair&lt;?, ?&gt;) obj;</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">      return Objects.equals(getLeft(), other.getLeft())</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">          &amp;&amp; Objects.equals(getRight(), other.getRight());</span>
+    }
+<span class="nc" id="L92">    return false;</span>
+  }
+
+  /**
+   * Returns a suitable hash code. The hash code follows the definition in {@code Map.Entry}.
+   *
+   * @return the hash code
+   */
+  @Override
+  public int hashCode() {
+    // see Map.Entry API specification
+<span class="nc" id="L103">    return Objects.hashCode(getLeft()) ^ Objects.hashCode(getRight());</span>
+  }
+
+  /**
+   * Returns a String representation of this pair using the format {@code ($left,$right)}.
+   *
+   * @return a string describing this object, not null
+   */
+  @Override
+  public String toString() {
+<span class="nc" id="L113">    return &quot;(&quot; + getLeft() + ',' + getRight() + ')';</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

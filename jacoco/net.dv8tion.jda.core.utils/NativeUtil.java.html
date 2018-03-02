@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>NativeUtil.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">net.dv8tion.jda.core.utils</a> &gt; <span class="el_source">NativeUtil.java</span></div><h1>NativeUtil.java</h1><pre class="source lang-java linenums">/*
+ *     Copyright 2015-2018 Austin Keener &amp; Michael Ritter &amp; Florian Spieß
+ *     Copyright 2018-2018 &quot;Princess&quot; Lana Samson
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package net.dv8tion.jda.core.utils;
+
+import java.io.*;
+
+/**
+ * This is taken directly from: &lt;a href=&quot;https://github.com/adamheinrich/native-utils&quot;&gt;
+ * https://github.com/adamheinrich/native-utils&lt;/a&gt;&lt;br&gt;
+ * Credit to the original author: Adam Heinrich
+ *
+ * &lt;p&gt;A simple library class which helps with loading dynamic libraries stored in the JAR archive.
+ * These libraries usualy contain implementation of some methods in native code (using JNI - Java
+ * Native Interface).
+ *
+ * &lt;p&gt;&lt;a href=&quot;http://adamheinrich.com/blog/2012/how-to-load-native-jni-library-from-jar&quot;&gt;
+ * http://adamheinrich.com/blog/2012/how-to-load-native-jni-library-from-jar&lt;/a&gt;&lt;br&gt;
+ * &lt;a href=&quot;https://github.com/adamheinrich/native-utils&quot;&gt;
+ * https://github.com/adamheinrich/native-utils&lt;/a&gt;
+ */
+public class NativeUtil {
+
+  /** Private constructor - this class will never be instanced */
+  private NativeUtil() {}
+
+  /**
+   * Loads library from current JAR archive
+   *
+   * &lt;p&gt;The file from JAR is copied into system temporary directory and then loaded. The temporary
+   * file is deleted after exiting. Method uses String as filename because the pathname is
+   * &quot;abstract&quot;, not system-dependent.
+   *
+   * @param path The filename inside JAR as absolute path (beginning with '/'), e.g.
+   *     /package/File.ext
+   * @throws IOException If temporary file creation or read/write operation fails
+   * @throws IllegalArgumentException If source file (param path) does not exist
+   * @throws IllegalArgumentException If the path is not absolute or if the filename is shorter than
+   *     three characters (restriction of {@link File#createTempFile(java.lang.String,
+   *     java.lang.String)}).
+   */
+  public static void loadLibraryFromJar(String path) throws IOException {
+
+<span class="nc bnc" id="L57" title="All 2 branches missed.">    if (!path.startsWith(&quot;/&quot;)) {</span>
+<span class="nc" id="L58">      throw new IllegalArgumentException(&quot;The path has to be absolute (start with '/').&quot;);</span>
+    }
+
+    // Obtain filename from path
+<span class="nc" id="L62">    String[] parts = path.split(&quot;/&quot;);</span>
+<span class="nc bnc" id="L63" title="All 2 branches missed.">    String filename = (parts.length &gt; 1) ? parts[parts.length - 1] : null;</span>
+
+    // Split filename to prexif and suffix (extension)
+<span class="nc" id="L66">    String prefix = &quot;&quot;;</span>
+<span class="nc" id="L67">    String suffix = null;</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">    if (filename != null) {</span>
+<span class="nc" id="L69">      parts = filename.split(&quot;\\.&quot;, 2);</span>
+<span class="nc" id="L70">      prefix = parts[0];</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">      suffix = (parts.length &gt; 1) ? &quot;.&quot; + parts[parts.length - 1] : null; // Thanks, davs! :-)</span>
+    }
+
+    // Check if the filename is okay
+<span class="nc bnc" id="L75" title="All 4 branches missed.">    if (filename == null || prefix.length() &lt; 3) {</span>
+<span class="nc" id="L76">      throw new IllegalArgumentException(&quot;The filename has to be at least 3 characters long.&quot;);</span>
+    }
+
+    // Prepare temporary file
+<span class="nc" id="L80">    File temp = File.createTempFile(prefix, suffix);</span>
+<span class="nc" id="L81">    temp.deleteOnExit();</span>
+
+<span class="nc bnc" id="L83" title="All 2 branches missed.">    if (!temp.exists()) {</span>
+<span class="nc" id="L84">      throw new FileNotFoundException(&quot;File &quot; + temp.getAbsolutePath() + &quot; does not exist.&quot;);</span>
+    }
+
+    // Prepare buffer for data copying
+<span class="nc" id="L88">    byte[] buffer = new byte[1024];</span>
+    int readBytes;
+
+    // Open and check input stream
+<span class="nc" id="L92">    InputStream is = NativeUtil.class.getResourceAsStream(path);</span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">    if (is == null) {</span>
+<span class="nc" id="L94">      throw new FileNotFoundException(&quot;File &quot; + path + &quot; was not found inside JAR.&quot;);</span>
+    }
+
+    // Open output stream and copy data between source file in JAR and the temporary file
+<span class="nc" id="L98">    OutputStream os = new FileOutputStream(temp);</span>
+    try {
+<span class="nc bnc" id="L100" title="All 2 branches missed.">      while ((readBytes = is.read(buffer)) != -1) {</span>
+<span class="nc" id="L101">        os.write(buffer, 0, readBytes);</span>
+      }
+    } finally {
+      // If read/write fails, close streams safely before throwing an exception
+<span class="nc" id="L105">      os.close();</span>
+<span class="nc" id="L106">      is.close();</span>
+    }
+
+    // Finally, load the library
+<span class="nc" id="L110">    System.load(temp.getAbsolutePath());</span>
+<span class="nc" id="L111">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

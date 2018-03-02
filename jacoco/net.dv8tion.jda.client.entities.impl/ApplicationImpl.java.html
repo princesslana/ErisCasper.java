@@ -1,0 +1,357 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ApplicationImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">net.dv8tion.jda.client.entities.impl</a> &gt; <span class="el_source">ApplicationImpl.java</span></div><h1>ApplicationImpl.java</h1><pre class="source lang-java linenums">/*
+ *     Copyright 2015-2018 Austin Keener &amp; Michael Ritter &amp; Florian Spieß
+ *     Copyright 2018-2018 &quot;Princess&quot; Lana Samson
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package net.dv8tion.jda.client.entities.impl;
+
+import java.util.*;
+import net.dv8tion.jda.client.entities.Application;
+import net.dv8tion.jda.client.managers.ApplicationManager;
+import net.dv8tion.jda.client.managers.ApplicationManagerUpdatable;
+import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.requests.Request;
+import net.dv8tion.jda.core.requests.Response;
+import net.dv8tion.jda.core.requests.RestAction;
+import net.dv8tion.jda.core.requests.Route;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+public class ApplicationImpl implements Application {
+
+  private final JDA api;
+<span class="nc" id="L35">  private final Object mngLock = new Object();</span>
+  private ApplicationManager manager;
+  private ApplicationManagerUpdatable managerUpdatable;
+
+  private BotImpl bot;
+  private String description;
+  private boolean doesBotRequireCodeGrant;
+  private int flags;
+  private String iconId;
+  private long id;
+  private boolean isBotPublic;
+  private String name;
+  private List&lt;String&gt; redirectUris;
+  private int rpcApplicationState;
+  private String secret;
+
+<span class="nc" id="L51">  public ApplicationImpl(final JDA api, final JSONObject object) {</span>
+<span class="nc" id="L52">    this.api = api;</span>
+
+<span class="nc" id="L54">    this.updateFromJson(object);</span>
+<span class="nc" id="L55">  }</span>
+
+  @Override
+  public RestAction&lt;Application.Bot&gt; createBot() {
+<span class="nc bnc" id="L59" title="All 2 branches missed.">    if (this.hasBot()) return new RestAction.EmptyRestAction&lt;&gt;(getJDA(), this.bot);</span>
+
+<span class="nc" id="L61">    return new RestAction&lt;Application.Bot&gt;(</span>
+<span class="nc" id="L62">        this.api, Route.Applications.CREATE_BOT.compile(getId())) {</span>
+      @Override
+      protected void handleResponse(
+          final Response response, final Request&lt;Application.Bot&gt; request) {
+<span class="nc bnc" id="L66" title="All 2 branches missed.">        if (response.isOk())</span>
+<span class="nc" id="L67">          request.onSuccess(ApplicationImpl.this.bot = new BotImpl(response.getObject()));</span>
+<span class="nc" id="L68">        else request.onFailure(response);</span>
+<span class="nc" id="L69">      }</span>
+    };
+  }
+
+  @Override
+  public RestAction&lt;Void&gt; delete() {
+<span class="nc" id="L75">    return new RestAction&lt;Void&gt;(this.api, Route.Applications.DELETE_APPLICATION.compile(getId())) {</span>
+      @Override
+      protected void handleResponse(final Response response, final Request&lt;Void&gt; request) {
+<span class="nc bnc" id="L78" title="All 2 branches missed.">        if (response.isOk()) request.onSuccess(null);</span>
+<span class="nc" id="L79">        else request.onFailure(response);</span>
+<span class="nc" id="L80">      }</span>
+    };
+  }
+
+  @Override
+  public boolean doesBotRequireCodeGrant() {
+<span class="nc" id="L86">    return this.doesBotRequireCodeGrant;</span>
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+<span class="nc bnc" id="L91" title="All 4 branches missed.">    return obj instanceof ApplicationImpl &amp;&amp; this.id == ((ApplicationImpl) obj).id;</span>
+  }
+
+  @Override
+  public Bot getBot() {
+<span class="nc" id="L96">    return this.bot;</span>
+  }
+
+  @Override
+  public String getDescription() {
+<span class="nc" id="L101">    return this.description;</span>
+  }
+
+  @Override
+  public int getFlags() {
+<span class="nc" id="L106">    return this.flags;</span>
+  }
+
+  @Override
+  public String getIconId() {
+<span class="nc" id="L111">    return this.iconId;</span>
+  }
+
+  @Override
+  public String getIconUrl() {
+<span class="nc bnc" id="L116" title="All 2 branches missed.">    return this.iconId == null</span>
+        ? null
+        : &quot;https://cdn.discordapp.com/app-icons/&quot; + this.id + '/' + this.iconId + &quot;.jpg&quot;;
+  }
+
+  @Override
+  public long getIdLong() {
+<span class="nc" id="L123">    return this.id;</span>
+  }
+
+  @Override
+  public JDA getJDA() {
+<span class="nc" id="L128">    return this.api;</span>
+  }
+
+  @Override
+  public ApplicationManager getManager() {
+<span class="nc" id="L133">    ApplicationManager mng = manager;</span>
+<span class="nc bnc" id="L134" title="All 2 branches missed.">    if (mng == null) {</span>
+<span class="nc" id="L135">      synchronized (mngLock) {</span>
+<span class="nc" id="L136">        mng = manager;</span>
+<span class="nc bnc" id="L137" title="All 2 branches missed.">        if (mng == null) mng = manager = new ApplicationManager(this);</span>
+<span class="nc" id="L138">      }</span>
+    }
+<span class="nc" id="L140">    return mng;</span>
+  }
+
+  @Override
+  public ApplicationManagerUpdatable getManagerUpdatable() {
+<span class="nc" id="L145">    ApplicationManagerUpdatable mng = managerUpdatable;</span>
+<span class="nc bnc" id="L146" title="All 2 branches missed.">    if (mng == null) {</span>
+<span class="nc" id="L147">      synchronized (mngLock) {</span>
+<span class="nc" id="L148">        mng = managerUpdatable;</span>
+<span class="nc bnc" id="L149" title="All 2 branches missed.">        if (mng == null) mng = managerUpdatable = new ApplicationManagerUpdatable(this);</span>
+<span class="nc" id="L150">      }</span>
+    }
+<span class="nc" id="L152">    return mng;</span>
+  }
+
+  @Override
+  public String getName() {
+<span class="nc" id="L157">    return this.name;</span>
+  }
+
+  @Override
+  public List&lt;String&gt; getRedirectUris() {
+<span class="nc" id="L162">    return Collections.unmodifiableList(this.redirectUris);</span>
+  }
+
+  @Override
+  public int getRpcApplicationState() {
+<span class="nc" id="L167">    return this.rpcApplicationState;</span>
+  }
+
+  @Override
+  public String getSecret() {
+<span class="nc" id="L172">    return this.secret;</span>
+  }
+
+  @Override
+  public boolean hasBot() {
+<span class="nc bnc" id="L177" title="All 2 branches missed.">    return this.bot != null;</span>
+  }
+
+  @Override
+  public boolean isBotPublic() {
+<span class="nc" id="L182">    return this.isBotPublic;</span>
+  }
+
+  @Override
+  public RestAction&lt;Application&gt; resetSecret() {
+<span class="nc" id="L187">    Route.CompiledRoute route = Route.Applications.RESET_BOT_TOKEN.compile(getId());</span>
+<span class="nc" id="L188">    return new RestAction&lt;Application&gt;(this.api, route) {</span>
+      @Override
+      protected void handleResponse(final Response response, final Request&lt;Application&gt; request) {
+<span class="nc bnc" id="L191" title="All 2 branches missed.">        if (response.isOk())</span>
+<span class="nc" id="L192">          request.onSuccess(ApplicationImpl.this.updateFromJson(response.getObject()));</span>
+<span class="nc" id="L193">        else request.onFailure(response);</span>
+<span class="nc" id="L194">      }</span>
+    };
+  }
+
+  @Override
+  public String toString() {
+<span class="nc" id="L200">    return &quot;Application(&quot; + this.id + &quot;)&quot;;</span>
+  }
+
+  public ApplicationImpl updateFromJson(final JSONObject object) {
+<span class="nc bnc" id="L204" title="All 2 branches missed.">    if (object.has(&quot;bot&quot;)) {</span>
+<span class="nc" id="L205">      final JSONObject botObject = object.getJSONObject(&quot;bot&quot;);</span>
+
+<span class="nc bnc" id="L207" title="All 2 branches missed.">      if (this.bot == null) this.bot = new BotImpl(botObject);</span>
+<span class="nc" id="L208">      else this.bot.updateFromJson(botObject);</span>
+<span class="nc" id="L209">    } else {</span>
+<span class="nc" id="L210">      this.bot = null;</span>
+    }
+
+<span class="nc" id="L213">    this.isBotPublic = object.getBoolean(&quot;bot_public&quot;);</span>
+<span class="nc" id="L214">    this.doesBotRequireCodeGrant = object.getBoolean(&quot;bot_require_code_grant&quot;);</span>
+<span class="nc" id="L215">    this.description = object.getString(&quot;description&quot;);</span>
+<span class="nc" id="L216">    this.flags = object.getInt(&quot;flags&quot;);</span>
+<span class="nc bnc" id="L217" title="All 2 branches missed.">    this.iconId = object.has(&quot;icon&quot;) ? object.getString(&quot;icon&quot;) : null;</span>
+<span class="nc" id="L218">    this.id = object.getLong(&quot;id&quot;);</span>
+<span class="nc" id="L219">    this.name = object.getString(&quot;name&quot;);</span>
+
+<span class="nc" id="L221">    final JSONArray redirectUriArray = object.getJSONArray(&quot;redirect_uris&quot;);</span>
+<span class="nc bnc" id="L222" title="All 2 branches missed.">    if (this.redirectUris == null) this.redirectUris = new ArrayList&lt;&gt;(redirectUriArray.length());</span>
+<span class="nc" id="L223">    else this.redirectUris.clear();</span>
+
+<span class="nc bnc" id="L225" title="All 2 branches missed.">    for (int i = 0; i &lt; redirectUriArray.length(); i++)</span>
+<span class="nc" id="L226">      this.redirectUris.add(redirectUriArray.getString(i));</span>
+
+<span class="nc" id="L228">    this.rpcApplicationState = object.getInt(&quot;rpc_application_state&quot;);</span>
+
+<span class="nc" id="L230">    this.secret = object.getString(&quot;secret&quot;);</span>
+
+<span class="nc" id="L232">    return this;</span>
+  }
+
+  public class BotImpl implements Application.Bot {
+    private long id;
+    private String avatarId;
+    private String discriminator;
+    private String name;
+    private String token;
+
+<span class="nc" id="L242">    private BotImpl(final JSONObject object) {</span>
+<span class="nc" id="L243">      this.updateFromJson(object);</span>
+<span class="nc" id="L244">    }</span>
+
+    @Override
+    public boolean equals(final Object obj) {
+<span class="nc bnc" id="L248" title="All 4 branches missed.">      return obj instanceof BotImpl &amp;&amp; this.id == ((BotImpl) obj).id;</span>
+    }
+
+    @Override
+    public Application getApplication() {
+<span class="nc" id="L253">      return ApplicationImpl.this;</span>
+    }
+
+    @Override
+    public String getAvatarId() {
+<span class="nc" id="L258">      return this.avatarId;</span>
+    }
+
+    @Override
+    public String getAvatarUrl() {
+<span class="nc bnc" id="L263" title="All 2 branches missed.">      return this.avatarId == null</span>
+          ? null
+          : &quot;https://cdn.discordapp.com/avatars/&quot; + this.id + &quot;/&quot; + this.avatarId + &quot;.jpg&quot;;
+    }
+
+    @Override
+    public String getDiscriminator() {
+<span class="nc" id="L270">      return this.discriminator;</span>
+    }
+
+    @Override
+    public long getIdLong() {
+<span class="nc" id="L275">      return this.id;</span>
+    }
+
+    @Override
+    public String getInviteUrl(final Collection&lt;Permission&gt; permissions) {
+<span class="nc" id="L280">      return this.getInviteUrl(null, permissions);</span>
+    }
+
+    @Override
+    public String getInviteUrl(final Permission... permissions) {
+<span class="nc" id="L285">      return this.getInviteUrl(null, permissions);</span>
+    }
+
+    @Override
+    public String getInviteUrl(final String guildId, final Collection&lt;Permission&gt; permissions) {
+<span class="nc" id="L290">      StringBuilder builder =</span>
+          new StringBuilder(&quot;https://discordapp.com/oauth2/authorize?client_id=&quot;);
+<span class="nc" id="L292">      builder.append(this.getId());</span>
+<span class="nc" id="L293">      builder.append(&quot;&amp;scope=bot&quot;);</span>
+<span class="nc bnc" id="L294" title="All 4 branches missed.">      if (permissions != null &amp;&amp; !permissions.isEmpty()) {</span>
+<span class="nc" id="L295">        builder.append(&quot;&amp;permissions=&quot;);</span>
+<span class="nc" id="L296">        builder.append(Permission.getRaw(permissions));</span>
+      }
+<span class="nc bnc" id="L298" title="All 2 branches missed.">      if (guildId != null) {</span>
+<span class="nc" id="L299">        builder.append(&quot;&amp;guild_id=&quot;);</span>
+<span class="nc" id="L300">        builder.append(guildId);</span>
+      }
+<span class="nc" id="L302">      return builder.toString();</span>
+    }
+
+    @Override
+    public String getInviteUrl(final String guildId, final Permission... permissions) {
+<span class="nc bnc" id="L307" title="All 2 branches missed.">      return this.getInviteUrl(guildId, permissions == null ? null : Arrays.asList(permissions));</span>
+    }
+
+    public JDA getJDA() {
+<span class="nc" id="L311">      return ApplicationImpl.this.getJDA();</span>
+    }
+
+    @Override
+    public String getName() {
+<span class="nc" id="L316">      return this.name;</span>
+    }
+
+    @Override
+    public String getToken() {
+<span class="nc" id="L321">      return this.token;</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="nc" id="L326">      return Long.hashCode(this.id);</span>
+    }
+
+    @Override
+    public RestAction&lt;Bot&gt; resetToken() {
+<span class="nc" id="L331">      Route.CompiledRoute route = Route.Applications.RESET_BOT_TOKEN.compile(getId());</span>
+<span class="nc" id="L332">      return new RestAction&lt;Bot&gt;(getJDA(), route) {</span>
+        @Override
+        protected void handleResponse(final Response response, final Request&lt;Bot&gt; request) {
+<span class="nc bnc" id="L335" title="All 2 branches missed.">          if (response.isOk()) request.onSuccess(BotImpl.this.updateFromJson(response.getObject()));</span>
+<span class="nc" id="L336">          else request.onFailure(response);</span>
+<span class="nc" id="L337">        }</span>
+      };
+    }
+
+    @Override
+    public String toString() {
+<span class="nc" id="L343">      return &quot;Application.Bot(&quot; + this.id + &quot;)&quot;;</span>
+    }
+
+    public BotImpl updateFromJson(final JSONObject object) {
+<span class="nc" id="L347">      this.name = object.getString(&quot;username&quot;);</span>
+<span class="nc" id="L348">      this.discriminator = object.getString(&quot;discriminator&quot;);</span>
+<span class="nc" id="L349">      this.token = object.getString(&quot;token&quot;);</span>
+<span class="nc" id="L350">      this.id = object.getLong(&quot;id&quot;);</span>
+<span class="nc bnc" id="L351" title="All 2 branches missed.">      this.avatarId = object.has(&quot;avatar&quot;) ? object.getString(&quot;avatar&quot;) : null;</span>
+
+<span class="nc" id="L353">      return this;</span>
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

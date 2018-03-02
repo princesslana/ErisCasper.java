@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Request.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">net.dv8tion.jda.core.requests</a> &gt; <span class="el_source">Request.java</span></div><h1>Request.java</h1><pre class="source lang-java linenums">/*
+ *     Copyright 2015-2018 Austin Keener &amp; Michael Ritter &amp; Florian Spieß
+ *     Copyright 2018-2018 &quot;Princess&quot; Lana Samson
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package net.dv8tion.jda.core.requests;
+
+import java.util.function.BooleanSupplier;
+import java.util.function.Consumer;
+import net.dv8tion.jda.core.entities.impl.JDAImpl;
+import net.dv8tion.jda.core.events.ExceptionEvent;
+import net.dv8tion.jda.core.events.http.HttpRequestEvent;
+import net.dv8tion.jda.core.exceptions.ContextException;
+import net.dv8tion.jda.core.exceptions.ErrorResponseException;
+import net.dv8tion.jda.core.exceptions.RateLimitedException;
+import okhttp3.RequestBody;
+import org.apache.commons.collections4.map.CaseInsensitiveMap;
+
+public class Request&lt;T&gt; {
+  private final JDAImpl api;
+  private final RestAction&lt;T&gt; restAction;
+  private final Consumer&lt;T&gt; onSuccess;
+  private final Consumer&lt;Throwable&gt; onFailure;
+  private final BooleanSupplier checks;
+  private final boolean shouldQueue;
+  private final Route.CompiledRoute route;
+  private final RequestBody body;
+  private final Object rawBody;
+  private final CaseInsensitiveMap&lt;String, String&gt; headers;
+
+<span class="nc" id="L42">  private boolean isCanceled = false;</span>
+
+  public Request(
+      RestAction&lt;T&gt; restAction,
+      Consumer&lt;T&gt; onSuccess,
+      Consumer&lt;Throwable&gt; onFailure,
+      BooleanSupplier checks,
+      boolean shouldQueue,
+      RequestBody body,
+      Object rawBody,
+      Route.CompiledRoute route,
+<span class="nc" id="L53">      CaseInsensitiveMap&lt;String, String&gt; headers) {</span>
+<span class="nc" id="L54">    this.restAction = restAction;</span>
+<span class="nc" id="L55">    this.onSuccess = onSuccess;</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">    if (RestAction.isPassContext()) this.onFailure = ContextException.here(onFailure);</span>
+<span class="nc" id="L57">    else this.onFailure = onFailure;</span>
+<span class="nc" id="L58">    this.checks = checks;</span>
+<span class="nc" id="L59">    this.shouldQueue = shouldQueue;</span>
+<span class="nc" id="L60">    this.body = body;</span>
+<span class="nc" id="L61">    this.rawBody = rawBody;</span>
+<span class="nc" id="L62">    this.route = route;</span>
+<span class="nc" id="L63">    this.headers = headers;</span>
+
+<span class="nc" id="L65">    this.api = (JDAImpl) restAction.getJDA();</span>
+<span class="nc" id="L66">  }</span>
+
+  public void onSuccess(T successObj) {
+<span class="nc" id="L69">    api.pool.execute(</span>
+        () -&gt; {
+          try {
+<span class="nc" id="L72">            onSuccess.accept(successObj);</span>
+<span class="nc" id="L73">          } catch (Throwable t) {</span>
+<span class="nc" id="L74">            RestAction.LOG.error(&quot;Encountered error while processing success consumer&quot;, t);</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">            if (t instanceof Error) api.getEventManager().handle(new ExceptionEvent(api, t, true));</span>
+<span class="nc" id="L76">          }</span>
+<span class="nc" id="L77">        });</span>
+<span class="nc" id="L78">  }</span>
+
+  public void onFailure(Response response) {
+<span class="nc bnc" id="L81" title="All 2 branches missed.">    if (response.code == 429) {</span>
+<span class="nc" id="L82">      onFailure(new RateLimitedException(route, response.retryAfter));</span>
+    } else {
+<span class="nc" id="L84">      onFailure(</span>
+<span class="nc" id="L85">          ErrorResponseException.create(ErrorResponse.fromJSON(response.getObject()), response));</span>
+    }
+<span class="nc" id="L87">  }</span>
+
+  public void onFailure(Throwable failException) {
+<span class="nc" id="L90">    api.pool.execute(</span>
+        () -&gt; {
+          try {
+<span class="nc" id="L93">            onFailure.accept(failException);</span>
+<span class="nc bnc" id="L94" title="All 2 branches missed.">            if (failException instanceof Error)</span>
+<span class="nc" id="L95">              api.getEventManager().handle(new ExceptionEvent(api, failException, false));</span>
+<span class="nc" id="L96">          } catch (Throwable t) {</span>
+<span class="nc" id="L97">            RestAction.LOG.error(&quot;Encountered error while processing failure consumer&quot;, t);</span>
+<span class="nc bnc" id="L98" title="All 2 branches missed.">            if (t instanceof Error) api.getEventManager().handle(new ExceptionEvent(api, t, true));</span>
+<span class="nc" id="L99">          }</span>
+<span class="nc" id="L100">        });</span>
+<span class="nc" id="L101">  }</span>
+
+  public JDAImpl getJDA() {
+<span class="nc" id="L104">    return api;</span>
+  }
+
+  public RestAction&lt;T&gt; getRestAction() {
+<span class="nc" id="L108">    return restAction;</span>
+  }
+
+  public Consumer&lt;T&gt; getOnSuccess() {
+<span class="nc" id="L112">    return onSuccess;</span>
+  }
+
+  public Consumer&lt;Throwable&gt; getOnFailure() {
+<span class="nc" id="L116">    return onFailure;</span>
+  }
+
+  public boolean runChecks() {
+<span class="nc bnc" id="L120" title="All 4 branches missed.">    return checks == null || checks.getAsBoolean();</span>
+  }
+
+  public CaseInsensitiveMap&lt;String, String&gt; getHeaders() {
+<span class="nc" id="L124">    return headers;</span>
+  }
+
+  public Route.CompiledRoute getRoute() {
+<span class="nc" id="L128">    return route;</span>
+  }
+
+  public RequestBody getBody() {
+<span class="nc" id="L132">    return body;</span>
+  }
+
+  public Object getRawBody() {
+<span class="nc" id="L136">    return rawBody;</span>
+  }
+
+  public boolean shouldQueue() {
+<span class="nc" id="L140">    return shouldQueue;</span>
+  }
+
+  public void cancel() {
+<span class="nc" id="L144">    this.isCanceled = true;</span>
+<span class="nc" id="L145">  }</span>
+
+  public boolean isCanceled() {
+<span class="nc" id="L148">    return isCanceled;</span>
+  }
+
+  public void handleResponse(Response response) {
+<span class="nc" id="L152">    api.getEventManager().handle(new HttpRequestEvent(this, response));</span>
+<span class="nc" id="L153">    restAction.handleResponse(response, this);</span>
+<span class="nc" id="L154">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

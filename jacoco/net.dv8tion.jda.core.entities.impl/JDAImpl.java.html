@@ -1,0 +1,683 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JDAImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">net.dv8tion.jda.core.entities.impl</a> &gt; <span class="el_source">JDAImpl.java</span></div><h1>JDAImpl.java</h1><pre class="source lang-java linenums">/*
+ *     Copyright 2015-2018 Austin Keener &amp; Michael Ritter &amp; Florian Spieß
+ *     Copyright 2018-2018 &quot;Princess&quot; Lana Samson
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package net.dv8tion.jda.core.entities.impl;
+
+import com.neovisionaries.ws.client.WebSocketFactory;
+import gnu.trove.map.TLongObjectMap;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.stream.Collectors;
+import javax.security.auth.login.LoginException;
+import net.dv8tion.jda.bot.entities.impl.JDABotImpl;
+import net.dv8tion.jda.client.entities.impl.JDAClientImpl;
+import net.dv8tion.jda.core.AccountType;
+import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.audio.AudioWebSocket;
+import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.events.StatusChangeEvent;
+import net.dv8tion.jda.core.exceptions.AccountTypeException;
+import net.dv8tion.jda.core.exceptions.RateLimitedException;
+import net.dv8tion.jda.core.handle.EventCache;
+import net.dv8tion.jda.core.hooks.IEventManager;
+import net.dv8tion.jda.core.hooks.InterfacedEventManager;
+import net.dv8tion.jda.core.managers.AudioManager;
+import net.dv8tion.jda.core.managers.Presence;
+import net.dv8tion.jda.core.managers.impl.PresenceImpl;
+import net.dv8tion.jda.core.requests.*;
+import net.dv8tion.jda.core.requests.restaction.GuildAction;
+import net.dv8tion.jda.core.utils.*;
+import net.dv8tion.jda.core.utils.cache.CacheView;
+import net.dv8tion.jda.core.utils.cache.SnowflakeCacheView;
+import net.dv8tion.jda.core.utils.cache.impl.AbstractCacheView;
+import net.dv8tion.jda.core.utils.cache.impl.SnowflakeCacheViewImpl;
+import net.dv8tion.jda.core.utils.tuple.Pair;
+import okhttp3.OkHttpClient;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.MDC;
+
+public class JDAImpl implements JDA {
+<span class="nc" id="L54">  public static final Logger LOG = JDALogger.getLog(JDA.class);</span>
+
+  public final ScheduledThreadPoolExecutor pool;
+
+<span class="nc" id="L58">  protected final SnowflakeCacheViewImpl&lt;User&gt; userCache =</span>
+      new SnowflakeCacheViewImpl&lt;&gt;(User::getName);
+<span class="nc" id="L60">  protected final SnowflakeCacheViewImpl&lt;Guild&gt; guildCache =</span>
+      new SnowflakeCacheViewImpl&lt;&gt;(Guild::getName);
+<span class="nc" id="L62">  protected final SnowflakeCacheViewImpl&lt;Category&gt; categories =</span>
+      new SnowflakeCacheViewImpl&lt;&gt;(Channel::getName);
+<span class="nc" id="L64">  protected final SnowflakeCacheViewImpl&lt;TextChannel&gt; textChannelCache =</span>
+      new SnowflakeCacheViewImpl&lt;&gt;(Channel::getName);
+<span class="nc" id="L66">  protected final SnowflakeCacheViewImpl&lt;VoiceChannel&gt; voiceChannelCache =</span>
+      new SnowflakeCacheViewImpl&lt;&gt;(Channel::getName);
+<span class="nc" id="L68">  protected final SnowflakeCacheViewImpl&lt;PrivateChannel&gt; privateChannelCache =</span>
+      new SnowflakeCacheViewImpl&lt;&gt;(MessageChannel::getName);
+
+<span class="nc" id="L71">  protected final TLongObjectMap&lt;User&gt; fakeUsers = MiscUtil.newLongMap();</span>
+<span class="nc" id="L72">  protected final TLongObjectMap&lt;PrivateChannel&gt; fakePrivateChannels = MiscUtil.newLongMap();</span>
+
+<span class="nc" id="L74">  protected final AbstractCacheView&lt;AudioManager&gt; audioManagers =</span>
+<span class="nc" id="L75">      new CacheView.SimpleCacheView&lt;&gt;(m -&gt; m.getGuild().getName());</span>
+
+  protected final ConcurrentMap&lt;String, String&gt; contextMap;
+  protected final OkHttpClient.Builder httpClientBuilder;
+  protected final WebSocketFactory wsFactory;
+  protected final AccountType accountType;
+  protected final PresenceImpl presence;
+  protected final JDAClientImpl jdaClient;
+  protected final JDABotImpl jdaBot;
+  protected final int maxReconnectDelay;
+  protected final Thread shutdownHook;
+<span class="nc" id="L86">  protected final EntityBuilder entityBuilder = new EntityBuilder(this);</span>
+<span class="nc" id="L87">  protected final EventCache eventCache = new EventCache();</span>
+<span class="nc" id="L88">  protected final GuildLock guildLock = new GuildLock(this);</span>
+<span class="nc" id="L89">  protected final Object akapLock = new Object();</span>
+
+  protected final SessionController sessionController;
+
+  protected WebSocketClient client;
+  protected Requester requester;
+<span class="nc" id="L95">  protected IEventManager eventManager = new InterfacedEventManager();</span>
+  protected ScheduledThreadPoolExecutor audioKeepAlivePool;
+<span class="nc" id="L97">  protected Status status = Status.INITIALIZING;</span>
+  protected SelfUser selfUser;
+  protected ShardInfo shardInfo;
+  protected boolean audioEnabled;
+  protected boolean bulkDeleteSplittingEnabled;
+  protected boolean autoReconnect;
+  protected long responseTotal;
+<span class="nc" id="L104">  protected long ping = -1;</span>
+  protected String token;
+  protected String gatewayUrl;
+
+  public JDAImpl(
+      AccountType accountType,
+      String token,
+      SessionController controller,
+      OkHttpClient.Builder httpClientBuilder,
+      WebSocketFactory wsFactory,
+      boolean autoReconnect,
+      boolean audioEnabled,
+      boolean useShutdownHook,
+      boolean bulkDeleteSplittingEnabled,
+      boolean retryOnTimeout,
+      boolean enableMDC,
+      int corePoolSize,
+      int maxReconnectDelay,
+<span class="nc" id="L122">      ConcurrentMap&lt;String, String&gt; contextMap) {</span>
+<span class="nc" id="L123">    this.accountType = accountType;</span>
+<span class="nc" id="L124">    this.setToken(token);</span>
+<span class="nc" id="L125">    this.httpClientBuilder = httpClientBuilder;</span>
+<span class="nc" id="L126">    this.wsFactory = wsFactory;</span>
+<span class="nc" id="L127">    this.autoReconnect = autoReconnect;</span>
+<span class="nc" id="L128">    this.audioEnabled = audioEnabled;</span>
+<span class="nc bnc" id="L129" title="All 2 branches missed.">    this.shutdownHook = useShutdownHook ? new Thread(this::shutdown, &quot;JDA Shutdown Hook&quot;) : null;</span>
+<span class="nc" id="L130">    this.bulkDeleteSplittingEnabled = bulkDeleteSplittingEnabled;</span>
+<span class="nc" id="L131">    this.pool = new ScheduledThreadPoolExecutor(corePoolSize, new JDAThreadFactory());</span>
+<span class="nc" id="L132">    this.maxReconnectDelay = maxReconnectDelay;</span>
+<span class="nc bnc" id="L133" title="All 2 branches missed.">    this.sessionController = controller == null ? new SessionControllerAdapter() : controller;</span>
+<span class="nc bnc" id="L134" title="All 4 branches missed.">    if (enableMDC) this.contextMap = contextMap == null ? new ConcurrentHashMap&lt;&gt;() : contextMap;</span>
+<span class="nc" id="L135">    else this.contextMap = null;</span>
+
+<span class="nc" id="L137">    this.presence = new PresenceImpl(this);</span>
+<span class="nc" id="L138">    this.requester = new Requester(this);</span>
+<span class="nc" id="L139">    this.requester.setRetryOnTimeout(retryOnTimeout);</span>
+
+<span class="nc bnc" id="L141" title="All 2 branches missed.">    this.jdaClient = accountType == AccountType.CLIENT ? new JDAClientImpl(this) : null;</span>
+<span class="nc bnc" id="L142" title="All 2 branches missed.">    this.jdaBot = accountType == AccountType.BOT ? new JDABotImpl(this) : null;</span>
+<span class="nc" id="L143">  }</span>
+
+  public SessionController getSessionController() {
+<span class="nc" id="L146">    return sessionController;</span>
+  }
+
+  public int login(String gatewayUrl, ShardInfo shardInfo) throws LoginException {
+<span class="nc" id="L150">    this.gatewayUrl = gatewayUrl;</span>
+<span class="nc" id="L151">    this.shardInfo = shardInfo;</span>
+
+<span class="nc" id="L153">    setStatus(Status.LOGGING_IN);</span>
+<span class="nc bnc" id="L154" title="All 4 branches missed.">    if (token == null || token.isEmpty())</span>
+<span class="nc" id="L155">      throw new LoginException(&quot;Provided token was null or empty!&quot;);</span>
+
+<span class="nc" id="L157">    Map&lt;String, String&gt; previousContext = null;</span>
+<span class="nc bnc" id="L158" title="All 2 branches missed.">    if (contextMap != null) {</span>
+<span class="nc bnc" id="L159" title="All 2 branches missed.">      if (shardInfo != null) {</span>
+<span class="nc" id="L160">        contextMap.put(&quot;jda.shard&quot;, shardInfo.getShardString());</span>
+<span class="nc" id="L161">        contextMap.put(&quot;jda.shard.id&quot;, String.valueOf(shardInfo.getShardId()));</span>
+<span class="nc" id="L162">        contextMap.put(&quot;jda.shard.total&quot;, String.valueOf(shardInfo.getShardTotal()));</span>
+      }
+      // set MDC metadata for build thread
+<span class="nc" id="L165">      previousContext = MDC.getCopyOfContextMap();</span>
+<span class="nc" id="L166">      contextMap.forEach(MDC::put);</span>
+    }
+<span class="nc" id="L168">    verifyToken();</span>
+<span class="nc" id="L169">    LOG.info(&quot;Login Successful!&quot;);</span>
+
+<span class="nc" id="L171">    client = new WebSocketClient(this);</span>
+    // remove our MDC metadata when we exit our code
+<span class="nc bnc" id="L173" title="All 2 branches missed.">    if (previousContext != null) previousContext.forEach(MDC::put);</span>
+
+<span class="nc bnc" id="L175" title="All 2 branches missed.">    if (shutdownHook != null) Runtime.getRuntime().addShutdownHook(shutdownHook);</span>
+
+<span class="nc bnc" id="L177" title="All 2 branches missed.">    return shardInfo == null ? -1 : shardInfo.getShardTotal();</span>
+  }
+
+  public String getGateway() {
+<span class="nc" id="L181">    return getSessionController().getGateway(this);</span>
+  }
+
+  // This method also checks for a valid bot token as it is required to get the recommended shard
+  // count.
+  public Pair&lt;String, Integer&gt; getGatewayBot() {
+<span class="nc" id="L187">    return getSessionController().getGatewayBot(this);</span>
+  }
+
+  public ConcurrentMap&lt;String, String&gt; getContextMap() {
+<span class="nc" id="L191">    return contextMap;</span>
+  }
+
+  public void setStatus(Status status) {
+    //noinspection SynchronizeOnNonFinalField
+<span class="nc" id="L196">    synchronized (this.status) {</span>
+<span class="nc" id="L197">      Status oldStatus = this.status;</span>
+<span class="nc" id="L198">      this.status = status;</span>
+
+<span class="nc" id="L200">      eventManager.handle(new StatusChangeEvent(this, status, oldStatus));</span>
+<span class="nc" id="L201">    }</span>
+<span class="nc" id="L202">  }</span>
+
+  public void setToken(String token) {
+<span class="nc bnc" id="L205" title="All 2 branches missed.">    if (getAccountType() == AccountType.BOT) this.token = &quot;Bot &quot; + token;</span>
+<span class="nc" id="L206">    else this.token = token;</span>
+<span class="nc" id="L207">  }</span>
+
+  public void verifyToken() throws LoginException {
+<span class="nc" id="L210">    this.verifyToken(false);</span>
+<span class="nc" id="L211">  }</span>
+
+  // @param alreadyFailed If has already been a failed attempt with the current configuration
+  public void verifyToken(boolean alreadyFailed) throws LoginException {
+
+<span class="nc" id="L216">    RestAction&lt;JSONObject&gt; login =</span>
+<span class="nc" id="L217">        new RestAction&lt;JSONObject&gt;(this, Route.Self.GET_SELF.compile()) {</span>
+          @Override
+          protected void handleResponse(Response response, Request&lt;JSONObject&gt; request) {
+<span class="nc bnc" id="L220" title="All 2 branches missed.">            if (response.isOk()) request.onSuccess(response.getObject());</span>
+<span class="nc bnc" id="L221" title="All 2 branches missed.">            else if (response.isRateLimit())</span>
+<span class="nc" id="L222">              request.onFailure(new RateLimitedException(request.getRoute(), response.retryAfter));</span>
+<span class="nc bnc" id="L223" title="All 2 branches missed.">            else if (response.code == 401) request.onSuccess(null);</span>
+            else
+<span class="nc" id="L225">              request.onFailure(</span>
+                  new LoginException(
+                      &quot;When verifying the authenticity of the provided token, Discord returned an unknown response:\n&quot;
+<span class="nc" id="L228">                          + response.toString()));</span>
+<span class="nc" id="L229">          }</span>
+        };
+
+    JSONObject userResponse;
+
+<span class="nc bnc" id="L234" title="All 2 branches missed.">    if (!alreadyFailed) {</span>
+<span class="nc" id="L235">      userResponse = checkToken(login);</span>
+<span class="nc bnc" id="L236" title="All 2 branches missed.">      if (userResponse != null) {</span>
+<span class="nc" id="L237">        verifyAccountType(userResponse);</span>
+<span class="nc" id="L238">        return;</span>
+      }
+    }
+
+    // If we received a null return for userResponse, then that means we hit a 401.
+    // 401 occurs when we attempt to access the users/@me endpoint with the wrong token prefix.
+    // e.g: If we use a Client token and prefix it with &quot;Bot &quot;, or use a bot token and don't prefix
+    // it.
+    // It also occurs when we attempt to access the endpoint with an invalid token.
+    // The code below already knows that something is wrong with the token. We want to determine if
+    // it is invalid
+    // or if the developer attempted to login with a token using the wrong AccountType.
+
+    // If we attempted to login as a Bot, remove the &quot;Bot &quot; prefix and set the Requester to be a
+    // client.
+<span class="nc bnc" id="L253" title="All 2 branches missed.">    if (getAccountType() == AccountType.BOT) {</span>
+<span class="nc" id="L254">      token = token.substring(&quot;Bot &quot;.length());</span>
+<span class="nc" id="L255">      requester = new Requester(this, AccountType.CLIENT);</span>
+    } else // If we attempted to login as a Client, prepend the &quot;Bot &quot; prefix and set the Requester
+    // to be a Bot
+    {
+<span class="nc" id="L259">      token = &quot;Bot &quot; + token;</span>
+<span class="nc" id="L260">      requester = new Requester(this, AccountType.BOT);</span>
+    }
+
+<span class="nc" id="L263">    userResponse = checkToken(login);</span>
+
+    // If the response isn't null (thus it didn't 401) send it to the secondary verify method to
+    // determine
+    // which account type the developer wrongly attempted to login as
+<span class="nc bnc" id="L268" title="All 2 branches missed.">    if (userResponse != null) verifyAccountType(userResponse);</span>
+    else // We 401'd again. This is an invalid token
+<span class="nc" id="L270">    throw new LoginException(&quot;The provided token is invalid!&quot;);</span>
+<span class="nc" id="L271">  }</span>
+
+  private void verifyAccountType(JSONObject userResponse) {
+<span class="nc bnc" id="L274" title="All 2 branches missed.">    if (getAccountType() == AccountType.BOT) {</span>
+<span class="nc bnc" id="L275" title="All 4 branches missed.">      if (!userResponse.has(&quot;bot&quot;) || !userResponse.getBoolean(&quot;bot&quot;))</span>
+<span class="nc" id="L276">        throw new AccountTypeException(</span>
+            AccountType.BOT, &quot;Attempted to login as a BOT with a CLIENT token!&quot;);
+    } else {
+<span class="nc bnc" id="L279" title="All 4 branches missed.">      if (userResponse.has(&quot;bot&quot;) &amp;&amp; userResponse.getBoolean(&quot;bot&quot;))</span>
+<span class="nc" id="L280">        throw new AccountTypeException(</span>
+            AccountType.CLIENT, &quot;Attempted to login as a CLIENT with a BOT token!&quot;);
+    }
+<span class="nc" id="L283">  }</span>
+
+  private JSONObject checkToken(RestAction&lt;JSONObject&gt; login) throws LoginException {
+    JSONObject userResponse;
+    try {
+<span class="nc" id="L288">      userResponse = login.complete();</span>
+<span class="nc" id="L289">    } catch (RuntimeException e) {</span>
+      // We check if the LoginException is masked inside of a ExecutionException which is masked
+      // inside of the RuntimeException
+<span class="nc bnc" id="L292" title="All 2 branches missed.">      Throwable ex = e.getCause() instanceof ExecutionException ? e.getCause().getCause() : null;</span>
+<span class="nc bnc" id="L293" title="All 2 branches missed.">      if (ex instanceof LoginException) throw new LoginException(ex.getMessage());</span>
+<span class="nc" id="L294">      else throw e;</span>
+<span class="nc" id="L295">    }</span>
+<span class="nc" id="L296">    return userResponse;</span>
+  }
+
+  @Override
+  public String getToken() {
+<span class="nc" id="L301">    return token;</span>
+  }
+
+  @Override
+  public boolean isAudioEnabled() {
+<span class="nc" id="L306">    return audioEnabled;</span>
+  }
+
+  @Override
+  public boolean isBulkDeleteSplittingEnabled() {
+<span class="nc" id="L311">    return bulkDeleteSplittingEnabled;</span>
+  }
+
+  @Override
+  public void setAutoReconnect(boolean autoReconnect) {
+<span class="nc" id="L316">    this.autoReconnect = autoReconnect;</span>
+<span class="nc bnc" id="L317" title="All 2 branches missed.">    if (client != null) client.setAutoReconnect(autoReconnect);</span>
+<span class="nc" id="L318">  }</span>
+
+  @Override
+  public void setRequestTimeoutRetry(boolean retryOnTimeout) {
+<span class="nc" id="L322">    requester.setRetryOnTimeout(retryOnTimeout);</span>
+<span class="nc" id="L323">  }</span>
+
+  @Override
+  public boolean isAutoReconnect() {
+<span class="nc" id="L327">    return autoReconnect;</span>
+  }
+
+  @Override
+  public Status getStatus() {
+<span class="nc" id="L332">    return status;</span>
+  }
+
+  @Override
+  public long getPing() {
+<span class="nc" id="L337">    return ping;</span>
+  }
+
+  @Override
+  public List&lt;String&gt; getCloudflareRays() {
+<span class="nc" id="L342">    return Collections.unmodifiableList(new LinkedList&lt;&gt;(client.getCfRays()));</span>
+  }
+
+  @Override
+  public List&lt;String&gt; getWebSocketTrace() {
+<span class="nc" id="L347">    return Collections.unmodifiableList(new LinkedList&lt;&gt;(client.getTraces()));</span>
+  }
+
+  @Override
+  public List&lt;Guild&gt; getMutualGuilds(User... users) {
+<span class="nc" id="L352">    Checks.notNull(users, &quot;users&quot;);</span>
+<span class="nc" id="L353">    return getMutualGuilds(Arrays.asList(users));</span>
+  }
+
+  @Override
+  public List&lt;Guild&gt; getMutualGuilds(Collection&lt;User&gt; users) {
+<span class="nc" id="L358">    Checks.notNull(users, &quot;users&quot;);</span>
+<span class="nc bnc" id="L359" title="All 2 branches missed.">    for (User u : users) Checks.notNull(u, &quot;All users&quot;);</span>
+<span class="nc" id="L360">    return Collections.unmodifiableList(</span>
+<span class="nc" id="L361">        getGuilds()</span>
+<span class="nc" id="L362">            .stream()</span>
+<span class="nc" id="L363">            .filter(guild -&gt; users.stream().allMatch(guild::isMember))</span>
+<span class="nc" id="L364">            .collect(Collectors.toList()));</span>
+  }
+
+  @Override
+  public RestAction&lt;User&gt; retrieveUserById(String id) {
+<span class="nc" id="L369">    return retrieveUserById(MiscUtil.parseSnowflake(id));</span>
+  }
+
+  @Override
+  public RestAction&lt;User&gt; retrieveUserById(long id) {
+<span class="nc" id="L374">    AccountTypeException.check(accountType, AccountType.BOT);</span>
+
+    // check cache
+<span class="nc" id="L377">    User user = this.getUserById(id);</span>
+<span class="nc bnc" id="L378" title="All 2 branches missed.">    if (user != null) return new RestAction.EmptyRestAction&lt;&gt;(this, user);</span>
+
+<span class="nc" id="L380">    Route.CompiledRoute route = Route.Users.GET_USER.compile(Long.toUnsignedString(id));</span>
+<span class="nc" id="L381">    return new RestAction&lt;User&gt;(this, route) {</span>
+      @Override
+      protected void handleResponse(Response response, Request&lt;User&gt; request) {
+<span class="nc bnc" id="L384" title="All 2 branches missed.">        if (!response.isOk()) {</span>
+<span class="nc" id="L385">          request.onFailure(response);</span>
+<span class="nc" id="L386">          return;</span>
+        }
+<span class="nc" id="L388">        JSONObject user = response.getObject();</span>
+<span class="nc" id="L389">        request.onSuccess(getEntityBuilder().createFakeUser(user, false));</span>
+<span class="nc" id="L390">      }</span>
+    };
+  }
+
+  @Override
+  public CacheView&lt;AudioManager&gt; getAudioManagerCache() {
+<span class="nc" id="L396">    return audioManagers;</span>
+  }
+
+  @Override
+  public SnowflakeCacheView&lt;Guild&gt; getGuildCache() {
+<span class="nc" id="L401">    return guildCache;</span>
+  }
+
+  @Override
+  public SnowflakeCacheView&lt;Role&gt; getRoleCache() {
+<span class="nc" id="L406">    return CacheView.allSnowflakes(() -&gt; guildCache.stream().map(Guild::getRoleCache));</span>
+  }
+
+  @Override
+  public SnowflakeCacheView&lt;Emote&gt; getEmoteCache() {
+<span class="nc" id="L411">    return CacheView.allSnowflakes(() -&gt; guildCache.stream().map(Guild::getEmoteCache));</span>
+  }
+
+  @Override
+  public SnowflakeCacheView&lt;Category&gt; getCategoryCache() {
+<span class="nc" id="L416">    return categories;</span>
+  }
+
+  @Override
+  public SnowflakeCacheView&lt;TextChannel&gt; getTextChannelCache() {
+<span class="nc" id="L421">    return textChannelCache;</span>
+  }
+
+  @Override
+  public SnowflakeCacheView&lt;VoiceChannel&gt; getVoiceChannelCache() {
+<span class="nc" id="L426">    return voiceChannelCache;</span>
+  }
+
+  @Override
+  public SnowflakeCacheView&lt;PrivateChannel&gt; getPrivateChannelCache() {
+<span class="nc" id="L431">    return privateChannelCache;</span>
+  }
+
+  @Override
+  public SnowflakeCacheView&lt;User&gt; getUserCache() {
+<span class="nc" id="L436">    return userCache;</span>
+  }
+
+  public SelfUser getSelfUser() {
+<span class="nc" id="L440">    return selfUser;</span>
+  }
+
+  @Override
+  public void shutdownNow() {
+<span class="nc" id="L445">    shutdown();</span>
+
+<span class="nc" id="L447">    pool.shutdownNow();</span>
+<span class="nc" id="L448">    getRequester().shutdownNow();</span>
+<span class="nc" id="L449">  }</span>
+
+  @Override
+  public void shutdown() {
+<span class="nc bnc" id="L453" title="All 4 branches missed.">    if (status == Status.SHUTDOWN || status == Status.SHUTTING_DOWN) return;</span>
+
+<span class="nc" id="L455">    setStatus(Status.SHUTTING_DOWN);</span>
+<span class="nc" id="L456">    audioManagers.forEach(AudioManager::closeAudioConnection);</span>
+<span class="nc" id="L457">    audioManagers.clear();</span>
+
+<span class="nc bnc" id="L459" title="All 2 branches missed.">    if (audioKeepAlivePool != null) audioKeepAlivePool.shutdownNow();</span>
+
+<span class="nc" id="L461">    getClient().shutdown();</span>
+
+<span class="nc" id="L463">    final long time = 5L;</span>
+<span class="nc" id="L464">    final TimeUnit unit = TimeUnit.SECONDS;</span>
+<span class="nc" id="L465">    getRequester().shutdown(time, unit);</span>
+<span class="nc" id="L466">    pool.setKeepAliveTime(time, unit);</span>
+<span class="nc" id="L467">    pool.allowCoreThreadTimeOut(true);</span>
+
+<span class="nc bnc" id="L469" title="All 2 branches missed.">    if (shutdownHook != null) {</span>
+      try {
+<span class="nc" id="L471">        Runtime.getRuntime().removeShutdownHook(shutdownHook);</span>
+<span class="nc" id="L472">      } catch (Exception ignored) {</span>
+<span class="nc" id="L473">      }</span>
+    }
+
+<span class="nc" id="L476">    setStatus(Status.SHUTDOWN);</span>
+<span class="nc" id="L477">  }</span>
+
+  @Override
+  public JDAClientImpl asClient() {
+<span class="nc" id="L481">    AccountTypeException.check(getAccountType(), AccountType.CLIENT);</span>
+<span class="nc" id="L482">    return jdaClient;</span>
+  }
+
+  @Override
+  public JDABotImpl asBot() {
+<span class="nc" id="L487">    AccountTypeException.check(getAccountType(), AccountType.BOT);</span>
+<span class="nc" id="L488">    return jdaBot;</span>
+  }
+
+  @Override
+  public long getResponseTotal() {
+<span class="nc" id="L493">    return responseTotal;</span>
+  }
+
+  @Override
+  public int getMaxReconnectDelay() {
+<span class="nc" id="L498">    return maxReconnectDelay;</span>
+  }
+
+  @Override
+  public ShardInfo getShardInfo() {
+<span class="nc" id="L503">    return shardInfo;</span>
+  }
+
+  @Override
+  public Presence getPresence() {
+<span class="nc" id="L508">    return presence;</span>
+  }
+
+  // @Override
+  // public AuditableRestAction&lt;Void&gt; installAuxiliaryCable(int port) throws
+  // UnsupportedOperationException
+  // {
+  //    return new AuditableRestAction.FailedRestAction&lt;&gt;(new UnsupportedOperationException(&quot;nice
+  // try but next time think first :)&quot;));
+  // }
+
+  @Override
+  public AccountType getAccountType() {
+<span class="nc" id="L521">    return accountType;</span>
+  }
+
+  @Override
+  public void setEventManager(IEventManager eventManager) {
+<span class="nc" id="L526">    this.eventManager = eventManager;</span>
+<span class="nc" id="L527">  }</span>
+
+  @Override
+  public void addEventListener(Object... listeners) {
+<span class="nc" id="L531">    Checks.noneNull(listeners, &quot;listeners&quot;);</span>
+
+<span class="nc bnc" id="L533" title="All 2 branches missed.">    for (Object listener : listeners) eventManager.register(listener);</span>
+<span class="nc" id="L534">  }</span>
+
+  @Override
+  public void removeEventListener(Object... listeners) {
+<span class="nc" id="L538">    Checks.noneNull(listeners, &quot;listeners&quot;);</span>
+
+<span class="nc bnc" id="L540" title="All 2 branches missed.">    for (Object listener : listeners) eventManager.unregister(listener);</span>
+<span class="nc" id="L541">  }</span>
+
+  @Override
+  public List&lt;Object&gt; getRegisteredListeners() {
+<span class="nc" id="L545">    return Collections.unmodifiableList(eventManager.getRegisteredListeners());</span>
+  }
+
+  @Override
+  public GuildAction createGuild(String name) {
+<span class="nc bnc" id="L550" title="All 3 branches missed.">    switch (accountType) {</span>
+      case BOT:
+<span class="nc bnc" id="L552" title="All 2 branches missed.">        if (guildCache.size() &gt;= 10)</span>
+<span class="nc" id="L553">          throw new IllegalStateException(</span>
+              &quot;Cannot create a Guild with a Bot in more than 10 guilds!&quot;);
+        break;
+      case CLIENT:
+<span class="nc bnc" id="L557" title="All 2 branches missed.">        if (guildCache.size() &gt;= 100)</span>
+<span class="nc" id="L558">          throw new IllegalStateException(</span>
+              &quot;Cannot be in more than 100 guilds with AccountType.CLIENT!&quot;);
+    }
+<span class="nc" id="L561">    return new GuildAction(this, name);</span>
+  }
+
+  public EntityBuilder getEntityBuilder() {
+<span class="nc" id="L565">    return entityBuilder;</span>
+  }
+
+  public GuildLock getGuildLock() {
+<span class="nc" id="L569">    return this.guildLock;</span>
+  }
+
+  public void setPing(long ping) {
+<span class="nc" id="L573">    this.ping = ping;</span>
+<span class="nc" id="L574">  }</span>
+
+  public Requester getRequester() {
+<span class="nc" id="L577">    return requester;</span>
+  }
+
+  public IEventManager getEventManager() {
+<span class="nc" id="L581">    return eventManager;</span>
+  }
+
+  public WebSocketFactory getWebSocketFactory() {
+<span class="nc" id="L585">    return wsFactory;</span>
+  }
+
+  public WebSocketClient getClient() {
+<span class="nc" id="L589">    return client;</span>
+  }
+
+  public TLongObjectMap&lt;User&gt; getUserMap() {
+<span class="nc" id="L593">    return userCache.getMap();</span>
+  }
+
+  public TLongObjectMap&lt;Guild&gt; getGuildMap() {
+<span class="nc" id="L597">    return guildCache.getMap();</span>
+  }
+
+  public TLongObjectMap&lt;Category&gt; getCategoryMap() {
+<span class="nc" id="L601">    return categories.getMap();</span>
+  }
+
+  public TLongObjectMap&lt;TextChannel&gt; getTextChannelMap() {
+<span class="nc" id="L605">    return textChannelCache.getMap();</span>
+  }
+
+  public TLongObjectMap&lt;VoiceChannel&gt; getVoiceChannelMap() {
+<span class="nc" id="L609">    return voiceChannelCache.getMap();</span>
+  }
+
+  public TLongObjectMap&lt;PrivateChannel&gt; getPrivateChannelMap() {
+<span class="nc" id="L613">    return privateChannelCache.getMap();</span>
+  }
+
+  public TLongObjectMap&lt;User&gt; getFakeUserMap() {
+<span class="nc" id="L617">    return fakeUsers;</span>
+  }
+
+  public TLongObjectMap&lt;PrivateChannel&gt; getFakePrivateChannelMap() {
+<span class="nc" id="L621">    return fakePrivateChannels;</span>
+  }
+
+  public TLongObjectMap&lt;AudioManager&gt; getAudioManagerMap() {
+<span class="nc" id="L625">    return audioManagers.getMap();</span>
+  }
+
+  public void setSelfUser(SelfUser selfUser) {
+<span class="nc" id="L629">    this.selfUser = selfUser;</span>
+<span class="nc" id="L630">  }</span>
+
+  public void setResponseTotal(int responseTotal) {
+<span class="nc" id="L633">    this.responseTotal = responseTotal;</span>
+<span class="nc" id="L634">  }</span>
+
+  public String getIdentifierString() {
+<span class="nc bnc" id="L637" title="All 2 branches missed.">    if (shardInfo != null) return &quot;JDA &quot; + shardInfo.getShardString();</span>
+<span class="nc" id="L638">    else return &quot;JDA&quot;;</span>
+  }
+
+  public EventCache getEventCache() {
+<span class="nc" id="L642">    return eventCache;</span>
+  }
+
+  public OkHttpClient.Builder getHttpClientBuilder() {
+<span class="nc" id="L646">    return httpClientBuilder;</span>
+  }
+
+<span class="nc" id="L649">  private class JDAThreadFactory implements ThreadFactory {</span>
+    @Override
+    public Thread newThread(Runnable r) {
+<span class="nc" id="L652">      final Thread thread =</span>
+          new Thread(
+              () -&gt; {
+<span class="nc bnc" id="L655" title="All 2 branches missed.">                if (contextMap != null) MDC.setContextMap(contextMap);</span>
+<span class="nc" id="L656">                r.run();</span>
+<span class="nc" id="L657">              },</span>
+<span class="nc" id="L658">              &quot;JDA-Thread &quot; + getIdentifierString());</span>
+<span class="nc" id="L659">      thread.setDaemon(true);</span>
+<span class="nc" id="L660">      return thread;</span>
+    }
+  }
+
+  public ScheduledThreadPoolExecutor getAudioKeepAlivePool() {
+<span class="nc" id="L665">    ScheduledThreadPoolExecutor akap = audioKeepAlivePool;</span>
+<span class="nc bnc" id="L666" title="All 2 branches missed.">    if (akap == null) {</span>
+<span class="nc" id="L667">      synchronized (akapLock) {</span>
+<span class="nc" id="L668">        akap = audioKeepAlivePool;</span>
+<span class="nc bnc" id="L669" title="All 2 branches missed.">        if (akap == null)</span>
+<span class="nc" id="L670">          akap =</span>
+              audioKeepAlivePool =
+                  new ScheduledThreadPoolExecutor(
+                      1, new AudioWebSocket.KeepAliveThreadFactory(this));
+<span class="nc" id="L674">      }</span>
+    }
+<span class="nc" id="L676">    return akap;</span>
+  }
+
+  public String getGatewayUrl() {
+<span class="nc" id="L680">    return gatewayUrl;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

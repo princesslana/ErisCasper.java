@@ -1,0 +1,680 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WebhookCluster.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">net.dv8tion.jda.webhook</a> &gt; <span class="el_source">WebhookCluster.java</span></div><h1>WebhookCluster.java</h1><pre class="source lang-java linenums">/*
+ *     Copyright 2015-2018 Austin Keener &amp; Michael Ritter &amp; Florian Spieß
+ *     Copyright 2018-2018 &quot;Princess&quot; Lana Samson
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package net.dv8tion.jda.webhook;
+
+import java.io.File;
+import java.io.InputStream;
+import java.util.*;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
+import java.util.function.Predicate;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageEmbed;
+import net.dv8tion.jda.core.entities.Webhook;
+import net.dv8tion.jda.core.requests.RequestFuture;
+import net.dv8tion.jda.core.utils.Checks;
+import okhttp3.OkHttpClient;
+import okhttp3.RequestBody;
+import org.json.JSONObject;
+
+/**
+ * A central collection of {@link net.dv8tion.jda.webhook.WebhookClient WebhookClients} which allows
+ * to broadcast ({@link #broadcast(WebhookMessage)}) or multicast ({@link #multicast(Predicate,
+ * WebhookMessage)}) to all registered clients (receivers).
+ *
+ * &lt;h2&gt;Registering existing WebhookClients&lt;/h2&gt;
+ *
+ * To register an existing WebhookClient instance (that is not currently shutdown) you either use
+ * {@link #addWebhooks(WebhookClient...)} or {@link #addWebhooks(java.util.Collection)
+ * addWebhooks(Collection&amp;lt;WebhookClient&amp;gt;)}. &lt;br&gt;
+ * These methods allow to register multiple clients in one call and will &lt;b&gt;fail if the client has
+ * been closed via {@link WebhookClient#close() WebhookClient.close()}&lt;/b&gt;.
+ *
+ * &lt;p&gt;&lt;i&gt;&lt;b&gt;Note that you should always remove a WebhookClient from this cluster when you close it
+ * directly!&lt;/b&gt;&lt;/i&gt;
+ *
+ * &lt;h2&gt;Removing already registered WebhookClients&lt;/h2&gt;
+ *
+ * The cluster allows to remove existing clients in batch via {@link
+ * #removeWebhooks(WebhookClient...)}, {@link #removeWebhooks(Collection)
+ * removeWebhooks(Collection&amp;lt;WebhookClient&amp;gt;)} and {@link
+ * #removeIf(java.util.function.Predicate) removeIf(Predicate&amp;lt;WebhookClient&amp;gt;)}. It does not
+ * matter if the specified clients are actually registered to this cluster when using these methods.
+ *
+ * &lt;p&gt;&lt;i&gt;&lt;b&gt;Note that removing a WebhookClient from the cluster does not close it!&lt;/b&gt;&lt;/i&gt;
+ *
+ * &lt;h2&gt;Building WebhookClients from the Cluster&lt;/h2&gt;
+ *
+ * This class allows to set default values that will be provided to {@link
+ * net.dv8tion.jda.webhook.WebhookClientBuilder WebhookClientBuilder} when building via {@link
+ * #buildWebhooks(Webhook...)} and {@link #buildWebhooks(Collection)
+ * buildWebhooks(Collection&amp;lt;Webhook&amp;gt;)}. &lt;br&gt;
+ * The following settings can be used:
+ *
+ * &lt;ul&gt;
+ *   &lt;li&gt;{@link #setDefaultExecutorService(ScheduledExecutorService)}
+ *   &lt;li&gt;{@link #setDefaultHttpClientBuilder(OkHttpClient.Builder)}
+ *   &lt;li&gt;{@link #setDefaultHttpClient(OkHttpClient)}
+ *   &lt;li&gt;{@link #setDefaultThreadFactory(ThreadFactory)}
+ *   &lt;li&gt;{@link #setDefaultDaemon(boolean)}
+ * &lt;/ul&gt;
+ *
+ * &lt;p&gt;Note that when you provide your own {@link java.util.concurrent.ScheduledExecutorService
+ * ScheduledExecutorService} you are able to shut it down outside of the clients which will cause
+ * them to fail. &lt;br&gt;
+ * &lt;i&gt;&lt;b&gt;Do not shutdown the pool before closing all clients!&lt;/b&gt;&lt;/i&gt;
+ *
+ * &lt;h2&gt;Sending to multiple Webhooks at once&lt;/h2&gt;
+ *
+ * This cluster allows to both broadcast and multicast to registered clients. &lt;br&gt;
+ * When broadcasting a message is created before iterating each client to save performance which
+ * makes the broadcast method superior to direct for-loops.
+ *
+ * &lt;p&gt;Multicasting will send a message to all clients which meet a set filter. The filter is
+ * specified using a {@link java.util.function.Predicate Predicate} which is provided to {@link
+ * #multicast(Predicate, WebhookMessage)}. &lt;br&gt;
+ * The predicate decides whether the client should receive the message (returning true) or should be
+ * ignored (returning false).
+ *
+ * &lt;h2&gt;Closing all connections&lt;/h2&gt;
+ *
+ * Each {@link net.dv8tion.jda.webhook.WebhookClient WebhookClient} is a {@link java.io.Closeable
+ * Closable} resource which means it must be closed to free resources and enhance performance of the
+ * JVM. &lt;br&gt;
+ * The WebhookCluster allows to close all registered clients using {@link #close()}. Calling close
+ * on the cluster means it will &lt;i&gt;&lt;b&gt;remove and close&lt;/b&gt;&lt;/i&gt; all currently registered webhooks.
+ * &lt;br&gt;
+ * The cluster may still be used after closing.
+ */
+public class WebhookCluster implements AutoCloseable {
+  protected final List&lt;WebhookClient&gt; webhooks;
+  protected OkHttpClient.Builder defaultHttpClientBuilder;
+  protected OkHttpClient defaultHttpClient;
+  protected ScheduledExecutorService defaultPool;
+  protected ThreadFactory threadFactory;
+  protected boolean isDaemon;
+
+  /**
+   * Creates a new WebhookCluster with the provided {@link net.dv8tion.jda.webhook.WebhookClient
+   * WebhookClients} as initial client cache.
+   *
+   * @param initialClients Collection of WebhookClients that should be added
+   * @throws java.lang.IllegalArgumentException If any of the provided clients is {@code null} or
+   *     closed
+   */
+<span class="nc" id="L119">  public WebhookCluster(Collection&lt;? extends WebhookClient&gt; initialClients) {</span>
+<span class="nc" id="L120">    webhooks = new ArrayList&lt;&gt;(initialClients.size());</span>
+<span class="nc bnc" id="L121" title="All 2 branches missed.">    for (WebhookClient client : initialClients) addWebhooks(client);</span>
+<span class="nc" id="L122">  }</span>
+
+  /**
+   * Creates a new WebhookCluster with the specified initial capacity. &lt;br&gt;
+   * For more information about this see {@link java.util.ArrayList ArrayList}.
+   *
+   * @param initialCapacity The initial capacity for this cluster
+   * @throws java.lang.IllegalArgumentException If the provided capacity is negative
+   */
+<span class="nc" id="L131">  public WebhookCluster(int initialCapacity) {</span>
+<span class="nc" id="L132">    webhooks = new ArrayList&lt;&gt;(initialCapacity);</span>
+<span class="nc" id="L133">  }</span>
+
+  /**
+   * Creates a new WebhookCluster with default initial capacity and no registered {@link
+   * net.dv8tion.jda.webhook.WebhookClient WebhookClients}
+   */
+<span class="nc" id="L139">  public WebhookCluster() {</span>
+<span class="nc" id="L140">    webhooks = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L141">  }</span>
+
+  // Default builder values
+
+  /**
+   * Sets the default {@link okhttp3.OkHttpClient.Builder OkHttpClient.Builder} that should be used
+   * when building {@link net.dv8tion.jda.webhook.WebhookClient WebhookClients} via {@link
+   * #buildWebhooks(Webhook...)} or {@link #buildWebhooks(Collection)}.
+   *
+   * @param builder The default builder, {@code null} to reset
+   * @return The current WebhookCluster for chaining convenience
+   */
+  public WebhookCluster setDefaultHttpClientBuilder(OkHttpClient.Builder builder) {
+<span class="nc" id="L154">    this.defaultHttpClientBuilder = builder;</span>
+<span class="nc" id="L155">    return this;</span>
+  }
+
+  /**
+   * Sets the default {@link okhttp3.OkHttpClient OkHttpClient} that should be used when building
+   * {@link net.dv8tion.jda.webhook.WebhookClient WebhookClients} via {@link
+   * #buildWebhooks(Webhook...)} or {@link #buildWebhooks(Collection)}.
+   *
+   * @param defaultHttpClient The default client, {@code null} to reset
+   * @return The current WebhookCluster for chaining convenience
+   */
+  public WebhookCluster setDefaultHttpClient(OkHttpClient defaultHttpClient) {
+<span class="nc" id="L167">    this.defaultHttpClient = defaultHttpClient;</span>
+<span class="nc" id="L168">    return this;</span>
+  }
+
+  /**
+   * Sets the default {@link java.util.concurrent.ScheduledExecutorService ScheduledExecutorService}
+   * that should be used when building {@link net.dv8tion.jda.webhook.WebhookClient WebhookClients}
+   * via {@link #buildWebhooks(Webhook...)} or {@link #buildWebhooks(Collection)}.
+   *
+   * @param executorService The default executor service, {@code null} to reset
+   * @return The current WebhookCluster for chaining convenience
+   */
+  public WebhookCluster setDefaultExecutorService(ScheduledExecutorService executorService) {
+<span class="nc" id="L180">    this.defaultPool = executorService;</span>
+<span class="nc" id="L181">    return this;</span>
+  }
+
+  /**
+   * Factory that should be used by the default {@link java.util.concurrent.ScheduledExecutorService
+   * ScheduledExecutorService} to create Threads for rate limitation handling of the created {@link
+   * net.dv8tion.jda.webhook.WebhookClient WebhookClient}! &lt;br&gt;
+   * This allows changing thread information such as name without having to create your own
+   * executor.
+   *
+   * @param factory The {@link java.util.concurrent.ThreadFactory ThreadFactory} that will be used
+   *     when no {@link java.util.concurrent.ScheduledExecutorService ScheduledExecutorService} has
+   *     been set via {@link #setDefaultExecutorService(ScheduledExecutorService)}
+   * @return The current WebhookCluster for chaining convenience
+   */
+  public WebhookCluster setDefaultThreadFactory(ThreadFactory factory) {
+<span class="nc" id="L197">    this.threadFactory = factory;</span>
+<span class="nc" id="L198">    return this;</span>
+  }
+
+  /**
+   * Whether rate limit threads of created {@link net.dv8tion.jda.webhook.WebhookClient
+   * WebhookClients} should be treated as {@link Thread#isDaemon()} or not. &lt;br&gt;
+   * &lt;b&gt;Default: false&lt;/b&gt;
+   *
+   * &lt;p&gt;This will not be used when the default thread pool has been set via {@link
+   * #setDefaultExecutorService(ScheduledExecutorService)}!
+   *
+   * @param isDaemon True, if the threads should be daemon
+   * @return The current WebhookCluster for chaining convenience
+   */
+  public WebhookCluster setDefaultDaemon(boolean isDaemon) {
+<span class="nc" id="L213">    this.isDaemon = isDaemon;</span>
+<span class="nc" id="L214">    return this;</span>
+  }
+
+  // Webhook creation/add/remove
+
+  /**
+   * Creates new {@link net.dv8tion.jda.webhook.WebhookClient WebhookClients} and adds them to this
+   * cluster. &lt;br&gt;
+   * The {@link net.dv8tion.jda.webhook.WebhookClientBuilder WebhookClientBuilders} will be supplied
+   * with the default settings of this cluster.
+   *
+   * @param webhooks Webhooks to target (duplicates will not be filtered)
+   * @throws java.lang.IllegalArgumentException If the provided array or any of the contained
+   *     webhooks is {@code null}
+   * @return The current WebhookCluster for chaining convenience
+   * @see #buildWebhooks(Webhook...)
+   * @see #newBuilder(Webhook)
+   */
+  public WebhookCluster buildWebhooks(Webhook... webhooks) {
+<span class="nc" id="L233">    Checks.notNull(webhooks, &quot;Webhooks&quot;);</span>
+<span class="nc bnc" id="L234" title="All 2 branches missed.">    for (Webhook webhook : webhooks) {</span>
+<span class="nc" id="L235">      Checks.notNull(webhook, &quot;Webhook&quot;);</span>
+<span class="nc" id="L236">      buildWebhook(webhook.getIdLong(), webhook.getToken());</span>
+    }
+<span class="nc" id="L238">    return this;</span>
+  }
+
+  /**
+   * Creates new {@link net.dv8tion.jda.webhook.WebhookClient WebhookClients} and adds them to this
+   * cluster. &lt;br&gt;
+   * The {@link net.dv8tion.jda.webhook.WebhookClientBuilder WebhookClientBuilders} will be supplied
+   * with the default settings of this cluster.
+   *
+   * @param webhooks Webhooks to target (duplicates will not be filtered)
+   * @throws java.lang.IllegalArgumentException If the provided collection or any of the contained
+   *     webhooks is {@code null}
+   * @return The current WebhookCluster for chaining convenience
+   * @see #buildWebhooks(Webhook...)
+   * @see #newBuilder(Webhook)
+   */
+  public WebhookCluster buildWebhooks(Collection&lt;Webhook&gt; webhooks) {
+<span class="nc" id="L255">    Checks.notNull(webhooks, &quot;Webhooks&quot;);</span>
+<span class="nc bnc" id="L256" title="All 2 branches missed.">    for (Webhook webhook : webhooks) {</span>
+<span class="nc" id="L257">      Checks.notNull(webhook, &quot;Webhook&quot;);</span>
+<span class="nc" id="L258">      buildWebhook(webhook.getIdLong(), webhook.getToken());</span>
+<span class="nc" id="L259">    }</span>
+<span class="nc" id="L260">    return this;</span>
+  }
+
+  /**
+   * Creates new {@link net.dv8tion.jda.webhook.WebhookClient WebhookClients} and adds them to this
+   * cluster. &lt;br&gt;
+   * The {@link net.dv8tion.jda.webhook.WebhookClientBuilder WebhookClientBuilders} will be supplied
+   * with the default settings of this cluster.
+   *
+   * @param id The id for the webhook
+   * @param token The token for the webhook
+   * @throws java.lang.IllegalArgumentException If the provided webhooks token is {@code null} or
+   *     contains whitespace
+   * @return The current WebhookCluster for chaining convenience
+   * @see #newBuilder(long, String)
+   */
+  public WebhookCluster buildWebhook(long id, String token) {
+<span class="nc" id="L277">    this.webhooks.add(newBuilder(id, token).build());</span>
+<span class="nc" id="L278">    return this;</span>
+  }
+
+  /**
+   * Creates a new {@link net.dv8tion.jda.webhook.WebhookClientBuilder WebhookClientBuilder} with
+   * the defined default settings of this cluster.
+   *
+   * @param id The webhook id
+   * @param token The webhook token
+   * @throws java.lang.IllegalArgumentException If the token is {@code null}, empty or contains
+   *     blanks
+   * @return The WebhookClientBuilder with default settings
+   * @see net.dv8tion.jda.webhook.WebhookClientBuilder#WebhookClientBuilder(long, String) new
+   *     WebhookClientBuilder(long, String)
+   */
+  public WebhookClientBuilder newBuilder(long id, String token) {
+<span class="nc" id="L294">    WebhookClientBuilder builder = new WebhookClientBuilder(id, token);</span>
+<span class="nc" id="L295">    builder</span>
+<span class="nc" id="L296">        .setExecutorService(defaultPool)</span>
+<span class="nc" id="L297">        .setHttpClient(defaultHttpClient)</span>
+<span class="nc" id="L298">        .setThreadFactory(threadFactory)</span>
+<span class="nc" id="L299">        .setDaemon(isDaemon);</span>
+<span class="nc bnc" id="L300" title="All 2 branches missed.">    if (defaultHttpClientBuilder != null) builder.setHttpClientBuilder(defaultHttpClientBuilder);</span>
+<span class="nc" id="L301">    return builder;</span>
+  }
+
+  /**
+   * Creates a new {@link net.dv8tion.jda.webhook.WebhookClientBuilder WebhookClientBuilder} with
+   * the defined default settings of this cluster.
+   *
+   * @param webhook The target webhook
+   * @throws java.lang.IllegalArgumentException If the webhook is {@code null}
+   * @return The WebhookClientBuilder with default settings
+   * @see net.dv8tion.jda.webhook.WebhookClientBuilder#WebhookClientBuilder(Webhook) new
+   *     WebhookClientBuilder(Webhook)
+   */
+  public WebhookClientBuilder newBuilder(Webhook webhook) {
+<span class="nc" id="L315">    Checks.notNull(webhook, &quot;Webhook&quot;);</span>
+<span class="nc" id="L316">    return newBuilder(webhook.getIdLong(), webhook.getToken());</span>
+  }
+
+  /**
+   * Adds the specified {@link net.dv8tion.jda.webhook.WebhookClient WebhookClients} to this
+   * cluster's list of receivers. &lt;br&gt;
+   * Duplicate clients are supported and will not be filtered automatically.
+   *
+   * @param clients WebhookClients to add
+   * @throws java.lang.IllegalArgumentException If the provided array or any of the contained
+   *     clients is {@code null} or closed
+   * @return The current WebhookCluster for chaining convenience
+   */
+  public WebhookCluster addWebhooks(WebhookClient... clients) {
+<span class="nc" id="L330">    Checks.notNull(clients, &quot;Clients&quot;);</span>
+<span class="nc bnc" id="L331" title="All 2 branches missed.">    for (WebhookClient client : clients) {</span>
+<span class="nc" id="L332">      Checks.notNull(client, &quot;Client&quot;);</span>
+<span class="nc bnc" id="L333" title="All 2 branches missed.">      Checks.check(</span>
+          !client.isShutdown, &quot;One of the provided WebhookClients has been closed already!&quot;);
+<span class="nc" id="L335">      webhooks.add(client);</span>
+    }
+<span class="nc" id="L337">    return this;</span>
+  }
+
+  /**
+   * Adds the specified {@link net.dv8tion.jda.webhook.WebhookClient WebhookClients} to this
+   * cluster's list of receivers. &lt;br&gt;
+   * Duplicate clients are supported and will not be filtered automatically.
+   *
+   * @param clients WebhookClients to add
+   * @throws java.lang.IllegalArgumentException If the provided collection or any of the contained
+   *     clients is {@code null} or closed
+   * @return The current WebhookCluster for chaining convenience
+   */
+  public WebhookCluster addWebhooks(Collection&lt;WebhookClient&gt; clients) {
+<span class="nc" id="L351">    Checks.notNull(clients, &quot;Clients&quot;);</span>
+<span class="nc bnc" id="L352" title="All 2 branches missed.">    for (WebhookClient client : clients) {</span>
+<span class="nc" id="L353">      Checks.notNull(client, &quot;Client&quot;);</span>
+<span class="nc bnc" id="L354" title="All 2 branches missed.">      Checks.check(</span>
+          !client.isShutdown, &quot;One of the provided WebhookClients has been closed already!&quot;);
+<span class="nc" id="L356">      webhooks.add(client);</span>
+<span class="nc" id="L357">    }</span>
+<span class="nc" id="L358">    return this;</span>
+  }
+
+  /**
+   * Removes the specified {@link net.dv8tion.jda.webhook.WebhookClient WebhookClients} from this
+   * cluster's list of receivers. &lt;br&gt;
+   * It does not matter whether any of the provided clients is actually in the list of receivers.
+   *
+   * &lt;p&gt;&lt;b&gt;Note that the removed clients are not closed by this operation!&lt;/b&gt;
+   *
+   * @param clients WebhookClients to remove
+   * @throws java.lang.IllegalArgumentException If the provided array is {@code null}
+   * @return The current WebhookCluster for chaining convenience
+   */
+  public WebhookCluster removeWebhooks(WebhookClient... clients) {
+<span class="nc" id="L373">    Checks.notNull(clients, &quot;Clients&quot;);</span>
+<span class="nc" id="L374">    webhooks.removeAll(Arrays.asList(clients));</span>
+<span class="nc" id="L375">    return this;</span>
+  }
+
+  /**
+   * Removes the specified {@link net.dv8tion.jda.webhook.WebhookClient WebhookClients} from this
+   * cluster's list of receivers. &lt;br&gt;
+   * It does not matter whether any of the provided clients is actually in the list of receivers.
+   *
+   * &lt;p&gt;&lt;b&gt;Note that the removed clients are not closed by this operation!&lt;/b&gt;
+   *
+   * @param clients WebhookClients to remove
+   * @throws java.lang.IllegalArgumentException If the provided collection is {@code null}
+   * @return The current WebhookCluster for chaining convenience
+   */
+  public WebhookCluster removeWebhooks(Collection&lt;WebhookClient&gt; clients) {
+<span class="nc" id="L390">    Checks.notNull(clients, &quot;Clients&quot;);</span>
+<span class="nc" id="L391">    webhooks.removeAll(clients);</span>
+<span class="nc" id="L392">    return this;</span>
+  }
+
+  /**
+   * Removes the specified {@link net.dv8tion.jda.webhook.WebhookClient WebhookClients} from this
+   * cluster's list of receivers under the conditions of the provided filter. &lt;br&gt;
+   * The filter should return {@code true} to remove provided clients and {@code false} to retain
+   * them.
+   *
+   * &lt;p&gt;&lt;b&gt;Note that the removed clients are not closed by this operation!&lt;/b&gt;
+   *
+   * @param predicate The filter
+   * @throws java.lang.IllegalArgumentException If the provided filter is {@code null}
+   * @return List of removed clients
+   */
+  public List&lt;WebhookClient&gt; removeIf(Predicate&lt;WebhookClient&gt; predicate) {
+<span class="nc" id="L408">    Checks.notNull(predicate, &quot;Predicate&quot;);</span>
+<span class="nc" id="L409">    List&lt;WebhookClient&gt; clients = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L410" title="All 2 branches missed.">    for (WebhookClient client : webhooks) {</span>
+<span class="nc bnc" id="L411" title="All 2 branches missed.">      if (predicate.test(client)) clients.add(client);</span>
+<span class="nc" id="L412">    }</span>
+<span class="nc" id="L413">    removeWebhooks(clients);</span>
+<span class="nc" id="L414">    return clients;</span>
+  }
+
+  /**
+   * Closes all {@link net.dv8tion.jda.webhook.WebhookClient WebhookClients} that meet the specified
+   * filter. &lt;br&gt;
+   * The filter may return {@code true} for all clients that should be &lt;b&gt;removed and closed&lt;/b&gt;.
+   *
+   * @param predicate The filter to decide which clients to remove
+   * @throws java.lang.IllegalArgumentException If the provided filter is {@code null}
+   * @return List of removed and closed clients
+   */
+  public List&lt;WebhookClient&gt; closeIf(Predicate&lt;WebhookClient&gt; predicate) {
+<span class="nc" id="L427">    Checks.notNull(predicate, &quot;Filter&quot;);</span>
+<span class="nc" id="L428">    List&lt;WebhookClient&gt; clients = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L429" title="All 2 branches missed.">    for (WebhookClient client : webhooks) {</span>
+<span class="nc bnc" id="L430" title="All 2 branches missed.">      if (predicate.test(client)) clients.add(client);</span>
+<span class="nc" id="L431">    }</span>
+<span class="nc" id="L432">    removeWebhooks(clients);</span>
+<span class="nc" id="L433">    clients.forEach(WebhookClient::close);</span>
+<span class="nc" id="L434">    return clients;</span>
+  }
+
+  /**
+   * The current list of receivers for this WebhookCluster instance. &lt;br&gt;
+   * The provided list is an immutable copy of the actual stored list of {@link
+   * net.dv8tion.jda.webhook.WebhookClient WebhookClients}.
+   *
+   * @return Immutable list of registered receivers
+   */
+  public List&lt;WebhookClient&gt; getWebhooks() {
+<span class="nc" id="L445">    return Collections.unmodifiableList(new ArrayList&lt;&gt;(webhooks));</span>
+  }
+
+  // Broadcasting / Multicasting
+
+  /**
+   * Sends the provided {@link net.dv8tion.jda.webhook.WebhookMessage WebhookMessage} to all {@link
+   * net.dv8tion.jda.webhook.WebhookClient WebhookClients} that meet the specified filter. &lt;br&gt;
+   * The filter should return {@code true} for all clients that should receive the message.
+   *
+   * &lt;p&gt;Hint: Use {@link net.dv8tion.jda.webhook.WebhookMessageBuilder WebhookMessageBuilder} to
+   * create a {@link net.dv8tion.jda.webhook.WebhookMessage WebhookMessage} instance!
+   *
+   * @param filter The filter that decides what clients receive the message
+   * @param message The message that should be sent to the filtered clients
+   * @throws java.lang.IllegalArgumentException If any of the provided arguments is {@code null}
+   * @throws java.util.concurrent.RejectedExecutionException If any of the receivers has been
+   *     shutdown
+   * @throws net.dv8tion.jda.core.exceptions.HttpException If the HTTP request fails
+   * @return A list of {@link java.util.concurrent.Future Future} instances representing all message
+   *     tasks.
+   */
+  public List&lt;RequestFuture&lt;?&gt;&gt; multicast(Predicate&lt;WebhookClient&gt; filter, WebhookMessage message) {
+<span class="nc" id="L468">    Checks.notNull(filter, &quot;Filter&quot;);</span>
+<span class="nc" id="L469">    Checks.notNull(message, &quot;Message&quot;);</span>
+<span class="nc" id="L470">    final RequestBody body = message.getBody();</span>
+<span class="nc" id="L471">    final List&lt;RequestFuture&lt;?&gt;&gt; callbacks = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L472" title="All 2 branches missed.">    for (WebhookClient client : webhooks) {</span>
+<span class="nc bnc" id="L473" title="All 2 branches missed.">      if (filter.test(client)) callbacks.add(client.execute(body));</span>
+<span class="nc" id="L474">    }</span>
+<span class="nc" id="L475">    return callbacks;</span>
+  }
+
+  /**
+   * Sends the provided {@link net.dv8tion.jda.webhook.WebhookMessage WebhookMessage} to all
+   * registered {@link net.dv8tion.jda.webhook.WebhookClient WebhookClients}.
+   *
+   * &lt;p&gt;Hint: Use {@link net.dv8tion.jda.webhook.WebhookMessageBuilder WebhookMessageBuilder} to
+   * create a {@link net.dv8tion.jda.webhook.WebhookMessage WebhookMessage} instance!
+   *
+   * @param message The message that should be sent to the clients
+   * @throws java.lang.IllegalArgumentException If any of the provided arguments is {@code null}
+   * @throws java.util.concurrent.RejectedExecutionException If any of the receivers has been
+   *     shutdown
+   * @throws net.dv8tion.jda.core.exceptions.HttpException If the HTTP request fails
+   * @return A list of {@link java.util.concurrent.Future Future} instances representing all message
+   *     tasks.
+   */
+  public List&lt;RequestFuture&lt;?&gt;&gt; broadcast(WebhookMessage message) {
+<span class="nc" id="L494">    Checks.notNull(message, &quot;Message&quot;);</span>
+<span class="nc" id="L495">    final RequestBody body = message.getBody();</span>
+<span class="nc" id="L496">    final List&lt;RequestFuture&lt;?&gt;&gt; callbacks = new ArrayList&lt;&gt;(webhooks.size());</span>
+<span class="nc bnc" id="L497" title="All 2 branches missed.">    for (WebhookClient webhook : webhooks) callbacks.add(webhook.execute(body));</span>
+<span class="nc" id="L498">    return callbacks;</span>
+  }
+
+  /**
+   * Sends the provided {@link net.dv8tion.jda.core.entities.Message Message} to all registered
+   * {@link net.dv8tion.jda.webhook.WebhookClient WebhookClients}.
+   *
+   * &lt;p&gt;Hint: Use {@link net.dv8tion.jda.core.MessageBuilder MessageBuilder} to create a {@link
+   * net.dv8tion.jda.core.entities.Message Message} instance!
+   *
+   * @param message The message that should be sent to the clients
+   * @throws java.lang.IllegalArgumentException If the provided message is {@code null}
+   * @throws java.util.concurrent.RejectedExecutionException If any of the receivers has been
+   *     shutdown
+   * @throws net.dv8tion.jda.core.exceptions.HttpException If the HTTP request fails
+   * @return A list of {@link java.util.concurrent.Future Future} instances representing all message
+   *     tasks.
+   */
+  public List&lt;RequestFuture&lt;?&gt;&gt; broadcast(Message message) {
+<span class="nc" id="L517">    return broadcast(WebhookMessage.from(message));</span>
+  }
+
+  /**
+   * Sends the provided {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbeds} to all
+   * registered {@link net.dv8tion.jda.webhook.WebhookClient WebhookClients}.
+   *
+   * &lt;p&gt;&lt;b&gt;You can send up to 10 embeds per message! If more are sent they will not be
+   * displayed.&lt;/b&gt;
+   *
+   * &lt;p&gt;Hint: Use {@link net.dv8tion.jda.core.EmbedBuilder EmbedBuilder} to create a {@link
+   * net.dv8tion.jda.core.entities.MessageEmbed MessageEmbeds} instance!
+   *
+   * @param embeds The embeds that should be sent to the clients
+   * @throws java.lang.IllegalArgumentException If any of the provided arguments is {@code null}
+   * @throws java.util.concurrent.RejectedExecutionException If any of the receivers has been
+   *     shutdown
+   * @throws net.dv8tion.jda.core.exceptions.HttpException If the HTTP request fails
+   * @return A list of {@link java.util.concurrent.Future Future} instances representing all message
+   *     tasks.
+   */
+  public List&lt;RequestFuture&lt;?&gt;&gt; broadcast(MessageEmbed... embeds) {
+<span class="nc" id="L539">    return broadcast(WebhookMessage.of(embeds));</span>
+  }
+
+  /**
+   * Sends the provided {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbeds} to all
+   * registered {@link net.dv8tion.jda.webhook.WebhookClient WebhookClients}.
+   *
+   * &lt;p&gt;&lt;b&gt;You can send up to 10 embeds per message! If more are sent they will not be
+   * displayed.&lt;/b&gt;
+   *
+   * &lt;p&gt;Hint: Use {@link net.dv8tion.jda.core.EmbedBuilder EmbedBuilder} to create a {@link
+   * net.dv8tion.jda.core.entities.MessageEmbed MessageEmbeds} instance!
+   *
+   * @param embeds The embeds that should be sent to the clients
+   * @throws java.lang.IllegalArgumentException If any of the provided arguments is {@code null}
+   * @throws java.util.concurrent.RejectedExecutionException If any of the receivers has been
+   *     shutdown
+   * @throws net.dv8tion.jda.core.exceptions.HttpException If the HTTP request fails
+   * @return A list of {@link java.util.concurrent.Future Future} instances representing all message
+   *     tasks.
+   */
+  public List&lt;RequestFuture&lt;?&gt;&gt; broadcast(Collection&lt;MessageEmbed&gt; embeds) {
+<span class="nc" id="L561">    return broadcast(WebhookMessage.of(embeds));</span>
+  }
+
+  /**
+   * Sends the provided text message to all registered {@link net.dv8tion.jda.webhook.WebhookClient
+   * WebhookClients}.
+   *
+   * @param content The text that should be sent to the clients
+   * @throws java.lang.IllegalArgumentException If the provided content is {@code null} or blank
+   * @throws java.util.concurrent.RejectedExecutionException If any of the receivers has been
+   *     shutdown
+   * @throws net.dv8tion.jda.core.exceptions.HttpException If the HTTP request fails
+   * @return A list of {@link java.util.concurrent.Future Future} instances representing all message
+   *     tasks.
+   */
+  public List&lt;RequestFuture&lt;?&gt;&gt; broadcast(String content) {
+<span class="nc" id="L577">    Checks.notBlank(content, &quot;Content&quot;);</span>
+<span class="nc bnc" id="L578" title="All 2 branches missed.">    Checks.check(content.length() &lt;= 2000, &quot;Content may not exceed 2000 characters!&quot;);</span>
+<span class="nc" id="L579">    final RequestBody body =</span>
+<span class="nc" id="L580">        WebhookClient.newBody(new JSONObject().put(&quot;content&quot;, content).toString());</span>
+<span class="nc" id="L581">    final List&lt;RequestFuture&lt;?&gt;&gt; callbacks = new ArrayList&lt;&gt;(webhooks.size());</span>
+<span class="nc bnc" id="L582" title="All 2 branches missed.">    for (WebhookClient webhook : webhooks) callbacks.add(webhook.execute(body));</span>
+<span class="nc" id="L583">    return callbacks;</span>
+  }
+
+  /**
+   * Sends the provided {@link java.io.File File} to all registered {@link
+   * net.dv8tion.jda.webhook.WebhookClient WebhookClients}.
+   *
+   * &lt;p&gt;&lt;b&gt;The provided data should not exceed 8MB in size!&lt;/b&gt;
+   *
+   * @param file The file that should be sent to the clients
+   * @throws java.lang.IllegalArgumentException If the provided file is {@code null}, does not exist
+   *     or ist not readable
+   * @throws java.util.concurrent.RejectedExecutionException If any of the receivers has been
+   *     shutdown
+   * @throws net.dv8tion.jda.core.exceptions.HttpException If the HTTP request fails
+   * @return A list of {@link java.util.concurrent.Future Future} instances representing all message
+   *     tasks.
+   */
+  public List&lt;RequestFuture&lt;?&gt;&gt; broadcast(File file) {
+<span class="nc" id="L602">    Checks.notNull(file, &quot;File&quot;);</span>
+<span class="nc" id="L603">    return broadcast(file, file.getName());</span>
+  }
+
+  /**
+   * Sends the provided {@link java.io.File File} to all registered {@link
+   * net.dv8tion.jda.webhook.WebhookClient WebhookClients}.
+   *
+   * &lt;p&gt;&lt;b&gt;The provided data should not exceed 8MB in size!&lt;/b&gt;
+   *
+   * @param file The file that should be sent to the clients
+   * @param fileName The name that should be given to the file
+   * @throws java.lang.IllegalArgumentException If the provided file is {@code null}, does not exist
+   *     or ist not readable
+   * @throws java.util.concurrent.RejectedExecutionException If any of the receivers has been
+   *     shutdown
+   * @throws net.dv8tion.jda.core.exceptions.HttpException If the HTTP request fails
+   * @return A list of {@link java.util.concurrent.Future Future} instances representing all message
+   *     tasks.
+   */
+  public List&lt;RequestFuture&lt;?&gt;&gt; broadcast(File file, String fileName) {
+<span class="nc" id="L623">    Checks.notNull(file, &quot;File&quot;);</span>
+<span class="nc" id="L624">    Checks.check(</span>
+<span class="nc bnc" id="L625" title="All 2 branches missed.">        file.length() &lt;= Message.MAX_FILE_SIZE, &quot;Provided File exceeds the maximum size of 8MB!&quot;);</span>
+<span class="nc" id="L626">    return broadcast(new WebhookMessageBuilder().setFile(file, fileName).build());</span>
+  }
+
+  /**
+   * Sends the provided {@link java.io.InputStream InputStream} as an attachment to all registered
+   * {@link net.dv8tion.jda.webhook.WebhookClient WebhookClients}.
+   *
+   * &lt;p&gt;&lt;b&gt;The provided data should not exceed 8MB in size!&lt;/b&gt;
+   *
+   * @param data The data that should be sent to the clients
+   * @param fileName The name that should be given to the attachment
+   * @throws java.lang.IllegalArgumentException If the provided data is {@code null}
+   * @throws java.util.concurrent.RejectedExecutionException If any of the receivers has been
+   *     shutdown
+   * @throws net.dv8tion.jda.core.exceptions.HttpException If the HTTP request fails
+   * @return A list of {@link java.util.concurrent.Future Future} instances representing all message
+   *     tasks.
+   */
+  public List&lt;RequestFuture&lt;?&gt;&gt; broadcast(InputStream data, String fileName) {
+<span class="nc" id="L645">    return broadcast(new WebhookMessageBuilder().setFile(data, fileName).build());</span>
+  }
+
+  /**
+   * Sends the provided {@code byte[]} data as an attachment to all registered {@link
+   * net.dv8tion.jda.webhook.WebhookClient WebhookClients}.
+   *
+   * &lt;p&gt;&lt;b&gt;The provided data should not exceed 8MB in size!&lt;/b&gt;
+   *
+   * @param data The data that should be sent to the clients
+   * @param fileName The name that should be given to the attachment
+   * @throws java.lang.IllegalArgumentException If the provided data is {@code null}
+   * @throws java.util.concurrent.RejectedExecutionException If any of the receivers has been
+   *     shutdown
+   * @throws net.dv8tion.jda.core.exceptions.HttpException If the HTTP request fails
+   * @return A list of {@link java.util.concurrent.Future Future} instances representing all message
+   *     tasks.
+   */
+  public List&lt;RequestFuture&lt;?&gt;&gt; broadcast(byte[] data, String fileName) {
+<span class="nc" id="L664">    Checks.notNull(data, &quot;Data&quot;);</span>
+<span class="nc bnc" id="L665" title="All 2 branches missed.">    Checks.check(</span>
+        data.length &lt; Message.MAX_FILE_SIZE, &quot;Provided data exceeds the maximum size of 8MB!&quot;);
+<span class="nc" id="L667">    return broadcast(new WebhookMessageBuilder().setFile(data, fileName).build());</span>
+  }
+
+  /**
+   * Closes all registered {@link net.dv8tion.jda.webhook.WebhookClient WebhookClients} and removes
+   * the from this cluster!
+   */
+  @Override
+  public void close() {
+<span class="nc" id="L676">    webhooks.forEach(WebhookClient::close);</span>
+<span class="nc" id="L677">    webhooks.clear();</span>
+<span class="nc" id="L678">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

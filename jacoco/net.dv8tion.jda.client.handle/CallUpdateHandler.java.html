@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CallUpdateHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">net.dv8tion.jda.client.handle</a> &gt; <span class="el_source">CallUpdateHandler.java</span></div><h1>CallUpdateHandler.java</h1><pre class="source lang-java linenums">/*
+ *     Copyright 2015-2018 Austin Keener &amp; Michael Ritter &amp; Florian Spieß
+ *     Copyright 2018-2018 &quot;Princess&quot; Lana Samson
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package net.dv8tion.jda.client.handle;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import net.dv8tion.jda.client.entities.CallUser;
+import net.dv8tion.jda.client.entities.CallableChannel;
+import net.dv8tion.jda.client.entities.impl.CallImpl;
+import net.dv8tion.jda.client.entities.impl.CallUserImpl;
+import net.dv8tion.jda.client.events.call.update.CallUpdateRegionEvent;
+import net.dv8tion.jda.client.events.call.update.CallUpdateRingingUsersEvent;
+import net.dv8tion.jda.core.Region;
+import net.dv8tion.jda.core.entities.impl.JDAImpl;
+import net.dv8tion.jda.core.handle.EventCache;
+import net.dv8tion.jda.core.handle.SocketHandler;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+public class CallUpdateHandler extends SocketHandler {
+  public CallUpdateHandler(JDAImpl api) {
+<span class="nc" id="L37">    super(api);</span>
+<span class="nc" id="L38">  }</span>
+
+  @Override
+  protected Long handleInternally(JSONObject content) {
+<span class="nc" id="L42">    final long channelId = content.getLong(&quot;channel_id&quot;);</span>
+<span class="nc" id="L43">    JSONArray ringing = content.getJSONArray(&quot;ringing&quot;);</span>
+<span class="nc" id="L44">    Region region = Region.fromKey(content.getString(&quot;region&quot;));</span>
+
+<span class="nc" id="L46">    CallableChannel channel = api.asClient().getGroupById(channelId);</span>
+<span class="nc bnc" id="L47" title="All 2 branches missed.">    if (channel == null) channel = api.getPrivateChannelMap().get(channelId);</span>
+<span class="nc bnc" id="L48" title="All 2 branches missed.">    if (channel == null) {</span>
+<span class="nc" id="L49">      api.getEventCache()</span>
+<span class="nc" id="L50">          .cache(EventCache.Type.CHANNEL, channelId, () -&gt; handle(responseNumber, allContent));</span>
+<span class="nc" id="L51">      EventCache.LOG.debug(</span>
+          &quot;Received a CALL_UPDATE for a Group/PrivateChannel that has not yet been cached. JSON: {}&quot;,
+          content);
+<span class="nc" id="L54">      return null;</span>
+    }
+
+<span class="nc" id="L57">    CallImpl call = (CallImpl) channel.getCurrentCall();</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">    if (call == null) {</span>
+<span class="nc" id="L59">      api.getEventCache()</span>
+<span class="nc" id="L60">          .cache(EventCache.Type.CALL, channelId, () -&gt; handle(responseNumber, allContent));</span>
+<span class="nc" id="L61">      EventCache.LOG.debug(</span>
+          &quot;Received a CALL_UPDATE for a Call that has not yet been cached. JSON: {}&quot;, content);
+<span class="nc" id="L63">      return null;</span>
+    }
+
+<span class="nc bnc" id="L66" title="All 2 branches missed.">    if (!Objects.equals(region, call.getRegion())) {</span>
+<span class="nc" id="L67">      Region oldRegion = call.getRegion();</span>
+<span class="nc" id="L68">      call.setRegion(region);</span>
+<span class="nc" id="L69">      api.getEventManager()</span>
+<span class="nc" id="L70">          .handle(</span>
+              new CallUpdateRegionEvent(
+                  api, responseNumber,
+                  call, oldRegion));
+    }
+
+    // Deal with CallUser ringing status changes
+<span class="nc bnc" id="L77" title="All 2 branches missed.">    if (ringing.length() &gt; 0) {</span>
+<span class="nc" id="L78">      List&lt;Long&gt; givenRingingIds = toLongList(ringing);</span>
+<span class="nc" id="L79">      List&lt;CallUser&gt; stoppedRingingUsers = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L80">      List&lt;CallUser&gt; startedRingingUsers = new ArrayList&lt;&gt;();</span>
+
+<span class="nc bnc" id="L82" title="All 2 branches missed.">      for (CallUser cUser : call.getRingingUsers()) {</span>
+<span class="nc" id="L83">        final long userId = cUser.getUser().getIdLong();</span>
+
+        // If the ringing user is no longer ringing, change the ringing status
+<span class="nc bnc" id="L86" title="All 2 branches missed.">        if (!givenRingingIds.contains(userId)) {</span>
+<span class="nc" id="L87">          ((CallUserImpl) cUser).setRinging(false);</span>
+<span class="nc" id="L88">          stoppedRingingUsers.add(cUser);</span>
+        } else {
+<span class="nc" id="L90">          givenRingingIds.remove(userId);</span>
+        }
+<span class="nc" id="L92">      }</span>
+
+      // Any Ids that are users that have started ringing, so we need to set their ringing status as
+      // such
+<span class="nc bnc" id="L96" title="All 2 branches missed.">      for (long userId : givenRingingIds) {</span>
+<span class="nc" id="L97">        CallUserImpl cUser = (CallUserImpl) call.getCallUserMap().get(userId);</span>
+<span class="nc" id="L98">        cUser.setRinging(true);</span>
+<span class="nc" id="L99">        startedRingingUsers.add(cUser);</span>
+<span class="nc" id="L100">      }</span>
+
+<span class="nc bnc" id="L102" title="All 4 branches missed.">      if (stoppedRingingUsers.size() &gt; 0 || startedRingingUsers.size() &gt; 0) {</span>
+<span class="nc" id="L103">        api.getEventManager()</span>
+<span class="nc" id="L104">            .handle(</span>
+                new CallUpdateRingingUsersEvent(
+                    api, responseNumber, call, stoppedRingingUsers, startedRingingUsers));
+      }
+    }
+<span class="nc" id="L109">    return null;</span>
+  }
+
+  private List&lt;Long&gt; toLongList(JSONArray array) {
+<span class="nc" id="L113">    List&lt;Long&gt; longs = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">    for (int i = 0; i &lt; array.length(); i++) longs.add(array.getLong(i));</span>
+
+<span class="nc" id="L116">    return longs;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

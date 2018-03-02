@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>VoiceCode.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">net.dv8tion.jda.core.audio</a> &gt; <span class="el_source">VoiceCode.java</span></div><h1>VoiceCode.java</h1><pre class="source lang-java linenums">/*
+ *     Copyright 2015-2018 Austin Keener &amp; Michael Ritter &amp; Florian Spieß
+ *     Copyright 2018-2018 &quot;Princess&quot; Lana Samson
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package net.dv8tion.jda.core.audio;
+
+<span class="nc" id="L19">public final class VoiceCode {</span>
+  // PROTOCOL
+  public static final int IDENTIFY = 0;
+  public static final int SELECT_PROTOCOL = 1;
+  public static final int READY = 2;
+  public static final int HEARTBEAT = 3;
+  public static final int SESSION_DESCRIPTION = 4;
+  public static final int USER_SPEAKING_UPDATE = 5;
+  public static final int HEARTBEAT_ACK = 6;
+  public static final int RESUME = 7;
+  public static final int HELLO = 8;
+  public static final int RESUMED = 9;
+  //    public static final int USER_CONNECT = 12;
+  public static final int USER_DISCONNECT = 13;
+
+  // CLOSE
+<span class="nc" id="L35">  public enum Close {</span>
+<span class="nc" id="L36">    HEARTBEAT_TIMEOUT(1000, &quot;We did not heartbeat in time&quot;),</span>
+<span class="nc" id="L37">    UNKNOWN_OP_CODE(4001, &quot;Sent an invalid op code&quot;),</span>
+<span class="nc" id="L38">    NOT_AUTHENTICATED(4003, &quot;Tried to send payload before authenticating session&quot;),</span>
+<span class="nc" id="L39">    AUTHENTICATION_FAILED(4004, &quot;The token sent in the identify payload is incorrect&quot;),</span>
+<span class="nc" id="L40">    ALREADY_AUTHENTICATED(4005, &quot;Tried to authenticate when already authenticated&quot;),</span>
+<span class="nc" id="L41">    INVALID_SESSION(4006, &quot;The session with which we attempted to resume is invalid&quot;),</span>
+<span class="nc" id="L42">    SESSION_TIMEOUT(4009, &quot;Heartbeat timed out&quot;),</span>
+<span class="nc" id="L43">    SERVER_NOT_FOUND(4011, &quot;The server we attempted to connect to was not found&quot;),</span>
+<span class="nc" id="L44">    UNKNOWN_PROTOCOL(4012, &quot;The selected protocol is not supported&quot;),</span>
+<span class="nc" id="L45">    DISCONNECTED(4014, &quot;The connection has been dropped normally&quot;),</span>
+<span class="nc" id="L46">    SERVER_CRASH(4015, &quot;The server we were connected to has crashed&quot;),</span>
+<span class="nc" id="L47">    UNKNOWN_ENCRYPTION_MODE(4016, &quot;The specified encryption method is not supported&quot;),</span>
+
+<span class="nc" id="L49">    UNKNOWN(0, &quot;Unknown code&quot;);</span>
+
+    private final int code;
+    private final String meaning;
+
+<span class="nc" id="L54">    Close(final int code, final String meaning) {</span>
+<span class="nc" id="L55">      this.code = code;</span>
+<span class="nc" id="L56">      this.meaning = meaning;</span>
+<span class="nc" id="L57">    }</span>
+
+    public static Close from(int code) {
+<span class="nc bnc" id="L60" title="All 2 branches missed.">      for (Close c : values()) {</span>
+<span class="nc bnc" id="L61" title="All 2 branches missed.">        if (c.code == code) return c;</span>
+      }
+<span class="nc" id="L63">      return UNKNOWN;</span>
+    }
+
+    public int getCode() {
+<span class="nc" id="L67">      return code;</span>
+    }
+
+    public String getMeaning() {
+<span class="nc" id="L71">      return meaning;</span>
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>
