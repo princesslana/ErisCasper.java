@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ErisCasper.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">com.github.princesslana.eriscasper</a> &gt; <span class="el_source">ErisCasper.java</span></div><h1>ErisCasper.java</h1><pre class="source lang-java linenums">package com.github.princesslana.eriscasper;
+
+import io.reactivex.Observable;
+import javax.security.auth.login.LoginException;
+import net.dv8tion.jda.core.AccountType;
+import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.JDABuilder;
+import net.dv8tion.jda.core.events.Event;
+import net.dv8tion.jda.core.hooks.EventListener;
+
+public class ErisCasper {
+
+  private final Observable&lt;Event&gt; events;
+
+<span class="fc" id="L15">  public ErisCasper(Observable&lt;Event&gt; events) {</span>
+<span class="fc" id="L16">    this.events = events;</span>
+<span class="fc" id="L17">  }</span>
+
+  public Observable&lt;Event&gt; events() {
+<span class="fc" id="L20">    return events;</span>
+  }
+
+  public static ErisCasper create() {
+    try {
+<span class="nc" id="L25">      return create(</span>
+<span class="nc" id="L26">          new JDABuilder(AccountType.BOT).setToken(System.getenv(&quot;EC_TOKEN&quot;)).buildBlocking());</span>
+<span class="nc" id="L27">    } catch (InterruptedException | LoginException e) {</span>
+<span class="nc" id="L28">      throw new ErisCasperFatalException(&quot;Error building JDA instance&quot;, e);</span>
+    }
+  }
+
+  public static ErisCasper create(JDA jda) {
+<span class="fc" id="L33">    Observable&lt;Event&gt; events =</span>
+<span class="fc" id="L34">        Observable.create(</span>
+            emitter -&gt; {
+<span class="fc" id="L36">              EventListener el = emitter::onNext;</span>
+<span class="fc" id="L37">              jda.addEventListener(el);</span>
+<span class="fc" id="L38">            });</span>
+
+<span class="fc" id="L40">    return new ErisCasper(events);</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

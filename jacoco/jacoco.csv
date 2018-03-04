@@ -195,9 +195,6 @@ ErisCasper.java,net.dv8tion.jda.core.events.user,UserOnlineStatusUpdateEvent,24,
 ErisCasper.java,net.dv8tion.jda.core.events.user,GenericUserPresenceEvent,42,0,6,0,7,0,8,0,5,0
 ErisCasper.java,net.dv8tion.jda.core.events.user,UserAvatarUpdateEvent,35,0,2,0,6,0,4,0,3,0
 ErisCasper.java,net.dv8tion.jda.core.events.user,UserNameUpdateEvent,18,0,0,0,6,0,3,0,3,0
-ErisCasper.java,com.github.lana.eriscasper,ErisCasper,17,33,0,0,4,10,1,4,1,4
-ErisCasper.java,com.github.lana.eriscasper,Message,36,0,0,0,10,0,5,0,5,0
-ErisCasper.java,com.github.lana.eriscasper,ErisCasperFatalException,16,0,0,0,8,0,4,0,4,0
 ErisCasper.java,net.dv8tion.jda.core.events.role.update,RoleUpdateMentionableEvent,12,0,0,0,4,0,2,0,2,0
 ErisCasper.java,net.dv8tion.jda.core.events.role.update,RoleUpdatePermissionsEvent,17,0,0,0,5,0,3,0,3,0
 ErisCasper.java,net.dv8tion.jda.core.events.role.update,GenericRoleUpdateEvent,6,0,0,0,2,0,1,0,1,0
@@ -421,6 +418,9 @@ ErisCasper.java,net.dv8tion.jda.core.events.guild.voice,GuildVoiceMoveEvent,15,0
 ErisCasper.java,net.dv8tion.jda.core.events.guild.voice,GuildVoiceSuppressEvent,14,0,0,0,4,0,2,0,2,0
 ErisCasper.java,net.dv8tion.jda.client.managers.fields,ApplicationField,5,0,0,0,2,0,1,0,1,0
 ErisCasper.java,net.dv8tion.jda.client.managers.fields,EmoteField,5,0,0,0,2,0,1,0,1,0
+ErisCasper.java,com.github.princesslana.eriscasper,ErisCasperFatalException,16,0,0,0,8,0,4,0,4,0
+ErisCasper.java,com.github.princesslana.eriscasper,ErisCasper,17,33,0,0,4,10,1,4,1,4
+ErisCasper.java,com.github.princesslana.eriscasper,Message,36,0,0,0,10,0,5,0,5,0
 ErisCasper.java,net.dv8tion.jda.core.requests.ratelimit,BotRateLimiter,267,0,26,0,66,0,22,0,9,0
 ErisCasper.java,net.dv8tion.jda.core.requests.ratelimit,BotRateLimiter.Bucket,286,0,34,0,73,0,27,0,10,0
 ErisCasper.java,net.dv8tion.jda.core.requests.ratelimit,IBucket,7,0,2,0,1,0,2,0,1,0
