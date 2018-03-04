@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 import javax.security.auth.login.LoginException;
 import net.dv8tion.jda.core.JDA.Status;
-import net.dv8tion.jda.core.audio.factory.IAudioSendFactory;
 import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.impl.JDAImpl;
 import net.dv8tion.jda.core.exceptions.AccountTypeException;
@@ -49,26 +48,25 @@ import okhttp3.OkHttpClient;
 public class JDABuilder {
   protected final List&lt;Object&gt; listeners;
 
-<span class="nc" id="L52">  protected ConcurrentMap&lt;String, String&gt; contextMap = null;</span>
-<span class="nc" id="L53">  protected boolean enableContext = true;</span>
-<span class="nc" id="L54">  protected SessionController controller = null;</span>
-<span class="nc" id="L55">  protected OkHttpClient.Builder httpClientBuilder = null;</span>
-<span class="nc" id="L56">  protected WebSocketFactory wsFactory = null;</span>
+<span class="nc" id="L51">  protected ConcurrentMap&lt;String, String&gt; contextMap = null;</span>
+<span class="nc" id="L52">  protected boolean enableContext = true;</span>
+<span class="nc" id="L53">  protected SessionController controller = null;</span>
+<span class="nc" id="L54">  protected OkHttpClient.Builder httpClientBuilder = null;</span>
+<span class="nc" id="L55">  protected WebSocketFactory wsFactory = null;</span>
   protected AccountType accountType;
-<span class="nc" id="L58">  protected String token = null;</span>
-<span class="nc" id="L59">  protected IEventManager eventManager = null;</span>
-<span class="nc" id="L60">  protected IAudioSendFactory audioSendFactory = null;</span>
-<span class="nc" id="L61">  protected JDA.ShardInfo shardInfo = null;</span>
-<span class="nc" id="L62">  protected Game game = null;</span>
-<span class="nc" id="L63">  protected OnlineStatus status = OnlineStatus.ONLINE;</span>
-<span class="nc" id="L64">  protected int maxReconnectDelay = 900;</span>
-<span class="nc" id="L65">  protected int corePoolSize = 2;</span>
-<span class="nc" id="L66">  protected boolean enableVoice = true;</span>
-<span class="nc" id="L67">  protected boolean enableShutdownHook = true;</span>
-<span class="nc" id="L68">  protected boolean enableBulkDeleteSplitting = true;</span>
-<span class="nc" id="L69">  protected boolean autoReconnect = true;</span>
-<span class="nc" id="L70">  protected boolean idle = false;</span>
-<span class="nc" id="L71">  protected boolean requestTimeoutRetry = true;</span>
+<span class="nc" id="L57">  protected String token = null;</span>
+<span class="nc" id="L58">  protected IEventManager eventManager = null;</span>
+<span class="nc" id="L59">  protected JDA.ShardInfo shardInfo = null;</span>
+<span class="nc" id="L60">  protected Game game = null;</span>
+<span class="nc" id="L61">  protected OnlineStatus status = OnlineStatus.ONLINE;</span>
+<span class="nc" id="L62">  protected int maxReconnectDelay = 900;</span>
+<span class="nc" id="L63">  protected int corePoolSize = 2;</span>
+<span class="nc" id="L64">  protected boolean enableVoice = true;</span>
+<span class="nc" id="L65">  protected boolean enableShutdownHook = true;</span>
+<span class="nc" id="L66">  protected boolean enableBulkDeleteSplitting = true;</span>
+<span class="nc" id="L67">  protected boolean autoReconnect = true;</span>
+<span class="nc" id="L68">  protected boolean idle = false;</span>
+<span class="nc" id="L69">  protected boolean requestTimeoutRetry = true;</span>
 
   /**
    * Creates a completely empty JDABuilder. &lt;br&gt;
@@ -80,12 +78,12 @@ public class JDABuilder {
    * @param accountType The {@link net.dv8tion.jda.core.AccountType AccountType}.
    * @throws IllegalArgumentException If the given AccountType is {@code null}
    */
-<span class="nc" id="L83">  public JDABuilder(AccountType accountType) {</span>
-<span class="nc" id="L84">    Checks.notNull(accountType, &quot;accountType&quot;);</span>
+<span class="nc" id="L81">  public JDABuilder(AccountType accountType) {</span>
+<span class="nc" id="L82">    Checks.notNull(accountType, &quot;accountType&quot;);</span>
 
-<span class="nc" id="L86">    this.accountType = accountType;</span>
-<span class="nc" id="L87">    this.listeners = new LinkedList&lt;&gt;();</span>
-<span class="nc" id="L88">  }</span>
+<span class="nc" id="L84">    this.accountType = accountType;</span>
+<span class="nc" id="L85">    this.listeners = new LinkedList&lt;&gt;();</span>
+<span class="nc" id="L86">  }</span>
 
   /**
    * Sets the {@link org.slf4j.MDC MDC} mappings to use in JDA. &lt;br&gt;
@@ -103,9 +101,9 @@ public class JDABuilder {
    * @see #setContextEnabled(boolean)
    */
   public JDABuilder setContextMap(ConcurrentMap&lt;String, String&gt; map) {
-<span class="nc" id="L106">    this.contextMap = map;</span>
-<span class="nc bnc" id="L107" title="All 2 branches missed.">    if (map != null) this.enableContext = true;</span>
-<span class="nc" id="L108">    return this;</span>
+<span class="nc" id="L104">    this.contextMap = map;</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">    if (map != null) this.enableContext = true;</span>
+<span class="nc" id="L106">    return this;</span>
   }
 
   /**
@@ -118,8 +116,8 @@ public class JDABuilder {
    * @see #setContextMap(java.util.concurrent.ConcurrentMap)
    */
   public JDABuilder setContextEnabled(boolean enable) {
-<span class="nc" id="L121">    this.enableContext = enable;</span>
-<span class="nc" id="L122">    return this;</span>
+<span class="nc" id="L119">    this.enableContext = enable;</span>
+<span class="nc" id="L120">    return this;</span>
   }
 
   /**
@@ -134,8 +132,8 @@ public class JDABuilder {
    * @return The JDABuilder instance. Useful for chaining.
    */
   public JDABuilder setRequestTimeoutRetry(boolean retryOnTimeout) {
-<span class="nc" id="L137">    this.requestTimeoutRetry = retryOnTimeout;</span>
-<span class="nc" id="L138">    return this;</span>
+<span class="nc" id="L135">    this.requestTimeoutRetry = retryOnTimeout;</span>
+<span class="nc" id="L136">    return this;</span>
   }
 
   /**
@@ -171,8 +169,8 @@ public class JDABuilder {
    * @return The JDABuilder instance. Useful for chaining.
    */
   public JDABuilder setToken(String token) {
-<span class="nc" id="L174">    this.token = token;</span>
-<span class="nc" id="L175">    return this;</span>
+<span class="nc" id="L172">    this.token = token;</span>
+<span class="nc" id="L173">    return this;</span>
   }
 
   /**
@@ -183,8 +181,8 @@ public class JDABuilder {
    * @return The JDABuilder instance. Useful for chaining.
    */
   public JDABuilder setHttpClientBuilder(OkHttpClient.Builder builder) {
-<span class="nc" id="L186">    this.httpClientBuilder = builder;</span>
-<span class="nc" id="L187">    return this;</span>
+<span class="nc" id="L184">    this.httpClientBuilder = builder;</span>
+<span class="nc" id="L185">    return this;</span>
   }
 
   /**
@@ -197,8 +195,8 @@ public class JDABuilder {
    * @return The JDABuilder instance. Useful for chaining.
    */
   public JDABuilder setWebsocketFactory(WebSocketFactory factory) {
-<span class="nc" id="L200">    this.wsFactory = factory;</span>
-<span class="nc" id="L201">    return this;</span>
+<span class="nc" id="L198">    this.wsFactory = factory;</span>
+<span class="nc" id="L199">    return this;</span>
   }
 
   /**
@@ -211,9 +209,9 @@ public class JDABuilder {
    * @return The JDABuilder instance. Useful for chaining.
    */
   public JDABuilder setCorePoolSize(int size) {
-<span class="nc" id="L214">    Checks.positive(size, &quot;Core pool size&quot;);</span>
-<span class="nc" id="L215">    this.corePoolSize = size;</span>
-<span class="nc" id="L216">    return this;</span>
+<span class="nc" id="L212">    Checks.positive(size, &quot;Core pool size&quot;);</span>
+<span class="nc" id="L213">    this.corePoolSize = size;</span>
+<span class="nc" id="L214">    return this;</span>
   }
 
   /**
@@ -226,8 +224,8 @@ public class JDABuilder {
    * @return The JDABuilder instance. Useful for chaining.
    */
   public JDABuilder setAudioEnabled(boolean enabled) {
-<span class="nc" id="L229">    this.enableVoice = enabled;</span>
-<span class="nc" id="L230">    return this;</span>
+<span class="nc" id="L227">    this.enableVoice = enabled;</span>
+<span class="nc" id="L228">    return this;</span>
   }
 
   /**
@@ -243,8 +241,8 @@ public class JDABuilder {
    * @return The JDABuilder instance. Useful for chaining.
    */
   public JDABuilder setBulkDeleteSplittingEnabled(boolean enabled) {
-<span class="nc" id="L246">    this.enableBulkDeleteSplitting = enabled;</span>
-<span class="nc" id="L247">    return this;</span>
+<span class="nc" id="L244">    this.enableBulkDeleteSplitting = enabled;</span>
+<span class="nc" id="L245">    return this;</span>
   }
 
   /**
@@ -259,8 +257,8 @@ public class JDABuilder {
    *     chaining.
    */
   public JDABuilder setEnableShutdownHook(boolean enable) {
-<span class="nc" id="L262">    this.enableShutdownHook = enable;</span>
-<span class="nc" id="L263">    return this;</span>
+<span class="nc" id="L260">    this.enableShutdownHook = enable;</span>
+<span class="nc" id="L261">    return this;</span>
   }
 
   /**
@@ -273,8 +271,8 @@ public class JDABuilder {
    * @return The JDABuilder instance. Useful for chaining.
    */
   public JDABuilder setAutoReconnect(boolean autoReconnect) {
-<span class="nc" id="L276">    this.autoReconnect = autoReconnect;</span>
-<span class="nc" id="L277">    return this;</span>
+<span class="nc" id="L274">    this.autoReconnect = autoReconnect;</span>
+<span class="nc" id="L275">    return this;</span>
   }
 
   /**
@@ -299,24 +297,8 @@ public class JDABuilder {
    * @return The JDABuilder instance. Useful for chaining.
    */
   public JDABuilder setEventManager(IEventManager manager) {
-<span class="nc" id="L302">    this.eventManager = manager;</span>
-<span class="nc" id="L303">    return this;</span>
-  }
-
-  /**
-   * Changes the factory used to create {@link net.dv8tion.jda.core.audio.factory.IAudioSendSystem
-   * IAudioSendSystem} objects which handle the sending loop for audio packets. &lt;br&gt;
-   * By default, JDA uses {@link net.dv8tion.jda.core.audio.factory.DefaultSendFactory
-   * DefaultSendFactory}.
-   *
-   * @param factory The new {@link net.dv8tion.jda.core.audio.factory.IAudioSendFactory
-   *     IAudioSendFactory} to be used when creating new {@link
-   *     net.dv8tion.jda.core.audio.factory.IAudioSendSystem} objects.
-   * @return The JDABuilder instance. Useful for chaining.
-   */
-  public JDABuilder setAudioSendFactory(IAudioSendFactory factory) {
-<span class="nc" id="L318">    this.audioSendFactory = factory;</span>
-<span class="nc" id="L319">    return this;</span>
+<span class="nc" id="L300">    this.eventManager = manager;</span>
+<span class="nc" id="L301">    return this;</span>
   }
 
   /**
@@ -330,8 +312,8 @@ public class JDABuilder {
    * @see net.dv8tion.jda.core.managers.Presence#setIdle(boolean) Presence#setIdle(boolean)
    */
   public JDABuilder setIdle(boolean idle) {
-<span class="nc" id="L333">    this.idle = idle;</span>
-<span class="nc" id="L334">    return this;</span>
+<span class="nc" id="L315">    this.idle = idle;</span>
+<span class="nc" id="L316">    return this;</span>
   }
 
   /**
@@ -348,8 +330,8 @@ public class JDABuilder {
    * @see net.dv8tion.jda.core.managers.Presence#setGame(Game) Presence.setGame(Game)
    */
   public JDABuilder setGame(Game game) {
-<span class="nc" id="L351">    this.game = game;</span>
-<span class="nc" id="L352">    return this;</span>
+<span class="nc" id="L333">    this.game = game;</span>
+<span class="nc" id="L334">    return this;</span>
   }
 
   /**
@@ -370,10 +352,10 @@ public class JDABuilder {
    *     Presence.setStatus(OnlineStatus)
    */
   public JDABuilder setStatus(OnlineStatus status) {
-<span class="nc bnc" id="L373" title="All 4 branches missed.">    if (status == null || status == OnlineStatus.UNKNOWN)</span>
-<span class="nc" id="L374">      throw new IllegalArgumentException(&quot;OnlineStatus cannot be null or unknown!&quot;);</span>
-<span class="nc" id="L375">    this.status = status;</span>
-<span class="nc" id="L376">    return this;</span>
+<span class="nc bnc" id="L355" title="All 4 branches missed.">    if (status == null || status == OnlineStatus.UNKNOWN)</span>
+<span class="nc" id="L356">      throw new IllegalArgumentException(&quot;OnlineStatus cannot be null or unknown!&quot;);</span>
+<span class="nc" id="L357">    this.status = status;</span>
+<span class="nc" id="L358">    return this;</span>
   }
 
   /**
@@ -396,10 +378,10 @@ public class JDABuilder {
    * @see net.dv8tion.jda.core.JDA#addEventListener(Object...) JDA.addEventListener(Object...)
    */
   public JDABuilder addEventListener(Object... listeners) {
-<span class="nc" id="L399">    Checks.noneNull(listeners, &quot;listeners&quot;);</span>
+<span class="nc" id="L381">    Checks.noneNull(listeners, &quot;listeners&quot;);</span>
 
-<span class="nc" id="L401">    Collections.addAll(this.listeners, listeners);</span>
-<span class="nc" id="L402">    return this;</span>
+<span class="nc" id="L383">    Collections.addAll(this.listeners, listeners);</span>
+<span class="nc" id="L384">    return this;</span>
   }
 
   /**
@@ -412,10 +394,10 @@ public class JDABuilder {
    * @see net.dv8tion.jda.core.JDA#removeEventListener(Object...) JDA.removeEventListener(Object...)
    */
   public JDABuilder removeEventListener(Object... listeners) {
-<span class="nc" id="L415">    Checks.noneNull(listeners, &quot;listeners&quot;);</span>
+<span class="nc" id="L397">    Checks.noneNull(listeners, &quot;listeners&quot;);</span>
 
-<span class="nc" id="L417">    this.listeners.removeAll(Arrays.asList(listeners));</span>
-<span class="nc" id="L418">    return this;</span>
+<span class="nc" id="L399">    this.listeners.removeAll(Arrays.asList(listeners));</span>
+<span class="nc" id="L400">    return this;</span>
   }
 
   /**
@@ -430,13 +412,13 @@ public class JDABuilder {
    * @return The JDABuilder instance. Useful for chaining.
    */
   public JDABuilder setMaxReconnectDelay(int maxReconnectDelay) {
-<span class="nc bnc" id="L433" title="All 2 branches missed.">    Checks.check(</span>
+<span class="nc bnc" id="L415" title="All 2 branches missed.">    Checks.check(</span>
         maxReconnectDelay &gt;= 32,
         &quot;Max reconnect delay must be 32 seconds or greater. You provided %d.&quot;,
-<span class="nc" id="L436">        maxReconnectDelay);</span>
+<span class="nc" id="L418">        maxReconnectDelay);</span>
 
-<span class="nc" id="L438">    this.maxReconnectDelay = maxReconnectDelay;</span>
-<span class="nc" id="L439">    return this;</span>
+<span class="nc" id="L420">    this.maxReconnectDelay = maxReconnectDelay;</span>
+<span class="nc" id="L421">    return this;</span>
   }
 
   /**
@@ -462,14 +444,14 @@ public class JDABuilder {
    * @see net.dv8tion.jda.bot.sharding.ShardManager ShardManager
    */
   public JDABuilder useSharding(int shardId, int shardTotal) {
-<span class="nc" id="L465">    AccountTypeException.check(accountType, AccountType.BOT);</span>
-<span class="nc" id="L466">    Checks.notNegative(shardId, &quot;Shard ID&quot;);</span>
-<span class="nc" id="L467">    Checks.positive(shardTotal, &quot;Shard Total&quot;);</span>
-<span class="nc bnc" id="L468" title="All 2 branches missed.">    Checks.check(</span>
+<span class="nc" id="L447">    AccountTypeException.check(accountType, AccountType.BOT);</span>
+<span class="nc" id="L448">    Checks.notNegative(shardId, &quot;Shard ID&quot;);</span>
+<span class="nc" id="L449">    Checks.positive(shardTotal, &quot;Shard Total&quot;);</span>
+<span class="nc bnc" id="L450" title="All 2 branches missed.">    Checks.check(</span>
         shardId &lt; shardTotal,
         &quot;The shard ID must be lower than the shardTotal! Shard IDs are 0-based.&quot;);
-<span class="nc" id="L471">    shardInfo = new JDA.ShardInfo(shardId, shardTotal);</span>
-<span class="nc" id="L472">    return this;</span>
+<span class="nc" id="L453">    shardInfo = new JDA.ShardInfo(shardId, shardTotal);</span>
+<span class="nc" id="L454">    return this;</span>
   }
 
   /**
@@ -487,8 +469,8 @@ public class JDABuilder {
    * @see net.dv8tion.jda.core.utils.SessionControllerAdapter SessionControllerAdapter
    */
   public JDABuilder setSessionController(SessionController controller) {
-<span class="nc" id="L490">    this.controller = controller;</span>
-<span class="nc" id="L491">    return this;</span>
+<span class="nc" id="L472">    this.controller = controller;</span>
+<span class="nc" id="L473">    return this;</span>
   }
 
   /**
@@ -511,13 +493,13 @@ public class JDABuilder {
    *     unknown as to whether or not loading has finished when this returns.
    */
   public JDA buildAsync() throws LoginException {
-<span class="nc bnc" id="L514" title="All 2 branches missed.">    OkHttpClient.Builder httpClientBuilder =</span>
+<span class="nc bnc" id="L496" title="All 2 branches missed.">    OkHttpClient.Builder httpClientBuilder =</span>
         this.httpClientBuilder == null ? new OkHttpClient.Builder() : this.httpClientBuilder;
-<span class="nc bnc" id="L516" title="All 2 branches missed.">    WebSocketFactory wsFactory = this.wsFactory == null ? new WebSocketFactory() : this.wsFactory;</span>
+<span class="nc bnc" id="L498" title="All 2 branches missed.">    WebSocketFactory wsFactory = this.wsFactory == null ? new WebSocketFactory() : this.wsFactory;</span>
 
-<span class="nc bnc" id="L518" title="All 4 branches missed.">    if (controller == null &amp;&amp; shardInfo != null) controller = new SessionControllerAdapter();</span>
+<span class="nc bnc" id="L500" title="All 4 branches missed.">    if (controller == null &amp;&amp; shardInfo != null) controller = new SessionControllerAdapter();</span>
 
-<span class="nc" id="L520">    JDAImpl jda =</span>
+<span class="nc" id="L502">    JDAImpl jda =</span>
         new JDAImpl(
             accountType,
             token,
@@ -534,21 +516,21 @@ public class JDABuilder {
             maxReconnectDelay,
             contextMap);
 
-<span class="nc bnc" id="L537" title="All 2 branches missed.">    if (eventManager != null) jda.setEventManager(eventManager);</span>
+<span class="nc bnc" id="L519" title="All 2 branches missed.">    if (eventManager != null) jda.setEventManager(eventManager);</span>
 
-<span class="nc" id="L539">    listeners.forEach(jda::addEventListener);</span>
-<span class="nc" id="L540">    jda.setStatus(</span>
+<span class="nc" id="L521">    listeners.forEach(jda::addEventListener);</span>
+<span class="nc" id="L522">    jda.setStatus(</span>
         JDA.Status
             .INITIALIZED); // This is already set by JDA internally, but this is to make sure the
     // listeners catch it.
 
-<span class="nc" id="L545">    String gateway = jda.getGateway();</span>
+<span class="nc" id="L527">    String gateway = jda.getGateway();</span>
 
     // Set the presence information before connecting to have the correct information ready when
     // sending IDENTIFY
-<span class="nc" id="L549">    ((PresenceImpl) jda.getPresence()).setCacheGame(game).setCacheIdle(idle).setCacheStatus(status);</span>
-<span class="nc" id="L550">    jda.login(gateway, shardInfo);</span>
-<span class="nc" id="L551">    return jda;</span>
+<span class="nc" id="L531">    ((PresenceImpl) jda.getPresence()).setCacheGame(game).setCacheIdle(idle).setCacheStatus(status);</span>
+<span class="nc" id="L532">    jda.login(gateway, shardInfo);</span>
+<span class="nc" id="L533">    return jda;</span>
   }
 
   /**
@@ -582,21 +564,21 @@ public class JDABuilder {
    *     finished loading.
    */
   public JDA buildBlocking(JDA.Status status) throws LoginException, InterruptedException {
-<span class="nc" id="L585">    Checks.notNull(status, &quot;Status&quot;);</span>
-<span class="nc" id="L586">    Checks.check(</span>
-<span class="nc" id="L587">        status.isInit(),</span>
+<span class="nc" id="L567">    Checks.notNull(status, &quot;Status&quot;);</span>
+<span class="nc" id="L568">    Checks.check(</span>
+<span class="nc" id="L569">        status.isInit(),</span>
         &quot;Cannot await the status %s as it is not part of the login cycle!&quot;,
         status);
-<span class="nc" id="L590">    JDA jda = buildAsync();</span>
-<span class="nc bnc" id="L591" title="All 2 branches missed.">    while (!jda.getStatus().isInit() // JDA might disconnect while starting</span>
-<span class="nc bnc" id="L592" title="All 2 branches missed.">        || jda.getStatus().ordinal() &lt; status.ordinal()) // Wait until status is bypassed</span>
+<span class="nc" id="L572">    JDA jda = buildAsync();</span>
+<span class="nc bnc" id="L573" title="All 2 branches missed.">    while (!jda.getStatus().isInit() // JDA might disconnect while starting</span>
+<span class="nc bnc" id="L574" title="All 2 branches missed.">        || jda.getStatus().ordinal() &lt; status.ordinal()) // Wait until status is bypassed</span>
     {
-<span class="nc bnc" id="L594" title="All 2 branches missed.">      if (jda.getStatus() == Status.SHUTDOWN)</span>
-<span class="nc" id="L595">        throw new IllegalStateException(&quot;JDA was unable to finish starting up!&quot;);</span>
-<span class="nc" id="L596">      Thread.sleep(50);</span>
+<span class="nc bnc" id="L576" title="All 2 branches missed.">      if (jda.getStatus() == Status.SHUTDOWN)</span>
+<span class="nc" id="L577">        throw new IllegalStateException(&quot;JDA was unable to finish starting up!&quot;);</span>
+<span class="nc" id="L578">      Thread.sleep(50);</span>
     }
 
-<span class="nc" id="L599">    return jda;</span>
+<span class="nc" id="L581">    return jda;</span>
   }
 
   /**
@@ -614,7 +596,7 @@ public class JDABuilder {
    *     finished loading.
    */
   public JDA buildBlocking() throws LoginException, InterruptedException {
-<span class="nc" id="L617">    return buildBlocking(Status.CONNECTED);</span>
+<span class="nc" id="L599">    return buildBlocking(Status.CONNECTED);</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

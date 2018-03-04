@@ -389,7 +389,7 @@ ErisCasper.java,net.dv8tion.jda.bot.utils.cache.impl,ShardCacheViewImpl,134,0,12
 ErisCasper.java,net.dv8tion.jda.bot.utils.cache.impl,ShardCacheViewImpl.UnifiedShardCacheViewImpl,117,0,0,0,25,0,13,0,13,0
 ErisCasper.java,net.dv8tion.jda.core,AccountType,29,0,0,0,3,0,2,0,2,0
 ErisCasper.java,net.dv8tion.jda.core,MessageBuilder,1112,0,149,0,213,0,113,0,36,0
-ErisCasper.java,net.dv8tion.jda.core,JDABuilder,388,0,26,0,100,0,39,0,26,0
+ErisCasper.java,net.dv8tion.jda.core,JDABuilder,380,0,26,0,97,0,38,0,25,0
 ErisCasper.java,net.dv8tion.jda.core,MessageBuilder.Formatting,70,0,0,0,10,0,3,0,3,0
 ErisCasper.java,net.dv8tion.jda.core,OnlineStatus,106,0,4,0,15,0,6,0,4,0
 ErisCasper.java,net.dv8tion.jda.core,WebSocketCode,3,0,0,0,1,0,1,0,1,0
@@ -562,8 +562,8 @@ ErisCasper.java,net.dv8tion.jda.core.events.message.react,MessageReactionAddEven
 ErisCasper.java,net.dv8tion.jda.core.events.message.react,MessageReactionRemoveEvent,7,0,0,0,2,0,1,0,1,0
 ErisCasper.java,net.dv8tion.jda.core.events.message.react,MessageReactionRemoveAllEvent,47,0,8,0,7,0,9,0,5,0
 ErisCasper.java,net.dv8tion.jda.core.events.message.react,GenericMessageReactionEvent,77,0,10,0,14,0,14,0,9,0
-ErisCasper.java,net.dv8tion.jda.bot.sharding,DefaultShardManagerBuilder,453,0,24,0,109,0,48,0,36,0
-ErisCasper.java,net.dv8tion.jda.bot.sharding,DefaultShardManager,810,0,94,0,185,0,70,0,23,0
+ErisCasper.java,net.dv8tion.jda.bot.sharding,DefaultShardManagerBuilder,443,0,24,0,106,0,47,0,35,0
+ErisCasper.java,net.dv8tion.jda.bot.sharding,DefaultShardManager,807,0,94,0,184,0,70,0,23,0
 ErisCasper.java,net.dv8tion.jda.bot.sharding,ShardManager,435,0,4,0,93,0,75,0,73,0
 ErisCasper.java,net.dv8tion.jda.client.events.call.update,CallUpdateRegionEvent,12,0,0,0,4,0,2,0,2,0
 ErisCasper.java,net.dv8tion.jda.client.events.call.update,GenericCallUpdateEvent,6,0,0,0,2,0,1,0,1,0

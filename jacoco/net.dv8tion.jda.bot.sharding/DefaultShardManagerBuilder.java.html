@@ -27,7 +27,6 @@ import java.util.function.IntFunction;
 import java.util.stream.Collectors;
 import javax.security.auth.login.LoginException;
 import net.dv8tion.jda.core.OnlineStatus;
-import net.dv8tion.jda.core.audio.factory.IAudioSendFactory;
 import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.hooks.IEventManager;
 import net.dv8tion.jda.core.utils.Checks;
@@ -46,29 +45,28 @@ import okhttp3.OkHttpClient;
  * @author Aljoscha Grebe
  */
 public class DefaultShardManagerBuilder {
-<span class="nc" id="L49">  protected final List&lt;Object&gt; listeners = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L50">  protected SessionController sessionController = null;</span>
-<span class="nc" id="L51">  protected IntFunction&lt;ConcurrentMap&lt;String, String&gt;&gt; contextProvider = null;</span>
-<span class="nc" id="L52">  protected boolean enableContext = true;</span>
-<span class="nc" id="L53">  protected boolean enableBulkDeleteSplitting = true;</span>
-<span class="nc" id="L54">  protected boolean enableShutdownHook = true;</span>
-<span class="nc" id="L55">  protected boolean enableVoice = true;</span>
-<span class="nc" id="L56">  protected boolean autoReconnect = true;</span>
-<span class="nc" id="L57">  protected boolean retryOnTimeout = true;</span>
-<span class="nc" id="L58">  protected boolean useShutdownNow = false;</span>
-<span class="nc" id="L59">  protected int shardsTotal = -1;</span>
-<span class="nc" id="L60">  protected int maxReconnectDelay = 900;</span>
-<span class="nc" id="L61">  protected int corePoolSize = 2;</span>
-<span class="nc" id="L62">  protected String token = null;</span>
-<span class="nc" id="L63">  protected IntFunction&lt;Boolean&gt; idleProvider = null;</span>
-<span class="nc" id="L64">  protected IntFunction&lt;Game&gt; gameProvider = null;</span>
-<span class="nc" id="L65">  protected IntFunction&lt;OnlineStatus&gt; statusProvider = null;</span>
-<span class="nc" id="L66">  protected Collection&lt;Integer&gt; shards = null;</span>
-<span class="nc" id="L67">  protected IEventManager eventManager = null;</span>
-<span class="nc" id="L68">  protected OkHttpClient.Builder httpClientBuilder = null;</span>
-<span class="nc" id="L69">  protected WebSocketFactory wsFactory = null;</span>
-<span class="nc" id="L70">  protected IAudioSendFactory audioSendFactory = null;</span>
-<span class="nc" id="L71">  protected ThreadFactory threadFactory = null;</span>
+<span class="nc" id="L48">  protected final List&lt;Object&gt; listeners = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L49">  protected SessionController sessionController = null;</span>
+<span class="nc" id="L50">  protected IntFunction&lt;ConcurrentMap&lt;String, String&gt;&gt; contextProvider = null;</span>
+<span class="nc" id="L51">  protected boolean enableContext = true;</span>
+<span class="nc" id="L52">  protected boolean enableBulkDeleteSplitting = true;</span>
+<span class="nc" id="L53">  protected boolean enableShutdownHook = true;</span>
+<span class="nc" id="L54">  protected boolean enableVoice = true;</span>
+<span class="nc" id="L55">  protected boolean autoReconnect = true;</span>
+<span class="nc" id="L56">  protected boolean retryOnTimeout = true;</span>
+<span class="nc" id="L57">  protected boolean useShutdownNow = false;</span>
+<span class="nc" id="L58">  protected int shardsTotal = -1;</span>
+<span class="nc" id="L59">  protected int maxReconnectDelay = 900;</span>
+<span class="nc" id="L60">  protected int corePoolSize = 2;</span>
+<span class="nc" id="L61">  protected String token = null;</span>
+<span class="nc" id="L62">  protected IntFunction&lt;Boolean&gt; idleProvider = null;</span>
+<span class="nc" id="L63">  protected IntFunction&lt;Game&gt; gameProvider = null;</span>
+<span class="nc" id="L64">  protected IntFunction&lt;OnlineStatus&gt; statusProvider = null;</span>
+<span class="nc" id="L65">  protected Collection&lt;Integer&gt; shards = null;</span>
+<span class="nc" id="L66">  protected IEventManager eventManager = null;</span>
+<span class="nc" id="L67">  protected OkHttpClient.Builder httpClientBuilder = null;</span>
+<span class="nc" id="L68">  protected WebSocketFactory wsFactory = null;</span>
+<span class="nc" id="L69">  protected ThreadFactory threadFactory = null;</span>
 
   /**
    * Creates a completely empty DefaultShardManagerBuilder. &lt;br&gt;
@@ -76,7 +74,7 @@ public class DefaultShardManagerBuilder {
    * net.dv8tion.jda.bot.sharding.DefaultShardManagerBuilder#setToken(String) setToken(String)}
    * before calling {@link net.dv8tion.jda.bot.sharding.DefaultShardManagerBuilder#build() build()}.
    */
-<span class="nc" id="L79">  public DefaultShardManagerBuilder() {}</span>
+<span class="nc" id="L77">  public DefaultShardManagerBuilder() {}</span>
 
   /**
    * Sets the {@link net.dv8tion.jda.core.utils.SessionController SessionController} for the
@@ -90,8 +88,8 @@ public class DefaultShardManagerBuilder {
    * @see net.dv8tion.jda.core.utils.SessionControllerAdapter SessionControllerAdapter
    */
   public DefaultShardManagerBuilder setSessionController(SessionController controller) {
-<span class="nc" id="L93">    this.sessionController = controller;</span>
-<span class="nc" id="L94">    return this;</span>
+<span class="nc" id="L91">    this.sessionController = controller;</span>
+<span class="nc" id="L92">    return this;</span>
   }
 
   /**
@@ -114,9 +112,9 @@ public class DefaultShardManagerBuilder {
    */
   public DefaultShardManagerBuilder setContextMap(
       IntFunction&lt;ConcurrentMap&lt;String, String&gt;&gt; provider) {
-<span class="nc" id="L117">    this.contextProvider = provider;</span>
-<span class="nc bnc" id="L118" title="All 2 branches missed.">    if (provider != null) this.enableContext = true;</span>
-<span class="nc" id="L119">    return this;</span>
+<span class="nc" id="L115">    this.contextProvider = provider;</span>
+<span class="nc bnc" id="L116" title="All 2 branches missed.">    if (provider != null) this.enableContext = true;</span>
+<span class="nc" id="L117">    return this;</span>
   }
 
   /**
@@ -130,8 +128,8 @@ public class DefaultShardManagerBuilder {
    * @see #setContextMap(java.util.function.IntFunction)
    */
   public DefaultShardManagerBuilder setContextEnabled(boolean enable) {
-<span class="nc" id="L133">    this.enableContext = enable;</span>
-<span class="nc" id="L134">    return this;</span>
+<span class="nc" id="L131">    this.enableContext = enable;</span>
+<span class="nc" id="L132">    return this;</span>
   }
 
   /**
@@ -153,7 +151,7 @@ public class DefaultShardManagerBuilder {
    * @see DefaultShardManager#addEventListener(Object...) JDA.addEventListener(Object...)
    */
   public DefaultShardManagerBuilder addEventListeners(final Object... listeners) {
-<span class="nc" id="L156">    return this.addEventListeners(Arrays.asList(listeners));</span>
+<span class="nc" id="L154">    return this.addEventListeners(Arrays.asList(listeners));</span>
   }
 
   /**
@@ -175,10 +173,10 @@ public class DefaultShardManagerBuilder {
    * @see DefaultShardManager#addEventListener(Object...) JDA.addEventListener(Object...)
    */
   public DefaultShardManagerBuilder addEventListeners(final Collection&lt;Object&gt; listeners) {
-<span class="nc" id="L178">    Checks.noneNull(listeners, &quot;listeners&quot;);</span>
+<span class="nc" id="L176">    Checks.noneNull(listeners, &quot;listeners&quot;);</span>
 
-<span class="nc" id="L180">    this.listeners.addAll(listeners);</span>
-<span class="nc" id="L181">    return this;</span>
+<span class="nc" id="L178">    this.listeners.addAll(listeners);</span>
+<span class="nc" id="L179">    return this;</span>
   }
 
   /**
@@ -190,7 +188,7 @@ public class DefaultShardManagerBuilder {
    * @see net.dv8tion.jda.core.JDA#removeEventListener(Object...) JDA.removeEventListener(Object...)
    */
   public DefaultShardManagerBuilder removeEventListeners(final Object... listeners) {
-<span class="nc" id="L193">    return this.removeEventListeners(Arrays.asList(listeners));</span>
+<span class="nc" id="L191">    return this.removeEventListeners(Arrays.asList(listeners));</span>
   }
 
   /**
@@ -202,10 +200,10 @@ public class DefaultShardManagerBuilder {
    * @see net.dv8tion.jda.core.JDA#removeEventListener(Object...) JDA.removeEventListener(Object...)
    */
   public DefaultShardManagerBuilder removeEventListeners(final Collection&lt;Object&gt; listeners) {
-<span class="nc" id="L205">    Checks.noneNull(listeners, &quot;listeners&quot;);</span>
+<span class="nc" id="L203">    Checks.noneNull(listeners, &quot;listeners&quot;);</span>
 
-<span class="nc" id="L207">    this.listeners.removeAll(listeners);</span>
-<span class="nc" id="L208">    return this;</span>
+<span class="nc" id="L205">    this.listeners.removeAll(listeners);</span>
+<span class="nc" id="L206">    return this;</span>
   }
 
   /**
@@ -219,25 +217,8 @@ public class DefaultShardManagerBuilder {
    *     DefaultShardManagerBuilder} instance. Useful for chaining.
    */
   public DefaultShardManagerBuilder setAudioEnabled(final boolean enabled) {
-<span class="nc" id="L222">    this.enableVoice = enabled;</span>
-<span class="nc" id="L223">    return this;</span>
-  }
-
-  /**
-   * Changes the factory used to create {@link net.dv8tion.jda.core.audio.factory.IAudioSendSystem
-   * IAudioSendSystem} objects which handle the sending loop for audio packets. &lt;br&gt;
-   * By default, JDA uses {@link net.dv8tion.jda.core.audio.factory.DefaultSendFactory
-   * DefaultSendFactory}.
-   *
-   * @param factory The new {@link net.dv8tion.jda.core.audio.factory.IAudioSendFactory
-   *     IAudioSendFactory} to be used when creating new {@link
-   *     net.dv8tion.jda.core.audio.factory.IAudioSendSystem} objects.
-   * @return The {@link net.dv8tion.jda.bot.sharding.DefaultShardManagerBuilder
-   *     DefaultShardManagerBuilder} instance. Useful for chaining.
-   */
-  public DefaultShardManagerBuilder setAudioSendFactory(final IAudioSendFactory factory) {
-<span class="nc" id="L239">    this.audioSendFactory = factory;</span>
-<span class="nc" id="L240">    return this;</span>
+<span class="nc" id="L220">    this.enableVoice = enabled;</span>
+<span class="nc" id="L221">    return this;</span>
   }
 
   /**
@@ -251,8 +232,8 @@ public class DefaultShardManagerBuilder {
    *     DefaultShardManagerBuilder} instance. Useful for chaining.
    */
   public DefaultShardManagerBuilder setAutoReconnect(final boolean autoReconnect) {
-<span class="nc" id="L254">    this.autoReconnect = autoReconnect;</span>
-<span class="nc" id="L255">    return this;</span>
+<span class="nc" id="L235">    this.autoReconnect = autoReconnect;</span>
+<span class="nc" id="L236">    return this;</span>
   }
 
   /**
@@ -269,8 +250,8 @@ public class DefaultShardManagerBuilder {
    *     DefaultShardManagerBuilder} instance. Useful for chaining.
    */
   public DefaultShardManagerBuilder setBulkDeleteSplittingEnabled(final boolean enabled) {
-<span class="nc" id="L272">    this.enableBulkDeleteSplitting = enabled;</span>
-<span class="nc" id="L273">    return this;</span>
+<span class="nc" id="L253">    this.enableBulkDeleteSplitting = enabled;</span>
+<span class="nc" id="L254">    return this;</span>
   }
 
   /**
@@ -283,9 +264,9 @@ public class DefaultShardManagerBuilder {
    * @return The {@link net.dv8tion.jda.core.JDABuilder JDABuilder} instance. Useful for chaining.
    */
   public DefaultShardManagerBuilder setCorePoolSize(int size) {
-<span class="nc" id="L286">    Checks.positive(size, &quot;Core pool size&quot;);</span>
-<span class="nc" id="L287">    this.corePoolSize = size;</span>
-<span class="nc" id="L288">    return this;</span>
+<span class="nc" id="L267">    Checks.positive(size, &quot;Core pool size&quot;);</span>
+<span class="nc" id="L268">    this.corePoolSize = size;</span>
+<span class="nc" id="L269">    return this;</span>
   }
 
   /**
@@ -302,8 +283,8 @@ public class DefaultShardManagerBuilder {
    *     DefaultShardManagerBuilder} instance. Useful for chaining.
    */
   public DefaultShardManagerBuilder setEnableShutdownHook(final boolean enable) {
-<span class="nc" id="L305">    this.enableShutdownHook = enable;</span>
-<span class="nc" id="L306">    return this;</span>
+<span class="nc" id="L286">    this.enableShutdownHook = enable;</span>
+<span class="nc" id="L287">    return this;</span>
   }
 
   /**
@@ -329,10 +310,10 @@ public class DefaultShardManagerBuilder {
    *     DefaultShardManagerBuilder} instance. Useful for chaining.
    */
   public DefaultShardManagerBuilder setEventManager(final IEventManager manager) {
-<span class="nc" id="L332">    Checks.notNull(manager, &quot;manager&quot;);</span>
+<span class="nc" id="L313">    Checks.notNull(manager, &quot;manager&quot;);</span>
 
-<span class="nc" id="L334">    this.eventManager = manager;</span>
-<span class="nc" id="L335">    return this;</span>
+<span class="nc" id="L315">    this.eventManager = manager;</span>
+<span class="nc" id="L316">    return this;</span>
   }
 
   /**
@@ -350,7 +331,7 @@ public class DefaultShardManagerBuilder {
    * @see net.dv8tion.jda.core.managers.Presence#setGame(Game)
    */
   public DefaultShardManagerBuilder setGame(final Game game) {
-<span class="nc" id="L353">    return this.setGameProvider(id -&gt; game);</span>
+<span class="nc" id="L334">    return this.setGameProvider(id -&gt; game);</span>
   }
 
   /**
@@ -369,8 +350,8 @@ public class DefaultShardManagerBuilder {
    * @see net.dv8tion.jda.core.managers.Presence#setGame(Game)
    */
   public DefaultShardManagerBuilder setGameProvider(final IntFunction&lt;Game&gt; gameProvider) {
-<span class="nc" id="L372">    this.gameProvider = gameProvider;</span>
-<span class="nc" id="L373">    return this;</span>
+<span class="nc" id="L353">    this.gameProvider = gameProvider;</span>
+<span class="nc" id="L354">    return this;</span>
   }
 
   /**
@@ -385,7 +366,7 @@ public class DefaultShardManagerBuilder {
    * @see net.dv8tion.jda.core.managers.Presence#setIdle(boolean)
    */
   public DefaultShardManagerBuilder setIdle(final boolean idle) {
-<span class="nc" id="L388">    return this.setIdleProvider(id -&gt; idle);</span>
+<span class="nc" id="L369">    return this.setIdleProvider(id -&gt; idle);</span>
   }
 
   /**
@@ -400,8 +381,8 @@ public class DefaultShardManagerBuilder {
    * @see net.dv8tion.jda.core.managers.Presence#setIdle(boolean)
    */
   public DefaultShardManagerBuilder setIdleProvider(final IntFunction&lt;Boolean&gt; idleProvider) {
-<span class="nc" id="L403">    this.idleProvider = idleProvider;</span>
-<span class="nc" id="L404">    return this;</span>
+<span class="nc" id="L384">    this.idleProvider = idleProvider;</span>
+<span class="nc" id="L385">    return this;</span>
   }
 
   /**
@@ -423,10 +404,10 @@ public class DefaultShardManagerBuilder {
    *     Presence.setStatusProvider(OnlineStatus)
    */
   public DefaultShardManagerBuilder setStatus(final OnlineStatus status) {
-<span class="nc" id="L426">    Checks.notNull(status, &quot;status&quot;);</span>
-<span class="nc bnc" id="L427" title="All 2 branches missed.">    Checks.check(status != OnlineStatus.UNKNOWN, &quot;OnlineStatus cannot be unknown!&quot;);</span>
+<span class="nc" id="L407">    Checks.notNull(status, &quot;status&quot;);</span>
+<span class="nc bnc" id="L408" title="All 2 branches missed.">    Checks.check(status != OnlineStatus.UNKNOWN, &quot;OnlineStatus cannot be unknown!&quot;);</span>
 
-<span class="nc" id="L429">    return this.setStatusProvider(id -&gt; status);</span>
+<span class="nc" id="L410">    return this.setStatusProvider(id -&gt; status);</span>
   }
 
   /**
@@ -449,8 +430,8 @@ public class DefaultShardManagerBuilder {
    */
   public DefaultShardManagerBuilder setStatusProvider(
       final IntFunction&lt;OnlineStatus&gt; statusProvider) {
-<span class="nc" id="L452">    this.statusProvider = statusProvider;</span>
-<span class="nc" id="L453">    return this;</span>
+<span class="nc" id="L433">    this.statusProvider = statusProvider;</span>
+<span class="nc" id="L434">    return this;</span>
   }
 
   /**
@@ -464,8 +445,8 @@ public class DefaultShardManagerBuilder {
    *     DefaultShardManagerBuilder} instance. Useful for chaining.
    */
   public DefaultShardManagerBuilder setThreadFactory(final ThreadFactory threadFactory) {
-<span class="nc" id="L467">    this.threadFactory = threadFactory;</span>
-<span class="nc" id="L468">    return this;</span>
+<span class="nc" id="L448">    this.threadFactory = threadFactory;</span>
+<span class="nc" id="L449">    return this;</span>
   }
 
   /**
@@ -477,8 +458,8 @@ public class DefaultShardManagerBuilder {
    *     chaining.
    */
   public DefaultShardManagerBuilder setHttpClientBuilder(OkHttpClient.Builder builder) {
-<span class="nc" id="L480">    this.httpClientBuilder = builder;</span>
-<span class="nc" id="L481">    return this;</span>
+<span class="nc" id="L461">    this.httpClientBuilder = builder;</span>
+<span class="nc" id="L462">    return this;</span>
   }
 
   /**
@@ -494,13 +475,13 @@ public class DefaultShardManagerBuilder {
    *     DefaultShardManagerBuilder} instance. Useful for chaining.
    */
   public DefaultShardManagerBuilder setMaxReconnectDelay(final int maxReconnectDelay) {
-<span class="nc bnc" id="L497" title="All 2 branches missed.">    Checks.check(</span>
+<span class="nc bnc" id="L478" title="All 2 branches missed.">    Checks.check(</span>
         maxReconnectDelay &gt;= 32,
         &quot;Max reconnect delay must be 32 seconds or greater. You provided %d.&quot;,
-<span class="nc" id="L500">        maxReconnectDelay);</span>
+<span class="nc" id="L481">        maxReconnectDelay);</span>
 
-<span class="nc" id="L502">    this.maxReconnectDelay = maxReconnectDelay;</span>
-<span class="nc" id="L503">    return this;</span>
+<span class="nc" id="L483">    this.maxReconnectDelay = maxReconnectDelay;</span>
+<span class="nc" id="L484">    return this;</span>
   }
 
   /**
@@ -515,8 +496,8 @@ public class DefaultShardManagerBuilder {
    * @return The {@link net.dv8tion.jda.core.JDABuilder JDABuilder} instance. Useful for chaining.
    */
   public DefaultShardManagerBuilder setRequestTimeoutRetry(boolean retryOnTimeout) {
-<span class="nc" id="L518">    this.retryOnTimeout = retryOnTimeout;</span>
-<span class="nc" id="L519">    return this;</span>
+<span class="nc" id="L499">    this.retryOnTimeout = retryOnTimeout;</span>
+<span class="nc" id="L500">    return this;</span>
   }
 
   /**
@@ -530,15 +511,15 @@ public class DefaultShardManagerBuilder {
    *     DefaultShardManagerBuilder} instance. Useful for chaining.
    */
   public DefaultShardManagerBuilder setShards(final int... shardIds) {
-<span class="nc" id="L533">    Checks.notNull(shardIds, &quot;shardIds&quot;);</span>
-<span class="nc bnc" id="L534" title="All 2 branches missed.">    for (int id : shardIds) {</span>
-<span class="nc" id="L535">      Checks.notNegative(id, &quot;minShardId&quot;);</span>
-<span class="nc bnc" id="L536" title="All 2 branches missed.">      Checks.check(id &lt; this.shardsTotal, &quot;maxShardId must be lower than shardsTotal&quot;);</span>
+<span class="nc" id="L514">    Checks.notNull(shardIds, &quot;shardIds&quot;);</span>
+<span class="nc bnc" id="L515" title="All 2 branches missed.">    for (int id : shardIds) {</span>
+<span class="nc" id="L516">      Checks.notNegative(id, &quot;minShardId&quot;);</span>
+<span class="nc bnc" id="L517" title="All 2 branches missed.">      Checks.check(id &lt; this.shardsTotal, &quot;maxShardId must be lower than shardsTotal&quot;);</span>
     }
 
-<span class="nc" id="L539">    this.shards = Arrays.stream(shardIds).boxed().collect(Collectors.toSet());</span>
+<span class="nc" id="L520">    this.shards = Arrays.stream(shardIds).boxed().collect(Collectors.toSet());</span>
 
-<span class="nc" id="L541">    return this;</span>
+<span class="nc" id="L522">    return this;</span>
   }
 
   /**
@@ -556,16 +537,16 @@ public class DefaultShardManagerBuilder {
    *     DefaultShardManagerBuilder} instance. Useful for chaining.
    */
   public DefaultShardManagerBuilder setShards(final int minShardId, final int maxShardId) {
-<span class="nc" id="L559">    Checks.notNegative(minShardId, &quot;minShardId&quot;);</span>
-<span class="nc bnc" id="L560" title="All 2 branches missed.">    Checks.check(maxShardId &lt; this.shardsTotal, &quot;maxShardId must be lower than shardsTotal&quot;);</span>
-<span class="nc bnc" id="L561" title="All 2 branches missed.">    Checks.check(minShardId &lt;= maxShardId, &quot;minShardId must be lower than or equal to maxShardId&quot;);</span>
+<span class="nc" id="L540">    Checks.notNegative(minShardId, &quot;minShardId&quot;);</span>
+<span class="nc bnc" id="L541" title="All 2 branches missed.">    Checks.check(maxShardId &lt; this.shardsTotal, &quot;maxShardId must be lower than shardsTotal&quot;);</span>
+<span class="nc bnc" id="L542" title="All 2 branches missed.">    Checks.check(minShardId &lt;= maxShardId, &quot;minShardId must be lower than or equal to maxShardId&quot;);</span>
 
-<span class="nc" id="L563">    List&lt;Integer&gt; shards = new ArrayList&lt;&gt;(maxShardId - minShardId + 1);</span>
-<span class="nc bnc" id="L564" title="All 2 branches missed.">    for (int i = minShardId; i &lt;= maxShardId; i++) shards.add(i);</span>
+<span class="nc" id="L544">    List&lt;Integer&gt; shards = new ArrayList&lt;&gt;(maxShardId - minShardId + 1);</span>
+<span class="nc bnc" id="L545" title="All 2 branches missed.">    for (int i = minShardId; i &lt;= maxShardId; i++) shards.add(i);</span>
 
-<span class="nc" id="L566">    this.shards = shards;</span>
+<span class="nc" id="L547">    this.shards = shards;</span>
 
-<span class="nc" id="L568">    return this;</span>
+<span class="nc" id="L549">    return this;</span>
   }
 
   /**
@@ -582,15 +563,15 @@ public class DefaultShardManagerBuilder {
    *     DefaultShardManagerBuilder} instance. Useful for chaining.
    */
   public DefaultShardManagerBuilder setShards(Collection&lt;Integer&gt; shardIds) {
-<span class="nc" id="L585">    Checks.notNull(shardIds, &quot;shardIds&quot;);</span>
-<span class="nc bnc" id="L586" title="All 2 branches missed.">    for (Integer id : shardIds) {</span>
-<span class="nc" id="L587">      Checks.notNegative(id, &quot;minShardId&quot;);</span>
-<span class="nc bnc" id="L588" title="All 2 branches missed.">      Checks.check(id &lt; this.shardsTotal, &quot;maxShardId must be lower than shardsTotal&quot;);</span>
-<span class="nc" id="L589">    }</span>
+<span class="nc" id="L566">    Checks.notNull(shardIds, &quot;shardIds&quot;);</span>
+<span class="nc bnc" id="L567" title="All 2 branches missed.">    for (Integer id : shardIds) {</span>
+<span class="nc" id="L568">      Checks.notNegative(id, &quot;minShardId&quot;);</span>
+<span class="nc bnc" id="L569" title="All 2 branches missed.">      Checks.check(id &lt; this.shardsTotal, &quot;maxShardId must be lower than shardsTotal&quot;);</span>
+<span class="nc" id="L570">    }</span>
 
-<span class="nc" id="L591">    this.shards = new ArrayList&lt;&gt;(shardIds);</span>
+<span class="nc" id="L572">    this.shards = new ArrayList&lt;&gt;(shardIds);</span>
 
-<span class="nc" id="L593">    return this;</span>
+<span class="nc" id="L574">    return this;</span>
   }
 
   /**
@@ -607,11 +588,11 @@ public class DefaultShardManagerBuilder {
    * @see #setShards(int, int)
    */
   public DefaultShardManagerBuilder setShardsTotal(final int shardsTotal) {
-<span class="nc bnc" id="L610" title="All 4 branches missed.">    Checks.check(</span>
+<span class="nc bnc" id="L591" title="All 4 branches missed.">    Checks.check(</span>
         shardsTotal == -1 || shardsTotal &gt; 0, &quot;shardsTotal must either be -1 or greater than 0&quot;);
-<span class="nc" id="L612">    this.shardsTotal = shardsTotal;</span>
+<span class="nc" id="L593">    this.shardsTotal = shardsTotal;</span>
 
-<span class="nc" id="L614">    return this;</span>
+<span class="nc" id="L595">    return this;</span>
   }
 
   /**
@@ -637,10 +618,10 @@ public class DefaultShardManagerBuilder {
    *     DefaultShardManagerBuilder} instance. Useful for chaining.
    */
   public DefaultShardManagerBuilder setToken(final String token) {
-<span class="nc" id="L640">    Checks.notBlank(token, &quot;token&quot;);</span>
+<span class="nc" id="L621">    Checks.notBlank(token, &quot;token&quot;);</span>
 
-<span class="nc" id="L642">    this.token = token;</span>
-<span class="nc" id="L643">    return this;</span>
+<span class="nc" id="L623">    this.token = token;</span>
+<span class="nc" id="L624">    return this;</span>
   }
 
   /**
@@ -656,8 +637,8 @@ public class DefaultShardManagerBuilder {
    * @see net.dv8tion.jda.core.JDA#shutdownNow()
    */
   public DefaultShardManagerBuilder setUseShutdownNow(final boolean useShutdownNow) {
-<span class="nc" id="L659">    this.useShutdownNow = useShutdownNow;</span>
-<span class="nc" id="L660">    return this;</span>
+<span class="nc" id="L640">    this.useShutdownNow = useShutdownNow;</span>
+<span class="nc" id="L641">    return this;</span>
   }
 
   /**
@@ -671,8 +652,8 @@ public class DefaultShardManagerBuilder {
    *     chaining.
    */
   public DefaultShardManagerBuilder setWebsocketFactory(WebSocketFactory factory) {
-<span class="nc" id="L674">    this.wsFactory = factory;</span>
-<span class="nc" id="L675">    return this;</span>
+<span class="nc" id="L655">    this.wsFactory = factory;</span>
+<span class="nc" id="L656">    return this;</span>
   }
 
   /**
@@ -695,7 +676,7 @@ public class DefaultShardManagerBuilder {
    *     this returns.
    */
   public ShardManager build() throws LoginException, IllegalArgumentException {
-<span class="nc" id="L698">    final DefaultShardManager manager =</span>
+<span class="nc" id="L679">    final DefaultShardManager manager =</span>
         new DefaultShardManager(
             this.shardsTotal,
             this.shards,
@@ -703,7 +684,6 @@ public class DefaultShardManagerBuilder {
             this.listeners,
             this.token,
             this.eventManager,
-            this.audioSendFactory,
             this.gameProvider,
             this.statusProvider,
             this.httpClientBuilder,
@@ -721,9 +701,9 @@ public class DefaultShardManagerBuilder {
             this.enableContext,
             this.contextProvider);
 
-<span class="nc" id="L724">    manager.login();</span>
+<span class="nc" id="L704">    manager.login();</span>
 
-<span class="nc" id="L726">    return manager;</span>
+<span class="nc" id="L706">    return manager;</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>
