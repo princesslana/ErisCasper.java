@@ -146,7 +146,7 @@ ErisCasper.java,net.dv8tion.jda.core.entities,MessageChannel.new RestAction() {.
 ErisCasper.java,net.dv8tion.jda.core.entities,MessageChannel.new RestAction() {...},19,0,2,0,4,0,3,0,2,0
 ErisCasper.java,net.dv8tion.jda.core.entities,MessageChannel.new RestAction() {...},19,0,2,0,4,0,3,0,2,0
 ErisCasper.java,net.dv8tion.jda.core.entities,EmbedType,92,0,4,0,12,0,5,0,3,0
-ErisCasper.java,net.dv8tion.jda.core.entities,ISnowflake,8,0,0,0,2,0,2,0,2,0
+ErisCasper.java,net.dv8tion.jda.core.entities,ISnowflake,4,4,0,0,1,1,1,1,1,1
 ErisCasper.java,net.dv8tion.jda.core.entities,Message.Attachment,163,0,6,0,43,0,20,0,17,0
 ErisCasper.java,net.dv8tion.jda.core.entities,Channel,5,0,0,0,1,0,1,0,1,0
 ErisCasper.java,net.dv8tion.jda.core.entities,Guild.NotificationLevel,72,0,4,0,11,0,6,0,4,0
@@ -292,7 +292,7 @@ ErisCasper.java,net.dv8tion.jda.core.entities.impl,MemberImpl,298,0,18,0,62,0,42
 ErisCasper.java,net.dv8tion.jda.core.entities.impl,AbstractMessage,265,0,12,0,106,0,53,0,47,0
 ErisCasper.java,net.dv8tion.jda.core.entities.impl,InviteImpl.GuildImpl,71,0,4,0,12,0,9,0,7,0
 ErisCasper.java,net.dv8tion.jda.core.entities.impl,WebhookImpl.new AuditableRestAction() {...},19,0,2,0,4,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,UserImpl,332,0,30,0,56,0,42,0,27,0
+ErisCasper.java,net.dv8tion.jda.core.entities.impl,UserImpl,241,84,24,4,39,17,31,8,19,6
 ErisCasper.java,net.dv8tion.jda.core.entities.impl,EmoteImpl.new AuditableRestAction() {...},19,0,2,0,4,0,3,0,2,0
 ErisCasper.java,net.dv8tion.jda.core.entities.impl,TextChannelImpl,767,0,56,0,148,0,68,0,40,0
 ErisCasper.java,net.dv8tion.jda.core.entities.impl,PrivateChannelImpl,172,0,12,0,40,0,29,0,23,0
@@ -302,7 +302,7 @@ ErisCasper.java,net.dv8tion.jda.core.entities.impl,SelfUserImpl,177,0,18,0,49,0,
 ErisCasper.java,net.dv8tion.jda.core.entities.impl,ReceivedMessage.FormatToken,9,0,0,0,4,0,1,0,1,0
 ErisCasper.java,net.dv8tion.jda.core.entities.impl,CategoryImpl,300,0,20,0,68,0,33,0,23,0
 ErisCasper.java,net.dv8tion.jda.core.entities.impl,ReceivedMessage.new Object() {...},58,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,UserImpl.DefaultAvatar,70,0,0,0,10,0,3,0,3,0
+ErisCasper.java,net.dv8tion.jda.core.entities.impl,UserImpl.DefaultAvatar,0,70,0,0,0,10,0,3,0,3
 ErisCasper.java,net.dv8tion.jda.core.entities.impl,WebhookImpl,201,0,12,0,42,0,26,0,20,0
 ErisCasper.java,net.dv8tion.jda.core.entities.impl,JDAImpl.JDAThreadFactory,30,0,0,0,7,0,3,0,3,0
 ErisCasper.java,net.dv8tion.jda.core.entities.impl,DataMessage,87,0,14,0,19,0,16,0,9,0
