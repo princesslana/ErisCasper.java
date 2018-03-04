@@ -653,20 +653,16 @@
 <a class="jxr_linenumber" name="L645" href="#L645">645</a> 
 <a class="jxr_linenumber" name="L646" href="#L646">646</a>     @Override
 <a class="jxr_linenumber" name="L647" href="#L647">647</a>     <strong class="jxr_keyword">public</strong> Thread newThread(Runnable r) {
-<a class="jxr_linenumber" name="L648" href="#L648">648</a>       Runnable r2 =
-<a class="jxr_linenumber" name="L649" href="#L649">649</a>           () -&gt; {
-<a class="jxr_linenumber" name="L650" href="#L650">650</a>             r.run();
-<a class="jxr_linenumber" name="L651" href="#L651">651</a>           };
-<a class="jxr_linenumber" name="L652" href="#L652">652</a>       <strong class="jxr_keyword">final</strong> Thread t =
-<a class="jxr_linenumber" name="L653" href="#L653">653</a>           <strong class="jxr_keyword">new</strong> Thread(
-<a class="jxr_linenumber" name="L654" href="#L654">654</a>               AudioManagerImpl.AUDIO_THREADS,
-<a class="jxr_linenumber" name="L655" href="#L655">655</a>               r2,
-<a class="jxr_linenumber" name="L656" href="#L656">656</a>               identifier + <span class="jxr_string">" - Thread "</span> + threadCount.getAndIncrement());
-<a class="jxr_linenumber" name="L657" href="#L657">657</a>       t.setDaemon(<strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L658" href="#L658">658</a>       <strong class="jxr_keyword">return</strong> t;
-<a class="jxr_linenumber" name="L659" href="#L659">659</a>     }
-<a class="jxr_linenumber" name="L660" href="#L660">660</a>   }
-<a class="jxr_linenumber" name="L661" href="#L661">661</a> }
+<a class="jxr_linenumber" name="L648" href="#L648">648</a>       <strong class="jxr_keyword">final</strong> Thread t =
+<a class="jxr_linenumber" name="L649" href="#L649">649</a>           <strong class="jxr_keyword">new</strong> Thread(
+<a class="jxr_linenumber" name="L650" href="#L650">650</a>               AudioManagerImpl.AUDIO_THREADS,
+<a class="jxr_linenumber" name="L651" href="#L651">651</a>               r,
+<a class="jxr_linenumber" name="L652" href="#L652">652</a>               identifier + <span class="jxr_string">" - Thread "</span> + threadCount.getAndIncrement());
+<a class="jxr_linenumber" name="L653" href="#L653">653</a>       t.setDaemon(<strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L654" href="#L654">654</a>       <strong class="jxr_keyword">return</strong> t;
+<a class="jxr_linenumber" name="L655" href="#L655">655</a>     }
+<a class="jxr_linenumber" name="L656" href="#L656">656</a>   }
+<a class="jxr_linenumber" name="L657" href="#L657">657</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2018. All rights reserved.</div>

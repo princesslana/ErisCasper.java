@@ -382,31 +382,34 @@ public class WebhookClient implements AutoCloseable {
 <span class="nc bnc" id="L382" title="All 2 branches missed.">      if (is429) {</span>
 <span class="nc" id="L383">        handleRatelimit(response, current);</span>
 <span class="nc bnc" id="L384" title="All 2 branches missed.">      } else if (!response.isSuccessful()) {</span>
-<span class="nc" id="L385">        LOG.debug(</span>
-            &quot;Failed to update buckets due to unsuccessful response with code: {} and body: \n{}&quot;,
-<span class="nc" id="L387">            response.code(),</span>
-<span class="nc" id="L388">            new String(ByteStreams.toByteArray(Requester.getBody(response))));</span>
-<span class="nc" id="L389">        return;</span>
-      }
-<span class="nc" id="L391">      remainingUses = Integer.parseInt(response.header(&quot;X-RateLimit-Remaining&quot;));</span>
-<span class="nc" id="L392">      limit = Integer.parseInt(response.header(&quot;X-RateLimit-Limit&quot;));</span>
-<span class="nc" id="L393">      final String date = response.header(&quot;Date&quot;);</span>
+<span class="nc bnc" id="L385" title="All 2 branches missed.">        if (LOG.isDebugEnabled()) {</span>
+<span class="nc" id="L386">          LOG.debug(</span>
+              &quot;Failed to update buckets due to unsuccessful response with code: {} and body: \n{}&quot;,
+<span class="nc" id="L388">              response.code(),</span>
+<span class="nc" id="L389">              new String(ByteStreams.toByteArray(Requester.getBody(response))));</span>
+        }
 
-<span class="nc bnc" id="L395" title="All 4 branches missed.">      if (date != null &amp;&amp; !is429) {</span>
-<span class="nc" id="L396">        final long reset = Long.parseLong(response.header(&quot;X-RateLimit-Reset&quot;)); // epoch seconds</span>
-<span class="nc" id="L397">        OffsetDateTime tDate = OffsetDateTime.parse(date, DateTimeFormatter.RFC_1123_DATE_TIME);</span>
-<span class="nc" id="L398">        final long delay = tDate.toInstant().until(Instant.ofEpochSecond(reset), ChronoUnit.MILLIS);</span>
-<span class="nc" id="L399">        resetTime = current + delay;</span>
+<span class="nc" id="L392">        return;</span>
       }
-<span class="nc" id="L401">    }</span>
+<span class="nc" id="L394">      remainingUses = Integer.parseInt(response.header(&quot;X-RateLimit-Remaining&quot;));</span>
+<span class="nc" id="L395">      limit = Integer.parseInt(response.header(&quot;X-RateLimit-Limit&quot;));</span>
+<span class="nc" id="L396">      final String date = response.header(&quot;Date&quot;);</span>
+
+<span class="nc bnc" id="L398" title="All 4 branches missed.">      if (date != null &amp;&amp; !is429) {</span>
+<span class="nc" id="L399">        final long reset = Long.parseLong(response.header(&quot;X-RateLimit-Reset&quot;)); // epoch seconds</span>
+<span class="nc" id="L400">        OffsetDateTime tDate = OffsetDateTime.parse(date, DateTimeFormatter.RFC_1123_DATE_TIME);</span>
+<span class="nc" id="L401">        final long delay = tDate.toInstant().until(Instant.ofEpochSecond(reset), ChronoUnit.MILLIS);</span>
+<span class="nc" id="L402">        resetTime = current + delay;</span>
+      }
+<span class="nc" id="L404">    }</span>
 
     public void update(Response response) {
       try {
-<span class="nc" id="L405">        update0(response);</span>
-<span class="nc" id="L406">      } catch (Exception ex) {</span>
-<span class="nc" id="L407">        LOG.error(&quot;Could not read http response&quot;, ex);</span>
-<span class="nc" id="L408">      }</span>
-<span class="nc" id="L409">    }</span>
+<span class="nc" id="L408">        update0(response);</span>
+<span class="nc" id="L409">      } catch (Exception ex) {</span>
+<span class="nc" id="L410">        LOG.error(&quot;Could not read http response&quot;, ex);</span>
+<span class="nc" id="L411">      }</span>
+<span class="nc" id="L412">    }</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

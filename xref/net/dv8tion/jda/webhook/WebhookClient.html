@@ -390,33 +390,36 @@
 <a class="jxr_linenumber" name="L382" href="#L382">382</a>       <strong class="jxr_keyword">if</strong> (is429) {
 <a class="jxr_linenumber" name="L383" href="#L383">383</a>         handleRatelimit(response, current);
 <a class="jxr_linenumber" name="L384" href="#L384">384</a>       } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (!response.isSuccessful()) {
-<a class="jxr_linenumber" name="L385" href="#L385">385</a>         LOG.debug(
-<a class="jxr_linenumber" name="L386" href="#L386">386</a>             <span class="jxr_string">"Failed to update buckets due to unsuccessful response with code: {} and body: \n{}"</span>,
-<a class="jxr_linenumber" name="L387" href="#L387">387</a>             response.code(),
-<a class="jxr_linenumber" name="L388" href="#L388">388</a>             <strong class="jxr_keyword">new</strong> String(ByteStreams.toByteArray(Requester.getBody(response))));
-<a class="jxr_linenumber" name="L389" href="#L389">389</a>         <strong class="jxr_keyword">return</strong>;
-<a class="jxr_linenumber" name="L390" href="#L390">390</a>       }
-<a class="jxr_linenumber" name="L391" href="#L391">391</a>       remainingUses = Integer.parseInt(response.header(<span class="jxr_string">"X-RateLimit-Remaining"</span>));
-<a class="jxr_linenumber" name="L392" href="#L392">392</a>       limit = Integer.parseInt(response.header(<span class="jxr_string">"X-RateLimit-Limit"</span>));
-<a class="jxr_linenumber" name="L393" href="#L393">393</a>       <strong class="jxr_keyword">final</strong> String date = response.header(<span class="jxr_string">"Date"</span>);
-<a class="jxr_linenumber" name="L394" href="#L394">394</a> 
-<a class="jxr_linenumber" name="L395" href="#L395">395</a>       <strong class="jxr_keyword">if</strong> (date != <strong class="jxr_keyword">null</strong> &amp;&amp; !is429) {
-<a class="jxr_linenumber" name="L396" href="#L396">396</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> reset = Long.parseLong(response.header(<span class="jxr_string">"X-RateLimit-Reset"</span>)); <em class="jxr_comment">// epoch seconds</em>
-<a class="jxr_linenumber" name="L397" href="#L397">397</a>         OffsetDateTime tDate = OffsetDateTime.parse(date, DateTimeFormatter.RFC_1123_DATE_TIME);
-<a class="jxr_linenumber" name="L398" href="#L398">398</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> delay = tDate.toInstant().until(Instant.ofEpochSecond(reset), ChronoUnit.MILLIS);
-<a class="jxr_linenumber" name="L399" href="#L399">399</a>         resetTime = current + delay;
-<a class="jxr_linenumber" name="L400" href="#L400">400</a>       }
-<a class="jxr_linenumber" name="L401" href="#L401">401</a>     }
-<a class="jxr_linenumber" name="L402" href="#L402">402</a> 
-<a class="jxr_linenumber" name="L403" href="#L403">403</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> update(<a href="../../../../net/dv8tion/jda/core/requests/Response.html">Response</a> response) {
-<a class="jxr_linenumber" name="L404" href="#L404">404</a>       <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L405" href="#L405">405</a>         update0(response);
-<a class="jxr_linenumber" name="L406" href="#L406">406</a>       } <strong class="jxr_keyword">catch</strong> (Exception ex) {
-<a class="jxr_linenumber" name="L407" href="#L407">407</a>         LOG.error(<span class="jxr_string">"Could not read http response"</span>, ex);
-<a class="jxr_linenumber" name="L408" href="#L408">408</a>       }
-<a class="jxr_linenumber" name="L409" href="#L409">409</a>     }
-<a class="jxr_linenumber" name="L410" href="#L410">410</a>   }
-<a class="jxr_linenumber" name="L411" href="#L411">411</a> }
+<a class="jxr_linenumber" name="L385" href="#L385">385</a>         <strong class="jxr_keyword">if</strong> (LOG.isDebugEnabled()) {
+<a class="jxr_linenumber" name="L386" href="#L386">386</a>           LOG.debug(
+<a class="jxr_linenumber" name="L387" href="#L387">387</a>               <span class="jxr_string">"Failed to update buckets due to unsuccessful response with code: {} and body: \n{}"</span>,
+<a class="jxr_linenumber" name="L388" href="#L388">388</a>               response.code(),
+<a class="jxr_linenumber" name="L389" href="#L389">389</a>               <strong class="jxr_keyword">new</strong> String(ByteStreams.toByteArray(Requester.getBody(response))));
+<a class="jxr_linenumber" name="L390" href="#L390">390</a>         }
+<a class="jxr_linenumber" name="L391" href="#L391">391</a> 
+<a class="jxr_linenumber" name="L392" href="#L392">392</a>         <strong class="jxr_keyword">return</strong>;
+<a class="jxr_linenumber" name="L393" href="#L393">393</a>       }
+<a class="jxr_linenumber" name="L394" href="#L394">394</a>       remainingUses = Integer.parseInt(response.header(<span class="jxr_string">"X-RateLimit-Remaining"</span>));
+<a class="jxr_linenumber" name="L395" href="#L395">395</a>       limit = Integer.parseInt(response.header(<span class="jxr_string">"X-RateLimit-Limit"</span>));
+<a class="jxr_linenumber" name="L396" href="#L396">396</a>       <strong class="jxr_keyword">final</strong> String date = response.header(<span class="jxr_string">"Date"</span>);
+<a class="jxr_linenumber" name="L397" href="#L397">397</a> 
+<a class="jxr_linenumber" name="L398" href="#L398">398</a>       <strong class="jxr_keyword">if</strong> (date != <strong class="jxr_keyword">null</strong> &amp;&amp; !is429) {
+<a class="jxr_linenumber" name="L399" href="#L399">399</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> reset = Long.parseLong(response.header(<span class="jxr_string">"X-RateLimit-Reset"</span>)); <em class="jxr_comment">// epoch seconds</em>
+<a class="jxr_linenumber" name="L400" href="#L400">400</a>         OffsetDateTime tDate = OffsetDateTime.parse(date, DateTimeFormatter.RFC_1123_DATE_TIME);
+<a class="jxr_linenumber" name="L401" href="#L401">401</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> delay = tDate.toInstant().until(Instant.ofEpochSecond(reset), ChronoUnit.MILLIS);
+<a class="jxr_linenumber" name="L402" href="#L402">402</a>         resetTime = current + delay;
+<a class="jxr_linenumber" name="L403" href="#L403">403</a>       }
+<a class="jxr_linenumber" name="L404" href="#L404">404</a>     }
+<a class="jxr_linenumber" name="L405" href="#L405">405</a> 
+<a class="jxr_linenumber" name="L406" href="#L406">406</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> update(<a href="../../../../net/dv8tion/jda/core/requests/Response.html">Response</a> response) {
+<a class="jxr_linenumber" name="L407" href="#L407">407</a>       <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L408" href="#L408">408</a>         update0(response);
+<a class="jxr_linenumber" name="L409" href="#L409">409</a>       } <strong class="jxr_keyword">catch</strong> (Exception ex) {
+<a class="jxr_linenumber" name="L410" href="#L410">410</a>         LOG.error(<span class="jxr_string">"Could not read http response"</span>, ex);
+<a class="jxr_linenumber" name="L411" href="#L411">411</a>       }
+<a class="jxr_linenumber" name="L412" href="#L412">412</a>     }
+<a class="jxr_linenumber" name="L413" href="#L413">413</a>   }
+<a class="jxr_linenumber" name="L414" href="#L414">414</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2018. All rights reserved.</div>
