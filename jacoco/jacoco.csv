@@ -477,7 +477,6 @@ ErisCasper.java,net.dv8tion.jda.core.utils.cache,CacheView,90,0,0,0,18,0,10,0,10
 ErisCasper.java,net.dv8tion.jda.core.utils.cache,UnifiedMemberCacheView,15,0,0,0,3,0,3,0,3,0
 ErisCasper.java,net.dv8tion.jda.core.utils.cache,SnowflakeCacheView,5,0,0,0,1,0,1,0,1,0
 ErisCasper.java,net.dv8tion.jda.core.utils.cache,MemberCacheView,15,0,0,0,3,0,3,0,3,0
-ErisCasper.java,net.dv8tion.jda.core.hooks,ListenerAdapter,1560,0,348,0,465,0,350,0,176,0
 ErisCasper.java,net.dv8tion.jda.core.hooks,InterfacedEventManager,58,0,4,0,16,0,7,0,5,0
 ErisCasper.java,net.dv8tion.jda.core.hooks,AnnotatedEventManager,214,0,30,0,49,0,23,0,8,0
 ErisCasper.java,net.dv8tion.jda.client.events.message.group,GroupMessageUpdateEvent,19,0,0,0,5,0,3,0,3,0
