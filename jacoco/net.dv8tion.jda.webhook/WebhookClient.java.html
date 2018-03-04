@@ -16,6 +16,7 @@
  */
 package net.dv8tion.jda.webhook;
 
+import com.google.common.io.ByteStreams;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,7 +33,6 @@ import net.dv8tion.jda.core.exceptions.HttpException;
 import net.dv8tion.jda.core.requests.RequestFuture;
 import net.dv8tion.jda.core.requests.Requester;
 import net.dv8tion.jda.core.utils.Checks;
-import net.dv8tion.jda.core.utils.IOUtil;
 import net.dv8tion.jda.core.utils.Promise;
 import net.dv8tion.jda.core.utils.tuple.ImmutablePair;
 import net.dv8tion.jda.core.utils.tuple.Pair;
@@ -290,7 +290,7 @@ public class WebhookClient implements AutoCloseable {
 
   protected static HttpException failure(Response response) throws IOException {
 <span class="nc" id="L292">    final InputStream stream = Requester.getBody(response);</span>
-<span class="nc" id="L293">    final String responseBody = new String(IOUtil.readFully(stream));</span>
+<span class="nc" id="L293">    final String responseBody = new String(ByteStreams.toByteArray(stream));</span>
 <span class="nc" id="L294">    return new HttpException(&quot;Request returned failure &quot; + response.code() + &quot;: &quot; + responseBody);</span>
   }
 
@@ -385,7 +385,7 @@ public class WebhookClient implements AutoCloseable {
 <span class="nc" id="L385">        LOG.debug(</span>
             &quot;Failed to update buckets due to unsuccessful response with code: {} and body: \n{}&quot;,
 <span class="nc" id="L387">            response.code(),</span>
-<span class="nc" id="L388">            new String(IOUtil.readFully(Requester.getBody(response))));</span>
+<span class="nc" id="L388">            new String(ByteStreams.toByteArray(Requester.getBody(response))));</span>
 <span class="nc" id="L389">        return;</span>
       }
 <span class="nc" id="L391">      remainingUses = Integer.parseInt(response.header(&quot;X-RateLimit-Remaining&quot;));</span>
