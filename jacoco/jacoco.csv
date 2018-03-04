@@ -75,7 +75,6 @@ ErisCasper.java,net.dv8tion.jda.core.managers,GuildController.new AuditableRestA
 ErisCasper.java,net.dv8tion.jda.core.managers,GuildController.new AuditableRestAction() {...},19,0,2,0,4,0,3,0,2,0
 ErisCasper.java,net.dv8tion.jda.core.managers,RoleManagerUpdatable,295,0,28,0,48,0,29,0,15,0
 ErisCasper.java,net.dv8tion.jda.core.managers,PermOverrideManagerUpdatable.new AuditableRestAction() {...},20,0,2,0,4,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.managers,AudioManager,4,0,0,0,1,0,1,0,1,0
 ErisCasper.java,net.dv8tion.jda.core.managers,WebhookManagerUpdatable,224,0,22,0,35,0,23,0,12,0
 ErisCasper.java,net.dv8tion.jda.core.managers,GuildManagerUpdatable.new GuildField() {...},20,0,2,0,5,0,3,0,2,0
 ErisCasper.java,net.dv8tion.jda.core.managers,GuildManagerUpdatable.new GuildField() {...},20,0,2,0,5,0,3,0,2,0
@@ -207,7 +206,7 @@ ErisCasper.java,net.dv8tion.jda.core.events.channel.text,TextChannelDeleteEvent,
 ErisCasper.java,net.dv8tion.jda.core.events.channel.text,GenericTextChannelEvent,15,0,0,0,5,0,3,0,3,0
 ErisCasper.java,net.dv8tion.jda.webhook,WebhookMessage,168,0,14,0,34,0,14,0,7,0
 ErisCasper.java,net.dv8tion.jda.webhook,WebhookClientBuilder.DefaultWebhookThreadFactory,28,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.webhook,WebhookClient.Bucket,145,0,16,0,37,0,15,0,7,0
+ErisCasper.java,net.dv8tion.jda.webhook,WebhookClient.Bucket,141,0,16,0,36,0,14,0,6,0
 ErisCasper.java,net.dv8tion.jda.webhook,WebhookMessageBuilder,370,0,44,0,85,0,39,0,17,0
 ErisCasper.java,net.dv8tion.jda.webhook,WebhookClient,359,0,18,0,79,0,33,0,24,0
 ErisCasper.java,net.dv8tion.jda.webhook,WebhookCluster,551,0,38,0,114,0,50,0,31,0
@@ -257,19 +256,15 @@ ErisCasper.java,net.dv8tion.jda.core.events.message.priv,PrivateMessageReceivedE
 ErisCasper.java,net.dv8tion.jda.core.events.message.priv,PrivateMessageUpdateEvent,19,0,0,0,5,0,3,0,3,0
 ErisCasper.java,net.dv8tion.jda.core.utils,WidgetUtil.BannerType,59,0,0,0,6,0,2,0,2,0
 ErisCasper.java,net.dv8tion.jda.core.utils,WidgetUtil.WidgetTheme,29,0,0,0,3,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.utils,SimpleLogger.new PrivilegedAction() {...},15,0,2,0,5,0,3,0,2,0
 ErisCasper.java,net.dv8tion.jda.core.utils,MiscUtil,153,0,8,0,35,0,18,0,14,0
 ErisCasper.java,net.dv8tion.jda.core.utils,NativeUtil,145,0,18,0,27,0,10,0,1,0
 ErisCasper.java,net.dv8tion.jda.core.utils,SessionControllerAdapter.new RestAction() {...},58,0,4,0,14,0,4,0,2,0
 ErisCasper.java,net.dv8tion.jda.core.utils,SessionControllerAdapter.new RestAction() {...},22,0,2,0,4,0,3,0,2,0
 ErisCasper.java,net.dv8tion.jda.core.utils,IOUtil,112,0,10,0,24,0,8,0,3,0
 ErisCasper.java,net.dv8tion.jda.core.utils,Checks,281,0,28,0,49,0,37,0,23,0
-ErisCasper.java,net.dv8tion.jda.core.utils,SimpleLogger,669,0,66,0,200,0,82,0,47,0
 ErisCasper.java,net.dv8tion.jda.core.utils,PermissionUtil.new Object() {...},12,0,0,0,1,0,1,0,1,0
 ErisCasper.java,net.dv8tion.jda.core.utils,Helpers,261,0,62,0,50,0,45,0,14,0
 ErisCasper.java,net.dv8tion.jda.core.utils,SessionControllerAdapter,100,0,2,0,27,0,10,0,9,0
-ErisCasper.java,net.dv8tion.jda.core.utils,JDALogger,70,0,4,0,15,0,7,0,5,0
-ErisCasper.java,net.dv8tion.jda.core.utils,JDALogger.new Object() {...},31,0,0,0,6,0,2,0,2,0
 ErisCasper.java,net.dv8tion.jda.core.utils,WidgetUtil.Widget.VoiceChannel,89,0,6,0,19,0,13,0,10,0
 ErisCasper.java,net.dv8tion.jda.core.utils,PermissionUtil,776,0,108,0,163,0,74,0,20,0
 ErisCasper.java,net.dv8tion.jda.core.utils,Promise,22,0,0,0,8,0,4,0,4,0
@@ -285,7 +280,7 @@ ErisCasper.java,net.dv8tion.jda.core.entities.impl,VoiceChannelImpl,199,0,22,0,3
 ErisCasper.java,net.dv8tion.jda.core.entities.impl,GuildImpl.new RestAction() {...},22,0,2,0,6,0,3,0,2,0
 ErisCasper.java,net.dv8tion.jda.core.entities.impl,GuildImpl.new RestAction() {...},56,0,4,0,15,0,4,0,2,0
 ErisCasper.java,net.dv8tion.jda.core.entities.impl,InviteImpl,259,0,20,0,51,0,26,0,16,0
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,JDAImpl,978,0,81,0,218,0,119,0,78,0
+ErisCasper.java,net.dv8tion.jda.core.entities.impl,JDAImpl,967,0,79,0,215,0,118,0,78,0
 ErisCasper.java,net.dv8tion.jda.core.entities.impl,GuildImpl.new RestAction() {...},49,0,4,0,11,0,4,0,2,0
 ErisCasper.java,net.dv8tion.jda.core.entities.impl,GuildImpl.new Object() {...},47,0,0,0,1,0,1,0,1,0
 ErisCasper.java,net.dv8tion.jda.core.entities.impl,GuildImpl.new RestAction() {...},19,0,2,0,4,0,3,0,2,0
@@ -311,7 +306,7 @@ ErisCasper.java,net.dv8tion.jda.core.entities.impl,CategoryImpl,300,0,20,0,68,0,
 ErisCasper.java,net.dv8tion.jda.core.entities.impl,ReceivedMessage.new Object() {...},58,0,0,0,2,0,1,0,1,0
 ErisCasper.java,net.dv8tion.jda.core.entities.impl,UserImpl.DefaultAvatar,70,0,0,0,10,0,3,0,3,0
 ErisCasper.java,net.dv8tion.jda.core.entities.impl,WebhookImpl,201,0,12,0,42,0,26,0,20,0
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,JDAImpl.JDAThreadFactory,39,0,2,0,8,0,4,0,3,0
+ErisCasper.java,net.dv8tion.jda.core.entities.impl,JDAImpl.JDAThreadFactory,30,0,0,0,7,0,3,0,3,0
 ErisCasper.java,net.dv8tion.jda.core.entities.impl,DataMessage,87,0,14,0,19,0,16,0,9,0
 ErisCasper.java,net.dv8tion.jda.core.entities.impl,InviteImpl.new RestAction() {...},23,0,2,0,7,0,3,0,2,0
 ErisCasper.java,net.dv8tion.jda.core.entities.impl,InviteImpl.new AuditableRestAction() {...},19,0,2,0,4,0,3,0,2,0
@@ -341,15 +336,15 @@ ErisCasper.java,net.dv8tion.jda.core.audit,TargetType,89,0,0,0,9,0,2,0,2,0
 ErisCasper.java,net.dv8tion.jda.core.audio,ConnectionStage,39,0,0,0,4,0,2,0,2,0
 ErisCasper.java,net.dv8tion.jda.core.audio,AudioWebSocket.new Object() {...},65,0,0,0,2,0,1,0,1,0
 ErisCasper.java,net.dv8tion.jda.core.audio,VoiceCode.Close,201,0,4,0,23,0,7,0,5,0
-ErisCasper.java,net.dv8tion.jda.core.audio,AudioConnection,353,0,48,0,96,0,42,0,18,0
+ErisCasper.java,net.dv8tion.jda.core.audio,AudioConnection,343,0,46,0,94,0,41,0,18,0
 ErisCasper.java,net.dv8tion.jda.core.audio,CombinedAudio,72,0,4,0,16,0,5,0,3,0
 ErisCasper.java,net.dv8tion.jda.core.audio,AudioSendHandler,12,0,0,0,2,0,2,0,2,0
 ErisCasper.java,net.dv8tion.jda.core.audio,AudioReceiveHandler,10,0,0,0,1,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.audio,AudioWebSocket.KeepAliveThreadFactory,61,0,2,0,13,0,4,0,3,0
+ErisCasper.java,net.dv8tion.jda.core.audio,AudioWebSocket.KeepAliveThreadFactory,54,0,0,0,12,0,3,0,3,0
 ErisCasper.java,net.dv8tion.jda.core.audio,UserAudio,71,0,4,0,16,0,5,0,3,0
 ErisCasper.java,net.dv8tion.jda.core.audio,VoiceCode,3,0,0,0,1,0,1,0,1,0
 ErisCasper.java,net.dv8tion.jda.core.audio,ConnectionRequest,51,0,0,0,20,0,9,0,9,0
-ErisCasper.java,net.dv8tion.jda.core.audio,AudioWebSocket,1151,0,110,0,305,0,96,0,35,0
+ErisCasper.java,net.dv8tion.jda.core.audio,AudioWebSocket,1127,0,106,0,301,0,94,0,35,0
 ErisCasper.java,net.dv8tion.jda.core.events.channel.category.update,CategoryUpdateNameEvent,12,0,0,0,4,0,2,0,2,0
 ErisCasper.java,net.dv8tion.jda.core.events.channel.category.update,GenericCategoryUpdateEvent,6,0,0,0,2,0,1,0,1,0
 ErisCasper.java,net.dv8tion.jda.core.events.channel.category.update,CategoryUpdatePositionEvent,12,0,0,0,4,0,2,0,2,0
@@ -505,7 +500,7 @@ ErisCasper.java,net.dv8tion.jda.core.requests,Route.Roles,69,0,0,0,6,0,2,0,2,0
 ErisCasper.java,net.dv8tion.jda.core.requests,Route.CompiledRoute,163,0,16,0,28,0,18,0,10,0
 ErisCasper.java,net.dv8tion.jda.core.requests,Route.Webhooks,97,0,0,0,10,0,2,0,2,0
 ErisCasper.java,net.dv8tion.jda.core.requests,Route.Applications,112,0,0,0,13,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.requests,WebSocketClient,3172,0,295,0,717,0,223,0,70,0
+ErisCasper.java,net.dv8tion.jda.core.requests,WebSocketClient,3125,0,283,0,711,0,216,0,69,0
 ErisCasper.java,net.dv8tion.jda.core.requests,RestAction.EmptyRestAction,25,0,2,0,8,0,6,0,5,0
 ErisCasper.java,net.dv8tion.jda.core.requests,Request,207,0,14,0,53,0,26,0,19,0
 ErisCasper.java,net.dv8tion.jda.core.requests,Route.Emotes,31,0,0,0,4,0,2,0,2,0
@@ -572,7 +567,7 @@ ErisCasper.java,net.dv8tion.jda.core.handle,VoiceStateUpdateHandler,735,0,76,0,1
 ErisCasper.java,net.dv8tion.jda.core.handle,GuildMembersChunkHandler,153,0,8,0,36,0,9,0,5,0
 ErisCasper.java,net.dv8tion.jda.core.handle,MessageBulkDeleteHandler,124,0,6,0,28,0,8,0,5,0
 ErisCasper.java,net.dv8tion.jda.core.handle,GuildEmojisUpdateHandler,275,0,24,0,55,0,16,0,4,0
-ErisCasper.java,net.dv8tion.jda.core.handle,MessageReactionHandler,351,0,40,0,67,0,30,0,8,0
+ErisCasper.java,net.dv8tion.jda.core.handle,MessageReactionHandler,347,0,40,0,66,0,29,0,7,0
 ErisCasper.java,net.dv8tion.jda.core.handle,GuildSyncHandler,43,0,2,0,11,0,3,0,2,0
 ErisCasper.java,net.dv8tion.jda.core.handle,GuildUpdateHandler,452,0,34,0,98,0,19,0,2,0
 ErisCasper.java,net.dv8tion.jda.core.handle,ChannelDeleteHandler.new Object() {...},40,0,0,0,1,0,1,0,1,0

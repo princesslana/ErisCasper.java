@@ -33,12 +33,12 @@ import net.dv8tion.jda.core.entities.impl.JDAImpl;
 import net.dv8tion.jda.core.hooks.IEventManager;
 import net.dv8tion.jda.core.managers.impl.PresenceImpl;
 import net.dv8tion.jda.core.utils.Checks;
-import net.dv8tion.jda.core.utils.JDALogger;
 import net.dv8tion.jda.core.utils.SessionController;
 import net.dv8tion.jda.core.utils.SessionControllerAdapter;
 import net.dv8tion.jda.core.utils.tuple.Pair;
 import okhttp3.OkHttpClient;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * JDA's default {@link net.dv8tion.jda.bot.sharding.ShardManager ShardManager} implementation. To
@@ -49,12 +49,14 @@ import org.slf4j.Logger;
  * @author Aljoscha Grebe
  */
 public class DefaultShardManager implements ShardManager {
-<span class="nc" id="L52">  public static final Logger LOG = JDALogger.getLog(ShardManager.class);</span>
-<span class="nc" id="L53">  public static final ThreadFactory DEFAULT_THREAD_FACTORY =</span>
+
+<span class="nc" id="L53">  public static final Logger LOG = LoggerFactory.getLogger(ShardManager.class);</span>
+
+<span class="nc" id="L55">  public static final ThreadFactory DEFAULT_THREAD_FACTORY =</span>
       r -&gt; {
-<span class="nc" id="L55">        final Thread t = new Thread(r, &quot;DefaultShardManager&quot;);</span>
-<span class="nc" id="L56">        t.setPriority(Thread.NORM_PRIORITY + 1);</span>
-<span class="nc" id="L57">        return t;</span>
+<span class="nc" id="L57">        final Thread t = new Thread(r, &quot;DefaultShardManager&quot;);</span>
+<span class="nc" id="L58">        t.setPriority(Thread.NORM_PRIORITY + 1);</span>
+<span class="nc" id="L59">        return t;</span>
       };
   /**
    * The {@link net.dv8tion.jda.core.utils.SessionController SessionController} for this manager.
@@ -100,7 +102,7 @@ public class DefaultShardManager implements ShardManager {
   protected final ScheduledExecutorService executor;
 
   /** The queue of shards waiting for creation. */
-<span class="nc" id="L103">  protected final Queue&lt;Integer&gt; queue = new ConcurrentLinkedQueue&lt;&gt;();</span>
+<span class="nc" id="L105">  protected final Queue&lt;Integer&gt; queue = new ConcurrentLinkedQueue&lt;&gt;();</span>
 
   /**
    * The {@link net.dv8tion.jda.bot.utils.cache.ShardCacheView ShardCacheView} that holds all
@@ -141,7 +143,7 @@ public class DefaultShardManager implements ShardManager {
   protected final boolean useShutdownNow;
 
   /** This can be used to check if the ShardManager is shutting down. */
-<span class="nc" id="L144">  protected final AtomicBoolean shutdown = new AtomicBoolean(false);</span>
+<span class="nc" id="L146">  protected final AtomicBoolean shutdown = new AtomicBoolean(false);</span>
 
   /** The shutdown hook used by this ShardManager. If this is null the shutdown hook is disabled. */
   protected final Thread shutdownHook;
@@ -228,226 +230,226 @@ public class DefaultShardManager implements ShardManager {
       final boolean retryOnTimeout,
       final boolean useShutdownNow,
       final boolean enableMDC,
-<span class="nc" id="L231">      final IntFunction&lt;ConcurrentMap&lt;String, String&gt;&gt; contextProvider) {</span>
-<span class="nc" id="L232">    this.shardsTotal = shardsTotal;</span>
-<span class="nc" id="L233">    this.listeners = listeners;</span>
-<span class="nc" id="L234">    this.token = token;</span>
-<span class="nc" id="L235">    this.eventManager = eventManager;</span>
-<span class="nc" id="L236">    this.gameProvider = gameProvider;</span>
-<span class="nc" id="L237">    this.statusProvider = statusProvider;</span>
-<span class="nc bnc" id="L238" title="All 2 branches missed.">    this.httpClientBuilder =</span>
+<span class="nc" id="L233">      final IntFunction&lt;ConcurrentMap&lt;String, String&gt;&gt; contextProvider) {</span>
+<span class="nc" id="L234">    this.shardsTotal = shardsTotal;</span>
+<span class="nc" id="L235">    this.listeners = listeners;</span>
+<span class="nc" id="L236">    this.token = token;</span>
+<span class="nc" id="L237">    this.eventManager = eventManager;</span>
+<span class="nc" id="L238">    this.gameProvider = gameProvider;</span>
+<span class="nc" id="L239">    this.statusProvider = statusProvider;</span>
+<span class="nc bnc" id="L240" title="All 2 branches missed.">    this.httpClientBuilder =</span>
         httpClientBuilder == null ? new OkHttpClient.Builder() : httpClientBuilder;
-<span class="nc bnc" id="L240" title="All 2 branches missed.">    this.wsFactory = wsFactory == null ? new WebSocketFactory() : wsFactory;</span>
-<span class="nc" id="L241">    this.executor = createExecutor(threadFactory);</span>
-<span class="nc bnc" id="L242" title="All 2 branches missed.">    this.controller = controller == null ? new SessionControllerAdapter() : controller;</span>
-<span class="nc" id="L243">    this.maxReconnectDelay = maxReconnectDelay;</span>
-<span class="nc" id="L244">    this.corePoolSize = corePoolSize;</span>
-<span class="nc" id="L245">    this.enableVoice = enableVoice;</span>
-<span class="nc bnc" id="L246" title="All 2 branches missed.">    this.shutdownHook = enableShutdownHook ? new Thread(this::shutdown, &quot;JDA Shutdown Hook&quot;) : null;</span>
-<span class="nc" id="L247">    this.enableBulkDeleteSplitting = enableBulkDeleteSplitting;</span>
-<span class="nc" id="L248">    this.autoReconnect = autoReconnect;</span>
-<span class="nc" id="L249">    this.idleProvider = idleProvider;</span>
-<span class="nc" id="L250">    this.retryOnTimeout = retryOnTimeout;</span>
-<span class="nc" id="L251">    this.useShutdownNow = useShutdownNow;</span>
-<span class="nc" id="L252">    this.contextProvider = contextProvider;</span>
-<span class="nc" id="L253">    this.enableMDC = enableMDC;</span>
+<span class="nc bnc" id="L242" title="All 2 branches missed.">    this.wsFactory = wsFactory == null ? new WebSocketFactory() : wsFactory;</span>
+<span class="nc" id="L243">    this.executor = createExecutor(threadFactory);</span>
+<span class="nc bnc" id="L244" title="All 2 branches missed.">    this.controller = controller == null ? new SessionControllerAdapter() : controller;</span>
+<span class="nc" id="L245">    this.maxReconnectDelay = maxReconnectDelay;</span>
+<span class="nc" id="L246">    this.corePoolSize = corePoolSize;</span>
+<span class="nc" id="L247">    this.enableVoice = enableVoice;</span>
+<span class="nc bnc" id="L248" title="All 2 branches missed.">    this.shutdownHook = enableShutdownHook ? new Thread(this::shutdown, &quot;JDA Shutdown Hook&quot;) : null;</span>
+<span class="nc" id="L249">    this.enableBulkDeleteSplitting = enableBulkDeleteSplitting;</span>
+<span class="nc" id="L250">    this.autoReconnect = autoReconnect;</span>
+<span class="nc" id="L251">    this.idleProvider = idleProvider;</span>
+<span class="nc" id="L252">    this.retryOnTimeout = retryOnTimeout;</span>
+<span class="nc" id="L253">    this.useShutdownNow = useShutdownNow;</span>
+<span class="nc" id="L254">    this.contextProvider = contextProvider;</span>
+<span class="nc" id="L255">    this.enableMDC = enableMDC;</span>
 
-<span class="nc" id="L255">    synchronized (queue) {</span>
-<span class="nc bnc" id="L256" title="All 2 branches missed.">      if (shardsTotal != -1) {</span>
-<span class="nc bnc" id="L257" title="All 2 branches missed.">        if (shardIds == null) {</span>
-<span class="nc" id="L258">          this.shards = new ShardCacheViewImpl(shardsTotal);</span>
-<span class="nc bnc" id="L259" title="All 2 branches missed.">          for (int i = 0; i &lt; this.shardsTotal; i++) this.queue.add(i);</span>
+<span class="nc" id="L257">    synchronized (queue) {</span>
+<span class="nc bnc" id="L258" title="All 2 branches missed.">      if (shardsTotal != -1) {</span>
+<span class="nc bnc" id="L259" title="All 2 branches missed.">        if (shardIds == null) {</span>
+<span class="nc" id="L260">          this.shards = new ShardCacheViewImpl(shardsTotal);</span>
+<span class="nc bnc" id="L261" title="All 2 branches missed.">          for (int i = 0; i &lt; this.shardsTotal; i++) this.queue.add(i);</span>
         } else {
-<span class="nc" id="L261">          this.shards = new ShardCacheViewImpl(shardIds.size());</span>
-<span class="nc" id="L262">          shardIds.stream().distinct().sorted().forEach(this.queue::add);</span>
+<span class="nc" id="L263">          this.shards = new ShardCacheViewImpl(shardIds.size());</span>
+<span class="nc" id="L264">          shardIds.stream().distinct().sorted().forEach(this.queue::add);</span>
         }
       }
-<span class="nc" id="L265">    }</span>
-<span class="nc" id="L266">  }</span>
+<span class="nc" id="L267">    }</span>
+<span class="nc" id="L268">  }</span>
 
   @Override
   public void addEventListener(final Object... listeners) {
-<span class="nc" id="L270">    ShardManager.super.addEventListener(listeners);</span>
-<span class="nc" id="L271">    Collections.addAll(this.listeners, listeners);</span>
-<span class="nc" id="L272">  }</span>
+<span class="nc" id="L272">    ShardManager.super.addEventListener(listeners);</span>
+<span class="nc" id="L273">    Collections.addAll(this.listeners, listeners);</span>
+<span class="nc" id="L274">  }</span>
 
   @Override
   public void removeEventListener(final Object... listeners) {
-<span class="nc" id="L276">    ShardManager.super.removeEventListener(listeners);</span>
-<span class="nc" id="L277">    this.listeners.removeAll(Arrays.asList(listeners));</span>
-<span class="nc" id="L278">  }</span>
+<span class="nc" id="L278">    ShardManager.super.removeEventListener(listeners);</span>
+<span class="nc" id="L279">    this.listeners.removeAll(Arrays.asList(listeners));</span>
+<span class="nc" id="L280">  }</span>
 
   @Override
   public int getShardsQueued() {
-<span class="nc" id="L282">    return this.queue.size();</span>
+<span class="nc" id="L284">    return this.queue.size();</span>
   }
 
   @Override
   public ShardCacheView getShardCache() {
-<span class="nc" id="L287">    return this.shards;</span>
+<span class="nc" id="L289">    return this.shards;</span>
   }
 
   public void login() throws LoginException {
     // building the first one in the current thread ensures that LoginException and
     // IllegalArgumentException can be thrown on login
-<span class="nc" id="L293">    JDAImpl jda = null;</span>
+<span class="nc" id="L295">    JDAImpl jda = null;</span>
     try {
-<span class="nc bnc" id="L295" title="All 2 branches missed.">      final int shardId = this.queue.isEmpty() ? 0 : this.queue.peek();</span>
+<span class="nc bnc" id="L297" title="All 2 branches missed.">      final int shardId = this.queue.isEmpty() ? 0 : this.queue.peek();</span>
 
-<span class="nc" id="L297">      jda = this.buildInstance(shardId);</span>
-<span class="nc" id="L298">      this.shards.getMap().put(shardId, jda);</span>
-<span class="nc" id="L299">      synchronized (queue) {</span>
-<span class="nc" id="L300">        this.queue.remove(shardId);</span>
-<span class="nc" id="L301">      }</span>
-<span class="nc" id="L302">    } catch (final InterruptedException e) {</span>
-<span class="nc" id="L303">      LOG.error(&quot;Interrupted Startup&quot;, e);</span>
-<span class="nc" id="L304">      throw new IllegalStateException(e);</span>
-<span class="nc" id="L305">    } catch (final Exception e) {</span>
-<span class="nc bnc" id="L306" title="All 2 branches missed.">      if (jda != null) {</span>
-<span class="nc bnc" id="L307" title="All 2 branches missed.">        if (this.useShutdownNow) jda.shutdownNow();</span>
-<span class="nc" id="L308">        else jda.shutdown();</span>
+<span class="nc" id="L299">      jda = this.buildInstance(shardId);</span>
+<span class="nc" id="L300">      this.shards.getMap().put(shardId, jda);</span>
+<span class="nc" id="L301">      synchronized (queue) {</span>
+<span class="nc" id="L302">        this.queue.remove(shardId);</span>
+<span class="nc" id="L303">      }</span>
+<span class="nc" id="L304">    } catch (final InterruptedException e) {</span>
+<span class="nc" id="L305">      LOG.error(&quot;Interrupted Startup&quot;, e);</span>
+<span class="nc" id="L306">      throw new IllegalStateException(e);</span>
+<span class="nc" id="L307">    } catch (final Exception e) {</span>
+<span class="nc bnc" id="L308" title="All 2 branches missed.">      if (jda != null) {</span>
+<span class="nc bnc" id="L309" title="All 2 branches missed.">        if (this.useShutdownNow) jda.shutdownNow();</span>
+<span class="nc" id="L310">        else jda.shutdown();</span>
       }
 
-<span class="nc" id="L311">      throw e;</span>
-<span class="nc" id="L312">    }</span>
+<span class="nc" id="L313">      throw e;</span>
+<span class="nc" id="L314">    }</span>
 
-<span class="nc" id="L314">    runQueueWorker();</span>
+<span class="nc" id="L316">    runQueueWorker();</span>
     // this.worker = this.executor.scheduleWithFixedDelay(this::processQueue, 5000, 5000,
     // TimeUnit.MILLISECONDS); // 5s for ratelimit
 
-<span class="nc bnc" id="L318" title="All 2 branches missed.">    if (this.shutdownHook != null) Runtime.getRuntime().addShutdownHook(this.shutdownHook);</span>
-<span class="nc" id="L319">  }</span>
+<span class="nc bnc" id="L320" title="All 2 branches missed.">    if (this.shutdownHook != null) Runtime.getRuntime().addShutdownHook(this.shutdownHook);</span>
+<span class="nc" id="L321">  }</span>
 
   @Override
   public void restart(final int shardId) {
-<span class="nc" id="L323">    Checks.notNegative(shardId, &quot;shardId&quot;);</span>
-<span class="nc bnc" id="L324" title="All 2 branches missed.">    Checks.check(shardId &lt; this.shardsTotal, &quot;shardId must be lower than shardsTotal&quot;);</span>
+<span class="nc" id="L325">    Checks.notNegative(shardId, &quot;shardId&quot;);</span>
+<span class="nc bnc" id="L326" title="All 2 branches missed.">    Checks.check(shardId &lt; this.shardsTotal, &quot;shardId must be lower than shardsTotal&quot;);</span>
 
-<span class="nc" id="L326">    final JDA jda = this.shards.getMap().remove(shardId);</span>
-<span class="nc bnc" id="L327" title="All 2 branches missed.">    if (jda != null) {</span>
-<span class="nc bnc" id="L328" title="All 2 branches missed.">      if (this.useShutdownNow) jda.shutdownNow();</span>
-<span class="nc" id="L329">      else jda.shutdown();</span>
+<span class="nc" id="L328">    final JDA jda = this.shards.getMap().remove(shardId);</span>
+<span class="nc bnc" id="L329" title="All 2 branches missed.">    if (jda != null) {</span>
+<span class="nc bnc" id="L330" title="All 2 branches missed.">      if (this.useShutdownNow) jda.shutdownNow();</span>
+<span class="nc" id="L331">      else jda.shutdown();</span>
     }
 
-<span class="nc" id="L332">    enqueueShard(shardId);</span>
-<span class="nc" id="L333">  }</span>
+<span class="nc" id="L334">    enqueueShard(shardId);</span>
+<span class="nc" id="L335">  }</span>
 
   @Override
   public void restart() {
-<span class="nc" id="L337">    TIntObjectMap&lt;JDA&gt; map = this.shards.getMap();</span>
-<span class="nc" id="L338">    synchronized (map) {</span>
-<span class="nc" id="L339">      Arrays.stream(map.keys())</span>
-<span class="nc" id="L340">          .sorted() // this ensures shards are started in natural order</span>
-<span class="nc" id="L341">          .forEach(this::restart);</span>
-<span class="nc" id="L342">    }</span>
-<span class="nc" id="L343">  }</span>
+<span class="nc" id="L339">    TIntObjectMap&lt;JDA&gt; map = this.shards.getMap();</span>
+<span class="nc" id="L340">    synchronized (map) {</span>
+<span class="nc" id="L341">      Arrays.stream(map.keys())</span>
+<span class="nc" id="L342">          .sorted() // this ensures shards are started in natural order</span>
+<span class="nc" id="L343">          .forEach(this::restart);</span>
+<span class="nc" id="L344">    }</span>
+<span class="nc" id="L345">  }</span>
 
   @Override
   public void shutdown() {
-<span class="nc bnc" id="L347" title="All 2 branches missed.">    if (this.shutdown.getAndSet(true)) return; // shutdown has already been requested</span>
+<span class="nc bnc" id="L349" title="All 2 branches missed.">    if (this.shutdown.getAndSet(true)) return; // shutdown has already been requested</span>
 
-<span class="nc bnc" id="L349" title="All 4 branches missed.">    if (this.worker != null &amp;&amp; !this.worker.isDone()) this.worker.cancel(true);</span>
+<span class="nc bnc" id="L351" title="All 4 branches missed.">    if (this.worker != null &amp;&amp; !this.worker.isDone()) this.worker.cancel(true);</span>
 
-<span class="nc bnc" id="L351" title="All 2 branches missed.">    if (this.shutdownHook != null) {</span>
+<span class="nc bnc" id="L353" title="All 2 branches missed.">    if (this.shutdownHook != null) {</span>
       try {
-<span class="nc" id="L353">        Runtime.getRuntime().removeShutdownHook(this.shutdownHook);</span>
-<span class="nc" id="L354">      } catch (final Exception ignored) {</span>
-<span class="nc" id="L355">      }</span>
+<span class="nc" id="L355">        Runtime.getRuntime().removeShutdownHook(this.shutdownHook);</span>
+<span class="nc" id="L356">      } catch (final Exception ignored) {</span>
+<span class="nc" id="L357">      }</span>
     }
 
-<span class="nc" id="L358">    this.executor.shutdown();</span>
+<span class="nc" id="L360">    this.executor.shutdown();</span>
 
-<span class="nc bnc" id="L360" title="All 2 branches missed.">    if (this.shards != null) {</span>
-<span class="nc bnc" id="L361" title="All 2 branches missed.">      for (final JDA jda : this.shards) {</span>
-<span class="nc bnc" id="L362" title="All 2 branches missed.">        if (this.useShutdownNow) jda.shutdownNow();</span>
-<span class="nc" id="L363">        else jda.shutdown();</span>
-<span class="nc" id="L364">      }</span>
+<span class="nc bnc" id="L362" title="All 2 branches missed.">    if (this.shards != null) {</span>
+<span class="nc bnc" id="L363" title="All 2 branches missed.">      for (final JDA jda : this.shards) {</span>
+<span class="nc bnc" id="L364" title="All 2 branches missed.">        if (this.useShutdownNow) jda.shutdownNow();</span>
+<span class="nc" id="L365">        else jda.shutdown();</span>
+<span class="nc" id="L366">      }</span>
     }
-<span class="nc" id="L366">  }</span>
+<span class="nc" id="L368">  }</span>
 
   @Override
   public void shutdown(final int shardId) {
-<span class="nc" id="L370">    final JDA jda = this.shards.getMap().remove(shardId);</span>
-<span class="nc bnc" id="L371" title="All 2 branches missed.">    if (jda != null) {</span>
-<span class="nc bnc" id="L372" title="All 2 branches missed.">      if (this.useShutdownNow) jda.shutdownNow();</span>
-<span class="nc" id="L373">      else jda.shutdown();</span>
+<span class="nc" id="L372">    final JDA jda = this.shards.getMap().remove(shardId);</span>
+<span class="nc bnc" id="L373" title="All 2 branches missed.">    if (jda != null) {</span>
+<span class="nc bnc" id="L374" title="All 2 branches missed.">      if (this.useShutdownNow) jda.shutdownNow();</span>
+<span class="nc" id="L375">      else jda.shutdown();</span>
     }
-<span class="nc" id="L375">  }</span>
+<span class="nc" id="L377">  }</span>
 
   @Override
   public void start(final int shardId) {
-<span class="nc" id="L379">    Checks.notNegative(shardId, &quot;shardId&quot;);</span>
-<span class="nc bnc" id="L380" title="All 2 branches missed.">    Checks.check(shardId &lt; this.shardsTotal, &quot;shardId must be lower than shardsTotal&quot;);</span>
-<span class="nc" id="L381">    enqueueShard(shardId);</span>
-<span class="nc" id="L382">  }</span>
+<span class="nc" id="L381">    Checks.notNegative(shardId, &quot;shardId&quot;);</span>
+<span class="nc bnc" id="L382" title="All 2 branches missed.">    Checks.check(shardId &lt; this.shardsTotal, &quot;shardId must be lower than shardsTotal&quot;);</span>
+<span class="nc" id="L383">    enqueueShard(shardId);</span>
+<span class="nc" id="L384">  }</span>
 
   protected void enqueueShard(final int shardId) {
-<span class="nc" id="L385">    synchronized (queue) {</span>
-<span class="nc" id="L386">      queue.add(shardId);</span>
-<span class="nc" id="L387">      runQueueWorker();</span>
-<span class="nc" id="L388">    }</span>
-<span class="nc" id="L389">  }</span>
+<span class="nc" id="L387">    synchronized (queue) {</span>
+<span class="nc" id="L388">      queue.add(shardId);</span>
+<span class="nc" id="L389">      runQueueWorker();</span>
+<span class="nc" id="L390">    }</span>
+<span class="nc" id="L391">  }</span>
 
   protected void runQueueWorker() {
-<span class="nc bnc" id="L392" title="All 2 branches missed.">    if (worker != null) return;</span>
+<span class="nc bnc" id="L394" title="All 2 branches missed.">    if (worker != null) return;</span>
     try {
-<span class="nc" id="L394">      worker =</span>
-<span class="nc" id="L395">          executor.submit(</span>
+<span class="nc" id="L396">      worker =</span>
+<span class="nc" id="L397">          executor.submit(</span>
               () -&gt; {
-<span class="nc bnc" id="L397" title="All 2 branches missed.">                while (!queue.isEmpty()) processQueue();</span>
-<span class="nc" id="L398">                this.gatewayURL = null;</span>
-<span class="nc" id="L399">                synchronized (queue) {</span>
-<span class="nc" id="L400">                  worker = null;</span>
-<span class="nc bnc" id="L401" title="All 4 branches missed.">                  if (!shutdown.get() &amp;&amp; !queue.isEmpty()) runQueueWorker();</span>
-<span class="nc" id="L402">                }</span>
-<span class="nc" id="L403">              });</span>
-<span class="nc" id="L404">    } catch (RejectedExecutionException ex) {</span>
-<span class="nc" id="L405">      LOG.debug(&quot;ThreadPool rejected queue worker thread&quot;, ex);</span>
-<span class="nc" id="L406">    }</span>
-<span class="nc" id="L407">  }</span>
+<span class="nc bnc" id="L399" title="All 2 branches missed.">                while (!queue.isEmpty()) processQueue();</span>
+<span class="nc" id="L400">                this.gatewayURL = null;</span>
+<span class="nc" id="L401">                synchronized (queue) {</span>
+<span class="nc" id="L402">                  worker = null;</span>
+<span class="nc bnc" id="L403" title="All 4 branches missed.">                  if (!shutdown.get() &amp;&amp; !queue.isEmpty()) runQueueWorker();</span>
+<span class="nc" id="L404">                }</span>
+<span class="nc" id="L405">              });</span>
+<span class="nc" id="L406">    } catch (RejectedExecutionException ex) {</span>
+<span class="nc" id="L407">      LOG.debug(&quot;ThreadPool rejected queue worker thread&quot;, ex);</span>
+<span class="nc" id="L408">    }</span>
+<span class="nc" id="L409">  }</span>
 
   protected void processQueue() {
     int shardId;
 
-<span class="nc bnc" id="L412" title="All 2 branches missed.">    if (this.shards == null) {</span>
-<span class="nc" id="L413">      shardId = 0;</span>
+<span class="nc bnc" id="L414" title="All 2 branches missed.">    if (this.shards == null) {</span>
+<span class="nc" id="L415">      shardId = 0;</span>
     } else {
-<span class="nc" id="L415">      Integer tmp = this.queue.peek();</span>
+<span class="nc" id="L417">      Integer tmp = this.queue.peek();</span>
 
-<span class="nc bnc" id="L417" title="All 2 branches missed.">      shardId = tmp == null ? -1 : tmp;</span>
+<span class="nc bnc" id="L419" title="All 2 branches missed.">      shardId = tmp == null ? -1 : tmp;</span>
     }
 
-<span class="nc bnc" id="L420" title="All 2 branches missed.">    if (shardId == -1) return;</span>
+<span class="nc bnc" id="L422" title="All 2 branches missed.">    if (shardId == -1) return;</span>
 
     JDAImpl api;
     try {
-<span class="nc bnc" id="L424" title="All 2 branches missed.">      api = this.shards == null ? null : (JDAImpl) this.shards.getElementById(shardId);</span>
+<span class="nc bnc" id="L426" title="All 2 branches missed.">      api = this.shards == null ? null : (JDAImpl) this.shards.getElementById(shardId);</span>
 
-<span class="nc bnc" id="L426" title="All 2 branches missed.">      if (api == null) api = this.buildInstance(shardId);</span>
-<span class="nc" id="L427">    } catch (InterruptedException e) {</span>
+<span class="nc bnc" id="L428" title="All 2 branches missed.">      if (api == null) api = this.buildInstance(shardId);</span>
+<span class="nc" id="L429">    } catch (InterruptedException e) {</span>
       // caused by shutdown
-<span class="nc" id="L429">      LOG.debug(&quot;Queue has been interrupted&quot;, e);</span>
-<span class="nc" id="L430">      return;</span>
-<span class="nc" id="L431">    } catch (LoginException e) {</span>
+<span class="nc" id="L431">      LOG.debug(&quot;Queue has been interrupted&quot;, e);</span>
+<span class="nc" id="L432">      return;</span>
+<span class="nc" id="L433">    } catch (LoginException e) {</span>
       // this can only happen if the token has been changed
       // in this case the ShardManager will just shutdown itself as there currently is no way of
       // hot-swapping the token on a running JDA instance.
-<span class="nc" id="L435">      LOG.warn(&quot;The token has been invalidated and the ShardManager will shutdown!&quot;, e);</span>
-<span class="nc" id="L436">      this.shutdown();</span>
-<span class="nc" id="L437">      return;</span>
-<span class="nc" id="L438">    } catch (final Exception e) {</span>
-<span class="nc" id="L439">      LOG.error(&quot;Caught an exception in the queue processing thread&quot;, e);</span>
-<span class="nc" id="L440">      return;</span>
-<span class="nc" id="L441">    }</span>
+<span class="nc" id="L437">      LOG.warn(&quot;The token has been invalidated and the ShardManager will shutdown!&quot;, e);</span>
+<span class="nc" id="L438">      this.shutdown();</span>
+<span class="nc" id="L439">      return;</span>
+<span class="nc" id="L440">    } catch (final Exception e) {</span>
+<span class="nc" id="L441">      LOG.error(&quot;Caught an exception in the queue processing thread&quot;, e);</span>
+<span class="nc" id="L442">      return;</span>
+<span class="nc" id="L443">    }</span>
 
-<span class="nc" id="L443">    this.shards.getMap().put(shardId, api);</span>
-<span class="nc" id="L444">    synchronized (queue) {</span>
-<span class="nc" id="L445">      this.queue.remove(shardId);</span>
-<span class="nc" id="L446">    }</span>
-<span class="nc" id="L447">  }</span>
+<span class="nc" id="L445">    this.shards.getMap().put(shardId, api);</span>
+<span class="nc" id="L446">    synchronized (queue) {</span>
+<span class="nc" id="L447">      this.queue.remove(shardId);</span>
+<span class="nc" id="L448">    }</span>
+<span class="nc" id="L449">  }</span>
 
   protected JDAImpl buildInstance(final int shardId) throws LoginException, InterruptedException {
-<span class="nc bnc" id="L450" title="All 4 branches missed.">    final JDAImpl jda =</span>
+<span class="nc bnc" id="L452" title="All 4 branches missed.">    final JDAImpl jda =</span>
         new JDAImpl(
             AccountType.BOT,
             this.token,
@@ -464,76 +466,76 @@ public class DefaultShardManager implements ShardManager {
             this.maxReconnectDelay,
             this.contextProvider == null || !this.enableMDC
                 ? null
-<span class="nc" id="L467">                : contextProvider.apply(shardId));</span>
+<span class="nc" id="L469">                : contextProvider.apply(shardId));</span>
 
-<span class="nc" id="L469">    jda.asBot().setShardManager(this);</span>
+<span class="nc" id="L471">    jda.asBot().setShardManager(this);</span>
 
-<span class="nc bnc" id="L471" title="All 2 branches missed.">    if (this.eventManager != null) jda.setEventManager(this.eventManager);</span>
+<span class="nc bnc" id="L473" title="All 2 branches missed.">    if (this.eventManager != null) jda.setEventManager(this.eventManager);</span>
 
-<span class="nc" id="L473">    this.listeners.forEach(jda::addEventListener);</span>
-<span class="nc" id="L474">    jda.setStatus(</span>
+<span class="nc" id="L475">    this.listeners.forEach(jda::addEventListener);</span>
+<span class="nc" id="L476">    jda.setStatus(</span>
         JDA.Status
             .INITIALIZED); // This is already set by JDA internally, but this is to make sure the
     // listeners catch it.
 
     // Set the presence information before connecting to have the correct information ready when
     // sending IDENTIFY
-<span class="nc" id="L481">    PresenceImpl presence = ((PresenceImpl) jda.getPresence());</span>
-<span class="nc bnc" id="L482" title="All 2 branches missed.">    if (gameProvider != null) presence.setCacheGame(this.gameProvider.apply(shardId));</span>
-<span class="nc bnc" id="L483" title="All 2 branches missed.">    if (idleProvider != null) presence.setCacheIdle(this.idleProvider.apply(shardId));</span>
-<span class="nc bnc" id="L484" title="All 2 branches missed.">    if (statusProvider != null) presence.setCacheStatus(this.statusProvider.apply(shardId));</span>
+<span class="nc" id="L483">    PresenceImpl presence = ((PresenceImpl) jda.getPresence());</span>
+<span class="nc bnc" id="L484" title="All 2 branches missed.">    if (gameProvider != null) presence.setCacheGame(this.gameProvider.apply(shardId));</span>
+<span class="nc bnc" id="L485" title="All 2 branches missed.">    if (idleProvider != null) presence.setCacheIdle(this.idleProvider.apply(shardId));</span>
+<span class="nc bnc" id="L486" title="All 2 branches missed.">    if (statusProvider != null) presence.setCacheStatus(this.statusProvider.apply(shardId));</span>
 
-<span class="nc bnc" id="L486" title="All 2 branches missed.">    if (this.gatewayURL == null) {</span>
+<span class="nc bnc" id="L488" title="All 2 branches missed.">    if (this.gatewayURL == null) {</span>
       try {
-<span class="nc" id="L488">        Pair&lt;String, Integer&gt; gateway = jda.getGatewayBot();</span>
-<span class="nc" id="L489">        this.gatewayURL = gateway.getLeft();</span>
+<span class="nc" id="L490">        Pair&lt;String, Integer&gt; gateway = jda.getGatewayBot();</span>
+<span class="nc" id="L491">        this.gatewayURL = gateway.getLeft();</span>
 
-<span class="nc bnc" id="L491" title="All 2 branches missed.">        if (this.shardsTotal == -1) {</span>
-<span class="nc" id="L492">          this.shardsTotal = gateway.getRight();</span>
-<span class="nc" id="L493">          this.shards = new ShardCacheViewImpl(this.shardsTotal);</span>
+<span class="nc bnc" id="L493" title="All 2 branches missed.">        if (this.shardsTotal == -1) {</span>
+<span class="nc" id="L494">          this.shardsTotal = gateway.getRight();</span>
+<span class="nc" id="L495">          this.shards = new ShardCacheViewImpl(this.shardsTotal);</span>
 
-<span class="nc" id="L495">          synchronized (queue) {</span>
-<span class="nc bnc" id="L496" title="All 2 branches missed.">            for (int i = 0; i &lt; shardsTotal; i++) queue.add(i);</span>
-<span class="nc" id="L497">          }</span>
+<span class="nc" id="L497">          synchronized (queue) {</span>
+<span class="nc bnc" id="L498" title="All 2 branches missed.">            for (int i = 0; i &lt; shardsTotal; i++) queue.add(i);</span>
+<span class="nc" id="L499">          }</span>
         }
-<span class="nc" id="L499">      } catch (RuntimeException e) {</span>
-<span class="nc bnc" id="L500" title="All 2 branches missed.">        if (e.getCause() instanceof InterruptedException) throw (InterruptedException) e.getCause();</span>
+<span class="nc" id="L501">      } catch (RuntimeException e) {</span>
+<span class="nc bnc" id="L502" title="All 2 branches missed.">        if (e.getCause() instanceof InterruptedException) throw (InterruptedException) e.getCause();</span>
         // We check if the LoginException is masked inside of a ExecutionException which is masked
         // inside of the RuntimeException
-<span class="nc bnc" id="L503" title="All 2 branches missed.">        Throwable ex = e.getCause() instanceof ExecutionException ? e.getCause().getCause() : null;</span>
-<span class="nc bnc" id="L504" title="All 2 branches missed.">        if (ex instanceof LoginException) throw new LoginException(ex.getMessage());</span>
-<span class="nc" id="L505">        else throw e;</span>
-<span class="nc" id="L506">      }</span>
+<span class="nc bnc" id="L505" title="All 2 branches missed.">        Throwable ex = e.getCause() instanceof ExecutionException ? e.getCause().getCause() : null;</span>
+<span class="nc bnc" id="L506" title="All 2 branches missed.">        if (ex instanceof LoginException) throw new LoginException(ex.getMessage());</span>
+<span class="nc" id="L507">        else throw e;</span>
+<span class="nc" id="L508">      }</span>
     }
 
-<span class="nc" id="L509">    final JDA.ShardInfo shardInfo = new JDA.ShardInfo(shardId, this.shardsTotal);</span>
+<span class="nc" id="L511">    final JDA.ShardInfo shardInfo = new JDA.ShardInfo(shardId, this.shardsTotal);</span>
 
-<span class="nc" id="L511">    final int shardTotal = jda.login(this.gatewayURL, shardInfo);</span>
-<span class="nc bnc" id="L512" title="All 2 branches missed.">    if (this.shardsTotal == -1) this.shardsTotal = shardTotal;</span>
+<span class="nc" id="L513">    final int shardTotal = jda.login(this.gatewayURL, shardInfo);</span>
+<span class="nc bnc" id="L514" title="All 2 branches missed.">    if (this.shardsTotal == -1) this.shardsTotal = shardTotal;</span>
 
-<span class="nc" id="L514">    return jda;</span>
+<span class="nc" id="L516">    return jda;</span>
   }
 
   @Override
   public void setGameProvider(IntFunction&lt;Game&gt; gameProvider) {
-<span class="nc" id="L519">    ShardManager.super.setGameProvider(gameProvider);</span>
+<span class="nc" id="L521">    ShardManager.super.setGameProvider(gameProvider);</span>
 
-<span class="nc" id="L521">    this.gameProvider = gameProvider;</span>
-<span class="nc" id="L522">  }</span>
+<span class="nc" id="L523">    this.gameProvider = gameProvider;</span>
+<span class="nc" id="L524">  }</span>
 
   @Override
   public void setIdleProvider(IntFunction&lt;Boolean&gt; idleProvider) {
-<span class="nc" id="L526">    ShardManager.super.setIdleProvider(idleProvider);</span>
+<span class="nc" id="L528">    ShardManager.super.setIdleProvider(idleProvider);</span>
 
-<span class="nc" id="L528">    this.idleProvider = idleProvider;</span>
-<span class="nc" id="L529">  }</span>
+<span class="nc" id="L530">    this.idleProvider = idleProvider;</span>
+<span class="nc" id="L531">  }</span>
 
   @Override
   public void setStatusProvider(IntFunction&lt;OnlineStatus&gt; statusProvider) {
-<span class="nc" id="L533">    ShardManager.super.setStatusProvider(statusProvider);</span>
+<span class="nc" id="L535">    ShardManager.super.setStatusProvider(statusProvider);</span>
 
-<span class="nc" id="L535">    this.statusProvider = statusProvider;</span>
-<span class="nc" id="L536">  }</span>
+<span class="nc" id="L537">    this.statusProvider = statusProvider;</span>
+<span class="nc" id="L538">  }</span>
 
   /**
    * This method creates the internal {@link java.util.concurrent.ScheduledExecutorService
@@ -543,9 +545,9 @@ public class DefaultShardManager implements ShardManager {
    * @return A new ScheduledExecutorService
    */
   protected ScheduledExecutorService createExecutor(ThreadFactory threadFactory) {
-<span class="nc bnc" id="L546" title="All 2 branches missed.">    ThreadFactory factory = threadFactory == null ? DEFAULT_THREAD_FACTORY : threadFactory;</span>
+<span class="nc bnc" id="L548" title="All 2 branches missed.">    ThreadFactory factory = threadFactory == null ? DEFAULT_THREAD_FACTORY : threadFactory;</span>
 
-<span class="nc" id="L548">    return Executors.newSingleThreadScheduledExecutor(factory);</span>
+<span class="nc" id="L550">    return Executors.newSingleThreadScheduledExecutor(factory);</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

@@ -29,182 +29,178 @@ import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.entities.impl.JDAImpl;
 import net.dv8tion.jda.core.events.ExceptionEvent;
 import net.dv8tion.jda.core.managers.impl.AudioManagerImpl;
-import net.dv8tion.jda.core.utils.JDALogger;
 import org.slf4j.Logger;
-import org.slf4j.MDC;
+import org.slf4j.LoggerFactory;
 
 public class AudioConnection {
-<span class="nc" id="L37">  public static final Logger LOG = JDALogger.getLog(AudioConnection.class);</span>
+<span class="nc" id="L36">  public static final Logger LOG = LoggerFactory.getLogger(AudioConnection.class);</span>
 
-<span class="nc" id="L39">  private final TIntLongMap ssrcMap = new TIntLongHashMap();</span>
+<span class="nc" id="L38">  private final TIntLongMap ssrcMap = new TIntLongHashMap();</span>
 
   private final String threadIdentifier;
   private final AudioWebSocket webSocket;
-  private final ConcurrentMap&lt;String, String&gt; contextMap;
   private DatagramSocket udpSocket;
   private VoiceChannel channel;
-<span class="nc" id="L46">  private volatile AudioReceiveHandler receiveHandler = null;</span>
+<span class="nc" id="L44">  private volatile AudioReceiveHandler receiveHandler = null;</span>
   private ScheduledExecutorService combinedAudioExecutor;
 
   private IAudioSendSystem sendSystem;
   private Thread receiveThread;
 
-<span class="nc" id="L52">  public AudioConnection(AudioWebSocket webSocket, VoiceChannel channel) {</span>
-<span class="nc" id="L53">    this.channel = channel;</span>
-<span class="nc" id="L54">    this.webSocket = webSocket;</span>
-<span class="nc" id="L55">    this.webSocket.audioConnection = this;</span>
+<span class="nc" id="L50">  public AudioConnection(AudioWebSocket webSocket, VoiceChannel channel) {</span>
+<span class="nc" id="L51">    this.channel = channel;</span>
+<span class="nc" id="L52">    this.webSocket = webSocket;</span>
+<span class="nc" id="L53">    this.webSocket.audioConnection = this;</span>
 
-<span class="nc" id="L57">    final JDAImpl api = (JDAImpl) channel.getJDA();</span>
-<span class="nc" id="L58">    this.threadIdentifier =</span>
-<span class="nc" id="L59">        api.getIdentifierString() + &quot; AudioConnection Guild: &quot; + channel.getGuild().getId();</span>
-<span class="nc" id="L60">    this.contextMap = api.getContextMap();</span>
-<span class="nc" id="L61">  }</span>
+<span class="nc" id="L55">    final JDAImpl api = (JDAImpl) channel.getJDA();</span>
+<span class="nc" id="L56">    this.threadIdentifier =</span>
+<span class="nc" id="L57">        api.getIdentifierString() + &quot; AudioConnection Guild: &quot; + channel.getGuild().getId();</span>
+<span class="nc" id="L58">  }</span>
 
   public void ready() {
-<span class="nc" id="L64">    Thread readyThread =</span>
+<span class="nc" id="L61">    Thread readyThread =</span>
         new Thread(
             AudioManagerImpl.AUDIO_THREADS,
             () -&gt; {
-<span class="nc bnc" id="L68" title="All 2 branches missed.">              if (contextMap != null) MDC.setContextMap(contextMap);</span>
-<span class="nc" id="L69">              final long timeout = getGuild().getAudioManager().getConnectTimeout();</span>
+<span class="nc" id="L65">              final long timeout = getGuild().getAudioManager().getConnectTimeout();</span>
 
-<span class="nc" id="L71">              final long started = System.currentTimeMillis();</span>
-<span class="nc" id="L72">              boolean connectionTimeout = false;</span>
-<span class="nc bnc" id="L73" title="All 2 branches missed.">              while (!webSocket.isReady()) {</span>
-<span class="nc bnc" id="L74" title="All 4 branches missed.">                if (timeout &gt; 0 &amp;&amp; System.currentTimeMillis() - started &gt; timeout) {</span>
-<span class="nc" id="L75">                  connectionTimeout = true;</span>
-<span class="nc" id="L76">                  break;</span>
+<span class="nc" id="L67">              final long started = System.currentTimeMillis();</span>
+<span class="nc" id="L68">              boolean connectionTimeout = false;</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">              while (!webSocket.isReady()) {</span>
+<span class="nc bnc" id="L70" title="All 4 branches missed.">                if (timeout &gt; 0 &amp;&amp; System.currentTimeMillis() - started &gt; timeout) {</span>
+<span class="nc" id="L71">                  connectionTimeout = true;</span>
+<span class="nc" id="L72">                  break;</span>
                 }
 
                 try {
-<span class="nc" id="L80">                  Thread.sleep(10);</span>
-<span class="nc" id="L81">                } catch (InterruptedException e) {</span>
-<span class="nc" id="L82">                  LOG.error(&quot;AudioConnection ready thread got interrupted while sleeping&quot;, e);</span>
-<span class="nc" id="L83">                  Thread.currentThread().interrupt();</span>
-<span class="nc" id="L84">                }</span>
+<span class="nc" id="L76">                  Thread.sleep(10);</span>
+<span class="nc" id="L77">                } catch (InterruptedException e) {</span>
+<span class="nc" id="L78">                  LOG.error(&quot;AudioConnection ready thread got interrupted while sleeping&quot;, e);</span>
+<span class="nc" id="L79">                  Thread.currentThread().interrupt();</span>
+<span class="nc" id="L80">                }</span>
               }
-<span class="nc bnc" id="L86" title="All 2 branches missed.">              if (!connectionTimeout) {</span>
-<span class="nc" id="L87">                this.udpSocket = webSocket.getUdpSocket();</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">              if (!connectionTimeout) {</span>
+<span class="nc" id="L83">                this.udpSocket = webSocket.getUdpSocket();</span>
 
-<span class="nc" id="L89">                setupReceiveSystem();</span>
+<span class="nc" id="L85">                setupReceiveSystem();</span>
               } else {
-<span class="nc" id="L91">                webSocket.close(ConnectionStatus.ERROR_CONNECTION_TIMEOUT);</span>
+<span class="nc" id="L87">                webSocket.close(ConnectionStatus.ERROR_CONNECTION_TIMEOUT);</span>
               }
-<span class="nc" id="L93">            });</span>
-<span class="nc" id="L94">    readyThread.setUncaughtExceptionHandler(</span>
+<span class="nc" id="L89">            });</span>
+<span class="nc" id="L90">    readyThread.setUncaughtExceptionHandler(</span>
         (thread, throwable) -&gt; {
-<span class="nc" id="L96">          LOG.error(&quot;Uncaught exception in Audio ready-thread&quot;, throwable);</span>
-<span class="nc" id="L97">          JDAImpl api = (JDAImpl) getJDA();</span>
-<span class="nc" id="L98">          api.getEventManager().handle(new ExceptionEvent(api, throwable, true));</span>
-<span class="nc" id="L99">        });</span>
-<span class="nc" id="L100">    readyThread.setDaemon(true);</span>
-<span class="nc" id="L101">    readyThread.setName(threadIdentifier + &quot; Ready Thread&quot;);</span>
-<span class="nc" id="L102">    readyThread.start();</span>
-<span class="nc" id="L103">  }</span>
+<span class="nc" id="L92">          LOG.error(&quot;Uncaught exception in Audio ready-thread&quot;, throwable);</span>
+<span class="nc" id="L93">          JDAImpl api = (JDAImpl) getJDA();</span>
+<span class="nc" id="L94">          api.getEventManager().handle(new ExceptionEvent(api, throwable, true));</span>
+<span class="nc" id="L95">        });</span>
+<span class="nc" id="L96">    readyThread.setDaemon(true);</span>
+<span class="nc" id="L97">    readyThread.setName(threadIdentifier + &quot; Ready Thread&quot;);</span>
+<span class="nc" id="L98">    readyThread.start();</span>
+<span class="nc" id="L99">  }</span>
 
   public void setReceivingHandler(AudioReceiveHandler handler) {
-<span class="nc" id="L106">    this.receiveHandler = handler;</span>
-<span class="nc" id="L107">    setupReceiveSystem();</span>
-<span class="nc" id="L108">  }</span>
+<span class="nc" id="L102">    this.receiveHandler = handler;</span>
+<span class="nc" id="L103">    setupReceiveSystem();</span>
+<span class="nc" id="L104">  }</span>
 
   public VoiceChannel getChannel() {
-<span class="nc" id="L111">    return channel;</span>
+<span class="nc" id="L107">    return channel;</span>
   }
 
   public void setChannel(VoiceChannel channel) {
-<span class="nc" id="L115">    this.channel = channel;</span>
-<span class="nc" id="L116">  }</span>
+<span class="nc" id="L111">    this.channel = channel;</span>
+<span class="nc" id="L112">  }</span>
 
   public JDA getJDA() {
-<span class="nc" id="L119">    return channel.getJDA();</span>
+<span class="nc" id="L115">    return channel.getJDA();</span>
   }
 
   public Guild getGuild() {
-<span class="nc" id="L123">    return channel.getGuild();</span>
+<span class="nc" id="L119">    return channel.getGuild();</span>
   }
 
   public void removeUserSSRC(long userId) {
-<span class="nc" id="L127">    final AtomicInteger ssrcRef = new AtomicInteger(0);</span>
-<span class="nc" id="L128">    final boolean modified =</span>
-<span class="nc" id="L129">        ssrcMap.retainEntries(</span>
+<span class="nc" id="L123">    final AtomicInteger ssrcRef = new AtomicInteger(0);</span>
+<span class="nc" id="L124">    final boolean modified =</span>
+<span class="nc" id="L125">        ssrcMap.retainEntries(</span>
             (ssrc, id) -&gt; {
-<span class="nc bnc" id="L131" title="All 2 branches missed.">              final boolean isEntry = id == userId;</span>
-<span class="nc bnc" id="L132" title="All 2 branches missed.">              if (isEntry) ssrcRef.set(ssrc);</span>
+<span class="nc bnc" id="L127" title="All 2 branches missed.">              final boolean isEntry = id == userId;</span>
+<span class="nc bnc" id="L128" title="All 2 branches missed.">              if (isEntry) ssrcRef.set(ssrc);</span>
               // if isEntry == true we don't want to retain it
-<span class="nc bnc" id="L134" title="All 2 branches missed.">              return !isEntry;</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">              return !isEntry;</span>
             });
-<span class="nc bnc" id="L136" title="All 2 branches missed.">    if (!modified) return;</span>
-<span class="nc" id="L137">  }</span>
+<span class="nc bnc" id="L132" title="All 2 branches missed.">    if (!modified) return;</span>
+<span class="nc" id="L133">  }</span>
 
   protected void updateUserSSRC(int ssrc, long userId) {
-<span class="nc bnc" id="L140" title="All 2 branches missed.">    if (ssrcMap.containsKey(ssrc)) {</span>
-<span class="nc" id="L141">      long previousId = ssrcMap.get(ssrc);</span>
-<span class="nc bnc" id="L142" title="All 2 branches missed.">      if (previousId != userId) {</span>
+<span class="nc bnc" id="L136" title="All 2 branches missed.">    if (ssrcMap.containsKey(ssrc)) {</span>
+<span class="nc" id="L137">      long previousId = ssrcMap.get(ssrc);</span>
+<span class="nc bnc" id="L138" title="All 2 branches missed.">      if (previousId != userId) {</span>
         // Different User already existed with this ssrc. What should we do? Just replace? Probably
         // should nuke the old opusDecoder.
         // Log for now and see if any user report the error.
-<span class="nc" id="L146">        LOG.error(</span>
+<span class="nc" id="L142">        LOG.error(</span>
             &quot;Yeah.. So.. JDA received a UserSSRC update for an ssrc that already had a User set. Inform DV8FromTheWorld.\nChannelId: {} SSRC: {} oldId: {} newId: {}&quot;,
-<span class="nc" id="L148">            channel.getId(),</span>
-<span class="nc" id="L149">            ssrc,</span>
-<span class="nc" id="L150">            previousId,</span>
-<span class="nc" id="L151">            userId);</span>
+<span class="nc" id="L144">            channel.getId(),</span>
+<span class="nc" id="L145">            ssrc,</span>
+<span class="nc" id="L146">            previousId,</span>
+<span class="nc" id="L147">            userId);</span>
       }
-<span class="nc" id="L153">    } else {</span>
-<span class="nc" id="L154">      ssrcMap.put(ssrc, userId);</span>
+<span class="nc" id="L149">    } else {</span>
+<span class="nc" id="L150">      ssrcMap.put(ssrc, userId);</span>
     }
-<span class="nc" id="L156">  }</span>
+<span class="nc" id="L152">  }</span>
 
   public void close(ConnectionStatus closeStatus) {
-<span class="nc" id="L159">    shutdown();</span>
-<span class="nc" id="L160">    webSocket.close(closeStatus);</span>
-<span class="nc" id="L161">  }</span>
+<span class="nc" id="L155">    shutdown();</span>
+<span class="nc" id="L156">    webSocket.close(closeStatus);</span>
+<span class="nc" id="L157">  }</span>
 
   public synchronized void shutdown() {
     //        setSpeaking(false);
-<span class="nc bnc" id="L165" title="All 2 branches missed.">    if (sendSystem != null) {</span>
-<span class="nc" id="L166">      sendSystem.shutdown();</span>
-<span class="nc" id="L167">      sendSystem = null;</span>
+<span class="nc bnc" id="L161" title="All 2 branches missed.">    if (sendSystem != null) {</span>
+<span class="nc" id="L162">      sendSystem.shutdown();</span>
+<span class="nc" id="L163">      sendSystem = null;</span>
     }
-<span class="nc bnc" id="L169" title="All 2 branches missed.">    if (receiveThread != null) {</span>
-<span class="nc" id="L170">      receiveThread.interrupt();</span>
-<span class="nc" id="L171">      receiveThread = null;</span>
+<span class="nc bnc" id="L165" title="All 2 branches missed.">    if (receiveThread != null) {</span>
+<span class="nc" id="L166">      receiveThread.interrupt();</span>
+<span class="nc" id="L167">      receiveThread = null;</span>
     }
-<span class="nc bnc" id="L173" title="All 2 branches missed.">    if (combinedAudioExecutor != null) {</span>
-<span class="nc" id="L174">      combinedAudioExecutor.shutdownNow();</span>
-<span class="nc" id="L175">      combinedAudioExecutor = null;</span>
+<span class="nc bnc" id="L169" title="All 2 branches missed.">    if (combinedAudioExecutor != null) {</span>
+<span class="nc" id="L170">      combinedAudioExecutor.shutdownNow();</span>
+<span class="nc" id="L171">      combinedAudioExecutor = null;</span>
     }
-<span class="nc" id="L177">  }</span>
+<span class="nc" id="L173">  }</span>
 
   private synchronized void setupReceiveSystem() {
-<span class="nc bnc" id="L180" title="All 2 branches missed.">    if (udpSocket != null</span>
-<span class="nc bnc" id="L181" title="All 6 branches missed.">        &amp;&amp; !udpSocket.isClosed()</span>
+<span class="nc bnc" id="L176" title="All 2 branches missed.">    if (udpSocket != null</span>
+<span class="nc bnc" id="L177" title="All 6 branches missed.">        &amp;&amp; !udpSocket.isClosed()</span>
         &amp;&amp; receiveHandler != null
         &amp;&amp; receiveThread == null) {
 
-<span class="nc bnc" id="L185" title="All 4 branches missed.">    } else if (receiveHandler == null &amp;&amp; receiveThread != null) {</span>
-<span class="nc" id="L186">      receiveThread.interrupt();</span>
-<span class="nc" id="L187">      receiveThread = null;</span>
+<span class="nc bnc" id="L181" title="All 4 branches missed.">    } else if (receiveHandler == null &amp;&amp; receiveThread != null) {</span>
+<span class="nc" id="L182">      receiveThread.interrupt();</span>
+<span class="nc" id="L183">      receiveThread = null;</span>
 
-<span class="nc bnc" id="L189" title="All 2 branches missed.">      if (combinedAudioExecutor != null) {</span>
-<span class="nc" id="L190">        combinedAudioExecutor.shutdownNow();</span>
-<span class="nc" id="L191">        combinedAudioExecutor = null;</span>
+<span class="nc bnc" id="L185" title="All 2 branches missed.">      if (combinedAudioExecutor != null) {</span>
+<span class="nc" id="L186">        combinedAudioExecutor.shutdownNow();</span>
+<span class="nc" id="L187">        combinedAudioExecutor = null;</span>
       }
-<span class="nc bnc" id="L193" title="All 2 branches missed.">    } else if (receiveHandler != null</span>
-<span class="nc bnc" id="L194" title="All 4 branches missed.">        &amp;&amp; !receiveHandler.canReceiveCombined()</span>
+<span class="nc bnc" id="L189" title="All 2 branches missed.">    } else if (receiveHandler != null</span>
+<span class="nc bnc" id="L190" title="All 4 branches missed.">        &amp;&amp; !receiveHandler.canReceiveCombined()</span>
         &amp;&amp; combinedAudioExecutor != null) {
-<span class="nc" id="L196">      combinedAudioExecutor.shutdownNow();</span>
-<span class="nc" id="L197">      combinedAudioExecutor = null;</span>
+<span class="nc" id="L192">      combinedAudioExecutor.shutdownNow();</span>
+<span class="nc" id="L193">      combinedAudioExecutor = null;</span>
     }
-<span class="nc" id="L199">  }</span>
+<span class="nc" id="L195">  }</span>
 
   public AudioWebSocket getWebSocket() {
-<span class="nc" id="L202">    return webSocket;</span>
+<span class="nc" id="L198">    return webSocket;</span>
   }
 
   @Override
   protected void finalize() throws Throwable {
-<span class="nc" id="L207">    shutdown();</span>
-<span class="nc" id="L208">  }</span>
+<span class="nc" id="L203">    shutdown();</span>
+<span class="nc" id="L204">  }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

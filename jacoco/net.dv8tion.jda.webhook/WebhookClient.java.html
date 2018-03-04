@@ -33,7 +33,6 @@ import net.dv8tion.jda.core.requests.RequestFuture;
 import net.dv8tion.jda.core.requests.Requester;
 import net.dv8tion.jda.core.utils.Checks;
 import net.dv8tion.jda.core.utils.IOUtil;
-import net.dv8tion.jda.core.utils.JDALogger;
 import net.dv8tion.jda.core.utils.Promise;
 import net.dv8tion.jda.core.utils.tuple.ImmutablePair;
 import net.dv8tion.jda.core.utils.tuple.Pair;
@@ -44,6 +43,7 @@ import okhttp3.Response;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * WebhookClient representing an executable {@link net.dv8tion.jda.core.entities.Webhook Webhook}
@@ -58,7 +58,8 @@ public class WebhookClient implements AutoCloseable {
   public static final String WEBHOOK_URL = &quot;https://discordapp.com/api/v6/webhooks/%s/%s&quot;;
 <span class="nc" id="L59">  public static final String USER_AGENT =</span>
       &quot;JDA Webhook(https://github.com/DV8FromTheWorld/JDA | &quot; + JDAInfo.VERSION + &quot;)&quot;;
-<span class="nc" id="L61">  public static final Logger LOG = JDALogger.getLog(WebhookClient.class);</span>
+
+<span class="nc" id="L62">  public static final Logger LOG = LoggerFactory.getLogger(WebhookClient.class);</span>
 
   protected final String url;
   protected final long id;
@@ -73,15 +74,15 @@ public class WebhookClient implements AutoCloseable {
       final long id,
       final String token,
       final OkHttpClient client,
-<span class="nc" id="L76">      final ScheduledExecutorService pool) {</span>
-<span class="nc" id="L77">    this.client = client;</span>
-<span class="nc" id="L78">    this.id = id;</span>
-<span class="nc" id="L79">    this.url = String.format(WEBHOOK_URL, Long.toUnsignedString(id), token);</span>
-<span class="nc" id="L80">    this.pool = pool;</span>
-<span class="nc" id="L81">    this.bucket = new Bucket();</span>
-<span class="nc" id="L82">    this.queue = new LinkedBlockingQueue&lt;&gt;();</span>
-<span class="nc" id="L83">    this.isQueued = false;</span>
-<span class="nc" id="L84">  }</span>
+<span class="nc" id="L77">      final ScheduledExecutorService pool) {</span>
+<span class="nc" id="L78">    this.client = client;</span>
+<span class="nc" id="L79">    this.id = id;</span>
+<span class="nc" id="L80">    this.url = String.format(WEBHOOK_URL, Long.toUnsignedString(id), token);</span>
+<span class="nc" id="L81">    this.pool = pool;</span>
+<span class="nc" id="L82">    this.bucket = new Bucket();</span>
+<span class="nc" id="L83">    this.queue = new LinkedBlockingQueue&lt;&gt;();</span>
+<span class="nc" id="L84">    this.isQueued = false;</span>
+<span class="nc" id="L85">  }</span>
 
   /**
    * The snowflake id of the target Webhook
@@ -89,7 +90,7 @@ public class WebhookClient implements AutoCloseable {
    * @return id of the target Webhook
    */
   public long getIdLong() {
-<span class="nc" id="L92">    return id;</span>
+<span class="nc" id="L93">    return id;</span>
   }
 
   /**
@@ -98,7 +99,7 @@ public class WebhookClient implements AutoCloseable {
    * @return id of the target Webhook
    */
   public String getId() {
-<span class="nc" id="L101">    return Long.toUnsignedString(id);</span>
+<span class="nc" id="L102">    return Long.toUnsignedString(id);</span>
   }
 
   /**
@@ -107,7 +108,7 @@ public class WebhookClient implements AutoCloseable {
    * @return The URL of this client
    */
   public String getUrl() {
-<span class="nc" id="L110">    return url;</span>
+<span class="nc" id="L111">    return url;</span>
   }
 
   /**
@@ -123,8 +124,8 @@ public class WebhookClient implements AutoCloseable {
    *     execution task, this will be completed once the message was sent.
    */
   public RequestFuture&lt;?&gt; send(WebhookMessage message) {
-<span class="nc" id="L126">    Checks.notNull(message, &quot;WebhookMessage&quot;);</span>
-<span class="nc" id="L127">    return execute(message.getBody());</span>
+<span class="nc" id="L127">    Checks.notNull(message, &quot;WebhookMessage&quot;);</span>
+<span class="nc" id="L128">    return execute(message.getBody());</span>
   }
 
   /**
@@ -139,7 +140,7 @@ public class WebhookClient implements AutoCloseable {
    *     execution task, this will be completed once the message was sent.
    */
   public RequestFuture&lt;?&gt; send(File file) {
-<span class="nc" id="L142">    return send(new WebhookMessageBuilder().setFile(file).build());</span>
+<span class="nc" id="L143">    return send(new WebhookMessageBuilder().setFile(file).build());</span>
   }
 
   /**
@@ -155,7 +156,7 @@ public class WebhookClient implements AutoCloseable {
    *     execution task, this will be completed once the message was sent.
    */
   public RequestFuture&lt;?&gt; send(File file, String fileName) {
-<span class="nc" id="L158">    return send(new WebhookMessageBuilder().setFile(file, fileName).build());</span>
+<span class="nc" id="L159">    return send(new WebhookMessageBuilder().setFile(file, fileName).build());</span>
   }
 
   /**
@@ -171,7 +172,7 @@ public class WebhookClient implements AutoCloseable {
    *     execution task, this will be completed once the message was sent.
    */
   public RequestFuture&lt;?&gt; send(byte[] data, String fileName) {
-<span class="nc" id="L174">    return send(new WebhookMessageBuilder().setFile(data, fileName).build());</span>
+<span class="nc" id="L175">    return send(new WebhookMessageBuilder().setFile(data, fileName).build());</span>
   }
 
   /**
@@ -186,7 +187,7 @@ public class WebhookClient implements AutoCloseable {
    *     execution task, this will be completed once the message was sent.
    */
   public RequestFuture&lt;?&gt; send(InputStream data, String fileName) {
-<span class="nc" id="L189">    return send(new WebhookMessageBuilder().setFile(data, fileName).build());</span>
+<span class="nc" id="L190">    return send(new WebhookMessageBuilder().setFile(data, fileName).build());</span>
   }
 
   /**
@@ -201,7 +202,7 @@ public class WebhookClient implements AutoCloseable {
    *     execution task, this will be completed once the message was sent.
    */
   public RequestFuture&lt;?&gt; send(Message message) {
-<span class="nc" id="L204">    return send(WebhookMessage.from(message));</span>
+<span class="nc" id="L205">    return send(WebhookMessage.from(message));</span>
   }
 
   /**
@@ -222,7 +223,7 @@ public class WebhookClient implements AutoCloseable {
    *     execution task, this will be completed once the message was sent.
    */
   public RequestFuture&lt;?&gt; send(MessageEmbed... embeds) {
-<span class="nc" id="L225">    return send(WebhookMessage.of(embeds));</span>
+<span class="nc" id="L226">    return send(WebhookMessage.of(embeds));</span>
   }
 
   /**
@@ -243,7 +244,7 @@ public class WebhookClient implements AutoCloseable {
    *     execution task, this will be completed once the message was sent.
    */
   public RequestFuture&lt;?&gt; send(Collection&lt;MessageEmbed&gt; embeds) {
-<span class="nc" id="L246">    return send(WebhookMessage.of(embeds));</span>
+<span class="nc" id="L247">    return send(WebhookMessage.of(embeds));</span>
   }
 
   /**
@@ -258,134 +259,133 @@ public class WebhookClient implements AutoCloseable {
    *     execution task, this will be completed once the message was sent.
    */
   public RequestFuture&lt;?&gt; send(String content) {
-<span class="nc" id="L261">    Checks.notBlank(content, &quot;Content&quot;);</span>
-<span class="nc bnc" id="L262" title="All 2 branches missed.">    Checks.check(content.length() &lt;= 2000, &quot;Content may not exceed 2000 characters!&quot;);</span>
-<span class="nc" id="L263">    return execute(newBody(new JSONObject().put(&quot;content&quot;, content).toString()));</span>
+<span class="nc" id="L262">    Checks.notBlank(content, &quot;Content&quot;);</span>
+<span class="nc bnc" id="L263" title="All 2 branches missed.">    Checks.check(content.length() &lt;= 2000, &quot;Content may not exceed 2000 characters!&quot;);</span>
+<span class="nc" id="L264">    return execute(newBody(new JSONObject().put(&quot;content&quot;, content).toString()));</span>
   }
 
   @Override
   public void close() {
-<span class="nc" id="L268">    isShutdown = true;</span>
-<span class="nc" id="L269">    pool.shutdown();</span>
-<span class="nc" id="L270">  }</span>
+<span class="nc" id="L269">    isShutdown = true;</span>
+<span class="nc" id="L270">    pool.shutdown();</span>
+<span class="nc" id="L271">  }</span>
 
   @Override
   protected void finalize() throws Throwable {
-<span class="nc bnc" id="L274" title="All 2 branches missed.">    if (!isShutdown) LOG.warn(&quot;Detected unclosed WebhookClient! Did you forget to close it?&quot;);</span>
-<span class="nc" id="L275">  }</span>
+<span class="nc bnc" id="L275" title="All 2 branches missed.">    if (!isShutdown) LOG.warn(&quot;Detected unclosed WebhookClient! Did you forget to close it?&quot;);</span>
+<span class="nc" id="L276">  }</span>
 
   protected void checkShutdown() {
-<span class="nc bnc" id="L278" title="All 2 branches missed.">    if (isShutdown) throw new RejectedExecutionException(&quot;Cannot send to closed client!&quot;);</span>
-<span class="nc" id="L279">  }</span>
+<span class="nc bnc" id="L279" title="All 2 branches missed.">    if (isShutdown) throw new RejectedExecutionException(&quot;Cannot send to closed client!&quot;);</span>
+<span class="nc" id="L280">  }</span>
 
   protected static RequestBody newBody(String object) {
-<span class="nc" id="L282">    return RequestBody.create(Requester.MEDIA_TYPE_JSON, object);</span>
+<span class="nc" id="L283">    return RequestBody.create(Requester.MEDIA_TYPE_JSON, object);</span>
   }
 
   protected RequestFuture&lt;?&gt; execute(RequestBody body) {
-<span class="nc" id="L286">    checkShutdown();</span>
-<span class="nc" id="L287">    return queueRequest(body);</span>
+<span class="nc" id="L287">    checkShutdown();</span>
+<span class="nc" id="L288">    return queueRequest(body);</span>
   }
 
   protected static HttpException failure(Response response) throws IOException {
-<span class="nc" id="L291">    final InputStream stream = Requester.getBody(response);</span>
-<span class="nc" id="L292">    final String responseBody = new String(IOUtil.readFully(stream));</span>
-<span class="nc" id="L293">    return new HttpException(&quot;Request returned failure &quot; + response.code() + &quot;: &quot; + responseBody);</span>
+<span class="nc" id="L292">    final InputStream stream = Requester.getBody(response);</span>
+<span class="nc" id="L293">    final String responseBody = new String(IOUtil.readFully(stream));</span>
+<span class="nc" id="L294">    return new HttpException(&quot;Request returned failure &quot; + response.code() + &quot;: &quot; + responseBody);</span>
   }
 
   protected RequestFuture&lt;?&gt; queueRequest(RequestBody body) {
-<span class="nc" id="L297">    final boolean wasQueued = isQueued;</span>
-<span class="nc" id="L298">    isQueued = true;</span>
-<span class="nc" id="L299">    Promise&lt;?&gt; callback = new Promise&lt;&gt;();</span>
-<span class="nc" id="L300">    queue.add(ImmutablePair.of(body, callback));</span>
-<span class="nc bnc" id="L301" title="All 2 branches missed.">    if (!wasQueued) backoffQueue();</span>
-<span class="nc" id="L302">    return callback;</span>
+<span class="nc" id="L298">    final boolean wasQueued = isQueued;</span>
+<span class="nc" id="L299">    isQueued = true;</span>
+<span class="nc" id="L300">    Promise&lt;?&gt; callback = new Promise&lt;&gt;();</span>
+<span class="nc" id="L301">    queue.add(ImmutablePair.of(body, callback));</span>
+<span class="nc bnc" id="L302" title="All 2 branches missed.">    if (!wasQueued) backoffQueue();</span>
+<span class="nc" id="L303">    return callback;</span>
   }
 
   protected Request newRequest(RequestBody body) {
-<span class="nc" id="L306">    return new Request.Builder()</span>
-<span class="nc" id="L307">        .url(url)</span>
-<span class="nc" id="L308">        .method(&quot;POST&quot;, body)</span>
-<span class="nc" id="L309">        .header(&quot;accept-encoding&quot;, &quot;gzip&quot;)</span>
-<span class="nc" id="L310">        .header(&quot;user-agent&quot;, USER_AGENT)</span>
-<span class="nc" id="L311">        .build();</span>
+<span class="nc" id="L307">    return new Request.Builder()</span>
+<span class="nc" id="L308">        .url(url)</span>
+<span class="nc" id="L309">        .method(&quot;POST&quot;, body)</span>
+<span class="nc" id="L310">        .header(&quot;accept-encoding&quot;, &quot;gzip&quot;)</span>
+<span class="nc" id="L311">        .header(&quot;user-agent&quot;, USER_AGENT)</span>
+<span class="nc" id="L312">        .build();</span>
   }
 
   protected void backoffQueue() {
-<span class="nc" id="L315">    pool.schedule(this::drainQueue, bucket.retryAfter(), TimeUnit.MILLISECONDS);</span>
-<span class="nc" id="L316">  }</span>
+<span class="nc" id="L316">    pool.schedule(this::drainQueue, bucket.retryAfter(), TimeUnit.MILLISECONDS);</span>
+<span class="nc" id="L317">  }</span>
 
   protected void drainQueue() {
-<span class="nc bnc" id="L319" title="All 2 branches missed.">    while (!queue.isEmpty()) {</span>
-<span class="nc" id="L320">      final Pair&lt;RequestBody, CompletableFuture&lt;?&gt;&gt; pair = queue.peek();</span>
-<span class="nc bnc" id="L321" title="All 2 branches missed.">      if (pair.getRight().isCancelled()) {</span>
-<span class="nc" id="L322">        queue.poll();</span>
-<span class="nc" id="L323">        continue;</span>
+<span class="nc bnc" id="L320" title="All 2 branches missed.">    while (!queue.isEmpty()) {</span>
+<span class="nc" id="L321">      final Pair&lt;RequestBody, CompletableFuture&lt;?&gt;&gt; pair = queue.peek();</span>
+<span class="nc bnc" id="L322" title="All 2 branches missed.">      if (pair.getRight().isCancelled()) {</span>
+<span class="nc" id="L323">        queue.poll();</span>
+<span class="nc" id="L324">        continue;</span>
       }
 
-<span class="nc" id="L326">      final Request request = newRequest(pair.getLeft());</span>
-<span class="nc" id="L327">      try (Response response = client.newCall(request).execute()) {</span>
-<span class="nc" id="L328">        bucket.update(response);</span>
-<span class="nc bnc" id="L329" title="All 2 branches missed.">        if (response.code() == Bucket.RATE_LIMIT_CODE) {</span>
-<span class="nc" id="L330">          backoffQueue();</span>
-<span class="nc" id="L331">          return;</span>
-<span class="nc bnc" id="L332" title="All 2 branches missed.">        } else if (!response.isSuccessful()) {</span>
-<span class="nc" id="L333">          final HttpException exception = failure(response);</span>
-<span class="nc" id="L334">          LOG.error(&quot;Sending a webhook message failed with non-OK http response&quot;, exception);</span>
-<span class="nc" id="L335">          queue.poll().getRight().completeExceptionally(exception);</span>
+<span class="nc" id="L327">      final Request request = newRequest(pair.getLeft());</span>
+<span class="nc" id="L328">      try (Response response = client.newCall(request).execute()) {</span>
+<span class="nc" id="L329">        bucket.update(response);</span>
+<span class="nc bnc" id="L330" title="All 2 branches missed.">        if (response.code() == Bucket.RATE_LIMIT_CODE) {</span>
+<span class="nc" id="L331">          backoffQueue();</span>
+<span class="nc" id="L332">          return;</span>
+<span class="nc bnc" id="L333" title="All 2 branches missed.">        } else if (!response.isSuccessful()) {</span>
+<span class="nc" id="L334">          final HttpException exception = failure(response);</span>
+<span class="nc" id="L335">          LOG.error(&quot;Sending a webhook message failed with non-OK http response&quot;, exception);</span>
+<span class="nc" id="L336">          queue.poll().getRight().completeExceptionally(exception);</span>
           continue;
         }
-<span class="nc" id="L338">        queue.poll().getRight().complete(null);</span>
-<span class="nc bnc" id="L339" title="All 2 branches missed.">        if (bucket.isRateLimit()) {</span>
-<span class="nc" id="L340">          backoffQueue();</span>
-<span class="nc" id="L341">          return;</span>
+<span class="nc" id="L339">        queue.poll().getRight().complete(null);</span>
+<span class="nc bnc" id="L340" title="All 2 branches missed.">        if (bucket.isRateLimit()) {</span>
+<span class="nc" id="L341">          backoffQueue();</span>
+<span class="nc" id="L342">          return;</span>
         }
-<span class="nc" id="L343">      } catch (IOException e) {</span>
-<span class="nc" id="L344">        LOG.error(&quot;There was some error while sending a webhook message&quot;, e);</span>
-<span class="nc" id="L345">        queue.poll().getRight().completeExceptionally(e);</span>
-<span class="nc" id="L346">      }</span>
-<span class="nc" id="L347">    }</span>
-<span class="nc" id="L348">    isQueued = false;</span>
-<span class="nc" id="L349">  }</span>
+<span class="nc" id="L344">      } catch (IOException e) {</span>
+<span class="nc" id="L345">        LOG.error(&quot;There was some error while sending a webhook message&quot;, e);</span>
+<span class="nc" id="L346">        queue.poll().getRight().completeExceptionally(e);</span>
+<span class="nc" id="L347">      }</span>
+<span class="nc" id="L348">    }</span>
+<span class="nc" id="L349">    isQueued = false;</span>
+<span class="nc" id="L350">  }</span>
 
-<span class="nc" id="L351">  protected static final class Bucket {</span>
+<span class="nc" id="L352">  protected static final class Bucket {</span>
     public static final int RATE_LIMIT_CODE = 429;
     public long resetTime;
     public int remainingUses;
-<span class="nc" id="L355">    public int limit = Integer.MAX_VALUE;</span>
+<span class="nc" id="L356">    public int limit = Integer.MAX_VALUE;</span>
 
     public synchronized boolean isRateLimit() {
-<span class="nc bnc" id="L358" title="All 2 branches missed.">      if (retryAfter() &lt;= 0) remainingUses = limit;</span>
-<span class="nc bnc" id="L359" title="All 2 branches missed.">      return remainingUses &lt;= 0;</span>
+<span class="nc bnc" id="L359" title="All 2 branches missed.">      if (retryAfter() &lt;= 0) remainingUses = limit;</span>
+<span class="nc bnc" id="L360" title="All 2 branches missed.">      return remainingUses &lt;= 0;</span>
     }
 
     public synchronized long retryAfter() {
-<span class="nc" id="L363">      return resetTime - System.currentTimeMillis();</span>
+<span class="nc" id="L364">      return resetTime - System.currentTimeMillis();</span>
     }
 
     private synchronized void handleRatelimit(Response response, long current) throws IOException {
-<span class="nc" id="L367">      final String retryAfter = response.header(&quot;Retry-After&quot;);</span>
+<span class="nc" id="L368">      final String retryAfter = response.header(&quot;Retry-After&quot;);</span>
       long delay;
-<span class="nc bnc" id="L369" title="All 2 branches missed.">      if (retryAfter == null) {</span>
-<span class="nc" id="L370">        final JSONObject body = new JSONObject(new JSONTokener(Requester.getBody(response)));</span>
-<span class="nc" id="L371">        delay = body.getLong(&quot;retry_after&quot;);</span>
-<span class="nc" id="L372">      } else {</span>
-<span class="nc" id="L373">        delay = Long.parseLong(retryAfter);</span>
+<span class="nc bnc" id="L370" title="All 2 branches missed.">      if (retryAfter == null) {</span>
+<span class="nc" id="L371">        final JSONObject body = new JSONObject(new JSONTokener(Requester.getBody(response)));</span>
+<span class="nc" id="L372">        delay = body.getLong(&quot;retry_after&quot;);</span>
+<span class="nc" id="L373">      } else {</span>
+<span class="nc" id="L374">        delay = Long.parseLong(retryAfter);</span>
       }
-<span class="nc" id="L375">      resetTime = current + delay;</span>
-<span class="nc" id="L376">    }</span>
+<span class="nc" id="L376">      resetTime = current + delay;</span>
+<span class="nc" id="L377">    }</span>
 
     private synchronized void update0(Response response) throws IOException {
-<span class="nc" id="L379">      final long current = System.currentTimeMillis();</span>
-<span class="nc bnc" id="L380" title="All 2 branches missed.">      final boolean is429 = response.code() == RATE_LIMIT_CODE;</span>
-<span class="nc bnc" id="L381" title="All 2 branches missed.">      if (is429) {</span>
-<span class="nc" id="L382">        handleRatelimit(response, current);</span>
-<span class="nc bnc" id="L383" title="All 2 branches missed.">      } else if (!response.isSuccessful()) {</span>
-<span class="nc" id="L384">        LOG.debug(</span>
+<span class="nc" id="L380">      final long current = System.currentTimeMillis();</span>
+<span class="nc bnc" id="L381" title="All 2 branches missed.">      final boolean is429 = response.code() == RATE_LIMIT_CODE;</span>
+<span class="nc bnc" id="L382" title="All 2 branches missed.">      if (is429) {</span>
+<span class="nc" id="L383">        handleRatelimit(response, current);</span>
+<span class="nc bnc" id="L384" title="All 2 branches missed.">      } else if (!response.isSuccessful()) {</span>
+<span class="nc" id="L385">        LOG.debug(</span>
             &quot;Failed to update buckets due to unsuccessful response with code: {} and body: \n{}&quot;,
-<span class="nc" id="L386">            response.code(),</span>
-<span class="nc" id="L387">            JDALogger.getLazyString(</span>
-<span class="nc" id="L388">                () -&gt; new String(IOUtil.readFully(Requester.getBody(response)))));</span>
+<span class="nc" id="L387">            response.code(),</span>
+<span class="nc" id="L388">            new String(IOUtil.readFully(Requester.getBody(response))));</span>
 <span class="nc" id="L389">        return;</span>
       }
 <span class="nc" id="L391">      remainingUses = Integer.parseInt(response.header(&quot;X-RateLimit-Remaining&quot;));</span>

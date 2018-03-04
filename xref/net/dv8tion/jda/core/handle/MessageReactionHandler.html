@@ -40,36 +40,36 @@
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> net.dv8tion.jda.core.events.message.react.MessageReactionRemoveEvent;
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> net.dv8tion.jda.core.hooks.IEventManager;
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> net.dv8tion.jda.core.requests.WebSocketClient;
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> net.dv8tion.jda.core.utils.JDALogger;
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">import</strong> org.json.JSONObject;
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> org.json.JSONObject;
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> org.slf4j.Logger;
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">import</strong> org.slf4j.LoggerFactory;
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>  
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../net/dv8tion/jda/core/handle/MessageReactionHandler.html">MessageReactionHandler</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../net/dv8tion/jda/core/handle/SocketHandler.html">SocketHandler</a> {
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>  
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> add;
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger LOG = LoggerFactory.getLogger(MessageReactionHandler.<strong class="jxr_keyword">class</strong>);
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>  
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>    <strong class="jxr_keyword">public</strong> <a href="../../../../../net/dv8tion/jda/core/handle/MessageReactionHandler.html">MessageReactionHandler</a>(<a href="../../../../../net/dv8tion/jda/core/entities/impl/JDAImpl.html">JDAImpl</a> api, <strong class="jxr_keyword">boolean</strong> add) {
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>      <strong class="jxr_keyword">super</strong>(api);
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>      <strong class="jxr_keyword">this</strong>.add = add;
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>    }
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>  
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>    @Override
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>    <strong class="jxr_keyword">protected</strong> Long handleInternally(JSONObject content) {
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>      JSONObject emoji = content.getJSONObject(<span class="jxr_string">"emoji"</span>);
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>  
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>      <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> userId = content.getLong(<span class="jxr_string">"user_id"</span>);
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>      <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> messageId = content.getLong(<span class="jxr_string">"message_id"</span>);
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>      <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> channelId = content.getLong(<span class="jxr_string">"channel_id"</span>);
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>  
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>      <strong class="jxr_keyword">final</strong> Long emojiId = emoji.isNull(<span class="jxr_string">"id"</span>) ? <strong class="jxr_keyword">null</strong> : emoji.getLong(<span class="jxr_string">"id"</span>);
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>      String emojiName = emoji.optString(<span class="jxr_string">"name"</span>, <strong class="jxr_keyword">null</strong>);
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>      <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> emojiAnimated = emoji.optBoolean(<span class="jxr_string">"animated"</span>);
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>  
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>      <strong class="jxr_keyword">if</strong> (emojiId == <strong class="jxr_keyword">null</strong> &amp;&amp; emojiName == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>        WebSocketClient.LOG.debug(
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>            <span class="jxr_string">"Received a reaction {} with no name nor id. json: {}"</span>,
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>            JDALogger.getLazyString(() -&gt; add ? <span class="jxr_string">"add"</span> : <span class="jxr_string">"remove"</span>),
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>            content);
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> add;
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>    <strong class="jxr_keyword">public</strong> <a href="../../../../../net/dv8tion/jda/core/handle/MessageReactionHandler.html">MessageReactionHandler</a>(<a href="../../../../../net/dv8tion/jda/core/entities/impl/JDAImpl.html">JDAImpl</a> api, <strong class="jxr_keyword">boolean</strong> add) {
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>      <strong class="jxr_keyword">super</strong>(api);
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>      <strong class="jxr_keyword">this</strong>.add = add;
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>    }
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>  
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>    @Override
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>    <strong class="jxr_keyword">protected</strong> Long handleInternally(JSONObject content) {
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>      JSONObject emoji = content.getJSONObject(<span class="jxr_string">"emoji"</span>);
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>  
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>      <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> userId = content.getLong(<span class="jxr_string">"user_id"</span>);
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>      <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> messageId = content.getLong(<span class="jxr_string">"message_id"</span>);
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>      <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> channelId = content.getLong(<span class="jxr_string">"channel_id"</span>);
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>  
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>      <strong class="jxr_keyword">final</strong> Long emojiId = emoji.isNull(<span class="jxr_string">"id"</span>) ? <strong class="jxr_keyword">null</strong> : emoji.getLong(<span class="jxr_string">"id"</span>);
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>      String emojiName = emoji.optString(<span class="jxr_string">"name"</span>, <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>      <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> emojiAnimated = emoji.optBoolean(<span class="jxr_string">"animated"</span>);
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>  
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>      <strong class="jxr_keyword">if</strong> (emojiId == <strong class="jxr_keyword">null</strong> &amp;&amp; emojiName == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>        LOG.debug(
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>            <span class="jxr_string">"Received a reaction {} with no name nor id. json: {}"</span>, add ? <span class="jxr_string">"add"</span> : <span class="jxr_string">"remove"</span>, content);
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>        <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>      }
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>  
@@ -108,81 +108,79 @@
 <a class="jxr_linenumber" name="L100" href="#L100">100</a>         <strong class="jxr_keyword">if</strong> (emojiName != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L101" href="#L101">101</a>           emote = <strong class="jxr_keyword">new</strong> <a href="../../../../../net/dv8tion/jda/core/entities/impl/EmoteImpl.html">EmoteImpl</a>(emojiId, api).setAnimated(emojiAnimated).setName(emojiName);
 <a class="jxr_linenumber" name="L102" href="#L102">102</a>         } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>           WebSocketClient.LOG.debug(
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>               <span class="jxr_string">"Received a reaction {} with a null name. json: {}"</span>,
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>               JDALogger.getLazyString(() -&gt; add ? <span class="jxr_string">"add"</span> : <span class="jxr_string">"remove"</span>),
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>               content);
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>           <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>         }
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>       }
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>       rEmote = <strong class="jxr_keyword">new</strong> MessageReaction.ReactionEmote(emote);
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>     } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L112" href="#L112">112</a>       rEmote = <strong class="jxr_keyword">new</strong> MessageReaction.ReactionEmote(emojiName, <strong class="jxr_keyword">null</strong>, api);
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>     }
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>     <a href="../../../../../net/dv8tion/jda/core/entities/MessageReaction.html">MessageReaction</a> reaction =
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>         <strong class="jxr_keyword">new</strong> <a href="../../../../../net/dv8tion/jda/core/entities/MessageReaction.html">MessageReaction</a>(channel, rEmote, messageId, user.equals(api.getSelfUser()), -1);
-<a class="jxr_linenumber" name="L116" href="#L116">116</a> 
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>     <strong class="jxr_keyword">if</strong> (add) onAdd(reaction, user);
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>     <strong class="jxr_keyword">else</strong> onRemove(reaction, user);
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L120" href="#L120">120</a>   }
-<a class="jxr_linenumber" name="L121" href="#L121">121</a> 
-<a class="jxr_linenumber" name="L122" href="#L122">122</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> onAdd(<a href="../../../../../net/dv8tion/jda/core/entities/MessageReaction.html">MessageReaction</a> reaction, <a href="../../../../../net/dv8tion/jda/core/entities/User.html">User</a> user) {
-<a class="jxr_linenumber" name="L123" href="#L123">123</a>     <a href="../../../../../net/dv8tion/jda/core/hooks/IEventManager.html">IEventManager</a> manager = api.getEventManager();
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>     <strong class="jxr_keyword">switch</strong> (reaction.getChannelType()) {
-<a class="jxr_linenumber" name="L125" href="#L125">125</a>       <strong class="jxr_keyword">case</strong> TEXT:
-<a class="jxr_linenumber" name="L126" href="#L126">126</a>         manager.handle(
-<a class="jxr_linenumber" name="L127" href="#L127">127</a>             <strong class="jxr_keyword">new</strong> <a href="../../../../../net/dv8tion/jda/core/events/message/guild/react/GuildMessageReactionAddEvent.html">GuildMessageReactionAddEvent</a>(
-<a class="jxr_linenumber" name="L128" href="#L128">128</a>                 api, responseNumber,
-<a class="jxr_linenumber" name="L129" href="#L129">129</a>                 user, reaction));
-<a class="jxr_linenumber" name="L130" href="#L130">130</a>         <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L131" href="#L131">131</a>       <strong class="jxr_keyword">case</strong> GROUP:
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>         manager.handle(
-<a class="jxr_linenumber" name="L133" href="#L133">133</a>             <strong class="jxr_keyword">new</strong> <a href="../../../../../net/dv8tion/jda/client/events/message/group/react/GroupMessageReactionAddEvent.html">GroupMessageReactionAddEvent</a>(
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>                 api, responseNumber,
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>                 user, reaction));
-<a class="jxr_linenumber" name="L136" href="#L136">136</a>         <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L137" href="#L137">137</a>       <strong class="jxr_keyword">case</strong> PRIVATE:
-<a class="jxr_linenumber" name="L138" href="#L138">138</a>         manager.handle(
-<a class="jxr_linenumber" name="L139" href="#L139">139</a>             <strong class="jxr_keyword">new</strong> <a href="../../../../../net/dv8tion/jda/core/events/message/priv/react/PrivateMessageReactionAddEvent.html">PrivateMessageReactionAddEvent</a>(
-<a class="jxr_linenumber" name="L140" href="#L140">140</a>                 api, responseNumber,
-<a class="jxr_linenumber" name="L141" href="#L141">141</a>                 user, reaction));
-<a class="jxr_linenumber" name="L142" href="#L142">142</a>     }
-<a class="jxr_linenumber" name="L143" href="#L143">143</a> 
-<a class="jxr_linenumber" name="L144" href="#L144">144</a>     manager.handle(
-<a class="jxr_linenumber" name="L145" href="#L145">145</a>         <strong class="jxr_keyword">new</strong> <a href="../../../../../net/dv8tion/jda/core/events/message/react/MessageReactionAddEvent.html">MessageReactionAddEvent</a>(
-<a class="jxr_linenumber" name="L146" href="#L146">146</a>             api, responseNumber,
-<a class="jxr_linenumber" name="L147" href="#L147">147</a>             user, reaction));
-<a class="jxr_linenumber" name="L148" href="#L148">148</a>   }
-<a class="jxr_linenumber" name="L149" href="#L149">149</a> 
-<a class="jxr_linenumber" name="L150" href="#L150">150</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> onRemove(<a href="../../../../../net/dv8tion/jda/core/entities/MessageReaction.html">MessageReaction</a> reaction, <a href="../../../../../net/dv8tion/jda/core/entities/User.html">User</a> user) {
-<a class="jxr_linenumber" name="L151" href="#L151">151</a>     <a href="../../../../../net/dv8tion/jda/core/hooks/IEventManager.html">IEventManager</a> manager = api.getEventManager();
-<a class="jxr_linenumber" name="L152" href="#L152">152</a>     <strong class="jxr_keyword">switch</strong> (reaction.getChannelType()) {
-<a class="jxr_linenumber" name="L153" href="#L153">153</a>       <strong class="jxr_keyword">case</strong> TEXT:
-<a class="jxr_linenumber" name="L154" href="#L154">154</a>         manager.handle(
-<a class="jxr_linenumber" name="L155" href="#L155">155</a>             <strong class="jxr_keyword">new</strong> <a href="../../../../../net/dv8tion/jda/core/events/message/guild/react/GuildMessageReactionRemoveEvent.html">GuildMessageReactionRemoveEvent</a>(
-<a class="jxr_linenumber" name="L156" href="#L156">156</a>                 api, responseNumber,
-<a class="jxr_linenumber" name="L157" href="#L157">157</a>                 user, reaction));
-<a class="jxr_linenumber" name="L158" href="#L158">158</a>         <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L159" href="#L159">159</a>       <strong class="jxr_keyword">case</strong> GROUP:
-<a class="jxr_linenumber" name="L160" href="#L160">160</a>         manager.handle(
-<a class="jxr_linenumber" name="L161" href="#L161">161</a>             <strong class="jxr_keyword">new</strong> <a href="../../../../../net/dv8tion/jda/client/events/message/group/react/GroupMessageReactionRemoveEvent.html">GroupMessageReactionRemoveEvent</a>(
-<a class="jxr_linenumber" name="L162" href="#L162">162</a>                 api, responseNumber,
-<a class="jxr_linenumber" name="L163" href="#L163">163</a>                 user, reaction));
-<a class="jxr_linenumber" name="L164" href="#L164">164</a>         <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L165" href="#L165">165</a>       <strong class="jxr_keyword">case</strong> PRIVATE:
-<a class="jxr_linenumber" name="L166" href="#L166">166</a>         manager.handle(
-<a class="jxr_linenumber" name="L167" href="#L167">167</a>             <strong class="jxr_keyword">new</strong> <a href="../../../../../net/dv8tion/jda/core/events/message/priv/react/PrivateMessageReactionRemoveEvent.html">PrivateMessageReactionRemoveEvent</a>(
-<a class="jxr_linenumber" name="L168" href="#L168">168</a>                 api, responseNumber,
-<a class="jxr_linenumber" name="L169" href="#L169">169</a>                 user, reaction));
-<a class="jxr_linenumber" name="L170" href="#L170">170</a>     }
-<a class="jxr_linenumber" name="L171" href="#L171">171</a> 
-<a class="jxr_linenumber" name="L172" href="#L172">172</a>     manager.handle(
-<a class="jxr_linenumber" name="L173" href="#L173">173</a>         <strong class="jxr_keyword">new</strong> <a href="../../../../../net/dv8tion/jda/core/events/message/react/MessageReactionRemoveEvent.html">MessageReactionRemoveEvent</a>(
-<a class="jxr_linenumber" name="L174" href="#L174">174</a>             api, responseNumber,
-<a class="jxr_linenumber" name="L175" href="#L175">175</a>             user, reaction));
-<a class="jxr_linenumber" name="L176" href="#L176">176</a>   }
-<a class="jxr_linenumber" name="L177" href="#L177">177</a> }
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>           LOG.debug(
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>               <span class="jxr_string">"Received a reaction {} with a null name. json: {}"</span>, add ? <span class="jxr_string">"add"</span> : <span class="jxr_string">"remove"</span>, content);
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>           <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>         }
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>       }
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>       rEmote = <strong class="jxr_keyword">new</strong> MessageReaction.ReactionEmote(emote);
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>     } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>       rEmote = <strong class="jxr_keyword">new</strong> MessageReaction.ReactionEmote(emojiName, <strong class="jxr_keyword">null</strong>, api);
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>     }
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>     <a href="../../../../../net/dv8tion/jda/core/entities/MessageReaction.html">MessageReaction</a> reaction =
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>         <strong class="jxr_keyword">new</strong> <a href="../../../../../net/dv8tion/jda/core/entities/MessageReaction.html">MessageReaction</a>(channel, rEmote, messageId, user.equals(api.getSelfUser()), -1);
+<a class="jxr_linenumber" name="L114" href="#L114">114</a> 
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>     <strong class="jxr_keyword">if</strong> (add) onAdd(reaction, user);
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>     <strong class="jxr_keyword">else</strong> onRemove(reaction, user);
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>   }
+<a class="jxr_linenumber" name="L119" href="#L119">119</a> 
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> onAdd(<a href="../../../../../net/dv8tion/jda/core/entities/MessageReaction.html">MessageReaction</a> reaction, <a href="../../../../../net/dv8tion/jda/core/entities/User.html">User</a> user) {
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>     <a href="../../../../../net/dv8tion/jda/core/hooks/IEventManager.html">IEventManager</a> manager = api.getEventManager();
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>     <strong class="jxr_keyword">switch</strong> (reaction.getChannelType()) {
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>       <strong class="jxr_keyword">case</strong> TEXT:
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>         manager.handle(
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>             <strong class="jxr_keyword">new</strong> <a href="../../../../../net/dv8tion/jda/core/events/message/guild/react/GuildMessageReactionAddEvent.html">GuildMessageReactionAddEvent</a>(
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>                 api, responseNumber,
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>                 user, reaction));
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>         <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>       <strong class="jxr_keyword">case</strong> GROUP:
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>         manager.handle(
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>             <strong class="jxr_keyword">new</strong> <a href="../../../../../net/dv8tion/jda/client/events/message/group/react/GroupMessageReactionAddEvent.html">GroupMessageReactionAddEvent</a>(
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>                 api, responseNumber,
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>                 user, reaction));
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>         <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>       <strong class="jxr_keyword">case</strong> PRIVATE:
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>         manager.handle(
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>             <strong class="jxr_keyword">new</strong> <a href="../../../../../net/dv8tion/jda/core/events/message/priv/react/PrivateMessageReactionAddEvent.html">PrivateMessageReactionAddEvent</a>(
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>                 api, responseNumber,
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>                 user, reaction));
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>     }
+<a class="jxr_linenumber" name="L141" href="#L141">141</a> 
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>     manager.handle(
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>         <strong class="jxr_keyword">new</strong> <a href="../../../../../net/dv8tion/jda/core/events/message/react/MessageReactionAddEvent.html">MessageReactionAddEvent</a>(
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>             api, responseNumber,
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>             user, reaction));
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>   }
+<a class="jxr_linenumber" name="L147" href="#L147">147</a> 
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> onRemove(<a href="../../../../../net/dv8tion/jda/core/entities/MessageReaction.html">MessageReaction</a> reaction, <a href="../../../../../net/dv8tion/jda/core/entities/User.html">User</a> user) {
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>     <a href="../../../../../net/dv8tion/jda/core/hooks/IEventManager.html">IEventManager</a> manager = api.getEventManager();
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>     <strong class="jxr_keyword">switch</strong> (reaction.getChannelType()) {
+<a class="jxr_linenumber" name="L151" href="#L151">151</a>       <strong class="jxr_keyword">case</strong> TEXT:
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>         manager.handle(
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>             <strong class="jxr_keyword">new</strong> <a href="../../../../../net/dv8tion/jda/core/events/message/guild/react/GuildMessageReactionRemoveEvent.html">GuildMessageReactionRemoveEvent</a>(
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>                 api, responseNumber,
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>                 user, reaction));
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>         <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>       <strong class="jxr_keyword">case</strong> GROUP:
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>         manager.handle(
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>             <strong class="jxr_keyword">new</strong> <a href="../../../../../net/dv8tion/jda/client/events/message/group/react/GroupMessageReactionRemoveEvent.html">GroupMessageReactionRemoveEvent</a>(
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>                 api, responseNumber,
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>                 user, reaction));
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>         <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>       <strong class="jxr_keyword">case</strong> PRIVATE:
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>         manager.handle(
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>             <strong class="jxr_keyword">new</strong> <a href="../../../../../net/dv8tion/jda/core/events/message/priv/react/PrivateMessageReactionRemoveEvent.html">PrivateMessageReactionRemoveEvent</a>(
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>                 api, responseNumber,
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>                 user, reaction));
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>     }
+<a class="jxr_linenumber" name="L169" href="#L169">169</a> 
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>     manager.handle(
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>         <strong class="jxr_keyword">new</strong> <a href="../../../../../net/dv8tion/jda/core/events/message/react/MessageReactionRemoveEvent.html">MessageReactionRemoveEvent</a>(
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>             api, responseNumber,
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>             user, reaction));
+<a class="jxr_linenumber" name="L174" href="#L174">174</a>   }
+<a class="jxr_linenumber" name="L175" href="#L175">175</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2018. All rights reserved.</div>

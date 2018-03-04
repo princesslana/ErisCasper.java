@@ -45,79 +45,81 @@ import net.dv8tion.jda.core.exceptions.AccountTypeException;
 import net.dv8tion.jda.core.handle.GuildMembersChunkHandler;
 import net.dv8tion.jda.core.handle.ReadyHandler;
 import net.dv8tion.jda.core.utils.Helpers;
-import net.dv8tion.jda.core.utils.JDALogger;
 import net.dv8tion.jda.core.utils.MiscUtil;
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class EntityBuilder {
-<span class="nc" id="L57">  public static final Logger LOG = JDALogger.getLog(EntityBuilder.class);</span>
+
+<span class="nc" id="L58">  public static final Logger LOG = LoggerFactory.getLogger(EntityBuilder.class);</span>
+
   public static final String MISSING_CHANNEL = &quot;MISSING_CHANNEL&quot;;
   public static final String MISSING_USER = &quot;MISSING_USER&quot;;
   public static final String UNKNOWN_MESSAGE_TYPE = &quot;UNKNOWN_MESSAGE_TYPE&quot;;
 
   protected final JDAImpl api;
-<span class="nc" id="L63">  protected final TLongObjectMap&lt;JSONObject&gt; cachedGuildJsons = MiscUtil.newLongMap();</span>
-<span class="nc" id="L64">  protected final TLongObjectMap&lt;Consumer&lt;Guild&gt;&gt; cachedGuildCallbacks = MiscUtil.newLongMap();</span>
+<span class="nc" id="L65">  protected final TLongObjectMap&lt;JSONObject&gt; cachedGuildJsons = MiscUtil.newLongMap();</span>
+<span class="nc" id="L66">  protected final TLongObjectMap&lt;Consumer&lt;Guild&gt;&gt; cachedGuildCallbacks = MiscUtil.newLongMap();</span>
 
-<span class="nc" id="L66">  public EntityBuilder(JDA api) {</span>
-<span class="nc" id="L67">    this.api = (JDAImpl) api;</span>
-<span class="nc" id="L68">  }</span>
+<span class="nc" id="L68">  public EntityBuilder(JDA api) {</span>
+<span class="nc" id="L69">    this.api = (JDAImpl) api;</span>
+<span class="nc" id="L70">  }</span>
 
   public SelfUser createSelfUser(JSONObject self) {
-<span class="nc" id="L71">    SelfUserImpl selfUser = ((SelfUserImpl) api.getSelfUser());</span>
-<span class="nc bnc" id="L72" title="All 2 branches missed.">    if (selfUser == null) {</span>
-<span class="nc" id="L73">      final long id = self.getLong(&quot;id&quot;);</span>
-<span class="nc" id="L74">      selfUser = new SelfUserImpl(id, api);</span>
-<span class="nc" id="L75">      api.setSelfUser(selfUser);</span>
+<span class="nc" id="L73">    SelfUserImpl selfUser = ((SelfUserImpl) api.getSelfUser());</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">    if (selfUser == null) {</span>
+<span class="nc" id="L75">      final long id = self.getLong(&quot;id&quot;);</span>
+<span class="nc" id="L76">      selfUser = new SelfUserImpl(id, api);</span>
+<span class="nc" id="L77">      api.setSelfUser(selfUser);</span>
     }
 
-<span class="nc bnc" id="L78" title="All 2 branches missed.">    if (!api.getUserMap().containsKey(selfUser.getIdLong()))</span>
-<span class="nc" id="L79">      api.getUserMap().put(selfUser.getIdLong(), selfUser);</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">    if (!api.getUserMap().containsKey(selfUser.getIdLong()))</span>
+<span class="nc" id="L81">      api.getUserMap().put(selfUser.getIdLong(), selfUser);</span>
 
-<span class="nc" id="L81">    selfUser</span>
-<span class="nc" id="L82">        .setVerified(self.getBoolean(&quot;verified&quot;))</span>
-<span class="nc" id="L83">        .setMfaEnabled(self.getBoolean(&quot;mfa_enabled&quot;))</span>
-<span class="nc" id="L84">        .setName(self.getString(&quot;username&quot;))</span>
-<span class="nc" id="L85">        .setDiscriminator(self.getString(&quot;discriminator&quot;))</span>
-<span class="nc" id="L86">        .setAvatarId(self.optString(&quot;avatar&quot;, null))</span>
-<span class="nc" id="L87">        .setBot(Helpers.optBoolean(self, &quot;bot&quot;));</span>
+<span class="nc" id="L83">    selfUser</span>
+<span class="nc" id="L84">        .setVerified(self.getBoolean(&quot;verified&quot;))</span>
+<span class="nc" id="L85">        .setMfaEnabled(self.getBoolean(&quot;mfa_enabled&quot;))</span>
+<span class="nc" id="L86">        .setName(self.getString(&quot;username&quot;))</span>
+<span class="nc" id="L87">        .setDiscriminator(self.getString(&quot;discriminator&quot;))</span>
+<span class="nc" id="L88">        .setAvatarId(self.optString(&quot;avatar&quot;, null))</span>
+<span class="nc" id="L89">        .setBot(Helpers.optBoolean(self, &quot;bot&quot;));</span>
 
-<span class="nc bnc" id="L89" title="All 2 branches missed.">    if (this.api.getAccountType() == AccountType.CLIENT) {</span>
-<span class="nc" id="L90">      selfUser</span>
-<span class="nc" id="L91">          .setEmail(self.optString(&quot;email&quot;, null))</span>
-<span class="nc" id="L92">          .setMobile(Helpers.optBoolean(self, &quot;mobile&quot;))</span>
-<span class="nc" id="L93">          .setNitro(Helpers.optBoolean(self, &quot;premium&quot;))</span>
-<span class="nc" id="L94">          .setPhoneNumber(self.optString(&quot;phone&quot;, null));</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">    if (this.api.getAccountType() == AccountType.CLIENT) {</span>
+<span class="nc" id="L92">      selfUser</span>
+<span class="nc" id="L93">          .setEmail(self.optString(&quot;email&quot;, null))</span>
+<span class="nc" id="L94">          .setMobile(Helpers.optBoolean(self, &quot;mobile&quot;))</span>
+<span class="nc" id="L95">          .setNitro(Helpers.optBoolean(self, &quot;premium&quot;))</span>
+<span class="nc" id="L96">          .setPhoneNumber(self.optString(&quot;phone&quot;, null));</span>
     }
 
-<span class="nc" id="L97">    return selfUser;</span>
+<span class="nc" id="L99">    return selfUser;</span>
   }
 
   public Game createGame(String name, String url, Game.GameType type) {
-<span class="nc" id="L101">    return new Game(name, url, type);</span>
+<span class="nc" id="L103">    return new Game(name, url, type);</span>
   }
 
   public void createGuildFirstPass(JSONObject guild, Consumer&lt;Guild&gt; secondPassCallback) {
-<span class="nc" id="L105">    final long id = guild.getLong(&quot;id&quot;);</span>
-<span class="nc" id="L106">    GuildImpl guildObj = ((GuildImpl) api.getGuildMap().get(id));</span>
-<span class="nc bnc" id="L107" title="All 2 branches missed.">    if (guildObj == null) {</span>
-<span class="nc" id="L108">      guildObj = new GuildImpl(api, id);</span>
-<span class="nc" id="L109">      api.getGuildMap().put(id, guildObj);</span>
+<span class="nc" id="L107">    final long id = guild.getLong(&quot;id&quot;);</span>
+<span class="nc" id="L108">    GuildImpl guildObj = ((GuildImpl) api.getGuildMap().get(id));</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">    if (guildObj == null) {</span>
+<span class="nc" id="L110">      guildObj = new GuildImpl(api, id);</span>
+<span class="nc" id="L111">      api.getGuildMap().put(id, guildObj);</span>
     }
-<span class="nc bnc" id="L111" title="All 2 branches missed.">    if (Helpers.optBoolean(guild, &quot;unavailable&quot;)) {</span>
-<span class="nc" id="L112">      guildObj.setAvailable(false);</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">    if (Helpers.optBoolean(guild, &quot;unavailable&quot;)) {</span>
+<span class="nc" id="L114">      guildObj.setAvailable(false);</span>
       // This is used for when GuildCreateHandler receives a guild that is currently unavailable.
       // During normal READY
       // loading for bots (which unavailable is always true) the secondPassCallback parameter will
       // always
       // be null.
-<span class="nc bnc" id="L118" title="All 2 branches missed.">      if (secondPassCallback != null) secondPassCallback.accept(guildObj);</span>
-<span class="nc" id="L119">      api.getGuildLock().lock(id);</span>
-<span class="nc" id="L120">      return;</span>
+<span class="nc bnc" id="L120" title="All 2 branches missed.">      if (secondPassCallback != null) secondPassCallback.accept(guildObj);</span>
+<span class="nc" id="L121">      api.getGuildLock().lock(id);</span>
+<span class="nc" id="L122">      return;</span>
     }
 
     // If we make it to here, the Guild is available. This means 1 of 2 things:
@@ -143,117 +145,117 @@ public class EntityBuilder {
     // that might rely on Users that we don't have due to needing the GUILD_MEMBERS_CHUNK
     // This includes making VoiceStatus and PermissionOverrides
 
-<span class="nc" id="L146">    guildObj</span>
-<span class="nc" id="L147">        .setAvailable(true)</span>
-<span class="nc" id="L148">        .setIconId(guild.optString(&quot;icon&quot;, null))</span>
-<span class="nc" id="L149">        .setSplashId(guild.optString(&quot;splash&quot;, null))</span>
-<span class="nc" id="L150">        .setRegion(guild.getString(&quot;region&quot;))</span>
-<span class="nc" id="L151">        .setName(guild.getString(&quot;name&quot;))</span>
-<span class="nc" id="L152">        .setAfkTimeout(Guild.Timeout.fromKey(guild.getInt(&quot;afk_timeout&quot;)))</span>
-<span class="nc" id="L153">        .setVerificationLevel(Guild.VerificationLevel.fromKey(guild.getInt(&quot;verification_level&quot;)))</span>
-<span class="nc" id="L154">        .setDefaultNotificationLevel(</span>
-<span class="nc" id="L155">            Guild.NotificationLevel.fromKey(guild.getInt(&quot;default_message_notifications&quot;)))</span>
-<span class="nc" id="L156">        .setRequiredMFALevel(Guild.MFALevel.fromKey(guild.getInt(&quot;mfa_level&quot;)))</span>
-<span class="nc" id="L157">        .setExplicitContentLevel(</span>
-<span class="nc" id="L158">            Guild.ExplicitContentLevel.fromKey(guild.getInt(&quot;explicit_content_filter&quot;)));</span>
+<span class="nc" id="L148">    guildObj</span>
+<span class="nc" id="L149">        .setAvailable(true)</span>
+<span class="nc" id="L150">        .setIconId(guild.optString(&quot;icon&quot;, null))</span>
+<span class="nc" id="L151">        .setSplashId(guild.optString(&quot;splash&quot;, null))</span>
+<span class="nc" id="L152">        .setRegion(guild.getString(&quot;region&quot;))</span>
+<span class="nc" id="L153">        .setName(guild.getString(&quot;name&quot;))</span>
+<span class="nc" id="L154">        .setAfkTimeout(Guild.Timeout.fromKey(guild.getInt(&quot;afk_timeout&quot;)))</span>
+<span class="nc" id="L155">        .setVerificationLevel(Guild.VerificationLevel.fromKey(guild.getInt(&quot;verification_level&quot;)))</span>
+<span class="nc" id="L156">        .setDefaultNotificationLevel(</span>
+<span class="nc" id="L157">            Guild.NotificationLevel.fromKey(guild.getInt(&quot;default_message_notifications&quot;)))</span>
+<span class="nc" id="L158">        .setRequiredMFALevel(Guild.MFALevel.fromKey(guild.getInt(&quot;mfa_level&quot;)))</span>
+<span class="nc" id="L159">        .setExplicitContentLevel(</span>
+<span class="nc" id="L160">            Guild.ExplicitContentLevel.fromKey(guild.getInt(&quot;explicit_content_filter&quot;)));</span>
 
-<span class="nc bnc" id="L160" title="All 2 branches missed.">    if (guild.isNull(&quot;features&quot;)) guildObj.setFeatures(Collections.emptySet());</span>
+<span class="nc bnc" id="L162" title="All 2 branches missed.">    if (guild.isNull(&quot;features&quot;)) guildObj.setFeatures(Collections.emptySet());</span>
     else {
-<span class="nc" id="L162">      guildObj.setFeatures(</span>
-<span class="nc" id="L163">          StreamSupport.stream(guild.getJSONArray(&quot;features&quot;).spliterator(), false)</span>
-<span class="nc" id="L164">              .map(String::valueOf)</span>
-<span class="nc" id="L165">              .collect(Collectors.toSet()));</span>
+<span class="nc" id="L164">      guildObj.setFeatures(</span>
+<span class="nc" id="L165">          StreamSupport.stream(guild.getJSONArray(&quot;features&quot;).spliterator(), false)</span>
+<span class="nc" id="L166">              .map(String::valueOf)</span>
+<span class="nc" id="L167">              .collect(Collectors.toSet()));</span>
     }
 
-<span class="nc" id="L168">    JSONArray roles = guild.getJSONArray(&quot;roles&quot;);</span>
-<span class="nc bnc" id="L169" title="All 2 branches missed.">    for (int i = 0; i &lt; roles.length(); i++) {</span>
-<span class="nc" id="L170">      Role role = createRole(roles.getJSONObject(i), guildObj.getIdLong());</span>
-<span class="nc" id="L171">      guildObj.getRolesMap().put(role.getIdLong(), role);</span>
-<span class="nc bnc" id="L172" title="All 2 branches missed.">      if (role.getIdLong() == guildObj.getIdLong()) guildObj.setPublicRole(role);</span>
+<span class="nc" id="L170">    JSONArray roles = guild.getJSONArray(&quot;roles&quot;);</span>
+<span class="nc bnc" id="L171" title="All 2 branches missed.">    for (int i = 0; i &lt; roles.length(); i++) {</span>
+<span class="nc" id="L172">      Role role = createRole(roles.getJSONObject(i), guildObj.getIdLong());</span>
+<span class="nc" id="L173">      guildObj.getRolesMap().put(role.getIdLong(), role);</span>
+<span class="nc bnc" id="L174" title="All 2 branches missed.">      if (role.getIdLong() == guildObj.getIdLong()) guildObj.setPublicRole(role);</span>
     }
 
-<span class="nc bnc" id="L175" title="All 2 branches missed.">    if (!guild.isNull(&quot;emojis&quot;)) {</span>
-<span class="nc" id="L176">      JSONArray array = guild.getJSONArray(&quot;emojis&quot;);</span>
-<span class="nc" id="L177">      TLongObjectMap&lt;Emote&gt; emoteMap = guildObj.getEmoteMap();</span>
-<span class="nc bnc" id="L178" title="All 2 branches missed.">      for (int i = 0; i &lt; array.length(); i++) {</span>
-<span class="nc" id="L179">        JSONObject object = array.getJSONObject(i);</span>
-<span class="nc bnc" id="L180" title="All 2 branches missed.">        if (object.isNull(&quot;id&quot;)) {</span>
-<span class="nc" id="L181">          LOG.error(&quot;Received GUILD_CREATE with an emoji with a null ID. JSON: {}&quot;, object);</span>
-<span class="nc" id="L182">          continue;</span>
+<span class="nc bnc" id="L177" title="All 2 branches missed.">    if (!guild.isNull(&quot;emojis&quot;)) {</span>
+<span class="nc" id="L178">      JSONArray array = guild.getJSONArray(&quot;emojis&quot;);</span>
+<span class="nc" id="L179">      TLongObjectMap&lt;Emote&gt; emoteMap = guildObj.getEmoteMap();</span>
+<span class="nc bnc" id="L180" title="All 2 branches missed.">      for (int i = 0; i &lt; array.length(); i++) {</span>
+<span class="nc" id="L181">        JSONObject object = array.getJSONObject(i);</span>
+<span class="nc bnc" id="L182" title="All 2 branches missed.">        if (object.isNull(&quot;id&quot;)) {</span>
+<span class="nc" id="L183">          LOG.error(&quot;Received GUILD_CREATE with an emoji with a null ID. JSON: {}&quot;, object);</span>
+<span class="nc" id="L184">          continue;</span>
         }
-<span class="nc" id="L184">        JSONArray emoteRoles =</span>
-<span class="nc bnc" id="L185" title="All 2 branches missed.">            object.isNull(&quot;roles&quot;) ? new JSONArray() : object.getJSONArray(&quot;roles&quot;);</span>
-<span class="nc" id="L186">        final long emoteId = object.getLong(&quot;id&quot;);</span>
+<span class="nc" id="L186">        JSONArray emoteRoles =</span>
+<span class="nc bnc" id="L187" title="All 2 branches missed.">            object.isNull(&quot;roles&quot;) ? new JSONArray() : object.getJSONArray(&quot;roles&quot;);</span>
+<span class="nc" id="L188">        final long emoteId = object.getLong(&quot;id&quot;);</span>
 
-<span class="nc" id="L188">        EmoteImpl emoteObj = new EmoteImpl(emoteId, guildObj);</span>
-<span class="nc" id="L189">        Set&lt;Role&gt; roleSet = emoteObj.getRoleSet();</span>
+<span class="nc" id="L190">        EmoteImpl emoteObj = new EmoteImpl(emoteId, guildObj);</span>
+<span class="nc" id="L191">        Set&lt;Role&gt; roleSet = emoteObj.getRoleSet();</span>
 
-<span class="nc bnc" id="L191" title="All 2 branches missed.">        for (int j = 0; j &lt; emoteRoles.length(); j++)</span>
-<span class="nc" id="L192">          roleSet.add(guildObj.getRoleById(emoteRoles.getString(j)));</span>
-<span class="nc" id="L193">        emoteMap.put(</span>
+<span class="nc bnc" id="L193" title="All 2 branches missed.">        for (int j = 0; j &lt; emoteRoles.length(); j++)</span>
+<span class="nc" id="L194">          roleSet.add(guildObj.getRoleById(emoteRoles.getString(j)));</span>
+<span class="nc" id="L195">        emoteMap.put(</span>
             emoteId,
             emoteObj
-<span class="nc" id="L196">                .setName(object.optString(&quot;name&quot;))</span>
-<span class="nc" id="L197">                .setAnimated(object.optBoolean(&quot;animated&quot;))</span>
-<span class="nc" id="L198">                .setManaged(Helpers.optBoolean(object, &quot;managed&quot;)));</span>
+<span class="nc" id="L198">                .setName(object.optString(&quot;name&quot;))</span>
+<span class="nc" id="L199">                .setAnimated(object.optBoolean(&quot;animated&quot;))</span>
+<span class="nc" id="L200">                .setManaged(Helpers.optBoolean(object, &quot;managed&quot;)));</span>
       }
     }
 
-<span class="nc bnc" id="L202" title="All 2 branches missed.">    if (guild.has(&quot;members&quot;)) {</span>
-<span class="nc" id="L203">      JSONArray members = guild.getJSONArray(&quot;members&quot;);</span>
-<span class="nc" id="L204">      createGuildMemberPass(guildObj, members);</span>
+<span class="nc bnc" id="L204" title="All 2 branches missed.">    if (guild.has(&quot;members&quot;)) {</span>
+<span class="nc" id="L205">      JSONArray members = guild.getJSONArray(&quot;members&quot;);</span>
+<span class="nc" id="L206">      createGuildMemberPass(guildObj, members);</span>
     }
 
     // This could be null for Client accounts. Will be fixed by GUILD_SYNC
-<span class="nc" id="L208">    Member owner = guildObj.getMemberById(guild.getLong(&quot;owner_id&quot;));</span>
-<span class="nc bnc" id="L209" title="All 2 branches missed.">    if (owner != null) guildObj.setOwner(owner);</span>
+<span class="nc" id="L210">    Member owner = guildObj.getMemberById(guild.getLong(&quot;owner_id&quot;));</span>
+<span class="nc bnc" id="L211" title="All 2 branches missed.">    if (owner != null) guildObj.setOwner(owner);</span>
 
-<span class="nc bnc" id="L211" title="All 2 branches missed.">    if (guild.has(&quot;presences&quot;)) {</span>
-<span class="nc" id="L212">      JSONArray presences = guild.getJSONArray(&quot;presences&quot;);</span>
-<span class="nc bnc" id="L213" title="All 2 branches missed.">      for (int i = 0; i &lt; presences.length(); i++) {</span>
-<span class="nc" id="L214">        JSONObject presence = presences.getJSONObject(i);</span>
-<span class="nc" id="L215">        final long userId = presence.getJSONObject(&quot;user&quot;).getLong(&quot;id&quot;);</span>
-<span class="nc" id="L216">        MemberImpl member = (MemberImpl) guildObj.getMembersMap().get(userId);</span>
+<span class="nc bnc" id="L213" title="All 2 branches missed.">    if (guild.has(&quot;presences&quot;)) {</span>
+<span class="nc" id="L214">      JSONArray presences = guild.getJSONArray(&quot;presences&quot;);</span>
+<span class="nc bnc" id="L215" title="All 2 branches missed.">      for (int i = 0; i &lt; presences.length(); i++) {</span>
+<span class="nc" id="L216">        JSONObject presence = presences.getJSONObject(i);</span>
+<span class="nc" id="L217">        final long userId = presence.getJSONObject(&quot;user&quot;).getLong(&quot;id&quot;);</span>
+<span class="nc" id="L218">        MemberImpl member = (MemberImpl) guildObj.getMembersMap().get(userId);</span>
 
-<span class="nc bnc" id="L218" title="All 2 branches missed.">        if (member == null)</span>
-<span class="nc" id="L219">          LOG.debug(</span>
+<span class="nc bnc" id="L220" title="All 2 branches missed.">        if (member == null)</span>
+<span class="nc" id="L221">          LOG.debug(</span>
               &quot;Received a ghost presence in GuildFirstPass! UserId: {} Guild: {}&quot;,
-<span class="nc" id="L221">              userId,</span>
+<span class="nc" id="L223">              userId,</span>
               guildObj);
-<span class="nc" id="L223">        else createPresence(member, presence);</span>
+<span class="nc" id="L225">        else createPresence(member, presence);</span>
       }
     }
 
-<span class="nc bnc" id="L227" title="All 2 branches missed.">    if (guild.has(&quot;channels&quot;)) {</span>
-<span class="nc" id="L228">      JSONArray channels = guild.getJSONArray(&quot;channels&quot;);</span>
+<span class="nc bnc" id="L229" title="All 2 branches missed.">    if (guild.has(&quot;channels&quot;)) {</span>
+<span class="nc" id="L230">      JSONArray channels = guild.getJSONArray(&quot;channels&quot;);</span>
 
-<span class="nc bnc" id="L230" title="All 2 branches missed.">      for (int i = 0; i &lt; channels.length(); i++) {</span>
-<span class="nc" id="L231">        JSONObject channel = channels.getJSONObject(i);</span>
-<span class="nc" id="L232">        ChannelType type = ChannelType.fromId(channel.getInt(&quot;type&quot;));</span>
-<span class="nc bnc" id="L233" title="All 4 branches missed.">        switch (type) {</span>
+<span class="nc bnc" id="L232" title="All 2 branches missed.">      for (int i = 0; i &lt; channels.length(); i++) {</span>
+<span class="nc" id="L233">        JSONObject channel = channels.getJSONObject(i);</span>
+<span class="nc" id="L234">        ChannelType type = ChannelType.fromId(channel.getInt(&quot;type&quot;));</span>
+<span class="nc bnc" id="L235" title="All 4 branches missed.">        switch (type) {</span>
           case TEXT:
-<span class="nc" id="L235">            createTextChannel(channel, guildObj.getIdLong(), false);</span>
-<span class="nc" id="L236">            break;</span>
+<span class="nc" id="L237">            createTextChannel(channel, guildObj.getIdLong(), false);</span>
+<span class="nc" id="L238">            break;</span>
           case VOICE:
-<span class="nc" id="L238">            createVoiceChannel(channel, guildObj.getIdLong(), false);</span>
-<span class="nc" id="L239">            break;</span>
+<span class="nc" id="L240">            createVoiceChannel(channel, guildObj.getIdLong(), false);</span>
+<span class="nc" id="L241">            break;</span>
           case CATEGORY:
-<span class="nc" id="L241">            createCategory(channel, guildObj.getIdLong(), false);</span>
-<span class="nc" id="L242">            break;</span>
+<span class="nc" id="L243">            createCategory(channel, guildObj.getIdLong(), false);</span>
+<span class="nc" id="L244">            break;</span>
           default:
-<span class="nc" id="L244">            LOG.error(</span>
+<span class="nc" id="L246">            LOG.error(</span>
                 &quot;Received a channel for a guild that isn't a text, voice or category channel. JSON: {}&quot;,
                 channel);
         }
       }
     }
 
-<span class="nc bnc" id="L251" title="All 2 branches missed.">    if (!guild.isNull(&quot;system_channel_id&quot;))</span>
-<span class="nc" id="L252">      guildObj.setSystemChannel(</span>
-<span class="nc" id="L253">          guildObj.getTextChannelsMap().get(guild.getLong(&quot;system_channel_id&quot;)));</span>
+<span class="nc bnc" id="L253" title="All 2 branches missed.">    if (!guild.isNull(&quot;system_channel_id&quot;))</span>
+<span class="nc" id="L254">      guildObj.setSystemChannel(</span>
+<span class="nc" id="L255">          guildObj.getTextChannelsMap().get(guild.getLong(&quot;system_channel_id&quot;)));</span>
 
-<span class="nc bnc" id="L255" title="All 2 branches missed.">    if (!guild.isNull(&quot;afk_channel_id&quot;))</span>
-<span class="nc" id="L256">      guildObj.setAfkChannel(guildObj.getVoiceChannelsMap().get(guild.getLong(&quot;afk_channel_id&quot;)));</span>
+<span class="nc bnc" id="L257" title="All 2 branches missed.">    if (!guild.isNull(&quot;afk_channel_id&quot;))</span>
+<span class="nc" id="L258">      guildObj.setAfkChannel(guildObj.getVoiceChannelsMap().get(guild.getLong(&quot;afk_channel_id&quot;)));</span>
 
     // If the members that we were provided with (and loaded above) were not all of the
     //  the members in this guild, then we need to request more users from Discord using
@@ -279,37 +281,37 @@ public class EntityBuilder {
     // we don't need to use GUILD_SYNC because we always get presences with users thus we have all
     // information
     // needed to guild the Guild. We will skip
-<span class="nc bnc" id="L282" title="All 2 branches missed.">    if (guild.getJSONArray(&quot;members&quot;).length() != guild.getInt(&quot;member_count&quot;)) {</span>
-<span class="nc" id="L283">      cachedGuildJsons.put(id, guild);</span>
-<span class="nc" id="L284">      cachedGuildCallbacks.put(id, secondPassCallback);</span>
+<span class="nc bnc" id="L284" title="All 2 branches missed.">    if (guild.getJSONArray(&quot;members&quot;).length() != guild.getInt(&quot;member_count&quot;)) {</span>
+<span class="nc" id="L285">      cachedGuildJsons.put(id, guild);</span>
+<span class="nc" id="L286">      cachedGuildCallbacks.put(id, secondPassCallback);</span>
 
-<span class="nc" id="L286">      GuildMembersChunkHandler handler = api.getClient().getHandler(&quot;GUILD_MEMBERS_CHUNK&quot;);</span>
-<span class="nc" id="L287">      handler.setExpectedGuildMembers(id, guild.getInt(&quot;member_count&quot;));</span>
+<span class="nc" id="L288">      GuildMembersChunkHandler handler = api.getClient().getHandler(&quot;GUILD_MEMBERS_CHUNK&quot;);</span>
+<span class="nc" id="L289">      handler.setExpectedGuildMembers(id, guild.getInt(&quot;member_count&quot;));</span>
 
       // If we are already past READY / RESUME, then chunk at runtime. Otherwise, pass back to the
       // ReadyHandler
       // and let it send a burst chunk request.
-<span class="nc bnc" id="L292" title="All 2 branches missed.">      if (api.getClient().isReady()) {</span>
-<span class="nc bnc" id="L293" title="All 2 branches missed.">        if (api.getAccountType() == AccountType.CLIENT) {</span>
-<span class="nc" id="L294">          JSONObject obj =</span>
+<span class="nc bnc" id="L294" title="All 2 branches missed.">      if (api.getClient().isReady()) {</span>
+<span class="nc bnc" id="L295" title="All 2 branches missed.">        if (api.getAccountType() == AccountType.CLIENT) {</span>
+<span class="nc" id="L296">          JSONObject obj =</span>
               new JSONObject()
-<span class="nc" id="L296">                  .put(&quot;op&quot;, WebSocketCode.GUILD_SYNC)</span>
-<span class="nc" id="L297">                  .put(&quot;guild_id&quot;, guildObj.getId());</span>
-<span class="nc" id="L298">          api.getClient().chunkOrSyncRequest(obj);</span>
+<span class="nc" id="L298">                  .put(&quot;op&quot;, WebSocketCode.GUILD_SYNC)</span>
+<span class="nc" id="L299">                  .put(&quot;guild_id&quot;, guildObj.getId());</span>
+<span class="nc" id="L300">          api.getClient().chunkOrSyncRequest(obj);</span>
         }
-<span class="nc" id="L300">        JSONObject obj =</span>
+<span class="nc" id="L302">        JSONObject obj =</span>
             new JSONObject()
-<span class="nc" id="L302">                .put(&quot;op&quot;, WebSocketCode.MEMBER_CHUNK_REQUEST)</span>
-<span class="nc" id="L303">                .put(&quot;d&quot;, new JSONObject().put(&quot;guild_id&quot;, id).put(&quot;query&quot;, &quot;&quot;).put(&quot;limit&quot;, 0));</span>
-<span class="nc" id="L304">        api.getClient().chunkOrSyncRequest(obj);</span>
-<span class="nc" id="L305">      } else {</span>
-<span class="nc" id="L306">        ReadyHandler readyHandler = api.getClient().getHandler(&quot;READY&quot;);</span>
-<span class="nc" id="L307">        readyHandler.acknowledgeGuild(</span>
-<span class="nc bnc" id="L308" title="All 2 branches missed.">            guildObj, true, true, api.getAccountType() == AccountType.CLIENT);</span>
+<span class="nc" id="L304">                .put(&quot;op&quot;, WebSocketCode.MEMBER_CHUNK_REQUEST)</span>
+<span class="nc" id="L305">                .put(&quot;d&quot;, new JSONObject().put(&quot;guild_id&quot;, id).put(&quot;query&quot;, &quot;&quot;).put(&quot;limit&quot;, 0));</span>
+<span class="nc" id="L306">        api.getClient().chunkOrSyncRequest(obj);</span>
+<span class="nc" id="L307">      } else {</span>
+<span class="nc" id="L308">        ReadyHandler readyHandler = api.getClient().getHandler(&quot;READY&quot;);</span>
+<span class="nc" id="L309">        readyHandler.acknowledgeGuild(</span>
+<span class="nc bnc" id="L310" title="All 2 branches missed.">            guildObj, true, true, api.getAccountType() == AccountType.CLIENT);</span>
       }
 
-<span class="nc" id="L311">      api.getGuildLock().lock(id);</span>
-<span class="nc" id="L312">      return;</span>
+<span class="nc" id="L313">      api.getGuildLock().lock(id);</span>
+<span class="nc" id="L314">      return;</span>
     }
 
     // As detailed in the comment above, if we've made it this far then we have all member
@@ -319,337 +321,337 @@ public class EntityBuilder {
     // to the callback
     // This should only occur on small user count guilds.
 
-<span class="nc" id="L322">    JSONArray channels = guild.getJSONArray(&quot;channels&quot;);</span>
-<span class="nc" id="L323">    createGuildChannelPass(guildObj, channels); // Actually creates PermissionOverrides</span>
+<span class="nc" id="L324">    JSONArray channels = guild.getJSONArray(&quot;channels&quot;);</span>
+<span class="nc" id="L325">    createGuildChannelPass(guildObj, channels); // Actually creates PermissionOverrides</span>
 
-<span class="nc" id="L325">    JSONArray voiceStates = guild.getJSONArray(&quot;voice_states&quot;);</span>
-<span class="nc" id="L326">    createGuildVoiceStatePass(guildObj, voiceStates);</span>
+<span class="nc" id="L327">    JSONArray voiceStates = guild.getJSONArray(&quot;voice_states&quot;);</span>
+<span class="nc" id="L328">    createGuildVoiceStatePass(guildObj, voiceStates);</span>
 
-<span class="nc" id="L328">    api.getGuildLock().unlock(guildObj.getIdLong());</span>
-<span class="nc bnc" id="L329" title="All 2 branches missed.">    if (secondPassCallback != null) secondPassCallback.accept(guildObj);</span>
-<span class="nc" id="L330">  }</span>
+<span class="nc" id="L330">    api.getGuildLock().unlock(guildObj.getIdLong());</span>
+<span class="nc bnc" id="L331" title="All 2 branches missed.">    if (secondPassCallback != null) secondPassCallback.accept(guildObj);</span>
+<span class="nc" id="L332">  }</span>
 
   public void createGuildSecondPass(long guildId, List&lt;JSONArray&gt; memberChunks) {
-<span class="nc" id="L333">    JSONObject guildJson = cachedGuildJsons.remove(guildId);</span>
-<span class="nc" id="L334">    Consumer&lt;Guild&gt; secondPassCallback = cachedGuildCallbacks.remove(guildId);</span>
-<span class="nc" id="L335">    GuildImpl guildObj = (GuildImpl) api.getGuildMap().get(guildId);</span>
+<span class="nc" id="L335">    JSONObject guildJson = cachedGuildJsons.remove(guildId);</span>
+<span class="nc" id="L336">    Consumer&lt;Guild&gt; secondPassCallback = cachedGuildCallbacks.remove(guildId);</span>
+<span class="nc" id="L337">    GuildImpl guildObj = (GuildImpl) api.getGuildMap().get(guildId);</span>
 
-<span class="nc bnc" id="L337" title="All 2 branches missed.">    if (guildObj == null)</span>
-<span class="nc" id="L338">      throw new IllegalStateException(</span>
+<span class="nc bnc" id="L339" title="All 2 branches missed.">    if (guildObj == null)</span>
+<span class="nc" id="L340">      throw new IllegalStateException(</span>
           &quot;Attempted to perform a second pass on an unknown Guild. Guild not in JDA &quot;
               + &quot;mapping. GuildId: &quot;
               + guildId);
-<span class="nc bnc" id="L342" title="All 2 branches missed.">    if (guildJson == null)</span>
-<span class="nc" id="L343">      throw new IllegalStateException(</span>
+<span class="nc bnc" id="L344" title="All 2 branches missed.">    if (guildJson == null)</span>
+<span class="nc" id="L345">      throw new IllegalStateException(</span>
           &quot;Attempted to perform a second pass on an unknown Guild. No cached Guild &quot;
               + &quot;for second pass. GuildId: &quot;
               + guildId);
-<span class="nc bnc" id="L347" title="All 2 branches missed.">    if (secondPassCallback == null)</span>
-<span class="nc" id="L348">      throw new IllegalArgumentException(&quot;No callback provided for the second pass on the Guild!&quot;);</span>
+<span class="nc bnc" id="L349" title="All 2 branches missed.">    if (secondPassCallback == null)</span>
+<span class="nc" id="L350">      throw new IllegalArgumentException(&quot;No callback provided for the second pass on the Guild!&quot;);</span>
 
-<span class="nc bnc" id="L350" title="All 2 branches missed.">    for (JSONArray chunk : memberChunks) createGuildMemberPass(guildObj, chunk);</span>
+<span class="nc bnc" id="L352" title="All 2 branches missed.">    for (JSONArray chunk : memberChunks) createGuildMemberPass(guildObj, chunk);</span>
 
-<span class="nc" id="L352">    Member owner = guildObj.getMemberById(guildJson.getLong(&quot;owner_id&quot;));</span>
-<span class="nc bnc" id="L353" title="All 2 branches missed.">    if (owner != null) guildObj.setOwner(owner);</span>
+<span class="nc" id="L354">    Member owner = guildObj.getMemberById(guildJson.getLong(&quot;owner_id&quot;));</span>
+<span class="nc bnc" id="L355" title="All 2 branches missed.">    if (owner != null) guildObj.setOwner(owner);</span>
 
-<span class="nc bnc" id="L355" title="All 2 branches missed.">    if (guildObj.getOwner() == null)</span>
-<span class="nc" id="L356">      LOG.error(</span>
+<span class="nc bnc" id="L357" title="All 2 branches missed.">    if (guildObj.getOwner() == null)</span>
+<span class="nc" id="L358">      LOG.error(</span>
           &quot;Never set the Owner of the Guild: {} because we don't have the owner User object! How?!&quot;,
-<span class="nc" id="L358">          guildObj.getId());</span>
+<span class="nc" id="L360">          guildObj.getId());</span>
 
-<span class="nc" id="L360">    JSONArray channels = guildJson.getJSONArray(&quot;channels&quot;);</span>
-<span class="nc" id="L361">    createGuildChannelPass(guildObj, channels);</span>
+<span class="nc" id="L362">    JSONArray channels = guildJson.getJSONArray(&quot;channels&quot;);</span>
+<span class="nc" id="L363">    createGuildChannelPass(guildObj, channels);</span>
 
-<span class="nc" id="L363">    JSONArray voiceStates = guildJson.getJSONArray(&quot;voice_states&quot;);</span>
-<span class="nc" id="L364">    createGuildVoiceStatePass(guildObj, voiceStates);</span>
+<span class="nc" id="L365">    JSONArray voiceStates = guildJson.getJSONArray(&quot;voice_states&quot;);</span>
+<span class="nc" id="L366">    createGuildVoiceStatePass(guildObj, voiceStates);</span>
 
-<span class="nc" id="L366">    secondPassCallback.accept(guildObj);</span>
-<span class="nc" id="L367">    api.getGuildLock().unlock(guildId);</span>
-<span class="nc" id="L368">  }</span>
+<span class="nc" id="L368">    secondPassCallback.accept(guildObj);</span>
+<span class="nc" id="L369">    api.getGuildLock().unlock(guildId);</span>
+<span class="nc" id="L370">  }</span>
 
   public void handleGuildSync(GuildImpl guild, JSONArray members, JSONArray presences) {
-<span class="nc bnc" id="L371" title="All 2 branches missed.">    for (int i = 0; i &lt; members.length(); i++) {</span>
-<span class="nc" id="L372">      JSONObject memberJson = members.getJSONObject(i);</span>
-<span class="nc" id="L373">      createMember(guild, memberJson);</span>
+<span class="nc bnc" id="L373" title="All 2 branches missed.">    for (int i = 0; i &lt; members.length(); i++) {</span>
+<span class="nc" id="L374">      JSONObject memberJson = members.getJSONObject(i);</span>
+<span class="nc" id="L375">      createMember(guild, memberJson);</span>
     }
 
-<span class="nc bnc" id="L376" title="All 2 branches missed.">    for (int i = 0; i &lt; presences.length(); i++) {</span>
-<span class="nc" id="L377">      JSONObject presenceJson = presences.getJSONObject(i);</span>
-<span class="nc" id="L378">      final long userId = presenceJson.getJSONObject(&quot;user&quot;).getLong(&quot;id&quot;);</span>
+<span class="nc bnc" id="L378" title="All 2 branches missed.">    for (int i = 0; i &lt; presences.length(); i++) {</span>
+<span class="nc" id="L379">      JSONObject presenceJson = presences.getJSONObject(i);</span>
+<span class="nc" id="L380">      final long userId = presenceJson.getJSONObject(&quot;user&quot;).getLong(&quot;id&quot;);</span>
 
-<span class="nc" id="L380">      MemberImpl member = (MemberImpl) guild.getMembersMap().get(userId);</span>
-<span class="nc bnc" id="L381" title="All 2 branches missed.">      if (member == null)</span>
-<span class="nc" id="L382">        LOG.error(&quot;Received a Presence for a non-existent Member when dealing with GuildSync!&quot;);</span>
-<span class="nc" id="L383">      else this.createPresence(member, presenceJson);</span>
+<span class="nc" id="L382">      MemberImpl member = (MemberImpl) guild.getMembersMap().get(userId);</span>
+<span class="nc bnc" id="L383" title="All 2 branches missed.">      if (member == null)</span>
+<span class="nc" id="L384">        LOG.error(&quot;Received a Presence for a non-existent Member when dealing with GuildSync!&quot;);</span>
+<span class="nc" id="L385">      else this.createPresence(member, presenceJson);</span>
     }
-<span class="nc" id="L385">  }</span>
+<span class="nc" id="L387">  }</span>
 
   private void createGuildMemberPass(GuildImpl guildObj, JSONArray members) {
-<span class="nc bnc" id="L388" title="All 2 branches missed.">    for (int i = 0; i &lt; members.length(); i++) {</span>
-<span class="nc" id="L389">      JSONObject memberJson = members.getJSONObject(i);</span>
-<span class="nc" id="L390">      createMember(guildObj, memberJson);</span>
+<span class="nc bnc" id="L390" title="All 2 branches missed.">    for (int i = 0; i &lt; members.length(); i++) {</span>
+<span class="nc" id="L391">      JSONObject memberJson = members.getJSONObject(i);</span>
+<span class="nc" id="L392">      createMember(guildObj, memberJson);</span>
     }
-<span class="nc" id="L392">  }</span>
+<span class="nc" id="L394">  }</span>
 
   private void createGuildChannelPass(GuildImpl guildObj, JSONArray channels) {
-<span class="nc bnc" id="L395" title="All 2 branches missed.">    for (int i = 0; i &lt; channels.length(); i++) {</span>
-<span class="nc" id="L396">      JSONObject channel = channels.getJSONObject(i);</span>
-<span class="nc" id="L397">      ChannelType type = ChannelType.fromId(channel.getInt(&quot;type&quot;));</span>
-<span class="nc" id="L398">      Channel channelObj = null;</span>
-<span class="nc bnc" id="L399" title="All 4 branches missed.">      switch (type) {</span>
+<span class="nc bnc" id="L397" title="All 2 branches missed.">    for (int i = 0; i &lt; channels.length(); i++) {</span>
+<span class="nc" id="L398">      JSONObject channel = channels.getJSONObject(i);</span>
+<span class="nc" id="L399">      ChannelType type = ChannelType.fromId(channel.getInt(&quot;type&quot;));</span>
+<span class="nc" id="L400">      Channel channelObj = null;</span>
+<span class="nc bnc" id="L401" title="All 4 branches missed.">      switch (type) {</span>
         case TEXT:
-<span class="nc" id="L401">          channelObj = api.getTextChannelById(channel.getLong(&quot;id&quot;));</span>
-<span class="nc" id="L402">          break;</span>
+<span class="nc" id="L403">          channelObj = api.getTextChannelById(channel.getLong(&quot;id&quot;));</span>
+<span class="nc" id="L404">          break;</span>
         case VOICE:
-<span class="nc" id="L404">          channelObj = api.getVoiceChannelById(channel.getLong(&quot;id&quot;));</span>
-<span class="nc" id="L405">          break;</span>
+<span class="nc" id="L406">          channelObj = api.getVoiceChannelById(channel.getLong(&quot;id&quot;));</span>
+<span class="nc" id="L407">          break;</span>
         case CATEGORY:
-<span class="nc" id="L407">          channelObj = api.getCategoryMap().get(channel.getLong(&quot;id&quot;));</span>
-<span class="nc" id="L408">          break;</span>
+<span class="nc" id="L409">          channelObj = api.getCategoryMap().get(channel.getLong(&quot;id&quot;));</span>
+<span class="nc" id="L410">          break;</span>
         default:
-<span class="nc" id="L410">          LOG.error(</span>
+<span class="nc" id="L412">          LOG.error(</span>
               &quot;Received a channel for a guild that isn't a text, voice or category channel (ChannelPass). JSON: {}&quot;,
               channel);
       }
 
-<span class="nc bnc" id="L415" title="All 2 branches missed.">      if (channelObj != null) {</span>
-<span class="nc" id="L416">        JSONArray permissionOverwrites = channel.getJSONArray(&quot;permission_overwrites&quot;);</span>
-<span class="nc" id="L417">        createOverridesPass((AbstractChannelImpl&lt;?&gt;) channelObj, permissionOverwrites);</span>
-<span class="nc" id="L418">      } else {</span>
-<span class="nc" id="L419">        LOG.error(</span>
-<span class="nc" id="L420">            &quot;Got permission_override for unknown channel with id: {}&quot;, channel.getString(&quot;id&quot;));</span>
+<span class="nc bnc" id="L417" title="All 2 branches missed.">      if (channelObj != null) {</span>
+<span class="nc" id="L418">        JSONArray permissionOverwrites = channel.getJSONArray(&quot;permission_overwrites&quot;);</span>
+<span class="nc" id="L419">        createOverridesPass((AbstractChannelImpl&lt;?&gt;) channelObj, permissionOverwrites);</span>
+<span class="nc" id="L420">      } else {</span>
+<span class="nc" id="L421">        LOG.error(</span>
+<span class="nc" id="L422">            &quot;Got permission_override for unknown channel with id: {}&quot;, channel.getString(&quot;id&quot;));</span>
       }
     }
-<span class="nc" id="L423">  }</span>
+<span class="nc" id="L425">  }</span>
 
   public void createGuildVoiceStatePass(GuildImpl guildObj, JSONArray voiceStates) {
-<span class="nc bnc" id="L426" title="All 2 branches missed.">    for (int i = 0; i &lt; voiceStates.length(); i++) {</span>
-<span class="nc" id="L427">      JSONObject voiceStateJson = voiceStates.getJSONObject(i);</span>
-<span class="nc" id="L428">      final long userId = voiceStateJson.getLong(&quot;user_id&quot;);</span>
-<span class="nc" id="L429">      Member member = guildObj.getMembersMap().get(userId);</span>
-<span class="nc bnc" id="L430" title="All 2 branches missed.">      if (member == null) {</span>
-<span class="nc" id="L431">        LOG.error(</span>
+<span class="nc bnc" id="L428" title="All 2 branches missed.">    for (int i = 0; i &lt; voiceStates.length(); i++) {</span>
+<span class="nc" id="L429">      JSONObject voiceStateJson = voiceStates.getJSONObject(i);</span>
+<span class="nc" id="L430">      final long userId = voiceStateJson.getLong(&quot;user_id&quot;);</span>
+<span class="nc" id="L431">      Member member = guildObj.getMembersMap().get(userId);</span>
+<span class="nc bnc" id="L432" title="All 2 branches missed.">      if (member == null) {</span>
+<span class="nc" id="L433">        LOG.error(</span>
             &quot;Received a VoiceState for a unknown Member! GuildId: &quot;
-<span class="nc" id="L433">                + guildObj.getId()</span>
+<span class="nc" id="L435">                + guildObj.getId()</span>
                 + &quot; MemberId: &quot;
-<span class="nc" id="L435">                + voiceStateJson.getString(&quot;user_id&quot;));</span>
-<span class="nc" id="L436">        continue;</span>
+<span class="nc" id="L437">                + voiceStateJson.getString(&quot;user_id&quot;));</span>
+<span class="nc" id="L438">        continue;</span>
       }
 
-<span class="nc" id="L439">      final long channelId = voiceStateJson.getLong(&quot;channel_id&quot;);</span>
-<span class="nc" id="L440">      VoiceChannelImpl voiceChannel =</span>
-<span class="nc" id="L441">          (VoiceChannelImpl) guildObj.getVoiceChannelsMap().get(channelId);</span>
-<span class="nc bnc" id="L442" title="All 2 branches missed.">      if (voiceChannel != null)</span>
-<span class="nc" id="L443">        voiceChannel.getConnectedMembersMap().put(member.getUser().getIdLong(), member);</span>
+<span class="nc" id="L441">      final long channelId = voiceStateJson.getLong(&quot;channel_id&quot;);</span>
+<span class="nc" id="L442">      VoiceChannelImpl voiceChannel =</span>
+<span class="nc" id="L443">          (VoiceChannelImpl) guildObj.getVoiceChannelsMap().get(channelId);</span>
+<span class="nc bnc" id="L444" title="All 2 branches missed.">      if (voiceChannel != null)</span>
+<span class="nc" id="L445">        voiceChannel.getConnectedMembersMap().put(member.getUser().getIdLong(), member);</span>
       else
-<span class="nc" id="L445">        LOG.error(</span>
+<span class="nc" id="L447">        LOG.error(</span>
             &quot;Received a GuildVoiceState with a channel ID for a non-existent channel! ChannelId: {} GuildId: {} UserId: {}&quot;,
-<span class="nc" id="L447">            channelId,</span>
-<span class="nc" id="L448">            guildObj.getId(),</span>
-<span class="nc" id="L449">            userId);</span>
+<span class="nc" id="L449">            channelId,</span>
+<span class="nc" id="L450">            guildObj.getId(),</span>
+<span class="nc" id="L451">            userId);</span>
 
       // VoiceState is considered volatile so we don't expect anything to actually exist
-<span class="nc" id="L452">      GuildVoiceStateImpl voiceState = (GuildVoiceStateImpl) member.getVoiceState();</span>
-<span class="nc" id="L453">      voiceState</span>
-<span class="nc" id="L454">          .setSelfMuted(Helpers.optBoolean(voiceStateJson, &quot;self_mute&quot;))</span>
-<span class="nc" id="L455">          .setSelfDeafened(Helpers.optBoolean(voiceStateJson, &quot;self_deaf&quot;))</span>
-<span class="nc" id="L456">          .setGuildMuted(Helpers.optBoolean(voiceStateJson, &quot;mute&quot;))</span>
-<span class="nc" id="L457">          .setGuildDeafened(Helpers.optBoolean(voiceStateJson, &quot;deaf&quot;))</span>
-<span class="nc" id="L458">          .setSuppressed(Helpers.optBoolean(voiceStateJson, &quot;suppress&quot;))</span>
-<span class="nc" id="L459">          .setSessionId(voiceStateJson.optString(&quot;session_id&quot;))</span>
-<span class="nc" id="L460">          .setConnectedChannel(voiceChannel);</span>
+<span class="nc" id="L454">      GuildVoiceStateImpl voiceState = (GuildVoiceStateImpl) member.getVoiceState();</span>
+<span class="nc" id="L455">      voiceState</span>
+<span class="nc" id="L456">          .setSelfMuted(Helpers.optBoolean(voiceStateJson, &quot;self_mute&quot;))</span>
+<span class="nc" id="L457">          .setSelfDeafened(Helpers.optBoolean(voiceStateJson, &quot;self_deaf&quot;))</span>
+<span class="nc" id="L458">          .setGuildMuted(Helpers.optBoolean(voiceStateJson, &quot;mute&quot;))</span>
+<span class="nc" id="L459">          .setGuildDeafened(Helpers.optBoolean(voiceStateJson, &quot;deaf&quot;))</span>
+<span class="nc" id="L460">          .setSuppressed(Helpers.optBoolean(voiceStateJson, &quot;suppress&quot;))</span>
+<span class="nc" id="L461">          .setSessionId(voiceStateJson.optString(&quot;session_id&quot;))</span>
+<span class="nc" id="L462">          .setConnectedChannel(voiceChannel);</span>
     }
-<span class="nc" id="L462">  }</span>
+<span class="nc" id="L464">  }</span>
 
   public User createFakeUser(JSONObject user, boolean modifyCache) {
-<span class="nc" id="L465">    return createUser(user, true, modifyCache);</span>
+<span class="nc" id="L467">    return createUser(user, true, modifyCache);</span>
   }
 
   public User createUser(JSONObject user) {
-<span class="nc" id="L469">    return createUser(user, false, true);</span>
+<span class="nc" id="L471">    return createUser(user, false, true);</span>
   }
 
   private User createUser(JSONObject user, boolean fake, boolean modifyCache) {
-<span class="nc" id="L473">    final long id = user.getLong(&quot;id&quot;);</span>
+<span class="nc" id="L475">    final long id = user.getLong(&quot;id&quot;);</span>
     UserImpl userObj;
 
-<span class="nc" id="L476">    userObj = (UserImpl) api.getUserMap().get(id);</span>
-<span class="nc bnc" id="L477" title="All 2 branches missed.">    if (userObj == null) {</span>
-<span class="nc" id="L478">      userObj = (UserImpl) api.getFakeUserMap().get(id);</span>
-<span class="nc bnc" id="L479" title="All 2 branches missed.">      if (userObj != null) {</span>
-<span class="nc bnc" id="L480" title="All 4 branches missed.">        if (!fake &amp;&amp; modifyCache) {</span>
-<span class="nc" id="L481">          api.getFakeUserMap().remove(id);</span>
-<span class="nc" id="L482">          userObj.setFake(false);</span>
-<span class="nc" id="L483">          api.getUserMap().put(userObj.getIdLong(), userObj);</span>
-<span class="nc bnc" id="L484" title="All 2 branches missed.">          if (userObj.hasPrivateChannel()) {</span>
-<span class="nc" id="L485">            PrivateChannelImpl priv = (PrivateChannelImpl) userObj.getPrivateChannel();</span>
-<span class="nc" id="L486">            priv.setFake(false);</span>
-<span class="nc" id="L487">            api.getFakePrivateChannelMap().remove(priv.getIdLong());</span>
-<span class="nc" id="L488">            api.getPrivateChannelMap().put(priv.getIdLong(), priv);</span>
-<span class="nc" id="L489">          }</span>
+<span class="nc" id="L478">    userObj = (UserImpl) api.getUserMap().get(id);</span>
+<span class="nc bnc" id="L479" title="All 2 branches missed.">    if (userObj == null) {</span>
+<span class="nc" id="L480">      userObj = (UserImpl) api.getFakeUserMap().get(id);</span>
+<span class="nc bnc" id="L481" title="All 2 branches missed.">      if (userObj != null) {</span>
+<span class="nc bnc" id="L482" title="All 4 branches missed.">        if (!fake &amp;&amp; modifyCache) {</span>
+<span class="nc" id="L483">          api.getFakeUserMap().remove(id);</span>
+<span class="nc" id="L484">          userObj.setFake(false);</span>
+<span class="nc" id="L485">          api.getUserMap().put(userObj.getIdLong(), userObj);</span>
+<span class="nc bnc" id="L486" title="All 2 branches missed.">          if (userObj.hasPrivateChannel()) {</span>
+<span class="nc" id="L487">            PrivateChannelImpl priv = (PrivateChannelImpl) userObj.getPrivateChannel();</span>
+<span class="nc" id="L488">            priv.setFake(false);</span>
+<span class="nc" id="L489">            api.getFakePrivateChannelMap().remove(priv.getIdLong());</span>
+<span class="nc" id="L490">            api.getPrivateChannelMap().put(priv.getIdLong(), priv);</span>
+<span class="nc" id="L491">          }</span>
         }
       } else {
-<span class="nc" id="L492">        userObj = new UserImpl(id, api).setFake(fake);</span>
-<span class="nc bnc" id="L493" title="All 2 branches missed.">        if (modifyCache) {</span>
-<span class="nc bnc" id="L494" title="All 2 branches missed.">          if (fake) api.getFakeUserMap().put(id, userObj);</span>
-<span class="nc" id="L495">          else api.getUserMap().put(id, userObj);</span>
+<span class="nc" id="L494">        userObj = new UserImpl(id, api).setFake(fake);</span>
+<span class="nc bnc" id="L495" title="All 2 branches missed.">        if (modifyCache) {</span>
+<span class="nc bnc" id="L496" title="All 2 branches missed.">          if (fake) api.getFakeUserMap().put(id, userObj);</span>
+<span class="nc" id="L497">          else api.getUserMap().put(id, userObj);</span>
         }
       }
     }
 
-<span class="nc" id="L500">    return userObj</span>
-<span class="nc" id="L501">        .setName(user.getString(&quot;username&quot;))</span>
-<span class="nc" id="L502">        .setDiscriminator(user.get(&quot;discriminator&quot;).toString())</span>
-<span class="nc" id="L503">        .setAvatarId(user.optString(&quot;avatar&quot;, null))</span>
-<span class="nc" id="L504">        .setBot(Helpers.optBoolean(user, &quot;bot&quot;));</span>
+<span class="nc" id="L502">    return userObj</span>
+<span class="nc" id="L503">        .setName(user.getString(&quot;username&quot;))</span>
+<span class="nc" id="L504">        .setDiscriminator(user.get(&quot;discriminator&quot;).toString())</span>
+<span class="nc" id="L505">        .setAvatarId(user.optString(&quot;avatar&quot;, null))</span>
+<span class="nc" id="L506">        .setBot(Helpers.optBoolean(user, &quot;bot&quot;));</span>
   }
 
   public Member createMember(GuildImpl guild, JSONObject memberJson) {
-<span class="nc" id="L508">    User user = createUser(memberJson.getJSONObject(&quot;user&quot;));</span>
-<span class="nc" id="L509">    MemberImpl member = (MemberImpl) guild.getMember(user);</span>
-<span class="nc bnc" id="L510" title="All 2 branches missed.">    if (member == null) {</span>
-<span class="nc" id="L511">      member = new MemberImpl(guild, user);</span>
-<span class="nc" id="L512">      guild.getMembersMap().put(user.getIdLong(), member);</span>
+<span class="nc" id="L510">    User user = createUser(memberJson.getJSONObject(&quot;user&quot;));</span>
+<span class="nc" id="L511">    MemberImpl member = (MemberImpl) guild.getMember(user);</span>
+<span class="nc bnc" id="L512" title="All 2 branches missed.">    if (member == null) {</span>
+<span class="nc" id="L513">      member = new MemberImpl(guild, user);</span>
+<span class="nc" id="L514">      guild.getMembersMap().put(user.getIdLong(), member);</span>
     }
 
-<span class="nc" id="L515">    ((GuildVoiceStateImpl) member.getVoiceState())</span>
-<span class="nc" id="L516">        .setGuildMuted(memberJson.getBoolean(&quot;mute&quot;))</span>
-<span class="nc" id="L517">        .setGuildDeafened(memberJson.getBoolean(&quot;deaf&quot;));</span>
+<span class="nc" id="L517">    ((GuildVoiceStateImpl) member.getVoiceState())</span>
+<span class="nc" id="L518">        .setGuildMuted(memberJson.getBoolean(&quot;mute&quot;))</span>
+<span class="nc" id="L519">        .setGuildDeafened(memberJson.getBoolean(&quot;deaf&quot;));</span>
 
-<span class="nc" id="L519">    member</span>
-<span class="nc" id="L520">        .setJoinDate(OffsetDateTime.parse(memberJson.getString(&quot;joined_at&quot;)))</span>
-<span class="nc" id="L521">        .setNickname(memberJson.optString(&quot;nick&quot;, null));</span>
+<span class="nc" id="L521">    member</span>
+<span class="nc" id="L522">        .setJoinDate(OffsetDateTime.parse(memberJson.getString(&quot;joined_at&quot;)))</span>
+<span class="nc" id="L523">        .setNickname(memberJson.optString(&quot;nick&quot;, null));</span>
 
-<span class="nc" id="L523">    JSONArray rolesJson = memberJson.getJSONArray(&quot;roles&quot;);</span>
-<span class="nc bnc" id="L524" title="All 2 branches missed.">    for (int k = 0; k &lt; rolesJson.length(); k++) {</span>
-<span class="nc" id="L525">      final long roleId = rolesJson.getLong(k);</span>
-<span class="nc" id="L526">      Role r = guild.getRolesMap().get(roleId);</span>
-<span class="nc bnc" id="L527" title="All 2 branches missed.">      if (r == null) {</span>
-<span class="nc" id="L528">        LOG.debug(</span>
+<span class="nc" id="L525">    JSONArray rolesJson = memberJson.getJSONArray(&quot;roles&quot;);</span>
+<span class="nc bnc" id="L526" title="All 2 branches missed.">    for (int k = 0; k &lt; rolesJson.length(); k++) {</span>
+<span class="nc" id="L527">      final long roleId = rolesJson.getLong(k);</span>
+<span class="nc" id="L528">      Role r = guild.getRolesMap().get(roleId);</span>
+<span class="nc bnc" id="L529" title="All 2 branches missed.">      if (r == null) {</span>
+<span class="nc" id="L530">        LOG.debug(</span>
             &quot;Received a Member with an unknown Role. MemberId: {} GuildId: {} roleId: {}&quot;,
-<span class="nc" id="L530">            member.getUser().getId(),</span>
-<span class="nc" id="L531">            guild.getId(),</span>
-<span class="nc" id="L532">            roleId);</span>
+<span class="nc" id="L532">            member.getUser().getId(),</span>
+<span class="nc" id="L533">            guild.getId(),</span>
+<span class="nc" id="L534">            roleId);</span>
       } else {
-<span class="nc" id="L534">        member.getRoleSet().add(r);</span>
+<span class="nc" id="L536">        member.getRoleSet().add(r);</span>
       }
     }
 
-<span class="nc" id="L538">    return member;</span>
+<span class="nc" id="L540">    return member;</span>
   }
 
   // Effectively the same as createFriendPresence
   public void createPresence(Object memberOrFriend, JSONObject presenceJson) {
-<span class="nc bnc" id="L543" title="All 2 branches missed.">    if (memberOrFriend == null) throw new NullPointerException(&quot;Provided memberOrFriend was null!&quot;);</span>
+<span class="nc bnc" id="L545" title="All 2 branches missed.">    if (memberOrFriend == null) throw new NullPointerException(&quot;Provided memberOrFriend was null!&quot;);</span>
 
-<span class="nc bnc" id="L545" title="All 2 branches missed.">    JSONObject gameJson = presenceJson.isNull(&quot;game&quot;) ? null : presenceJson.getJSONObject(&quot;game&quot;);</span>
-<span class="nc" id="L546">    OnlineStatus onlineStatus = OnlineStatus.fromKey(presenceJson.getString(&quot;status&quot;));</span>
-<span class="nc" id="L547">    Game game = null;</span>
-<span class="nc" id="L548">    boolean parsedGame = false;</span>
+<span class="nc bnc" id="L547" title="All 2 branches missed.">    JSONObject gameJson = presenceJson.isNull(&quot;game&quot;) ? null : presenceJson.getJSONObject(&quot;game&quot;);</span>
+<span class="nc" id="L548">    OnlineStatus onlineStatus = OnlineStatus.fromKey(presenceJson.getString(&quot;status&quot;));</span>
+<span class="nc" id="L549">    Game game = null;</span>
+<span class="nc" id="L550">    boolean parsedGame = false;</span>
 
-<span class="nc bnc" id="L550" title="All 4 branches missed.">    if (gameJson != null &amp;&amp; !gameJson.isNull(&quot;name&quot;)) {</span>
+<span class="nc bnc" id="L552" title="All 4 branches missed.">    if (gameJson != null &amp;&amp; !gameJson.isNull(&quot;name&quot;)) {</span>
       try {
-<span class="nc" id="L552">        game = createGame(gameJson);</span>
-<span class="nc" id="L553">        parsedGame = true;</span>
-<span class="nc" id="L554">      } catch (Exception ex) {</span>
+<span class="nc" id="L554">        game = createGame(gameJson);</span>
+<span class="nc" id="L555">        parsedGame = true;</span>
+<span class="nc" id="L556">      } catch (Exception ex) {</span>
         String userId;
-<span class="nc bnc" id="L556" title="All 2 branches missed.">        if (memberOrFriend instanceof Member) userId = ((Member) memberOrFriend).getUser().getId();</span>
-<span class="nc bnc" id="L557" title="All 2 branches missed.">        else if (memberOrFriend instanceof Friend)</span>
-<span class="nc" id="L558">          userId = ((Friend) memberOrFriend).getUser().getId();</span>
-<span class="nc" id="L559">        else userId = &quot;unknown&quot;;</span>
-<span class="nc bnc" id="L560" title="All 2 branches missed.">        if (LOG.isDebugEnabled())</span>
-<span class="nc" id="L561">          LOG.warn(</span>
+<span class="nc bnc" id="L558" title="All 2 branches missed.">        if (memberOrFriend instanceof Member) userId = ((Member) memberOrFriend).getUser().getId();</span>
+<span class="nc bnc" id="L559" title="All 2 branches missed.">        else if (memberOrFriend instanceof Friend)</span>
+<span class="nc" id="L560">          userId = ((Friend) memberOrFriend).getUser().getId();</span>
+<span class="nc" id="L561">        else userId = &quot;unknown&quot;;</span>
+<span class="nc bnc" id="L562" title="All 2 branches missed.">        if (LOG.isDebugEnabled())</span>
+<span class="nc" id="L563">          LOG.warn(</span>
               &quot;Encountered exception trying to parse a presence! UserId: {} JSON: {}&quot;,
               userId,
               gameJson,
               ex);
         else
-<span class="nc" id="L567">          LOG.warn(</span>
+<span class="nc" id="L569">          LOG.warn(</span>
               &quot;Encountered exception trying to parse a presence! UserId: {} Message: {} Enable debug for details&quot;,
               userId,
-<span class="nc" id="L570">              ex.getMessage());</span>
-<span class="nc" id="L571">      }</span>
+<span class="nc" id="L572">              ex.getMessage());</span>
+<span class="nc" id="L573">      }</span>
     }
-<span class="nc bnc" id="L573" title="All 2 branches missed.">    if (memberOrFriend instanceof Member) {</span>
-<span class="nc" id="L574">      MemberImpl member = (MemberImpl) memberOrFriend;</span>
-<span class="nc" id="L575">      member.setOnlineStatus(onlineStatus);</span>
-<span class="nc bnc" id="L576" title="All 2 branches missed.">      if (parsedGame) member.setGame(game);</span>
-<span class="nc bnc" id="L577" title="All 2 branches missed.">    } else if (memberOrFriend instanceof Friend) {</span>
-<span class="nc" id="L578">      FriendImpl friend = (FriendImpl) memberOrFriend;</span>
-<span class="nc" id="L579">      friend.setOnlineStatus(onlineStatus);</span>
-<span class="nc bnc" id="L580" title="All 2 branches missed.">      if (parsedGame) friend.setGame(game);</span>
+<span class="nc bnc" id="L575" title="All 2 branches missed.">    if (memberOrFriend instanceof Member) {</span>
+<span class="nc" id="L576">      MemberImpl member = (MemberImpl) memberOrFriend;</span>
+<span class="nc" id="L577">      member.setOnlineStatus(onlineStatus);</span>
+<span class="nc bnc" id="L578" title="All 2 branches missed.">      if (parsedGame) member.setGame(game);</span>
+<span class="nc bnc" id="L579" title="All 2 branches missed.">    } else if (memberOrFriend instanceof Friend) {</span>
+<span class="nc" id="L580">      FriendImpl friend = (FriendImpl) memberOrFriend;</span>
+<span class="nc" id="L581">      friend.setOnlineStatus(onlineStatus);</span>
+<span class="nc bnc" id="L582" title="All 2 branches missed.">      if (parsedGame) friend.setGame(game);</span>
 
-<span class="nc" id="L582">      OffsetDateTime lastModified =</span>
-<span class="nc" id="L583">          OffsetDateTime.ofInstant(</span>
-<span class="nc" id="L584">              Instant.ofEpochMilli(presenceJson.getLong(&quot;last_modified&quot;)),</span>
-<span class="nc" id="L585">              TimeZone.getTimeZone(&quot;GMT&quot;).toZoneId());</span>
+<span class="nc" id="L584">      OffsetDateTime lastModified =</span>
+<span class="nc" id="L585">          OffsetDateTime.ofInstant(</span>
+<span class="nc" id="L586">              Instant.ofEpochMilli(presenceJson.getLong(&quot;last_modified&quot;)),</span>
+<span class="nc" id="L587">              TimeZone.getTimeZone(&quot;GMT&quot;).toZoneId());</span>
 
-<span class="nc" id="L587">      friend.setOnlineStatusModifiedTime(lastModified);</span>
-<span class="nc" id="L588">    } else</span>
-<span class="nc" id="L589">      throw new IllegalArgumentException(</span>
+<span class="nc" id="L589">      friend.setOnlineStatusModifiedTime(lastModified);</span>
+<span class="nc" id="L590">    } else</span>
+<span class="nc" id="L591">      throw new IllegalArgumentException(</span>
           &quot;An object was provided to EntityBuilder#createPresence that wasn't a Member or Friend. JSON: &quot;
               + presenceJson);
-<span class="nc" id="L592">  }</span>
+<span class="nc" id="L594">  }</span>
 
   public static Game createGame(JSONObject gameJson) {
-<span class="nc" id="L595">    String name = String.valueOf(gameJson.get(&quot;name&quot;));</span>
-<span class="nc bnc" id="L596" title="All 2 branches missed.">    String url = gameJson.isNull(&quot;url&quot;) ? null : String.valueOf(gameJson.get(&quot;url&quot;));</span>
+<span class="nc" id="L597">    String name = String.valueOf(gameJson.get(&quot;name&quot;));</span>
+<span class="nc bnc" id="L598" title="All 2 branches missed.">    String url = gameJson.isNull(&quot;url&quot;) ? null : String.valueOf(gameJson.get(&quot;url&quot;));</span>
     Game.GameType type;
     try {
-<span class="nc" id="L599">      type =</span>
-<span class="nc bnc" id="L600" title="All 2 branches missed.">          gameJson.isNull(&quot;type&quot;)</span>
+<span class="nc" id="L601">      type =</span>
+<span class="nc bnc" id="L602" title="All 2 branches missed.">          gameJson.isNull(&quot;type&quot;)</span>
               ? Game.GameType.DEFAULT
-<span class="nc" id="L602">              : Game.GameType.fromKey(Integer.parseInt(gameJson.get(&quot;type&quot;).toString()));</span>
-<span class="nc" id="L603">    } catch (NumberFormatException e) {</span>
-<span class="nc" id="L604">      type = Game.GameType.DEFAULT;</span>
-<span class="nc" id="L605">    }</span>
+<span class="nc" id="L604">              : Game.GameType.fromKey(Integer.parseInt(gameJson.get(&quot;type&quot;).toString()));</span>
+<span class="nc" id="L605">    } catch (NumberFormatException e) {</span>
+<span class="nc" id="L606">      type = Game.GameType.DEFAULT;</span>
+<span class="nc" id="L607">    }</span>
 
     long id;
     try {
-<span class="nc" id="L609">      id = gameJson.getLong(&quot;application_id&quot;);</span>
-<span class="nc" id="L610">    } catch (JSONException ex) {</span>
-<span class="nc" id="L611">      return new Game(name, url, type);</span>
-<span class="nc" id="L612">    }</span>
-<span class="nc bnc" id="L613" title="All 2 branches missed.">    String details = gameJson.isNull(&quot;details&quot;) ? null : String.valueOf(gameJson.get(&quot;details&quot;));</span>
-<span class="nc bnc" id="L614" title="All 2 branches missed.">    String state = gameJson.isNull(&quot;state&quot;) ? null : String.valueOf(gameJson.get(&quot;state&quot;));</span>
-<span class="nc" id="L615">    RichPresence.Timestamps timestamps = null;</span>
-<span class="nc bnc" id="L616" title="All 2 branches missed.">    if (!gameJson.isNull(&quot;timestamps&quot;)) {</span>
-<span class="nc" id="L617">      JSONObject obj = gameJson.getJSONObject(&quot;timestamps&quot;);</span>
+<span class="nc" id="L611">      id = gameJson.getLong(&quot;application_id&quot;);</span>
+<span class="nc" id="L612">    } catch (JSONException ex) {</span>
+<span class="nc" id="L613">      return new Game(name, url, type);</span>
+<span class="nc" id="L614">    }</span>
+<span class="nc bnc" id="L615" title="All 2 branches missed.">    String details = gameJson.isNull(&quot;details&quot;) ? null : String.valueOf(gameJson.get(&quot;details&quot;));</span>
+<span class="nc bnc" id="L616" title="All 2 branches missed.">    String state = gameJson.isNull(&quot;state&quot;) ? null : String.valueOf(gameJson.get(&quot;state&quot;));</span>
+<span class="nc" id="L617">    RichPresence.Timestamps timestamps = null;</span>
+<span class="nc bnc" id="L618" title="All 2 branches missed.">    if (!gameJson.isNull(&quot;timestamps&quot;)) {</span>
+<span class="nc" id="L619">      JSONObject obj = gameJson.getJSONObject(&quot;timestamps&quot;);</span>
       long start, end;
-<span class="nc bnc" id="L619" title="All 2 branches missed.">      start = obj.isNull(&quot;start&quot;) ? 0 : obj.getLong(&quot;start&quot;);</span>
-<span class="nc bnc" id="L620" title="All 2 branches missed.">      end = obj.isNull(&quot;end&quot;) ? 0 : obj.getLong(&quot;end&quot;);</span>
-<span class="nc" id="L621">      timestamps = new RichPresence.Timestamps(start, end);</span>
+<span class="nc bnc" id="L621" title="All 2 branches missed.">      start = obj.isNull(&quot;start&quot;) ? 0 : obj.getLong(&quot;start&quot;);</span>
+<span class="nc bnc" id="L622" title="All 2 branches missed.">      end = obj.isNull(&quot;end&quot;) ? 0 : obj.getLong(&quot;end&quot;);</span>
+<span class="nc" id="L623">      timestamps = new RichPresence.Timestamps(start, end);</span>
     }
 
-<span class="nc" id="L624">    RichPresence.Party party = null;</span>
-<span class="nc bnc" id="L625" title="All 2 branches missed.">    if (!gameJson.isNull(&quot;party&quot;)) {</span>
-<span class="nc" id="L626">      JSONObject obj = gameJson.getJSONObject(&quot;party&quot;);</span>
-<span class="nc bnc" id="L627" title="All 2 branches missed.">      String partyId = obj.isNull(&quot;id&quot;) ? null : obj.getString(&quot;id&quot;);</span>
-<span class="nc bnc" id="L628" title="All 2 branches missed.">      JSONArray sizeArr = obj.isNull(&quot;size&quot;) ? null : obj.getJSONArray(&quot;size&quot;);</span>
-<span class="nc" id="L629">      long size = 0, max = 0;</span>
-<span class="nc bnc" id="L630" title="All 4 branches missed.">      if (sizeArr != null &amp;&amp; sizeArr.length() &gt; 0) {</span>
-<span class="nc" id="L631">        size = sizeArr.getLong(0);</span>
-<span class="nc bnc" id="L632" title="All 2 branches missed.">        max = sizeArr.isNull(1) ? 0 : sizeArr.getLong(1);</span>
+<span class="nc" id="L626">    RichPresence.Party party = null;</span>
+<span class="nc bnc" id="L627" title="All 2 branches missed.">    if (!gameJson.isNull(&quot;party&quot;)) {</span>
+<span class="nc" id="L628">      JSONObject obj = gameJson.getJSONObject(&quot;party&quot;);</span>
+<span class="nc bnc" id="L629" title="All 2 branches missed.">      String partyId = obj.isNull(&quot;id&quot;) ? null : obj.getString(&quot;id&quot;);</span>
+<span class="nc bnc" id="L630" title="All 2 branches missed.">      JSONArray sizeArr = obj.isNull(&quot;size&quot;) ? null : obj.getJSONArray(&quot;size&quot;);</span>
+<span class="nc" id="L631">      long size = 0, max = 0;</span>
+<span class="nc bnc" id="L632" title="All 4 branches missed.">      if (sizeArr != null &amp;&amp; sizeArr.length() &gt; 0) {</span>
+<span class="nc" id="L633">        size = sizeArr.getLong(0);</span>
+<span class="nc bnc" id="L634" title="All 2 branches missed.">        max = sizeArr.isNull(1) ? 0 : sizeArr.getLong(1);</span>
       }
-<span class="nc" id="L634">      party = new RichPresence.Party(partyId, size, max);</span>
+<span class="nc" id="L636">      party = new RichPresence.Party(partyId, size, max);</span>
     }
 
-<span class="nc" id="L637">    String smallImageKey = null, smallImageText = null;</span>
-<span class="nc" id="L638">    String largeImageKey = null, largeImageText = null;</span>
-<span class="nc bnc" id="L639" title="All 2 branches missed.">    if (!gameJson.isNull(&quot;assets&quot;)) {</span>
-<span class="nc" id="L640">      JSONObject assets = gameJson.getJSONObject(&quot;assets&quot;);</span>
-<span class="nc bnc" id="L641" title="All 2 branches missed.">      if (!assets.isNull(&quot;small_image&quot;)) {</span>
-<span class="nc" id="L642">        smallImageKey = String.valueOf(assets.get(&quot;small_image&quot;));</span>
-<span class="nc" id="L643">        smallImageText =</span>
-<span class="nc bnc" id="L644" title="All 2 branches missed.">            assets.isNull(&quot;small_text&quot;) ? null : String.valueOf(assets.get(&quot;small_text&quot;));</span>
+<span class="nc" id="L639">    String smallImageKey = null, smallImageText = null;</span>
+<span class="nc" id="L640">    String largeImageKey = null, largeImageText = null;</span>
+<span class="nc bnc" id="L641" title="All 2 branches missed.">    if (!gameJson.isNull(&quot;assets&quot;)) {</span>
+<span class="nc" id="L642">      JSONObject assets = gameJson.getJSONObject(&quot;assets&quot;);</span>
+<span class="nc bnc" id="L643" title="All 2 branches missed.">      if (!assets.isNull(&quot;small_image&quot;)) {</span>
+<span class="nc" id="L644">        smallImageKey = String.valueOf(assets.get(&quot;small_image&quot;));</span>
+<span class="nc" id="L645">        smallImageText =</span>
+<span class="nc bnc" id="L646" title="All 2 branches missed.">            assets.isNull(&quot;small_text&quot;) ? null : String.valueOf(assets.get(&quot;small_text&quot;));</span>
       }
-<span class="nc bnc" id="L646" title="All 2 branches missed.">      if (!assets.isNull(&quot;large_image&quot;)) {</span>
-<span class="nc" id="L647">        largeImageKey = String.valueOf(assets.get(&quot;large_image&quot;));</span>
-<span class="nc" id="L648">        largeImageText =</span>
-<span class="nc bnc" id="L649" title="All 2 branches missed.">            assets.isNull(&quot;large_text&quot;) ? null : String.valueOf(assets.get(&quot;large_text&quot;));</span>
+<span class="nc bnc" id="L648" title="All 2 branches missed.">      if (!assets.isNull(&quot;large_image&quot;)) {</span>
+<span class="nc" id="L649">        largeImageKey = String.valueOf(assets.get(&quot;large_image&quot;));</span>
+<span class="nc" id="L650">        largeImageText =</span>
+<span class="nc bnc" id="L651" title="All 2 branches missed.">            assets.isNull(&quot;large_text&quot;) ? null : String.valueOf(assets.get(&quot;large_text&quot;));</span>
       }
     }
-<span class="nc" id="L652">    return new RichPresence(</span>
+<span class="nc" id="L654">    return new RichPresence(</span>
         type,
         name,
         url,
@@ -665,230 +667,230 @@ public class EntityBuilder {
   }
 
   public Category createCategory(JSONObject json, long guildId) {
-<span class="nc" id="L668">    return createCategory(json, guildId, true);</span>
+<span class="nc" id="L670">    return createCategory(json, guildId, true);</span>
   }
 
   public Category createCategory(JSONObject json, long guildId, boolean guildIsLoaded) {
-<span class="nc" id="L672">    final long id = json.getLong(&quot;id&quot;);</span>
-<span class="nc" id="L673">    CategoryImpl channel = (CategoryImpl) api.getCategoryMap().get(id);</span>
-<span class="nc bnc" id="L674" title="All 2 branches missed.">    if (channel == null) {</span>
-<span class="nc" id="L675">      GuildImpl guild = ((GuildImpl) api.getGuildMap().get(guildId));</span>
-<span class="nc" id="L676">      channel = new CategoryImpl(id, guild);</span>
-<span class="nc" id="L677">      guild.getCategoriesMap().put(id, channel);</span>
-<span class="nc" id="L678">      api.getCategoryMap().put(id, channel);</span>
+<span class="nc" id="L674">    final long id = json.getLong(&quot;id&quot;);</span>
+<span class="nc" id="L675">    CategoryImpl channel = (CategoryImpl) api.getCategoryMap().get(id);</span>
+<span class="nc bnc" id="L676" title="All 2 branches missed.">    if (channel == null) {</span>
+<span class="nc" id="L677">      GuildImpl guild = ((GuildImpl) api.getGuildMap().get(guildId));</span>
+<span class="nc" id="L678">      channel = new CategoryImpl(id, guild);</span>
+<span class="nc" id="L679">      guild.getCategoriesMap().put(id, channel);</span>
+<span class="nc" id="L680">      api.getCategoryMap().put(id, channel);</span>
     }
 
-<span class="nc bnc" id="L681" title="All 4 branches missed.">    if (!json.isNull(&quot;permission_overwrites&quot;) &amp;&amp; guildIsLoaded) {</span>
-<span class="nc" id="L682">      JSONArray overrides = json.getJSONArray(&quot;permission_overwrites&quot;);</span>
-<span class="nc" id="L683">      createOverridesPass(channel, overrides);</span>
+<span class="nc bnc" id="L683" title="All 4 branches missed.">    if (!json.isNull(&quot;permission_overwrites&quot;) &amp;&amp; guildIsLoaded) {</span>
+<span class="nc" id="L684">      JSONArray overrides = json.getJSONArray(&quot;permission_overwrites&quot;);</span>
+<span class="nc" id="L685">      createOverridesPass(channel, overrides);</span>
     }
 
-<span class="nc" id="L686">    return channel.setName(json.getString(&quot;name&quot;)).setRawPosition(json.getInt(&quot;position&quot;));</span>
+<span class="nc" id="L688">    return channel.setName(json.getString(&quot;name&quot;)).setRawPosition(json.getInt(&quot;position&quot;));</span>
   }
 
   public TextChannel createTextChannel(JSONObject json, long guildId) {
-<span class="nc" id="L690">    return createTextChannel(json, guildId, true);</span>
+<span class="nc" id="L692">    return createTextChannel(json, guildId, true);</span>
   }
 
   public TextChannel createTextChannel(JSONObject json, long guildId, boolean guildIsLoaded) {
-<span class="nc" id="L694">    final long id = json.getLong(&quot;id&quot;);</span>
-<span class="nc" id="L695">    TextChannelImpl channel = (TextChannelImpl) api.getTextChannelMap().get(id);</span>
-<span class="nc bnc" id="L696" title="All 2 branches missed.">    if (channel == null) {</span>
-<span class="nc" id="L697">      GuildImpl guild = ((GuildImpl) api.getGuildMap().get(guildId));</span>
-<span class="nc" id="L698">      channel = new TextChannelImpl(id, guild);</span>
-<span class="nc" id="L699">      guild.getTextChannelsMap().put(id, channel);</span>
-<span class="nc" id="L700">      api.getTextChannelMap().put(id, channel);</span>
+<span class="nc" id="L696">    final long id = json.getLong(&quot;id&quot;);</span>
+<span class="nc" id="L697">    TextChannelImpl channel = (TextChannelImpl) api.getTextChannelMap().get(id);</span>
+<span class="nc bnc" id="L698" title="All 2 branches missed.">    if (channel == null) {</span>
+<span class="nc" id="L699">      GuildImpl guild = ((GuildImpl) api.getGuildMap().get(guildId));</span>
+<span class="nc" id="L700">      channel = new TextChannelImpl(id, guild);</span>
+<span class="nc" id="L701">      guild.getTextChannelsMap().put(id, channel);</span>
+<span class="nc" id="L702">      api.getTextChannelMap().put(id, channel);</span>
     }
 
-<span class="nc bnc" id="L703" title="All 4 branches missed.">    if (!json.isNull(&quot;permission_overwrites&quot;) &amp;&amp; guildIsLoaded) {</span>
-<span class="nc" id="L704">      JSONArray overrides = json.getJSONArray(&quot;permission_overwrites&quot;);</span>
-<span class="nc" id="L705">      createOverridesPass(channel, overrides);</span>
+<span class="nc bnc" id="L705" title="All 4 branches missed.">    if (!json.isNull(&quot;permission_overwrites&quot;) &amp;&amp; guildIsLoaded) {</span>
+<span class="nc" id="L706">      JSONArray overrides = json.getJSONArray(&quot;permission_overwrites&quot;);</span>
+<span class="nc" id="L707">      createOverridesPass(channel, overrides);</span>
     }
 
-<span class="nc" id="L708">    return channel</span>
-<span class="nc" id="L709">        .setParent(Helpers.optLong(json, &quot;parent_id&quot;, 0))</span>
-<span class="nc" id="L710">        .setLastMessageId(Helpers.optLong(json, &quot;last_message_id&quot;, 0))</span>
-<span class="nc" id="L711">        .setName(json.getString(&quot;name&quot;))</span>
-<span class="nc" id="L712">        .setTopic(json.optString(&quot;topic&quot;))</span>
-<span class="nc" id="L713">        .setRawPosition(json.getInt(&quot;position&quot;))</span>
-<span class="nc" id="L714">        .setNSFW(Helpers.optBoolean(json, &quot;nsfw&quot;));</span>
+<span class="nc" id="L710">    return channel</span>
+<span class="nc" id="L711">        .setParent(Helpers.optLong(json, &quot;parent_id&quot;, 0))</span>
+<span class="nc" id="L712">        .setLastMessageId(Helpers.optLong(json, &quot;last_message_id&quot;, 0))</span>
+<span class="nc" id="L713">        .setName(json.getString(&quot;name&quot;))</span>
+<span class="nc" id="L714">        .setTopic(json.optString(&quot;topic&quot;))</span>
+<span class="nc" id="L715">        .setRawPosition(json.getInt(&quot;position&quot;))</span>
+<span class="nc" id="L716">        .setNSFW(Helpers.optBoolean(json, &quot;nsfw&quot;));</span>
   }
 
   public VoiceChannel createVoiceChannel(JSONObject json, long guildId) {
-<span class="nc" id="L718">    return createVoiceChannel(json, guildId, true);</span>
+<span class="nc" id="L720">    return createVoiceChannel(json, guildId, true);</span>
   }
 
   public VoiceChannel createVoiceChannel(JSONObject json, long guildId, boolean guildIsLoaded) {
-<span class="nc" id="L722">    final long id = json.getLong(&quot;id&quot;);</span>
-<span class="nc" id="L723">    VoiceChannelImpl channel = ((VoiceChannelImpl) api.getVoiceChannelMap().get(id));</span>
-<span class="nc bnc" id="L724" title="All 2 branches missed.">    if (channel == null) {</span>
-<span class="nc" id="L725">      GuildImpl guild = (GuildImpl) api.getGuildMap().get(guildId);</span>
-<span class="nc" id="L726">      channel = new VoiceChannelImpl(id, guild);</span>
-<span class="nc" id="L727">      guild.getVoiceChannelsMap().put(id, channel);</span>
-<span class="nc" id="L728">      api.getVoiceChannelMap().put(id, channel);</span>
+<span class="nc" id="L724">    final long id = json.getLong(&quot;id&quot;);</span>
+<span class="nc" id="L725">    VoiceChannelImpl channel = ((VoiceChannelImpl) api.getVoiceChannelMap().get(id));</span>
+<span class="nc bnc" id="L726" title="All 2 branches missed.">    if (channel == null) {</span>
+<span class="nc" id="L727">      GuildImpl guild = (GuildImpl) api.getGuildMap().get(guildId);</span>
+<span class="nc" id="L728">      channel = new VoiceChannelImpl(id, guild);</span>
+<span class="nc" id="L729">      guild.getVoiceChannelsMap().put(id, channel);</span>
+<span class="nc" id="L730">      api.getVoiceChannelMap().put(id, channel);</span>
     }
 
-<span class="nc bnc" id="L731" title="All 4 branches missed.">    if (!json.isNull(&quot;permission_overwrites&quot;) &amp;&amp; guildIsLoaded) {</span>
-<span class="nc" id="L732">      JSONArray overrides = json.getJSONArray(&quot;permission_overwrites&quot;);</span>
-<span class="nc" id="L733">      createOverridesPass(channel, overrides);</span>
+<span class="nc bnc" id="L733" title="All 4 branches missed.">    if (!json.isNull(&quot;permission_overwrites&quot;) &amp;&amp; guildIsLoaded) {</span>
+<span class="nc" id="L734">      JSONArray overrides = json.getJSONArray(&quot;permission_overwrites&quot;);</span>
+<span class="nc" id="L735">      createOverridesPass(channel, overrides);</span>
     }
 
-<span class="nc" id="L736">    return channel</span>
-<span class="nc" id="L737">        .setParent(Helpers.optLong(json, &quot;parent_id&quot;, 0))</span>
-<span class="nc" id="L738">        .setName(json.getString(&quot;name&quot;))</span>
-<span class="nc" id="L739">        .setRawPosition(json.getInt(&quot;position&quot;))</span>
-<span class="nc" id="L740">        .setUserLimit(json.getInt(&quot;user_limit&quot;))</span>
-<span class="nc" id="L741">        .setBitrate(json.getInt(&quot;bitrate&quot;));</span>
+<span class="nc" id="L738">    return channel</span>
+<span class="nc" id="L739">        .setParent(Helpers.optLong(json, &quot;parent_id&quot;, 0))</span>
+<span class="nc" id="L740">        .setName(json.getString(&quot;name&quot;))</span>
+<span class="nc" id="L741">        .setRawPosition(json.getInt(&quot;position&quot;))</span>
+<span class="nc" id="L742">        .setUserLimit(json.getInt(&quot;user_limit&quot;))</span>
+<span class="nc" id="L743">        .setBitrate(json.getInt(&quot;bitrate&quot;));</span>
   }
 
   public PrivateChannel createPrivateChannel(JSONObject privatechat) {
-<span class="nc" id="L745">    JSONObject recipient =</span>
-<span class="nc bnc" id="L746" title="All 2 branches missed.">        privatechat.has(&quot;recipients&quot;)</span>
-<span class="nc" id="L747">            ? privatechat.getJSONArray(&quot;recipients&quot;).getJSONObject(0)</span>
-<span class="nc" id="L748">            : privatechat.getJSONObject(&quot;recipient&quot;);</span>
-<span class="nc" id="L749">    final long userId = recipient.getLong(&quot;id&quot;);</span>
-<span class="nc" id="L750">    UserImpl user = ((UserImpl) api.getUserMap().get(userId));</span>
-<span class="nc bnc" id="L751" title="All 2 branches missed.">    if (user</span>
+<span class="nc" id="L747">    JSONObject recipient =</span>
+<span class="nc bnc" id="L748" title="All 2 branches missed.">        privatechat.has(&quot;recipients&quot;)</span>
+<span class="nc" id="L749">            ? privatechat.getJSONArray(&quot;recipients&quot;).getJSONObject(0)</span>
+<span class="nc" id="L750">            : privatechat.getJSONObject(&quot;recipient&quot;);</span>
+<span class="nc" id="L751">    final long userId = recipient.getLong(&quot;id&quot;);</span>
+<span class="nc" id="L752">    UserImpl user = ((UserImpl) api.getUserMap().get(userId));</span>
+<span class="nc bnc" id="L753" title="All 2 branches missed.">    if (user</span>
         == null) { // The API can give us private channels connected to Users that we can no longer
       // communicate with.
       // As such, make a fake user and fake private channel.
-<span class="nc" id="L755">      user = (UserImpl) createFakeUser(recipient, true);</span>
+<span class="nc" id="L757">      user = (UserImpl) createFakeUser(recipient, true);</span>
     }
 
-<span class="nc" id="L758">    final long channelId = privatechat.getLong(&quot;id&quot;);</span>
-<span class="nc" id="L759">    PrivateChannelImpl priv =</span>
+<span class="nc" id="L760">    final long channelId = privatechat.getLong(&quot;id&quot;);</span>
+<span class="nc" id="L761">    PrivateChannelImpl priv =</span>
         new PrivateChannelImpl(channelId, user)
-<span class="nc" id="L761">            .setLastMessageId(Helpers.optLong(privatechat, &quot;last_message_id&quot;, 0));</span>
-<span class="nc" id="L762">    user.setPrivateChannel(priv);</span>
+<span class="nc" id="L763">            .setLastMessageId(Helpers.optLong(privatechat, &quot;last_message_id&quot;, 0));</span>
+<span class="nc" id="L764">    user.setPrivateChannel(priv);</span>
 
-<span class="nc bnc" id="L764" title="All 2 branches missed.">    if (user.isFake()) {</span>
-<span class="nc" id="L765">      priv.setFake(true);</span>
-<span class="nc" id="L766">      api.getFakePrivateChannelMap().put(channelId, priv);</span>
-<span class="nc" id="L767">    } else api.getPrivateChannelMap().put(channelId, priv);</span>
-<span class="nc" id="L768">    return priv;</span>
+<span class="nc bnc" id="L766" title="All 2 branches missed.">    if (user.isFake()) {</span>
+<span class="nc" id="L767">      priv.setFake(true);</span>
+<span class="nc" id="L768">      api.getFakePrivateChannelMap().put(channelId, priv);</span>
+<span class="nc" id="L769">    } else api.getPrivateChannelMap().put(channelId, priv);</span>
+<span class="nc" id="L770">    return priv;</span>
   }
 
   public void createOverridesPass(AbstractChannelImpl&lt;?&gt; channel, JSONArray overrides) {
-<span class="nc bnc" id="L772" title="All 2 branches missed.">    for (int i = 0; i &lt; overrides.length(); i++) {</span>
+<span class="nc bnc" id="L774" title="All 2 branches missed.">    for (int i = 0; i &lt; overrides.length(); i++) {</span>
       try {
-<span class="nc" id="L774">        createPermissionOverride(overrides.getJSONObject(i), channel);</span>
-<span class="nc" id="L775">      } catch (NoSuchElementException e) {</span>
+<span class="nc" id="L776">        createPermissionOverride(overrides.getJSONObject(i), channel);</span>
+<span class="nc" id="L777">      } catch (NoSuchElementException e) {</span>
         // Caused by Discord not properly clearing PermissionOverrides when a Member leaves a Guild.
-<span class="nc" id="L777">        LOG.debug(&quot;{}. Ignoring PermissionOverride.&quot;, e.getMessage());</span>
-<span class="nc" id="L778">      } catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L779">        LOG.debug(&quot;{}. Ignoring PermissionOverride.&quot;, e.getMessage());</span>
+<span class="nc" id="L780">      } catch (IllegalArgumentException e) {</span>
         // Missing handling for a type
-<span class="nc" id="L780">        LOG.warn(&quot;{}. Ignoring PermissionOverride.&quot;, e.getMessage());</span>
-<span class="nc" id="L781">      }</span>
+<span class="nc" id="L782">        LOG.warn(&quot;{}. Ignoring PermissionOverride.&quot;, e.getMessage());</span>
+<span class="nc" id="L783">      }</span>
     }
-<span class="nc" id="L783">  }</span>
+<span class="nc" id="L785">  }</span>
 
   public Role createRole(JSONObject roleJson, long guildId) {
-<span class="nc" id="L786">    final long id = roleJson.getLong(&quot;id&quot;);</span>
-<span class="nc" id="L787">    GuildImpl guild = ((GuildImpl) api.getGuildMap().get(guildId));</span>
-<span class="nc" id="L788">    RoleImpl role = ((RoleImpl) guild.getRolesMap().get(id));</span>
-<span class="nc bnc" id="L789" title="All 2 branches missed.">    if (role == null) {</span>
-<span class="nc" id="L790">      role = new RoleImpl(id, guild);</span>
-<span class="nc" id="L791">      guild.getRolesMap().put(id, role);</span>
+<span class="nc" id="L788">    final long id = roleJson.getLong(&quot;id&quot;);</span>
+<span class="nc" id="L789">    GuildImpl guild = ((GuildImpl) api.getGuildMap().get(guildId));</span>
+<span class="nc" id="L790">    RoleImpl role = ((RoleImpl) guild.getRolesMap().get(id));</span>
+<span class="nc bnc" id="L791" title="All 2 branches missed.">    if (role == null) {</span>
+<span class="nc" id="L792">      role = new RoleImpl(id, guild);</span>
+<span class="nc" id="L793">      guild.getRolesMap().put(id, role);</span>
     }
-<span class="nc" id="L793">    return role.setName(roleJson.getString(&quot;name&quot;))</span>
-<span class="nc" id="L794">        .setRawPosition(roleJson.getInt(&quot;position&quot;))</span>
-<span class="nc" id="L795">        .setRawPermissions(roleJson.getLong(&quot;permissions&quot;))</span>
-<span class="nc" id="L796">        .setManaged(roleJson.getBoolean(&quot;managed&quot;))</span>
-<span class="nc" id="L797">        .setHoisted(roleJson.getBoolean(&quot;hoist&quot;))</span>
-<span class="nc bnc" id="L798" title="All 2 branches missed.">        .setColor(roleJson.getInt(&quot;color&quot;) != 0 ? new Color(roleJson.getInt(&quot;color&quot;)) : null)</span>
-<span class="nc bnc" id="L799" title="All 4 branches missed.">        .setMentionable(roleJson.has(&quot;mentionable&quot;) &amp;&amp; roleJson.getBoolean(&quot;mentionable&quot;));</span>
+<span class="nc" id="L795">    return role.setName(roleJson.getString(&quot;name&quot;))</span>
+<span class="nc" id="L796">        .setRawPosition(roleJson.getInt(&quot;position&quot;))</span>
+<span class="nc" id="L797">        .setRawPermissions(roleJson.getLong(&quot;permissions&quot;))</span>
+<span class="nc" id="L798">        .setManaged(roleJson.getBoolean(&quot;managed&quot;))</span>
+<span class="nc" id="L799">        .setHoisted(roleJson.getBoolean(&quot;hoist&quot;))</span>
+<span class="nc bnc" id="L800" title="All 2 branches missed.">        .setColor(roleJson.getInt(&quot;color&quot;) != 0 ? new Color(roleJson.getInt(&quot;color&quot;)) : null)</span>
+<span class="nc bnc" id="L801" title="All 4 branches missed.">        .setMentionable(roleJson.has(&quot;mentionable&quot;) &amp;&amp; roleJson.getBoolean(&quot;mentionable&quot;));</span>
   }
 
   public Message createMessage(JSONObject jsonObject) {
-<span class="nc" id="L803">    return createMessage(jsonObject, false);</span>
+<span class="nc" id="L805">    return createMessage(jsonObject, false);</span>
   }
 
   public Message createMessage(JSONObject jsonObject, boolean exceptionOnMissingUser) {
-<span class="nc" id="L807">    final long channelId = jsonObject.getLong(&quot;channel_id&quot;);</span>
+<span class="nc" id="L809">    final long channelId = jsonObject.getLong(&quot;channel_id&quot;);</span>
 
-<span class="nc" id="L809">    MessageChannel chan = api.getTextChannelById(channelId);</span>
-<span class="nc bnc" id="L810" title="All 2 branches missed.">    if (chan == null) chan = api.getPrivateChannelById(channelId);</span>
-<span class="nc bnc" id="L811" title="All 2 branches missed.">    if (chan == null) chan = api.getFakePrivateChannelMap().get(channelId);</span>
-<span class="nc bnc" id="L812" title="All 4 branches missed.">    if (chan == null &amp;&amp; api.getAccountType() == AccountType.CLIENT)</span>
-<span class="nc" id="L813">      chan = api.asClient().getGroupById(channelId);</span>
-<span class="nc bnc" id="L814" title="All 2 branches missed.">    if (chan == null) throw new IllegalArgumentException(MISSING_CHANNEL);</span>
+<span class="nc" id="L811">    MessageChannel chan = api.getTextChannelById(channelId);</span>
+<span class="nc bnc" id="L812" title="All 2 branches missed.">    if (chan == null) chan = api.getPrivateChannelById(channelId);</span>
+<span class="nc bnc" id="L813" title="All 2 branches missed.">    if (chan == null) chan = api.getFakePrivateChannelMap().get(channelId);</span>
+<span class="nc bnc" id="L814" title="All 4 branches missed.">    if (chan == null &amp;&amp; api.getAccountType() == AccountType.CLIENT)</span>
+<span class="nc" id="L815">      chan = api.asClient().getGroupById(channelId);</span>
+<span class="nc bnc" id="L816" title="All 2 branches missed.">    if (chan == null) throw new IllegalArgumentException(MISSING_CHANNEL);</span>
 
-<span class="nc" id="L816">    return createMessage(jsonObject, chan, exceptionOnMissingUser);</span>
+<span class="nc" id="L818">    return createMessage(jsonObject, chan, exceptionOnMissingUser);</span>
   }
 
   public Message createMessage(
       JSONObject jsonObject, MessageChannel chan, boolean exceptionOnMissingUser) {
-<span class="nc" id="L821">    final long id = jsonObject.getLong(&quot;id&quot;);</span>
-<span class="nc" id="L822">    String content = jsonObject.optString(&quot;content&quot;);</span>
+<span class="nc" id="L823">    final long id = jsonObject.getLong(&quot;id&quot;);</span>
+<span class="nc" id="L824">    String content = jsonObject.optString(&quot;content&quot;);</span>
 
-<span class="nc" id="L824">    JSONObject author = jsonObject.getJSONObject(&quot;author&quot;);</span>
-<span class="nc" id="L825">    final long authorId = author.getLong(&quot;id&quot;);</span>
-<span class="nc" id="L826">    final boolean fromWebhook = jsonObject.has(&quot;webhook_id&quot;);</span>
-<span class="nc" id="L827">    final boolean pinned = Helpers.optBoolean(jsonObject, &quot;pinned&quot;);</span>
-<span class="nc" id="L828">    final boolean tts = Helpers.optBoolean(jsonObject, &quot;tts&quot;);</span>
-<span class="nc" id="L829">    final boolean mentionsEveryone = Helpers.optBoolean(jsonObject, &quot;mention_everyone&quot;);</span>
-<span class="nc" id="L830">    final OffsetDateTime editTime =</span>
-<span class="nc bnc" id="L831" title="All 2 branches missed.">        jsonObject.isNull(&quot;edited_timestamp&quot;)</span>
+<span class="nc" id="L826">    JSONObject author = jsonObject.getJSONObject(&quot;author&quot;);</span>
+<span class="nc" id="L827">    final long authorId = author.getLong(&quot;id&quot;);</span>
+<span class="nc" id="L828">    final boolean fromWebhook = jsonObject.has(&quot;webhook_id&quot;);</span>
+<span class="nc" id="L829">    final boolean pinned = Helpers.optBoolean(jsonObject, &quot;pinned&quot;);</span>
+<span class="nc" id="L830">    final boolean tts = Helpers.optBoolean(jsonObject, &quot;tts&quot;);</span>
+<span class="nc" id="L831">    final boolean mentionsEveryone = Helpers.optBoolean(jsonObject, &quot;mention_everyone&quot;);</span>
+<span class="nc" id="L832">    final OffsetDateTime editTime =</span>
+<span class="nc bnc" id="L833" title="All 2 branches missed.">        jsonObject.isNull(&quot;edited_timestamp&quot;)</span>
             ? null
-<span class="nc" id="L833">            : OffsetDateTime.parse(jsonObject.getString(&quot;edited_timestamp&quot;));</span>
-<span class="nc bnc" id="L834" title="All 2 branches missed.">    final String nonce = jsonObject.isNull(&quot;nonce&quot;) ? null : jsonObject.get(&quot;nonce&quot;).toString();</span>
+<span class="nc" id="L835">            : OffsetDateTime.parse(jsonObject.getString(&quot;edited_timestamp&quot;));</span>
+<span class="nc bnc" id="L836" title="All 2 branches missed.">    final String nonce = jsonObject.isNull(&quot;nonce&quot;) ? null : jsonObject.get(&quot;nonce&quot;).toString();</span>
 
-<span class="nc" id="L836">    final List&lt;Message.Attachment&gt; attachments =</span>
-<span class="nc" id="L837">        map(jsonObject, &quot;attachments&quot;, this::createMessageAttachment);</span>
-<span class="nc" id="L838">    final List&lt;MessageEmbed&gt; embeds = map(jsonObject, &quot;embeds&quot;, this::createMessageEmbed);</span>
-<span class="nc" id="L839">    final List&lt;MessageReaction&gt; reactions =</span>
-<span class="nc" id="L840">        map(jsonObject, &quot;reactions&quot;, (obj) -&gt; createMessageReaction(chan, id, obj));</span>
+<span class="nc" id="L838">    final List&lt;Message.Attachment&gt; attachments =</span>
+<span class="nc" id="L839">        map(jsonObject, &quot;attachments&quot;, this::createMessageAttachment);</span>
+<span class="nc" id="L840">    final List&lt;MessageEmbed&gt; embeds = map(jsonObject, &quot;embeds&quot;, this::createMessageEmbed);</span>
+<span class="nc" id="L841">    final List&lt;MessageReaction&gt; reactions =</span>
+<span class="nc" id="L842">        map(jsonObject, &quot;reactions&quot;, (obj) -&gt; createMessageReaction(chan, id, obj));</span>
 
     User user;
-<span class="nc bnc" id="L843" title="All 4 branches missed.">    switch (chan.getType()) {</span>
+<span class="nc bnc" id="L845" title="All 4 branches missed.">    switch (chan.getType()) {</span>
       case PRIVATE:
-<span class="nc bnc" id="L845" title="All 2 branches missed.">        if (authorId == api.getSelfUser().getIdLong()) user = api.getSelfUser();</span>
-<span class="nc" id="L846">        else user = ((PrivateChannel) chan).getUser();</span>
-<span class="nc" id="L847">        break;</span>
+<span class="nc bnc" id="L847" title="All 2 branches missed.">        if (authorId == api.getSelfUser().getIdLong()) user = api.getSelfUser();</span>
+<span class="nc" id="L848">        else user = ((PrivateChannel) chan).getUser();</span>
+<span class="nc" id="L849">        break;</span>
       case GROUP:
-<span class="nc" id="L849">        user = api.getUserById(authorId);</span>
-<span class="nc bnc" id="L850" title="All 2 branches missed.">        if (user == null) user = api.getFakeUserMap().get(authorId);</span>
-<span class="nc bnc" id="L851" title="All 4 branches missed.">        if (user == null &amp;&amp; fromWebhook) user = createFakeUser(author, false);</span>
-<span class="nc bnc" id="L852" title="All 2 branches missed.">        if (user == null) {</span>
-<span class="nc bnc" id="L853" title="All 2 branches missed.">          if (exceptionOnMissingUser)</span>
-<span class="nc" id="L854">            throw new IllegalArgumentException(MISSING_USER); // Specifically for MESSAGE_CREATE</span>
-<span class="nc" id="L855">          else user = createFakeUser(author, false); // Any other message creation</span>
+<span class="nc" id="L851">        user = api.getUserById(authorId);</span>
+<span class="nc bnc" id="L852" title="All 2 branches missed.">        if (user == null) user = api.getFakeUserMap().get(authorId);</span>
+<span class="nc bnc" id="L853" title="All 4 branches missed.">        if (user == null &amp;&amp; fromWebhook) user = createFakeUser(author, false);</span>
+<span class="nc bnc" id="L854" title="All 2 branches missed.">        if (user == null) {</span>
+<span class="nc bnc" id="L855" title="All 2 branches missed.">          if (exceptionOnMissingUser)</span>
+<span class="nc" id="L856">            throw new IllegalArgumentException(MISSING_USER); // Specifically for MESSAGE_CREATE</span>
+<span class="nc" id="L857">          else user = createFakeUser(author, false); // Any other message creation</span>
         }
 
-<span class="nc bnc" id="L858" title="All 4 branches missed.">        if (user.isFake() &amp;&amp; !fromWebhook) {</span>
-<span class="nc" id="L859">          UserImpl impl = (UserImpl) user;</span>
-<span class="nc" id="L860">          impl.setName(author.getString(&quot;username&quot;))</span>
-<span class="nc" id="L861">              .setDiscriminator(author.get(&quot;discriminator&quot;).toString())</span>
-<span class="nc" id="L862">              .setAvatarId(author.optString(&quot;avatar&quot;, null))</span>
-<span class="nc" id="L863">              .setBot(Helpers.optBoolean(author, &quot;bot&quot;));</span>
-<span class="nc" id="L864">        }</span>
+<span class="nc bnc" id="L860" title="All 4 branches missed.">        if (user.isFake() &amp;&amp; !fromWebhook) {</span>
+<span class="nc" id="L861">          UserImpl impl = (UserImpl) user;</span>
+<span class="nc" id="L862">          impl.setName(author.getString(&quot;username&quot;))</span>
+<span class="nc" id="L863">              .setDiscriminator(author.get(&quot;discriminator&quot;).toString())</span>
+<span class="nc" id="L864">              .setAvatarId(author.optString(&quot;avatar&quot;, null))</span>
+<span class="nc" id="L865">              .setBot(Helpers.optBoolean(author, &quot;bot&quot;));</span>
+<span class="nc" id="L866">        }</span>
         break;
       case TEXT:
-<span class="nc" id="L867">        Guild guild = ((TextChannel) chan).getGuild();</span>
-<span class="nc" id="L868">        Member member = guild.getMemberById(authorId);</span>
-<span class="nc bnc" id="L869" title="All 2 branches missed.">        user = member != null ? member.getUser() : null;</span>
-<span class="nc bnc" id="L870" title="All 2 branches missed.">        if (user == null) {</span>
-<span class="nc bnc" id="L871" title="All 4 branches missed.">          if (fromWebhook || !exceptionOnMissingUser) user = createFakeUser(author, false);</span>
-<span class="nc" id="L872">          else throw new IllegalArgumentException(MISSING_USER); // Specifically for MESSAGE_CREATE</span>
+<span class="nc" id="L869">        Guild guild = ((TextChannel) chan).getGuild();</span>
+<span class="nc" id="L870">        Member member = guild.getMemberById(authorId);</span>
+<span class="nc bnc" id="L871" title="All 2 branches missed.">        user = member != null ? member.getUser() : null;</span>
+<span class="nc bnc" id="L872" title="All 2 branches missed.">        if (user == null) {</span>
+<span class="nc bnc" id="L873" title="All 4 branches missed.">          if (fromWebhook || !exceptionOnMissingUser) user = createFakeUser(author, false);</span>
+<span class="nc" id="L874">          else throw new IllegalArgumentException(MISSING_USER); // Specifically for MESSAGE_CREATE</span>
         }
         break;
       default:
-<span class="nc" id="L876">        throw new IllegalArgumentException(</span>
-<span class="nc" id="L877">            &quot;Invalid Channel for creating a Message [&quot; + chan.getType() + ']');</span>
+<span class="nc" id="L878">        throw new IllegalArgumentException(</span>
+<span class="nc" id="L879">            &quot;Invalid Channel for creating a Message [&quot; + chan.getType() + ']');</span>
     }
 
-<span class="nc" id="L880">    TLongSet mentionedRoles = new TLongHashSet();</span>
-<span class="nc" id="L881">    TLongSet mentionedUsers = new TLongHashSet(map(jsonObject, &quot;mentions&quot;, (o) -&gt; o.getLong(&quot;id&quot;)));</span>
-<span class="nc" id="L882">    JSONArray roleMentionArr = jsonObject.optJSONArray(&quot;mention_roles&quot;);</span>
-<span class="nc bnc" id="L883" title="All 2 branches missed.">    if (roleMentionArr != null) {</span>
-<span class="nc bnc" id="L884" title="All 2 branches missed.">      for (int i = 0; i &lt; roleMentionArr.length(); i++)</span>
-<span class="nc" id="L885">        mentionedRoles.add(roleMentionArr.getLong(i));</span>
+<span class="nc" id="L882">    TLongSet mentionedRoles = new TLongHashSet();</span>
+<span class="nc" id="L883">    TLongSet mentionedUsers = new TLongHashSet(map(jsonObject, &quot;mentions&quot;, (o) -&gt; o.getLong(&quot;id&quot;)));</span>
+<span class="nc" id="L884">    JSONArray roleMentionArr = jsonObject.optJSONArray(&quot;mention_roles&quot;);</span>
+<span class="nc bnc" id="L885" title="All 2 branches missed.">    if (roleMentionArr != null) {</span>
+<span class="nc bnc" id="L886" title="All 2 branches missed.">      for (int i = 0; i &lt; roleMentionArr.length(); i++)</span>
+<span class="nc" id="L887">        mentionedRoles.add(roleMentionArr.getLong(i));</span>
     }
 
-<span class="nc" id="L888">    MessageType type = MessageType.fromId(jsonObject.getInt(&quot;type&quot;));</span>
-<span class="nc bnc" id="L889" title="All 3 branches missed.">    switch (type) {</span>
+<span class="nc" id="L890">    MessageType type = MessageType.fromId(jsonObject.getInt(&quot;type&quot;));</span>
+<span class="nc bnc" id="L891" title="All 3 branches missed.">    switch (type) {</span>
       case DEFAULT:
-<span class="nc" id="L891">        return new ReceivedMessage(</span>
+<span class="nc" id="L893">        return new ReceivedMessage(</span>
             id,
             chan,
             type,
@@ -906,9 +908,9 @@ public class EntityBuilder {
             attachments,
             embeds);
       case UNKNOWN:
-<span class="nc" id="L909">        throw new IllegalArgumentException(UNKNOWN_MESSAGE_TYPE);</span>
+<span class="nc" id="L911">        throw new IllegalArgumentException(UNKNOWN_MESSAGE_TYPE);</span>
       default:
-<span class="nc" id="L911">        return new SystemMessage(</span>
+<span class="nc" id="L913">        return new SystemMessage(</span>
             id,
             chan,
             type,
@@ -929,132 +931,132 @@ public class EntityBuilder {
   }
 
   public MessageReaction createMessageReaction(MessageChannel chan, long id, JSONObject obj) {
-<span class="nc" id="L932">    JSONObject emoji = obj.getJSONObject(&quot;emoji&quot;);</span>
-<span class="nc bnc" id="L933" title="All 2 branches missed.">    final Long emojiID = emoji.isNull(&quot;id&quot;) ? null : emoji.getLong(&quot;id&quot;);</span>
-<span class="nc" id="L934">    final String name = emoji.optString(&quot;name&quot;, null);</span>
-<span class="nc" id="L935">    final boolean animated = emoji.optBoolean(&quot;animated&quot;);</span>
-<span class="nc" id="L936">    final int count = Helpers.optInt(obj, &quot;count&quot;, -1);</span>
-<span class="nc" id="L937">    final boolean me = Helpers.optBoolean(obj, &quot;me&quot;);</span>
+<span class="nc" id="L934">    JSONObject emoji = obj.getJSONObject(&quot;emoji&quot;);</span>
+<span class="nc bnc" id="L935" title="All 2 branches missed.">    final Long emojiID = emoji.isNull(&quot;id&quot;) ? null : emoji.getLong(&quot;id&quot;);</span>
+<span class="nc" id="L936">    final String name = emoji.optString(&quot;name&quot;, null);</span>
+<span class="nc" id="L937">    final boolean animated = emoji.optBoolean(&quot;animated&quot;);</span>
+<span class="nc" id="L938">    final int count = Helpers.optInt(obj, &quot;count&quot;, -1);</span>
+<span class="nc" id="L939">    final boolean me = Helpers.optBoolean(obj, &quot;me&quot;);</span>
 
     final MessageReaction.ReactionEmote reactionEmote;
-<span class="nc bnc" id="L940" title="All 2 branches missed.">    if (emojiID != null) {</span>
-<span class="nc" id="L941">      Emote emote = api.getEmoteById(emojiID);</span>
+<span class="nc bnc" id="L942" title="All 2 branches missed.">    if (emojiID != null) {</span>
+<span class="nc" id="L943">      Emote emote = api.getEmoteById(emojiID);</span>
       // creates fake emoji because no guild has this emoji id
-<span class="nc bnc" id="L943" title="All 2 branches missed.">      if (emote == null) emote = new EmoteImpl(emojiID, api).setAnimated(animated).setName(name);</span>
-<span class="nc" id="L944">      reactionEmote = new MessageReaction.ReactionEmote(emote);</span>
-<span class="nc" id="L945">    } else {</span>
-<span class="nc" id="L946">      reactionEmote = new MessageReaction.ReactionEmote(name, null, api);</span>
+<span class="nc bnc" id="L945" title="All 2 branches missed.">      if (emote == null) emote = new EmoteImpl(emojiID, api).setAnimated(animated).setName(name);</span>
+<span class="nc" id="L946">      reactionEmote = new MessageReaction.ReactionEmote(emote);</span>
+<span class="nc" id="L947">    } else {</span>
+<span class="nc" id="L948">      reactionEmote = new MessageReaction.ReactionEmote(name, null, api);</span>
     }
 
-<span class="nc" id="L949">    return new MessageReaction(chan, reactionEmote, id, me, count);</span>
+<span class="nc" id="L951">    return new MessageReaction(chan, reactionEmote, id, me, count);</span>
   }
 
   public Message.Attachment createMessageAttachment(JSONObject jsonObject) {
-<span class="nc" id="L953">    final int width = Helpers.optInt(jsonObject, &quot;width&quot;, -1);</span>
-<span class="nc" id="L954">    final int height = Helpers.optInt(jsonObject, &quot;height&quot;, -1);</span>
-<span class="nc" id="L955">    final int size = jsonObject.getInt(&quot;size&quot;);</span>
-<span class="nc" id="L956">    final String url = jsonObject.optString(&quot;url&quot;, null);</span>
-<span class="nc" id="L957">    final String proxyUrl = jsonObject.optString(&quot;proxy_url&quot;, null);</span>
-<span class="nc" id="L958">    final String filename = jsonObject.getString(&quot;filename&quot;);</span>
-<span class="nc" id="L959">    final long id = jsonObject.getLong(&quot;id&quot;);</span>
-<span class="nc" id="L960">    return new Message.Attachment(id, url, proxyUrl, filename, size, height, width, api);</span>
+<span class="nc" id="L955">    final int width = Helpers.optInt(jsonObject, &quot;width&quot;, -1);</span>
+<span class="nc" id="L956">    final int height = Helpers.optInt(jsonObject, &quot;height&quot;, -1);</span>
+<span class="nc" id="L957">    final int size = jsonObject.getInt(&quot;size&quot;);</span>
+<span class="nc" id="L958">    final String url = jsonObject.optString(&quot;url&quot;, null);</span>
+<span class="nc" id="L959">    final String proxyUrl = jsonObject.optString(&quot;proxy_url&quot;, null);</span>
+<span class="nc" id="L960">    final String filename = jsonObject.getString(&quot;filename&quot;);</span>
+<span class="nc" id="L961">    final long id = jsonObject.getLong(&quot;id&quot;);</span>
+<span class="nc" id="L962">    return new Message.Attachment(id, url, proxyUrl, filename, size, height, width, api);</span>
   }
 
   public MessageEmbed createMessageEmbed(JSONObject content) {
-<span class="nc bnc" id="L964" title="All 2 branches missed.">    if (content.isNull(&quot;type&quot;))</span>
-<span class="nc" id="L965">      throw new JSONException(</span>
+<span class="nc bnc" id="L966" title="All 2 branches missed.">    if (content.isNull(&quot;type&quot;))</span>
+<span class="nc" id="L967">      throw new JSONException(</span>
           &quot;Encountered embed object with missing/null type field for Json: &quot; + content);
-<span class="nc" id="L967">    EmbedType type = EmbedType.fromKey(content.getString(&quot;type&quot;));</span>
-<span class="nc" id="L968">    final String url = content.optString(&quot;url&quot;, null);</span>
-<span class="nc" id="L969">    final String title = content.optString(&quot;title&quot;, null);</span>
-<span class="nc" id="L970">    final String description = content.optString(&quot;description&quot;, null);</span>
-<span class="nc" id="L971">    final OffsetDateTime timestamp =</span>
-<span class="nc bnc" id="L972" title="All 2 branches missed.">        content.isNull(&quot;timestamp&quot;) ? null : OffsetDateTime.parse(content.getString(&quot;timestamp&quot;));</span>
-<span class="nc bnc" id="L973" title="All 2 branches missed.">    final Color color = content.isNull(&quot;color&quot;) ? null : new Color(content.getInt(&quot;color&quot;));</span>
+<span class="nc" id="L969">    EmbedType type = EmbedType.fromKey(content.getString(&quot;type&quot;));</span>
+<span class="nc" id="L970">    final String url = content.optString(&quot;url&quot;, null);</span>
+<span class="nc" id="L971">    final String title = content.optString(&quot;title&quot;, null);</span>
+<span class="nc" id="L972">    final String description = content.optString(&quot;description&quot;, null);</span>
+<span class="nc" id="L973">    final OffsetDateTime timestamp =</span>
+<span class="nc bnc" id="L974" title="All 2 branches missed.">        content.isNull(&quot;timestamp&quot;) ? null : OffsetDateTime.parse(content.getString(&quot;timestamp&quot;));</span>
+<span class="nc bnc" id="L975" title="All 2 branches missed.">    final Color color = content.isNull(&quot;color&quot;) ? null : new Color(content.getInt(&quot;color&quot;));</span>
 
     final Thumbnail thumbnail;
-<span class="nc bnc" id="L976" title="All 2 branches missed.">    if (content.isNull(&quot;thumbnail&quot;)) {</span>
-<span class="nc" id="L977">      thumbnail = null;</span>
+<span class="nc bnc" id="L978" title="All 2 branches missed.">    if (content.isNull(&quot;thumbnail&quot;)) {</span>
+<span class="nc" id="L979">      thumbnail = null;</span>
     } else {
-<span class="nc" id="L979">      JSONObject obj = content.getJSONObject(&quot;thumbnail&quot;);</span>
-<span class="nc" id="L980">      thumbnail =</span>
+<span class="nc" id="L981">      JSONObject obj = content.getJSONObject(&quot;thumbnail&quot;);</span>
+<span class="nc" id="L982">      thumbnail =</span>
           new Thumbnail(
-<span class="nc" id="L982">              obj.optString(&quot;url&quot;, null),</span>
-<span class="nc" id="L983">              obj.optString(&quot;proxy_url&quot;, null),</span>
-<span class="nc" id="L984">              Helpers.optInt(obj, &quot;width&quot;, -1),</span>
-<span class="nc" id="L985">              Helpers.optInt(obj, &quot;height&quot;, -1));</span>
+<span class="nc" id="L984">              obj.optString(&quot;url&quot;, null),</span>
+<span class="nc" id="L985">              obj.optString(&quot;proxy_url&quot;, null),</span>
+<span class="nc" id="L986">              Helpers.optInt(obj, &quot;width&quot;, -1),</span>
+<span class="nc" id="L987">              Helpers.optInt(obj, &quot;height&quot;, -1));</span>
     }
 
     final Provider provider;
-<span class="nc bnc" id="L989" title="All 2 branches missed.">    if (content.isNull(&quot;provider&quot;)) {</span>
-<span class="nc" id="L990">      provider = null;</span>
+<span class="nc bnc" id="L991" title="All 2 branches missed.">    if (content.isNull(&quot;provider&quot;)) {</span>
+<span class="nc" id="L992">      provider = null;</span>
     } else {
-<span class="nc" id="L992">      JSONObject obj = content.getJSONObject(&quot;provider&quot;);</span>
-<span class="nc" id="L993">      provider = new Provider(obj.optString(&quot;name&quot;, null), obj.optString(&quot;url&quot;, null));</span>
+<span class="nc" id="L994">      JSONObject obj = content.getJSONObject(&quot;provider&quot;);</span>
+<span class="nc" id="L995">      provider = new Provider(obj.optString(&quot;name&quot;, null), obj.optString(&quot;url&quot;, null));</span>
     }
 
     final AuthorInfo author;
-<span class="nc bnc" id="L997" title="All 2 branches missed.">    if (content.isNull(&quot;author&quot;)) {</span>
-<span class="nc" id="L998">      author = null;</span>
+<span class="nc bnc" id="L999" title="All 2 branches missed.">    if (content.isNull(&quot;author&quot;)) {</span>
+<span class="nc" id="L1000">      author = null;</span>
     } else {
-<span class="nc" id="L1000">      JSONObject obj = content.getJSONObject(&quot;author&quot;);</span>
-<span class="nc" id="L1001">      author =</span>
+<span class="nc" id="L1002">      JSONObject obj = content.getJSONObject(&quot;author&quot;);</span>
+<span class="nc" id="L1003">      author =</span>
           new AuthorInfo(
-<span class="nc" id="L1003">              obj.optString(&quot;name&quot;, null),</span>
-<span class="nc" id="L1004">              obj.optString(&quot;url&quot;, null),</span>
-<span class="nc" id="L1005">              obj.optString(&quot;icon_url&quot;, null),</span>
-<span class="nc" id="L1006">              obj.optString(&quot;proxy_icon_url&quot;, null));</span>
+<span class="nc" id="L1005">              obj.optString(&quot;name&quot;, null),</span>
+<span class="nc" id="L1006">              obj.optString(&quot;url&quot;, null),</span>
+<span class="nc" id="L1007">              obj.optString(&quot;icon_url&quot;, null),</span>
+<span class="nc" id="L1008">              obj.optString(&quot;proxy_icon_url&quot;, null));</span>
     }
 
     final VideoInfo video;
-<span class="nc bnc" id="L1010" title="All 2 branches missed.">    if (content.isNull(&quot;video&quot;)) {</span>
-<span class="nc" id="L1011">      video = null;</span>
+<span class="nc bnc" id="L1012" title="All 2 branches missed.">    if (content.isNull(&quot;video&quot;)) {</span>
+<span class="nc" id="L1013">      video = null;</span>
     } else {
-<span class="nc" id="L1013">      JSONObject obj = content.getJSONObject(&quot;video&quot;);</span>
-<span class="nc" id="L1014">      video =</span>
+<span class="nc" id="L1015">      JSONObject obj = content.getJSONObject(&quot;video&quot;);</span>
+<span class="nc" id="L1016">      video =</span>
           new VideoInfo(
-<span class="nc" id="L1016">              obj.optString(&quot;url&quot;),</span>
-<span class="nc" id="L1017">              Helpers.optInt(obj, &quot;width&quot;, -1),</span>
-<span class="nc" id="L1018">              Helpers.optInt(obj, &quot;height&quot;, -1));</span>
+<span class="nc" id="L1018">              obj.optString(&quot;url&quot;),</span>
+<span class="nc" id="L1019">              Helpers.optInt(obj, &quot;width&quot;, -1),</span>
+<span class="nc" id="L1020">              Helpers.optInt(obj, &quot;height&quot;, -1));</span>
     }
 
     final Footer footer;
-<span class="nc bnc" id="L1022" title="All 2 branches missed.">    if (content.isNull(&quot;footer&quot;)) {</span>
-<span class="nc" id="L1023">      footer = null;</span>
+<span class="nc bnc" id="L1024" title="All 2 branches missed.">    if (content.isNull(&quot;footer&quot;)) {</span>
+<span class="nc" id="L1025">      footer = null;</span>
     } else {
-<span class="nc" id="L1025">      JSONObject obj = content.getJSONObject(&quot;footer&quot;);</span>
-<span class="nc" id="L1026">      footer =</span>
+<span class="nc" id="L1027">      JSONObject obj = content.getJSONObject(&quot;footer&quot;);</span>
+<span class="nc" id="L1028">      footer =</span>
           new Footer(
-<span class="nc" id="L1028">              obj.optString(&quot;text&quot;, null),</span>
-<span class="nc" id="L1029">              obj.optString(&quot;icon_url&quot;, null),</span>
-<span class="nc" id="L1030">              obj.optString(&quot;proxy_icon_url&quot;, null));</span>
+<span class="nc" id="L1030">              obj.optString(&quot;text&quot;, null),</span>
+<span class="nc" id="L1031">              obj.optString(&quot;icon_url&quot;, null),</span>
+<span class="nc" id="L1032">              obj.optString(&quot;proxy_icon_url&quot;, null));</span>
     }
 
     final ImageInfo image;
-<span class="nc bnc" id="L1034" title="All 2 branches missed.">    if (content.isNull(&quot;image&quot;)) {</span>
-<span class="nc" id="L1035">      image = null;</span>
+<span class="nc bnc" id="L1036" title="All 2 branches missed.">    if (content.isNull(&quot;image&quot;)) {</span>
+<span class="nc" id="L1037">      image = null;</span>
     } else {
-<span class="nc" id="L1037">      JSONObject obj = content.getJSONObject(&quot;image&quot;);</span>
-<span class="nc" id="L1038">      image =</span>
+<span class="nc" id="L1039">      JSONObject obj = content.getJSONObject(&quot;image&quot;);</span>
+<span class="nc" id="L1040">      image =</span>
           new ImageInfo(
-<span class="nc" id="L1040">              obj.optString(&quot;url&quot;, null),</span>
-<span class="nc" id="L1041">              obj.optString(&quot;proxy_url&quot;, null),</span>
-<span class="nc" id="L1042">              Helpers.optInt(obj, &quot;width&quot;, -1),</span>
-<span class="nc" id="L1043">              Helpers.optInt(obj, &quot;height&quot;, -1));</span>
+<span class="nc" id="L1042">              obj.optString(&quot;url&quot;, null),</span>
+<span class="nc" id="L1043">              obj.optString(&quot;proxy_url&quot;, null),</span>
+<span class="nc" id="L1044">              Helpers.optInt(obj, &quot;width&quot;, -1),</span>
+<span class="nc" id="L1045">              Helpers.optInt(obj, &quot;height&quot;, -1));</span>
     }
 
-<span class="nc" id="L1046">    final List&lt;Field&gt; fields =</span>
-<span class="nc" id="L1047">        map(</span>
+<span class="nc" id="L1048">    final List&lt;Field&gt; fields =</span>
+<span class="nc" id="L1049">        map(</span>
             content,
             &quot;fields&quot;,
             (obj) -&gt;
-<span class="nc" id="L1051">                new Field(</span>
-<span class="nc" id="L1052">                    obj.optString(&quot;name&quot;, null),</span>
-<span class="nc" id="L1053">                    obj.optString(&quot;value&quot;, null),</span>
-<span class="nc" id="L1054">                    Helpers.optBoolean(obj, &quot;inline&quot;),</span>
+<span class="nc" id="L1053">                new Field(</span>
+<span class="nc" id="L1054">                    obj.optString(&quot;name&quot;, null),</span>
+<span class="nc" id="L1055">                    obj.optString(&quot;value&quot;, null),</span>
+<span class="nc" id="L1056">                    Helpers.optBoolean(obj, &quot;inline&quot;),</span>
                     false));
 
-<span class="nc" id="L1057">    return createMessageEmbed(</span>
+<span class="nc" id="L1059">    return createMessageEmbed(</span>
         url,
         title,
         description,
@@ -1084,7 +1086,7 @@ public class EntityBuilder {
       Footer footer,
       ImageInfo image,
       List&lt;Field&gt; fields) {
-<span class="nc" id="L1087">    return new MessageEmbed(</span>
+<span class="nc" id="L1089">    return new MessageEmbed(</span>
         url,
         title,
         description,
@@ -1102,184 +1104,184 @@ public class EntityBuilder {
 
   public PermissionOverride createPermissionOverride(JSONObject override, Channel chan) {
     PermissionOverrideImpl permOverride;
-<span class="nc" id="L1105">    final long id = override.getLong(&quot;id&quot;);</span>
-<span class="nc" id="L1106">    long allow = override.getLong(&quot;allow&quot;);</span>
-<span class="nc" id="L1107">    long deny = override.getLong(&quot;deny&quot;);</span>
+<span class="nc" id="L1107">    final long id = override.getLong(&quot;id&quot;);</span>
+<span class="nc" id="L1108">    long allow = override.getLong(&quot;allow&quot;);</span>
+<span class="nc" id="L1109">    long deny = override.getLong(&quot;deny&quot;);</span>
 
     // Throwing NoSuchElementException for common issues with overrides that are not cleared
     // properly by discord
     // when a member leaves or a role is deleted
-<span class="nc bnc" id="L1112" title="All 10 branches missed.">    switch (override.getString(&quot;type&quot;)) {</span>
+<span class="nc bnc" id="L1114" title="All 10 branches missed.">    switch (override.getString(&quot;type&quot;)) {</span>
       case &quot;member&quot;:
-<span class="nc" id="L1114">        Member member = chan.getGuild().getMemberById(id);</span>
-<span class="nc bnc" id="L1115" title="All 2 branches missed.">        if (member == null)</span>
-<span class="nc" id="L1116">          throw new NoSuchElementException(</span>
+<span class="nc" id="L1116">        Member member = chan.getGuild().getMemberById(id);</span>
+<span class="nc bnc" id="L1117" title="All 2 branches missed.">        if (member == null)</span>
+<span class="nc" id="L1118">          throw new NoSuchElementException(</span>
               &quot;Attempted to create a PermissionOverride for a non-existent user. Guild: &quot;
-<span class="nc" id="L1118">                  + chan.getGuild()</span>
+<span class="nc" id="L1120">                  + chan.getGuild()</span>
                   + &quot;, Channel: &quot;
                   + chan
                   + &quot;, JSON: &quot;
                   + override);
 
-<span class="nc" id="L1124">        permOverride = (PermissionOverrideImpl) chan.getPermissionOverride(member);</span>
-<span class="nc bnc" id="L1125" title="All 2 branches missed.">        if (permOverride == null) {</span>
-<span class="nc" id="L1126">          permOverride = new PermissionOverrideImpl(chan, member.getUser().getIdLong(), member);</span>
-<span class="nc" id="L1127">          ((AbstractChannelImpl&lt;?&gt;) chan)</span>
-<span class="nc" id="L1128">              .getOverrideMap()</span>
-<span class="nc" id="L1129">              .put(member.getUser().getIdLong(), permOverride);</span>
+<span class="nc" id="L1126">        permOverride = (PermissionOverrideImpl) chan.getPermissionOverride(member);</span>
+<span class="nc bnc" id="L1127" title="All 2 branches missed.">        if (permOverride == null) {</span>
+<span class="nc" id="L1128">          permOverride = new PermissionOverrideImpl(chan, member.getUser().getIdLong(), member);</span>
+<span class="nc" id="L1129">          ((AbstractChannelImpl&lt;?&gt;) chan)</span>
+<span class="nc" id="L1130">              .getOverrideMap()</span>
+<span class="nc" id="L1131">              .put(member.getUser().getIdLong(), permOverride);</span>
         }
         break;
       case &quot;role&quot;:
-<span class="nc" id="L1133">        Role role = ((GuildImpl) chan.getGuild()).getRolesMap().get(id);</span>
-<span class="nc bnc" id="L1134" title="All 2 branches missed.">        if (role == null)</span>
-<span class="nc" id="L1135">          throw new NoSuchElementException(</span>
+<span class="nc" id="L1135">        Role role = ((GuildImpl) chan.getGuild()).getRolesMap().get(id);</span>
+<span class="nc bnc" id="L1136" title="All 2 branches missed.">        if (role == null)</span>
+<span class="nc" id="L1137">          throw new NoSuchElementException(</span>
               &quot;Attempted to create a PermissionOverride for a non-existent role! JSON: &quot;
                   + override);
 
-<span class="nc" id="L1139">        permOverride = (PermissionOverrideImpl) chan.getPermissionOverride(role);</span>
-<span class="nc bnc" id="L1140" title="All 2 branches missed.">        if (permOverride == null) {</span>
-<span class="nc" id="L1141">          permOverride = new PermissionOverrideImpl(chan, role.getIdLong(), role);</span>
-<span class="nc" id="L1142">          ((AbstractChannelImpl&lt;?&gt;) chan).getOverrideMap().put(role.getIdLong(), permOverride);</span>
+<span class="nc" id="L1141">        permOverride = (PermissionOverrideImpl) chan.getPermissionOverride(role);</span>
+<span class="nc bnc" id="L1142" title="All 2 branches missed.">        if (permOverride == null) {</span>
+<span class="nc" id="L1143">          permOverride = new PermissionOverrideImpl(chan, role.getIdLong(), role);</span>
+<span class="nc" id="L1144">          ((AbstractChannelImpl&lt;?&gt;) chan).getOverrideMap().put(role.getIdLong(), permOverride);</span>
         }
         break;
       default:
-<span class="nc" id="L1146">        throw new IllegalArgumentException(</span>
+<span class="nc" id="L1148">        throw new IllegalArgumentException(</span>
             &quot;Provided with an unknown PermissionOverride type! JSON: &quot; + override);
     }
-<span class="nc" id="L1149">    return permOverride.setAllow(allow).setDeny(deny);</span>
+<span class="nc" id="L1151">    return permOverride.setAllow(allow).setDeny(deny);</span>
   }
 
   public Webhook createWebhook(JSONObject object) {
-<span class="nc" id="L1153">    final long id = object.getLong(&quot;id&quot;);</span>
-<span class="nc" id="L1154">    final long guildId = object.getLong(&quot;guild_id&quot;);</span>
-<span class="nc" id="L1155">    final long channelId = object.getLong(&quot;channel_id&quot;);</span>
-<span class="nc" id="L1156">    final String token = object.optString(&quot;token&quot;, null);</span>
+<span class="nc" id="L1155">    final long id = object.getLong(&quot;id&quot;);</span>
+<span class="nc" id="L1156">    final long guildId = object.getLong(&quot;guild_id&quot;);</span>
+<span class="nc" id="L1157">    final long channelId = object.getLong(&quot;channel_id&quot;);</span>
+<span class="nc" id="L1158">    final String token = object.optString(&quot;token&quot;, null);</span>
 
-<span class="nc" id="L1158">    TextChannel channel = api.getTextChannelById(channelId);</span>
-<span class="nc bnc" id="L1159" title="All 2 branches missed.">    if (channel == null)</span>
-<span class="nc" id="L1160">      throw new NullPointerException(</span>
-<span class="nc" id="L1161">          String.format(</span>
+<span class="nc" id="L1160">    TextChannel channel = api.getTextChannelById(channelId);</span>
+<span class="nc bnc" id="L1161" title="All 2 branches missed.">    if (channel == null)</span>
+<span class="nc" id="L1162">      throw new NullPointerException(</span>
+<span class="nc" id="L1163">          String.format(</span>
               &quot;Tried to create Webhook for an un-cached TextChannel! WebhookId: %s ChannelId: %s GuildId: %s&quot;,
-<span class="nc" id="L1163">              id, channelId, guildId));</span>
+<span class="nc" id="L1165">              id, channelId, guildId));</span>
 
-<span class="nc bnc" id="L1165" title="All 2 branches missed.">    Object name = !object.isNull(&quot;name&quot;) ? object.get(&quot;name&quot;) : JSONObject.NULL;</span>
-<span class="nc bnc" id="L1166" title="All 2 branches missed.">    Object avatar = !object.isNull(&quot;avatar&quot;) ? object.get(&quot;avatar&quot;) : JSONObject.NULL;</span>
+<span class="nc bnc" id="L1167" title="All 2 branches missed.">    Object name = !object.isNull(&quot;name&quot;) ? object.get(&quot;name&quot;) : JSONObject.NULL;</span>
+<span class="nc bnc" id="L1168" title="All 2 branches missed.">    Object avatar = !object.isNull(&quot;avatar&quot;) ? object.get(&quot;avatar&quot;) : JSONObject.NULL;</span>
 
-<span class="nc" id="L1168">    JSONObject fakeUser =</span>
+<span class="nc" id="L1170">    JSONObject fakeUser =</span>
         new JSONObject()
-<span class="nc" id="L1170">            .put(&quot;username&quot;, name)</span>
-<span class="nc" id="L1171">            .put(&quot;discriminator&quot;, &quot;0000&quot;)</span>
-<span class="nc" id="L1172">            .put(&quot;id&quot;, id)</span>
-<span class="nc" id="L1173">            .put(&quot;avatar&quot;, avatar);</span>
-<span class="nc" id="L1174">    User defaultUser = createFakeUser(fakeUser, false);</span>
+<span class="nc" id="L1172">            .put(&quot;username&quot;, name)</span>
+<span class="nc" id="L1173">            .put(&quot;discriminator&quot;, &quot;0000&quot;)</span>
+<span class="nc" id="L1174">            .put(&quot;id&quot;, id)</span>
+<span class="nc" id="L1175">            .put(&quot;avatar&quot;, avatar);</span>
+<span class="nc" id="L1176">    User defaultUser = createFakeUser(fakeUser, false);</span>
 
-<span class="nc" id="L1176">    JSONObject ownerJson = object.getJSONObject(&quot;user&quot;);</span>
-<span class="nc" id="L1177">    final long userId = ownerJson.getLong(&quot;id&quot;);</span>
+<span class="nc" id="L1178">    JSONObject ownerJson = object.getJSONObject(&quot;user&quot;);</span>
+<span class="nc" id="L1179">    final long userId = ownerJson.getLong(&quot;id&quot;);</span>
 
-<span class="nc" id="L1179">    User owner = api.getUserById(userId);</span>
-<span class="nc bnc" id="L1180" title="All 2 branches missed.">    if (owner == null) {</span>
-<span class="nc" id="L1181">      ownerJson.put(&quot;id&quot;, userId);</span>
-<span class="nc" id="L1182">      owner = createFakeUser(ownerJson, false);</span>
+<span class="nc" id="L1181">    User owner = api.getUserById(userId);</span>
+<span class="nc bnc" id="L1182" title="All 2 branches missed.">    if (owner == null) {</span>
+<span class="nc" id="L1183">      ownerJson.put(&quot;id&quot;, userId);</span>
+<span class="nc" id="L1184">      owner = createFakeUser(ownerJson, false);</span>
     }
 
-<span class="nc" id="L1185">    return new WebhookImpl(channel, id)</span>
-<span class="nc" id="L1186">        .setToken(token)</span>
-<span class="nc" id="L1187">        .setOwner(channel.getGuild().getMember(owner))</span>
-<span class="nc" id="L1188">        .setUser(defaultUser);</span>
+<span class="nc" id="L1187">    return new WebhookImpl(channel, id)</span>
+<span class="nc" id="L1188">        .setToken(token)</span>
+<span class="nc" id="L1189">        .setOwner(channel.getGuild().getMember(owner))</span>
+<span class="nc" id="L1190">        .setUser(defaultUser);</span>
   }
 
   public Relationship createRelationship(JSONObject relationshipJson) {
-<span class="nc bnc" id="L1192" title="All 2 branches missed.">    if (api.getAccountType() != AccountType.CLIENT)</span>
-<span class="nc" id="L1193">      throw new AccountTypeException(</span>
+<span class="nc bnc" id="L1194" title="All 2 branches missed.">    if (api.getAccountType() != AccountType.CLIENT)</span>
+<span class="nc" id="L1195">      throw new AccountTypeException(</span>
           AccountType.CLIENT,
           &quot;Attempted to create a Relationship but the logged in account is not a CLIENT!&quot;);
 
-<span class="nc" id="L1197">    RelationshipType type = RelationshipType.fromKey(relationshipJson.getInt(&quot;type&quot;));</span>
+<span class="nc" id="L1199">    RelationshipType type = RelationshipType.fromKey(relationshipJson.getInt(&quot;type&quot;));</span>
     User user;
-<span class="nc bnc" id="L1199" title="All 2 branches missed.">    if (type == RelationshipType.FRIEND) user = createUser(relationshipJson.getJSONObject(&quot;user&quot;));</span>
-<span class="nc" id="L1200">    else user = createFakeUser(relationshipJson.getJSONObject(&quot;user&quot;), true);</span>
+<span class="nc bnc" id="L1201" title="All 2 branches missed.">    if (type == RelationshipType.FRIEND) user = createUser(relationshipJson.getJSONObject(&quot;user&quot;));</span>
+<span class="nc" id="L1202">    else user = createFakeUser(relationshipJson.getJSONObject(&quot;user&quot;), true);</span>
 
-<span class="nc" id="L1202">    Relationship relationship = api.asClient().getRelationshipById(user.getIdLong(), type);</span>
-<span class="nc bnc" id="L1203" title="All 2 branches missed.">    if (relationship == null) {</span>
-<span class="nc bnc" id="L1204" title="All 5 branches missed.">      switch (type) {</span>
+<span class="nc" id="L1204">    Relationship relationship = api.asClient().getRelationshipById(user.getIdLong(), type);</span>
+<span class="nc bnc" id="L1205" title="All 2 branches missed.">    if (relationship == null) {</span>
+<span class="nc bnc" id="L1206" title="All 5 branches missed.">      switch (type) {</span>
         case FRIEND:
-<span class="nc" id="L1206">          relationship = new FriendImpl(user);</span>
-<span class="nc" id="L1207">          break;</span>
+<span class="nc" id="L1208">          relationship = new FriendImpl(user);</span>
+<span class="nc" id="L1209">          break;</span>
         case BLOCKED:
-<span class="nc" id="L1209">          relationship = new BlockedUserImpl(user);</span>
-<span class="nc" id="L1210">          break;</span>
+<span class="nc" id="L1211">          relationship = new BlockedUserImpl(user);</span>
+<span class="nc" id="L1212">          break;</span>
         case INCOMING_FRIEND_REQUEST:
-<span class="nc" id="L1212">          relationship = new IncomingFriendRequestImpl(user);</span>
-<span class="nc" id="L1213">          break;</span>
+<span class="nc" id="L1214">          relationship = new IncomingFriendRequestImpl(user);</span>
+<span class="nc" id="L1215">          break;</span>
         case OUTGOING_FRIEND_REQUEST:
-<span class="nc" id="L1215">          relationship = new OutgoingFriendRequestImpl(user);</span>
-<span class="nc" id="L1216">          break;</span>
+<span class="nc" id="L1217">          relationship = new OutgoingFriendRequestImpl(user);</span>
+<span class="nc" id="L1218">          break;</span>
         default:
-<span class="nc" id="L1218">          return null;</span>
+<span class="nc" id="L1220">          return null;</span>
       }
-<span class="nc" id="L1220">      api.asClient().getRelationshipMap().put(user.getIdLong(), relationship);</span>
+<span class="nc" id="L1222">      api.asClient().getRelationshipMap().put(user.getIdLong(), relationship);</span>
     }
-<span class="nc" id="L1222">    return relationship;</span>
+<span class="nc" id="L1224">    return relationship;</span>
   }
 
   public Group createGroup(JSONObject groupJson) {
-<span class="nc bnc" id="L1226" title="All 2 branches missed.">    if (api.getAccountType() != AccountType.CLIENT)</span>
-<span class="nc" id="L1227">      throw new AccountTypeException(</span>
+<span class="nc bnc" id="L1228" title="All 2 branches missed.">    if (api.getAccountType() != AccountType.CLIENT)</span>
+<span class="nc" id="L1229">      throw new AccountTypeException(</span>
           AccountType.CLIENT,
           &quot;Attempted to create a Group but the logged in account is not a CLIENT!&quot;);
 
-<span class="nc" id="L1231">    final long groupId = groupJson.getLong(&quot;id&quot;);</span>
-<span class="nc" id="L1232">    JSONArray recipients = groupJson.getJSONArray(&quot;recipients&quot;);</span>
-<span class="nc" id="L1233">    final long ownerId = groupJson.getLong(&quot;owner_id&quot;);</span>
-<span class="nc" id="L1234">    final String name = groupJson.optString(&quot;name&quot;, null);</span>
-<span class="nc" id="L1235">    final String iconId = groupJson.optString(&quot;icon&quot;, null);</span>
-<span class="nc" id="L1236">    final long lastMessage = Helpers.optLong(groupJson, &quot;last_message_id&quot;, 0);</span>
+<span class="nc" id="L1233">    final long groupId = groupJson.getLong(&quot;id&quot;);</span>
+<span class="nc" id="L1234">    JSONArray recipients = groupJson.getJSONArray(&quot;recipients&quot;);</span>
+<span class="nc" id="L1235">    final long ownerId = groupJson.getLong(&quot;owner_id&quot;);</span>
+<span class="nc" id="L1236">    final String name = groupJson.optString(&quot;name&quot;, null);</span>
+<span class="nc" id="L1237">    final String iconId = groupJson.optString(&quot;icon&quot;, null);</span>
+<span class="nc" id="L1238">    final long lastMessage = Helpers.optLong(groupJson, &quot;last_message_id&quot;, 0);</span>
 
-<span class="nc" id="L1238">    GroupImpl group = (GroupImpl) api.asClient().getGroupById(groupId);</span>
-<span class="nc bnc" id="L1239" title="All 2 branches missed.">    if (group == null) {</span>
-<span class="nc" id="L1240">      group = new GroupImpl(groupId, api);</span>
-<span class="nc" id="L1241">      api.asClient().getGroupMap().put(groupId, group);</span>
+<span class="nc" id="L1240">    GroupImpl group = (GroupImpl) api.asClient().getGroupById(groupId);</span>
+<span class="nc bnc" id="L1241" title="All 2 branches missed.">    if (group == null) {</span>
+<span class="nc" id="L1242">      group = new GroupImpl(groupId, api);</span>
+<span class="nc" id="L1243">      api.asClient().getGroupMap().put(groupId, group);</span>
     }
 
-<span class="nc" id="L1244">    TLongObjectMap&lt;User&gt; groupUsers = group.getUserMap();</span>
-<span class="nc" id="L1245">    groupUsers.put(api.getSelfUser().getIdLong(), api.getSelfUser());</span>
-<span class="nc bnc" id="L1246" title="All 2 branches missed.">    for (int i = 0; i &lt; recipients.length(); i++) {</span>
-<span class="nc" id="L1247">      JSONObject groupUser = recipients.getJSONObject(i);</span>
-<span class="nc" id="L1248">      groupUsers.put(groupUser.getLong(&quot;id&quot;), createFakeUser(groupUser, true));</span>
+<span class="nc" id="L1246">    TLongObjectMap&lt;User&gt; groupUsers = group.getUserMap();</span>
+<span class="nc" id="L1247">    groupUsers.put(api.getSelfUser().getIdLong(), api.getSelfUser());</span>
+<span class="nc bnc" id="L1248" title="All 2 branches missed.">    for (int i = 0; i &lt; recipients.length(); i++) {</span>
+<span class="nc" id="L1249">      JSONObject groupUser = recipients.getJSONObject(i);</span>
+<span class="nc" id="L1250">      groupUsers.put(groupUser.getLong(&quot;id&quot;), createFakeUser(groupUser, true));</span>
     }
 
-<span class="nc" id="L1251">    User owner = api.getUserMap().get(ownerId);</span>
-<span class="nc bnc" id="L1252" title="All 2 branches missed.">    if (owner == null) owner = api.getFakeUserMap().get(ownerId);</span>
-<span class="nc bnc" id="L1253" title="All 2 branches missed.">    if (owner == null)</span>
-<span class="nc" id="L1254">      throw new IllegalArgumentException(</span>
+<span class="nc" id="L1253">    User owner = api.getUserMap().get(ownerId);</span>
+<span class="nc bnc" id="L1254" title="All 2 branches missed.">    if (owner == null) owner = api.getFakeUserMap().get(ownerId);</span>
+<span class="nc bnc" id="L1255" title="All 2 branches missed.">    if (owner == null)</span>
+<span class="nc" id="L1256">      throw new IllegalArgumentException(</span>
           &quot;Attempted to build a Group, but could not find user by provided owner id.&quot;
               + &quot;This should not be possible because the owner should be IN the group!&quot;);
 
-<span class="nc" id="L1258">    return group.setOwner(owner).setLastMessageId(lastMessage).setName(name).setIconId(iconId);</span>
+<span class="nc" id="L1260">    return group.setOwner(owner).setLastMessageId(lastMessage).setName(name).setIconId(iconId);</span>
   }
 
   public Invite createInvite(JSONObject object) {
-<span class="nc" id="L1262">    final String code = object.getString(&quot;code&quot;);</span>
+<span class="nc" id="L1264">    final String code = object.getString(&quot;code&quot;);</span>
 
-<span class="nc" id="L1264">    final User inviter =</span>
-<span class="nc bnc" id="L1265" title="All 2 branches missed.">        object.has(&quot;inviter&quot;) ? this.createFakeUser(object.getJSONObject(&quot;inviter&quot;), false) : null;</span>
+<span class="nc" id="L1266">    final User inviter =</span>
+<span class="nc bnc" id="L1267" title="All 2 branches missed.">        object.has(&quot;inviter&quot;) ? this.createFakeUser(object.getJSONObject(&quot;inviter&quot;), false) : null;</span>
 
-<span class="nc" id="L1267">    final JSONObject channelObject = object.getJSONObject(&quot;channel&quot;);</span>
+<span class="nc" id="L1269">    final JSONObject channelObject = object.getJSONObject(&quot;channel&quot;);</span>
 
-<span class="nc" id="L1269">    final ChannelType channelType = ChannelType.fromId(channelObject.getInt(&quot;type&quot;));</span>
-<span class="nc" id="L1270">    final long channelId = channelObject.getLong(&quot;id&quot;);</span>
-<span class="nc" id="L1271">    final String channelName = channelObject.getString(&quot;name&quot;);</span>
+<span class="nc" id="L1271">    final ChannelType channelType = ChannelType.fromId(channelObject.getInt(&quot;type&quot;));</span>
+<span class="nc" id="L1272">    final long channelId = channelObject.getLong(&quot;id&quot;);</span>
+<span class="nc" id="L1273">    final String channelName = channelObject.getString(&quot;name&quot;);</span>
 
-<span class="nc" id="L1273">    final Invite.Channel channel = new InviteImpl.ChannelImpl(channelId, channelName, channelType);</span>
+<span class="nc" id="L1275">    final Invite.Channel channel = new InviteImpl.ChannelImpl(channelId, channelName, channelType);</span>
 
-<span class="nc" id="L1275">    final JSONObject guildObject = object.getJSONObject(&quot;guild&quot;);</span>
+<span class="nc" id="L1277">    final JSONObject guildObject = object.getJSONObject(&quot;guild&quot;);</span>
 
-<span class="nc" id="L1277">    final String guildIconId = guildObject.optString(&quot;icon&quot;, null);</span>
-<span class="nc" id="L1278">    final long guildId = guildObject.getLong(&quot;id&quot;);</span>
-<span class="nc" id="L1279">    final String guildName = guildObject.getString(&quot;name&quot;);</span>
-<span class="nc" id="L1280">    final String guildSplashId = guildObject.optString(&quot;splash&quot;, null);</span>
+<span class="nc" id="L1279">    final String guildIconId = guildObject.optString(&quot;icon&quot;, null);</span>
+<span class="nc" id="L1280">    final long guildId = guildObject.getLong(&quot;id&quot;);</span>
+<span class="nc" id="L1281">    final String guildName = guildObject.getString(&quot;name&quot;);</span>
+<span class="nc" id="L1282">    final String guildSplashId = guildObject.optString(&quot;splash&quot;, null);</span>
 
-<span class="nc" id="L1282">    final Invite.Guild guild =</span>
+<span class="nc" id="L1284">    final Invite.Guild guild =</span>
         new InviteImpl.GuildImpl(guildId, guildIconId, guildName, guildSplashId);
 
     final int maxAge;
@@ -1289,23 +1291,23 @@ public class EntityBuilder {
     final int uses;
     final boolean expanded;
 
-<span class="nc bnc" id="L1292" title="All 2 branches missed.">    if (object.has(&quot;max_uses&quot;)) {</span>
-<span class="nc" id="L1293">      expanded = true;</span>
-<span class="nc" id="L1294">      maxAge = object.getInt(&quot;max_age&quot;);</span>
-<span class="nc" id="L1295">      maxUses = object.getInt(&quot;max_uses&quot;);</span>
-<span class="nc" id="L1296">      uses = object.getInt(&quot;uses&quot;);</span>
-<span class="nc" id="L1297">      temporary = object.getBoolean(&quot;temporary&quot;);</span>
-<span class="nc" id="L1298">      timeCreated = OffsetDateTime.parse(object.getString(&quot;created_at&quot;));</span>
+<span class="nc bnc" id="L1294" title="All 2 branches missed.">    if (object.has(&quot;max_uses&quot;)) {</span>
+<span class="nc" id="L1295">      expanded = true;</span>
+<span class="nc" id="L1296">      maxAge = object.getInt(&quot;max_age&quot;);</span>
+<span class="nc" id="L1297">      maxUses = object.getInt(&quot;max_uses&quot;);</span>
+<span class="nc" id="L1298">      uses = object.getInt(&quot;uses&quot;);</span>
+<span class="nc" id="L1299">      temporary = object.getBoolean(&quot;temporary&quot;);</span>
+<span class="nc" id="L1300">      timeCreated = OffsetDateTime.parse(object.getString(&quot;created_at&quot;));</span>
     } else {
-<span class="nc" id="L1300">      expanded = false;</span>
-<span class="nc" id="L1301">      maxAge = -1;</span>
-<span class="nc" id="L1302">      maxUses = -1;</span>
-<span class="nc" id="L1303">      uses = -1;</span>
-<span class="nc" id="L1304">      temporary = false;</span>
-<span class="nc" id="L1305">      timeCreated = null;</span>
+<span class="nc" id="L1302">      expanded = false;</span>
+<span class="nc" id="L1303">      maxAge = -1;</span>
+<span class="nc" id="L1304">      maxUses = -1;</span>
+<span class="nc" id="L1305">      uses = -1;</span>
+<span class="nc" id="L1306">      temporary = false;</span>
+<span class="nc" id="L1307">      timeCreated = null;</span>
     }
 
-<span class="nc" id="L1308">    return new InviteImpl(</span>
+<span class="nc" id="L1310">    return new InviteImpl(</span>
         api,
         code,
         expanded,
@@ -1320,113 +1322,113 @@ public class EntityBuilder {
   }
 
   public void clearCache() {
-<span class="nc" id="L1323">    cachedGuildJsons.clear();</span>
-<span class="nc" id="L1324">    cachedGuildCallbacks.clear();</span>
-<span class="nc" id="L1325">  }</span>
+<span class="nc" id="L1325">    cachedGuildJsons.clear();</span>
+<span class="nc" id="L1326">    cachedGuildCallbacks.clear();</span>
+<span class="nc" id="L1327">  }</span>
 
   public ApplicationInfo createApplicationInfo(JSONObject object) {
-<span class="nc" id="L1328">    final String description = object.getString(&quot;description&quot;);</span>
-<span class="nc" id="L1329">    final boolean doesBotRequireCodeGrant = object.getBoolean(&quot;bot_require_code_grant&quot;);</span>
-<span class="nc" id="L1330">    final String iconId = object.optString(&quot;icon&quot;, null);</span>
-<span class="nc" id="L1331">    final long id = object.getLong(&quot;id&quot;);</span>
-<span class="nc" id="L1332">    final String name = object.getString(&quot;name&quot;);</span>
-<span class="nc" id="L1333">    final boolean isBotPublic = object.getBoolean(&quot;bot_public&quot;);</span>
-<span class="nc" id="L1334">    final User owner = createFakeUser(object.getJSONObject(&quot;owner&quot;), false);</span>
+<span class="nc" id="L1330">    final String description = object.getString(&quot;description&quot;);</span>
+<span class="nc" id="L1331">    final boolean doesBotRequireCodeGrant = object.getBoolean(&quot;bot_require_code_grant&quot;);</span>
+<span class="nc" id="L1332">    final String iconId = object.optString(&quot;icon&quot;, null);</span>
+<span class="nc" id="L1333">    final long id = object.getLong(&quot;id&quot;);</span>
+<span class="nc" id="L1334">    final String name = object.getString(&quot;name&quot;);</span>
+<span class="nc" id="L1335">    final boolean isBotPublic = object.getBoolean(&quot;bot_public&quot;);</span>
+<span class="nc" id="L1336">    final User owner = createFakeUser(object.getJSONObject(&quot;owner&quot;), false);</span>
 
-<span class="nc" id="L1336">    return new ApplicationInfoImpl(</span>
+<span class="nc" id="L1338">    return new ApplicationInfoImpl(</span>
         api, description, doesBotRequireCodeGrant, iconId, id, isBotPublic, name, owner);
   }
 
   public Application createApplication(JSONObject object) {
-<span class="nc" id="L1341">    return new ApplicationImpl(api, object);</span>
+<span class="nc" id="L1343">    return new ApplicationImpl(api, object);</span>
   }
 
   public AuthorizedApplication createAuthorizedApplication(JSONObject object) {
-<span class="nc" id="L1345">    final long authId = object.getLong(&quot;id&quot;);</span>
+<span class="nc" id="L1347">    final long authId = object.getLong(&quot;id&quot;);</span>
 
-<span class="nc" id="L1347">    JSONArray scopeArray = object.getJSONArray(&quot;scopes&quot;);</span>
-<span class="nc" id="L1348">    List&lt;String&gt; scopes = new ArrayList&lt;&gt;(scopeArray.length());</span>
-<span class="nc bnc" id="L1349" title="All 2 branches missed.">    for (int i = 0; i &lt; scopeArray.length(); i++) {</span>
-<span class="nc" id="L1350">      scopes.add(scopeArray.getString(i));</span>
+<span class="nc" id="L1349">    JSONArray scopeArray = object.getJSONArray(&quot;scopes&quot;);</span>
+<span class="nc" id="L1350">    List&lt;String&gt; scopes = new ArrayList&lt;&gt;(scopeArray.length());</span>
+<span class="nc bnc" id="L1351" title="All 2 branches missed.">    for (int i = 0; i &lt; scopeArray.length(); i++) {</span>
+<span class="nc" id="L1352">      scopes.add(scopeArray.getString(i));</span>
     }
-<span class="nc" id="L1352">    JSONObject application = object.getJSONObject(&quot;application&quot;);</span>
+<span class="nc" id="L1354">    JSONObject application = object.getJSONObject(&quot;application&quot;);</span>
 
-<span class="nc" id="L1354">    final String description = application.getString(&quot;description&quot;);</span>
-<span class="nc bnc" id="L1355" title="All 2 branches missed.">    final String iconId = application.has(&quot;icon&quot;) ? application.getString(&quot;icon&quot;) : null;</span>
-<span class="nc" id="L1356">    final long id = application.getLong(&quot;id&quot;);</span>
-<span class="nc" id="L1357">    final String name = application.getString(&quot;name&quot;);</span>
+<span class="nc" id="L1356">    final String description = application.getString(&quot;description&quot;);</span>
+<span class="nc bnc" id="L1357" title="All 2 branches missed.">    final String iconId = application.has(&quot;icon&quot;) ? application.getString(&quot;icon&quot;) : null;</span>
+<span class="nc" id="L1358">    final long id = application.getLong(&quot;id&quot;);</span>
+<span class="nc" id="L1359">    final String name = application.getString(&quot;name&quot;);</span>
 
-<span class="nc" id="L1359">    return new AuthorizedApplicationImpl(api, authId, description, iconId, id, name, scopes);</span>
+<span class="nc" id="L1361">    return new AuthorizedApplicationImpl(api, authId, description, iconId, id, name, scopes);</span>
   }
 
   public AuditLogEntry createAuditLogEntry(
       GuildImpl guild, JSONObject entryJson, JSONObject userJson) {
-<span class="nc" id="L1364">    final long targetId = Helpers.optLong(entryJson, &quot;target_id&quot;, 0);</span>
-<span class="nc" id="L1365">    final long id = entryJson.getLong(&quot;id&quot;);</span>
-<span class="nc" id="L1366">    final int typeKey = entryJson.getInt(&quot;action_type&quot;);</span>
-<span class="nc" id="L1367">    final JSONArray changes =</span>
-<span class="nc bnc" id="L1368" title="All 2 branches missed.">        entryJson.isNull(&quot;changes&quot;) ? null : entryJson.getJSONArray(&quot;changes&quot;);</span>
-<span class="nc" id="L1369">    final JSONObject options =</span>
-<span class="nc bnc" id="L1370" title="All 2 branches missed.">        entryJson.isNull(&quot;options&quot;) ? null : entryJson.getJSONObject(&quot;options&quot;);</span>
-<span class="nc" id="L1371">    final String reason = entryJson.optString(&quot;reason&quot;, null);</span>
+<span class="nc" id="L1366">    final long targetId = Helpers.optLong(entryJson, &quot;target_id&quot;, 0);</span>
+<span class="nc" id="L1367">    final long id = entryJson.getLong(&quot;id&quot;);</span>
+<span class="nc" id="L1368">    final int typeKey = entryJson.getInt(&quot;action_type&quot;);</span>
+<span class="nc" id="L1369">    final JSONArray changes =</span>
+<span class="nc bnc" id="L1370" title="All 2 branches missed.">        entryJson.isNull(&quot;changes&quot;) ? null : entryJson.getJSONArray(&quot;changes&quot;);</span>
+<span class="nc" id="L1371">    final JSONObject options =</span>
+<span class="nc bnc" id="L1372" title="All 2 branches missed.">        entryJson.isNull(&quot;options&quot;) ? null : entryJson.getJSONObject(&quot;options&quot;);</span>
+<span class="nc" id="L1373">    final String reason = entryJson.optString(&quot;reason&quot;, null);</span>
 
-<span class="nc" id="L1373">    final UserImpl user = (UserImpl) createFakeUser(userJson, false);</span>
+<span class="nc" id="L1375">    final UserImpl user = (UserImpl) createFakeUser(userJson, false);</span>
     final Set&lt;AuditLogChange&gt; changesList;
-<span class="nc" id="L1375">    final ActionType type = ActionType.from(typeKey);</span>
+<span class="nc" id="L1377">    final ActionType type = ActionType.from(typeKey);</span>
 
-<span class="nc bnc" id="L1377" title="All 2 branches missed.">    if (changes != null) {</span>
-<span class="nc" id="L1378">      changesList = new HashSet&lt;&gt;(changes.length());</span>
-<span class="nc bnc" id="L1379" title="All 2 branches missed.">      for (int i = 0; i &lt; changes.length(); i++) {</span>
-<span class="nc" id="L1380">        final JSONObject object = changes.getJSONObject(i);</span>
-<span class="nc" id="L1381">        AuditLogChange change = createAuditLogChange(object);</span>
-<span class="nc" id="L1382">        changesList.add(change);</span>
+<span class="nc bnc" id="L1379" title="All 2 branches missed.">    if (changes != null) {</span>
+<span class="nc" id="L1380">      changesList = new HashSet&lt;&gt;(changes.length());</span>
+<span class="nc bnc" id="L1381" title="All 2 branches missed.">      for (int i = 0; i &lt; changes.length(); i++) {</span>
+<span class="nc" id="L1382">        final JSONObject object = changes.getJSONObject(i);</span>
+<span class="nc" id="L1383">        AuditLogChange change = createAuditLogChange(object);</span>
+<span class="nc" id="L1384">        changesList.add(change);</span>
       }
     } else {
-<span class="nc" id="L1385">      changesList = Collections.emptySet();</span>
+<span class="nc" id="L1387">      changesList = Collections.emptySet();</span>
     }
 
-<span class="nc" id="L1388">    CaseInsensitiveMap&lt;String, AuditLogChange&gt; changeMap =</span>
-<span class="nc" id="L1389">        new CaseInsensitiveMap&lt;&gt;(changeToMap(changesList));</span>
-<span class="nc bnc" id="L1390" title="All 2 branches missed.">    CaseInsensitiveMap&lt;String, Object&gt; optionMap =</span>
-<span class="nc" id="L1391">        options != null ? new CaseInsensitiveMap&lt;&gt;(options.toMap()) : null;</span>
+<span class="nc" id="L1390">    CaseInsensitiveMap&lt;String, AuditLogChange&gt; changeMap =</span>
+<span class="nc" id="L1391">        new CaseInsensitiveMap&lt;&gt;(changeToMap(changesList));</span>
+<span class="nc bnc" id="L1392" title="All 2 branches missed.">    CaseInsensitiveMap&lt;String, Object&gt; optionMap =</span>
+<span class="nc" id="L1393">        options != null ? new CaseInsensitiveMap&lt;&gt;(options.toMap()) : null;</span>
 
-<span class="nc" id="L1393">    return new AuditLogEntry(type, id, targetId, guild, user, reason, changeMap, optionMap);</span>
+<span class="nc" id="L1395">    return new AuditLogEntry(type, id, targetId, guild, user, reason, changeMap, optionMap);</span>
   }
 
   public AuditLogChange createAuditLogChange(JSONObject change) {
-<span class="nc" id="L1397">    final String key = change.getString(&quot;key&quot;);</span>
-<span class="nc bnc" id="L1398" title="All 2 branches missed.">    Object oldValue = change.isNull(&quot;old_value&quot;) ? null : change.get(&quot;old_value&quot;);</span>
-<span class="nc bnc" id="L1399" title="All 2 branches missed.">    Object newValue = change.isNull(&quot;new_value&quot;) ? null : change.get(&quot;new_value&quot;);</span>
+<span class="nc" id="L1399">    final String key = change.getString(&quot;key&quot;);</span>
+<span class="nc bnc" id="L1400" title="All 2 branches missed.">    Object oldValue = change.isNull(&quot;old_value&quot;) ? null : change.get(&quot;old_value&quot;);</span>
+<span class="nc bnc" id="L1401" title="All 2 branches missed.">    Object newValue = change.isNull(&quot;new_value&quot;) ? null : change.get(&quot;new_value&quot;);</span>
 
     // Don't confront users with JSON
-<span class="nc bnc" id="L1402" title="All 4 branches missed.">    if (oldValue instanceof JSONArray || newValue instanceof JSONArray) {</span>
-<span class="nc bnc" id="L1403" title="All 2 branches missed.">      oldValue = oldValue instanceof JSONArray ? ((JSONArray) oldValue).toList() : oldValue;</span>
-<span class="nc bnc" id="L1404" title="All 2 branches missed.">      newValue = newValue instanceof JSONArray ? ((JSONArray) newValue).toList() : newValue;</span>
-<span class="nc bnc" id="L1405" title="All 4 branches missed.">    } else if (oldValue instanceof JSONObject || newValue instanceof JSONObject) {</span>
-<span class="nc bnc" id="L1406" title="All 2 branches missed.">      oldValue = oldValue instanceof JSONObject ? ((JSONObject) oldValue).toMap() : oldValue;</span>
-<span class="nc bnc" id="L1407" title="All 2 branches missed.">      newValue = newValue instanceof JSONObject ? ((JSONObject) newValue).toMap() : newValue;</span>
+<span class="nc bnc" id="L1404" title="All 4 branches missed.">    if (oldValue instanceof JSONArray || newValue instanceof JSONArray) {</span>
+<span class="nc bnc" id="L1405" title="All 2 branches missed.">      oldValue = oldValue instanceof JSONArray ? ((JSONArray) oldValue).toList() : oldValue;</span>
+<span class="nc bnc" id="L1406" title="All 2 branches missed.">      newValue = newValue instanceof JSONArray ? ((JSONArray) newValue).toList() : newValue;</span>
+<span class="nc bnc" id="L1407" title="All 4 branches missed.">    } else if (oldValue instanceof JSONObject || newValue instanceof JSONObject) {</span>
+<span class="nc bnc" id="L1408" title="All 2 branches missed.">      oldValue = oldValue instanceof JSONObject ? ((JSONObject) oldValue).toMap() : oldValue;</span>
+<span class="nc bnc" id="L1409" title="All 2 branches missed.">      newValue = newValue instanceof JSONObject ? ((JSONObject) newValue).toMap() : newValue;</span>
     }
 
-<span class="nc" id="L1410">    return new AuditLogChange(oldValue, newValue, key);</span>
+<span class="nc" id="L1412">    return new AuditLogChange(oldValue, newValue, key);</span>
   }
 
   private Map&lt;String, AuditLogChange&gt; changeToMap(Set&lt;AuditLogChange&gt; changesList) {
-<span class="nc" id="L1414">    return changesList</span>
-<span class="nc" id="L1415">        .stream()</span>
-<span class="nc" id="L1416">        .collect(Collectors.toMap(AuditLogChange::getKey, UnaryOperator.identity()));</span>
+<span class="nc" id="L1416">    return changesList</span>
+<span class="nc" id="L1417">        .stream()</span>
+<span class="nc" id="L1418">        .collect(Collectors.toMap(AuditLogChange::getKey, UnaryOperator.identity()));</span>
   }
 
   private &lt;T&gt; List&lt;T&gt; map(JSONObject jsonObject, String key, Function&lt;JSONObject, T&gt; convert) {
-<span class="nc bnc" id="L1420" title="All 2 branches missed.">    if (jsonObject.isNull(key)) return Collections.emptyList();</span>
+<span class="nc bnc" id="L1422" title="All 2 branches missed.">    if (jsonObject.isNull(key)) return Collections.emptyList();</span>
 
-<span class="nc" id="L1422">    final JSONArray arr = jsonObject.getJSONArray(key);</span>
-<span class="nc" id="L1423">    final List&lt;T&gt; mappedObjects = new ArrayList&lt;&gt;(arr.length());</span>
-<span class="nc bnc" id="L1424" title="All 2 branches missed.">    for (int i = 0; i &lt; arr.length(); i++) {</span>
-<span class="nc" id="L1425">      JSONObject obj = arr.getJSONObject(i);</span>
-<span class="nc" id="L1426">      mappedObjects.add(convert.apply(obj));</span>
+<span class="nc" id="L1424">    final JSONArray arr = jsonObject.getJSONArray(key);</span>
+<span class="nc" id="L1425">    final List&lt;T&gt; mappedObjects = new ArrayList&lt;&gt;(arr.length());</span>
+<span class="nc bnc" id="L1426" title="All 2 branches missed.">    for (int i = 0; i &lt; arr.length(); i++) {</span>
+<span class="nc" id="L1427">      JSONObject obj = arr.getJSONObject(i);</span>
+<span class="nc" id="L1428">      mappedObjects.add(convert.apply(obj));</span>
     }
 
-<span class="nc" id="L1429">    return mappedObjects;</span>
+<span class="nc" id="L1431">    return mappedObjects;</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

@@ -22,77 +22,79 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import net.dv8tion.jda.core.utils.JDALogger;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 <span class="nc" id="L28">public class EventCache {</span>
-<span class="nc" id="L29">  public static final Logger LOG = JDALogger.getLog(EventCache.class);</span>
-<span class="nc" id="L30">  private final Map&lt;Type, TLongObjectMap&lt;List&lt;Runnable&gt;&gt;&gt; eventCache = new HashMap&lt;&gt;();</span>
+
+<span class="nc" id="L30">  public static final Logger LOG = LoggerFactory.getLogger(EventCache.class);</span>
+
+<span class="nc" id="L32">  private final Map&lt;Type, TLongObjectMap&lt;List&lt;Runnable&gt;&gt;&gt; eventCache = new HashMap&lt;&gt;();</span>
 
   public void cache(Type type, long triggerId, Runnable handler) {
-<span class="nc" id="L33">    TLongObjectMap&lt;List&lt;Runnable&gt;&gt; triggerCache =</span>
-<span class="nc" id="L34">        eventCache.computeIfAbsent(type, k -&gt; new TLongObjectHashMap&lt;&gt;());</span>
+<span class="nc" id="L35">    TLongObjectMap&lt;List&lt;Runnable&gt;&gt; triggerCache =</span>
+<span class="nc" id="L36">        eventCache.computeIfAbsent(type, k -&gt; new TLongObjectHashMap&lt;&gt;());</span>
 
-<span class="nc" id="L36">    List&lt;Runnable&gt; items = triggerCache.get(triggerId);</span>
-<span class="nc bnc" id="L37" title="All 2 branches missed.">    if (items == null) {</span>
-<span class="nc" id="L38">      items = new LinkedList&lt;&gt;();</span>
-<span class="nc" id="L39">      triggerCache.put(triggerId, items);</span>
+<span class="nc" id="L38">    List&lt;Runnable&gt; items = triggerCache.get(triggerId);</span>
+<span class="nc bnc" id="L39" title="All 2 branches missed.">    if (items == null) {</span>
+<span class="nc" id="L40">      items = new LinkedList&lt;&gt;();</span>
+<span class="nc" id="L41">      triggerCache.put(triggerId, items);</span>
     }
 
-<span class="nc" id="L42">    items.add(handler);</span>
-<span class="nc" id="L43">  }</span>
+<span class="nc" id="L44">    items.add(handler);</span>
+<span class="nc" id="L45">  }</span>
 
   public void playbackCache(Type type, long triggerId) {
     List&lt;Runnable&gt; items;
     try {
-<span class="nc" id="L48">      items = eventCache.get(type).get(triggerId);</span>
-<span class="nc" id="L49">    } catch (NullPointerException e) {</span>
+<span class="nc" id="L50">      items = eventCache.get(type).get(triggerId);</span>
+<span class="nc" id="L51">    } catch (NullPointerException e) {</span>
       // If we encounter an NPE that means something didn't exist.
-<span class="nc" id="L51">      return;</span>
-<span class="nc" id="L52">    }</span>
+<span class="nc" id="L53">      return;</span>
+<span class="nc" id="L54">    }</span>
 
-<span class="nc bnc" id="L54" title="All 4 branches missed.">    if (items != null &amp;&amp; !items.isEmpty()) {</span>
-<span class="nc" id="L55">      EventCache.LOG.debug(</span>
+<span class="nc bnc" id="L56" title="All 4 branches missed.">    if (items != null &amp;&amp; !items.isEmpty()) {</span>
+<span class="nc" id="L57">      EventCache.LOG.debug(</span>
           &quot;Replaying {} events from the EventCache for a {} with id: {}&quot;,
-<span class="nc" id="L57">          items.size(),</span>
+<span class="nc" id="L59">          items.size(),</span>
           type,
-<span class="nc" id="L59">          triggerId);</span>
-<span class="nc" id="L60">      List&lt;Runnable&gt; itemsCopy = new LinkedList&lt;&gt;(items);</span>
-<span class="nc" id="L61">      items.clear();</span>
-<span class="nc bnc" id="L62" title="All 2 branches missed.">      for (Runnable item : itemsCopy) {</span>
-<span class="nc" id="L63">        item.run();</span>
-<span class="nc" id="L64">      }</span>
+<span class="nc" id="L61">          triggerId);</span>
+<span class="nc" id="L62">      List&lt;Runnable&gt; itemsCopy = new LinkedList&lt;&gt;(items);</span>
+<span class="nc" id="L63">      items.clear();</span>
+<span class="nc bnc" id="L64" title="All 2 branches missed.">      for (Runnable item : itemsCopy) {</span>
+<span class="nc" id="L65">        item.run();</span>
+<span class="nc" id="L66">      }</span>
     }
-<span class="nc" id="L66">  }</span>
+<span class="nc" id="L68">  }</span>
 
   public int size() {
-<span class="nc" id="L69">    return (int)</span>
+<span class="nc" id="L71">    return (int)</span>
         eventCache
-<span class="nc" id="L71">            .values()</span>
-<span class="nc" id="L72">            .stream()</span>
-<span class="nc" id="L73">            .mapToLong(typeMap -&gt; typeMap.valueCollection().stream().mapToLong(List::size).sum())</span>
-<span class="nc" id="L74">            .sum();</span>
+<span class="nc" id="L73">            .values()</span>
+<span class="nc" id="L74">            .stream()</span>
+<span class="nc" id="L75">            .mapToLong(typeMap -&gt; typeMap.valueCollection().stream().mapToLong(List::size).sum())</span>
+<span class="nc" id="L76">            .sum();</span>
   }
 
   public void clear() {
-<span class="nc" id="L78">    eventCache.clear();</span>
-<span class="nc" id="L79">  }</span>
+<span class="nc" id="L80">    eventCache.clear();</span>
+<span class="nc" id="L81">  }</span>
 
   public void clear(Type type, long id) {
     try {
-<span class="nc" id="L83">      List&lt;Runnable&gt; events = eventCache.get(type).remove(id);</span>
-<span class="nc" id="L84">      LOG.debug(&quot;Clearing cache for type {} with ID {} (Size: {})&quot;, type, id, events.size());</span>
-<span class="nc" id="L85">    } catch (NullPointerException ignored) {</span>
-<span class="nc" id="L86">    }</span>
-<span class="nc" id="L87">  }</span>
+<span class="nc" id="L85">      List&lt;Runnable&gt; events = eventCache.get(type).remove(id);</span>
+<span class="nc" id="L86">      LOG.debug(&quot;Clearing cache for type {} with ID {} (Size: {})&quot;, type, id, events.size());</span>
+<span class="nc" id="L87">    } catch (NullPointerException ignored) {</span>
+<span class="nc" id="L88">    }</span>
+<span class="nc" id="L89">  }</span>
 
-<span class="nc" id="L89">  public enum Type {</span>
-<span class="nc" id="L90">    USER,</span>
-<span class="nc" id="L91">    GUILD,</span>
-<span class="nc" id="L92">    CHANNEL,</span>
-<span class="nc" id="L93">    ROLE,</span>
-<span class="nc" id="L94">    RELATIONSHIP,</span>
-<span class="nc" id="L95">    CALL</span>
+<span class="nc" id="L91">  public enum Type {</span>
+<span class="nc" id="L92">    USER,</span>
+<span class="nc" id="L93">    GUILD,</span>
+<span class="nc" id="L94">    CHANNEL,</span>
+<span class="nc" id="L95">    ROLE,</span>
+<span class="nc" id="L96">    RELATIONSHIP,</span>
+<span class="nc" id="L97">    CALL</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>
