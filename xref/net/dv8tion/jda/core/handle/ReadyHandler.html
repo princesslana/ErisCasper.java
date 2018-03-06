@@ -27,257 +27,207 @@
 <a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> gnu.trove.iterator.TLongIterator;
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> gnu.trove.set.TLongSet;
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> gnu.trove.set.hash.TLongHashSet;
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> net.dv8tion.jda.client.entities.Relationship;
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> net.dv8tion.jda.client.entities.impl.FriendImpl;
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> net.dv8tion.jda.client.entities.impl.UserSettingsImpl;
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> net.dv8tion.jda.core.AccountType;
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> net.dv8tion.jda.core.OnlineStatus;
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> net.dv8tion.jda.core.WebSocketCode;
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> net.dv8tion.jda.core.entities.ChannelType;
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> net.dv8tion.jda.core.entities.EntityBuilder;
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> net.dv8tion.jda.core.entities.Guild;
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> net.dv8tion.jda.core.entities.impl.JDAImpl;
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> net.dv8tion.jda.core.managers.impl.PresenceImpl;
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> net.dv8tion.jda.core.requests.WebSocketClient;
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> org.json.JSONArray;
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> org.json.JSONObject;
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>  
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../net/dv8tion/jda/core/handle/ReadyHandler.html">ReadyHandler</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../net/dv8tion/jda/core/handle/SocketHandler.html">SocketHandler</a> {
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> TLongSet incompleteGuilds = <strong class="jxr_keyword">new</strong> TLongHashSet();
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> TLongSet acknowledgedGuilds = <strong class="jxr_keyword">new</strong> TLongHashSet();
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> TLongSet unavailableGuilds = <strong class="jxr_keyword">new</strong> TLongHashSet();
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> TLongSet guildsRequiringChunking = <strong class="jxr_keyword">new</strong> TLongHashSet();
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> TLongSet guildsRequiringSyncing = <strong class="jxr_keyword">new</strong> TLongHashSet();
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>  
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>    <strong class="jxr_keyword">public</strong> <a href="../../../../../net/dv8tion/jda/core/handle/ReadyHandler.html">ReadyHandler</a>(<a href="../../../../../net/dv8tion/jda/core/entities/impl/JDAImpl.html">JDAImpl</a> api) {
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>      <strong class="jxr_keyword">super</strong>(api);
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>    }
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>  
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>    @Override
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>    <strong class="jxr_keyword">protected</strong> Long handleInternally(JSONObject content) {
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>      <a href="../../../../../net/dv8tion/jda/core/entities/EntityBuilder.html">EntityBuilder</a> builder = api.getEntityBuilder();
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> net.dv8tion.jda.core.WebSocketCode;
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> net.dv8tion.jda.core.entities.ChannelType;
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> net.dv8tion.jda.core.entities.EntityBuilder;
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> net.dv8tion.jda.core.entities.Guild;
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> net.dv8tion.jda.core.entities.impl.JDAImpl;
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> net.dv8tion.jda.core.requests.WebSocketClient;
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> org.json.JSONArray;
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> org.json.JSONObject;
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../net/dv8tion/jda/core/handle/ReadyHandler.html">ReadyHandler</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../net/dv8tion/jda/core/handle/SocketHandler.html">SocketHandler</a> {
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> TLongSet incompleteGuilds = <strong class="jxr_keyword">new</strong> TLongHashSet();
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> TLongSet acknowledgedGuilds = <strong class="jxr_keyword">new</strong> TLongHashSet();
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> TLongSet unavailableGuilds = <strong class="jxr_keyword">new</strong> TLongHashSet();
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> TLongSet guildsRequiringChunking = <strong class="jxr_keyword">new</strong> TLongHashSet();
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> TLongSet guildsRequiringSyncing = <strong class="jxr_keyword">new</strong> TLongHashSet();
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>    <strong class="jxr_keyword">public</strong> <a href="../../../../../net/dv8tion/jda/core/handle/ReadyHandler.html">ReadyHandler</a>(<a href="../../../../../net/dv8tion/jda/core/entities/impl/JDAImpl.html">JDAImpl</a> api) {
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>      <strong class="jxr_keyword">super</strong>(api);
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>    }
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>    @Override
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>    <strong class="jxr_keyword">protected</strong> Long handleInternally(JSONObject content) {
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>      <a href="../../../../../net/dv8tion/jda/core/entities/EntityBuilder.html">EntityBuilder</a> builder = api.getEntityBuilder();
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>      <em class="jxr_comment">// Core</em>
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>      JSONArray guilds = content.getJSONArray(<span class="jxr_string">"guilds"</span>);
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>      JSONObject selfJson = content.getJSONObject(<span class="jxr_string">"user"</span>);
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>  
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>      builder.createSelfUser(selfJson);
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>  
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>      <em class="jxr_comment">// Core</em>
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>      JSONArray guilds = content.getJSONArray(<span class="jxr_string">"guilds"</span>);
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>      JSONObject selfJson = content.getJSONObject(<span class="jxr_string">"user"</span>);
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>  
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>      builder.createSelfUser(selfJson);
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>  
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>      <strong class="jxr_keyword">if</strong> (api.getAccountType() == AccountType.CLIENT &amp;&amp; !content.isNull(<span class="jxr_string">"user_settings"</span>)) {
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>        <em class="jxr_comment">// handle user settings</em>
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>        JSONObject userSettingsJson = content.getJSONObject(<span class="jxr_string">"user_settings"</span>);
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>        <a href="../../../../../net/dv8tion/jda/client/entities/impl/UserSettingsImpl.html">UserSettingsImpl</a> userSettingsObj = (UserSettingsImpl) api.asClient().getSettings();
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>        userSettingsObj
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>            <em class="jxr_comment">// TODO: set all information and handle updates</em>
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>            .setStatus(
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>            userSettingsJson.isNull(<span class="jxr_string">"status"</span>)
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>                ? OnlineStatus.ONLINE
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>                : OnlineStatus.fromKey(userSettingsJson.getString(<span class="jxr_string">"status"</span>)));
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>        <em class="jxr_comment">// update presence information unless the status is ONLINE</em>
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>        <strong class="jxr_keyword">if</strong> (userSettingsObj.getStatus() != OnlineStatus.ONLINE)
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>          ((<a href="../../../../../net/dv8tion/jda/core/managers/impl/PresenceImpl.html">PresenceImpl</a>) api.getPresence()).setCacheStatus(userSettingsObj.getStatus());
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>      }
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>      <em class="jxr_comment">// Keep a list of all guilds in incompleteGuilds that need to be setup (GuildMemberChunk /</em>
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>      <em class="jxr_comment">// GuildSync)</em>
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>      <em class="jxr_comment">// Send all guilds to the EntityBuilder's first pass to setup caching for when GUILD_CREATE</em>
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>      <em class="jxr_comment">// comes</em>
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>      <em class="jxr_comment">// or, for Client accounts, to start the setup process (since we already have guild info)</em>
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>      <em class="jxr_comment">// Callback points to guildSetupComplete so that when MemberChunking and GuildSync processes are</em>
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>      <em class="jxr_comment">// done, we can</em>
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>      <em class="jxr_comment">// "check off" the completed guild from the set of guilds in incompleteGuilds.</em>
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>  
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>      <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; guilds.length(); i++) {
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>        JSONObject guild = guilds.getJSONObject(i);
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>        incompleteGuilds.add(guild.getLong(<span class="jxr_string">"id"</span>));
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>      }
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>  
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>      <em class="jxr_comment">// We use two different for-loops here so that we cache all of the ids before sending them off</em>
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>      <em class="jxr_comment">// to the EntityBuilder</em>
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>      <em class="jxr_comment">//  due to the checks in checkIfReadyToSendRequests and guildSetupComplete triggering too soon</em>
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>      <em class="jxr_comment">// otherwise.</em>
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>      <em class="jxr_comment">// Specifically: incompleteGuilds.size() == acknowledgedGuilds.size() and</em>
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>      <em class="jxr_comment">//  incompleteGuilds.size() == unavailableGuilds.size() respectively.</em>
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>  
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>      <em class="jxr_comment">// Keep a list of all guilds in incompleteGuilds that need to be setup (GuildMemberChunk /</em>
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>      <em class="jxr_comment">// GuildSync)</em>
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>      <em class="jxr_comment">// Send all guilds to the EntityBuilder's first pass to setup caching for when GUILD_CREATE</em>
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>      <em class="jxr_comment">// comes</em>
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>      <em class="jxr_comment">// or, for Client accounts, to start the setup process (since we already have guild info)</em>
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>      <em class="jxr_comment">// Callback points to guildSetupComplete so that when MemberChunking and GuildSync processes are</em>
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>      <em class="jxr_comment">// done, we can</em>
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>      <em class="jxr_comment">// "check off" the completed guild from the set of guilds in incompleteGuilds.</em>
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>  
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>      <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; guilds.length(); i++) {
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>        JSONObject guild = guilds.getJSONObject(i);
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>        incompleteGuilds.add(guild.getLong(<span class="jxr_string">"id"</span>));
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>      }
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>  
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>      <em class="jxr_comment">// We use two different for-loops here so that we cache all of the ids before sending them off</em>
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>      <em class="jxr_comment">// to the EntityBuilder</em>
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>      <em class="jxr_comment">//  due to the checks in checkIfReadyToSendRequests and guildSetupComplete triggering too soon</em>
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>      <em class="jxr_comment">// otherwise.</em>
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>      <em class="jxr_comment">// Specifically: incompleteGuilds.size() == acknowledgedGuilds.size() and</em>
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>      <em class="jxr_comment">//  incompleteGuilds.size() == unavailableGuilds.size() respectively.</em>
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>      <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; guilds.length(); i++) {
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>        JSONObject guild = guilds.getJSONObject(i);
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>  
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>        <em class="jxr_comment">// If a Guild isn't unavailable, then it is possible that we were given all information</em>
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>        <em class="jxr_comment">// needed to fully load the guild. In this case, we provide the method `guildSetupComplete`</em>
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>        <em class="jxr_comment">// as the secondPassCallback so it can immediately be called to signify that the provided</em>
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>        <em class="jxr_comment">// guild</em>
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>        <em class="jxr_comment">// is loaded and ready to go.</em>
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>        <em class="jxr_comment">// If a Guild is unavailable it won't have the information needed, so we pass null as the</em>
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>        <em class="jxr_comment">// secondPassCallback</em>
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>        <em class="jxr_comment">// for now and wait for the GUILD_CREATE event to give us the required information.</em>
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>        <strong class="jxr_keyword">if</strong> (guild.has(<span class="jxr_string">"unavailable"</span>) &amp;&amp; guild.getBoolean(<span class="jxr_string">"unavailable"</span>))
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>          builder.createGuildFirstPass(guild, <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>        <strong class="jxr_keyword">else</strong> builder.createGuildFirstPass(guild, <strong class="jxr_keyword">this</strong>::guildSetupComplete);
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>      }
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>  
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>      <strong class="jxr_keyword">if</strong> (guilds.length() == 0) guildLoadComplete(content);
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>  
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>      <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>    }
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>  
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>      <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; guilds.length(); i++) {
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>        JSONObject guild = guilds.getJSONObject(i);
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>  
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>        <em class="jxr_comment">// If a Guild isn't unavailable, then it is possible that we were given all information</em>
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>        <em class="jxr_comment">// needed to fully load the guild. In this case, we provide the method `guildSetupComplete`</em>
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>        <em class="jxr_comment">// as the secondPassCallback so it can immediately be called to signify that the provided</em>
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>       <em class="jxr_comment">// guild</em>
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>       <em class="jxr_comment">// is loaded and ready to go.</em>
-<a class="jxr_linenumber" name="L102" href="#L102">102</a>       <em class="jxr_comment">// If a Guild is unavailable it won't have the information needed, so we pass null as the</em>
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>       <em class="jxr_comment">// secondPassCallback</em>
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>       <em class="jxr_comment">// for now and wait for the GUILD_CREATE event to give us the required information.</em>
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>       <strong class="jxr_keyword">if</strong> (guild.has(<span class="jxr_string">"unavailable"</span>) &amp;&amp; guild.getBoolean(<span class="jxr_string">"unavailable"</span>))
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>         builder.createGuildFirstPass(guild, <strong class="jxr_keyword">null</strong>);
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>       <strong class="jxr_keyword">else</strong> builder.createGuildFirstPass(guild, <strong class="jxr_keyword">this</strong>::guildSetupComplete);
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>     }
-<a class="jxr_linenumber" name="L109" href="#L109">109</a> 
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>     <strong class="jxr_keyword">if</strong> (guilds.length() == 0) guildLoadComplete(content);
-<a class="jxr_linenumber" name="L111" href="#L111">111</a> 
-<a class="jxr_linenumber" name="L112" href="#L112">112</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>   }
-<a class="jxr_linenumber" name="L114" href="#L114">114</a> 
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> guildLoadComplete(JSONObject content) {
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>     api.getClient().setChunkingAndSyncing(false);
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>     <a href="../../../../../net/dv8tion/jda/core/entities/EntityBuilder.html">EntityBuilder</a> builder = api.getEntityBuilder();
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>     JSONArray privateChannels = content.getJSONArray(<span class="jxr_string">"private_channels"</span>);
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> guildLoadComplete(JSONObject content) {
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>      api.getClient().setChunkingAndSyncing(false);
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>      <a href="../../../../../net/dv8tion/jda/core/entities/EntityBuilder.html">EntityBuilder</a> builder = api.getEntityBuilder();
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>      JSONArray privateChannels = content.getJSONArray(<span class="jxr_string">"private_channels"</span>);
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>  
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>      <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; privateChannels.length(); i++) {
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>       JSONObject chan = privateChannels.getJSONObject(i);
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>       <a href="../../../../../net/dv8tion/jda/core/entities/ChannelType.html">ChannelType</a> type = ChannelType.fromId(chan.getInt(<span class="jxr_string">"type"</span>));
+<a class="jxr_linenumber" name="L102" href="#L102">102</a> 
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>       <strong class="jxr_keyword">switch</strong> (type) {
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>         <strong class="jxr_keyword">case</strong> PRIVATE:
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>           builder.createPrivateChannel(chan);
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>           <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>         <strong class="jxr_keyword">case</strong> GROUP:
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>           builder.createGroup(chan);
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>           <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>         <strong class="jxr_keyword">default</strong>:
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>           WebSocketClient.LOG.warn(
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>               <span class="jxr_string">"Received a Channel in the priv_channels array in READY of an unknown type! JSON: {}"</span>,
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>               type);
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>       }
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>     }
+<a class="jxr_linenumber" name="L116" href="#L116">116</a> 
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>     api.getClient().ready();
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>   }
 <a class="jxr_linenumber" name="L119" href="#L119">119</a> 
-<a class="jxr_linenumber" name="L120" href="#L120">120</a>     <strong class="jxr_keyword">if</strong> (api.getAccountType() == AccountType.CLIENT) {
-<a class="jxr_linenumber" name="L121" href="#L121">121</a>       JSONArray relationships = content.getJSONArray(<span class="jxr_string">"relationships"</span>);
-<a class="jxr_linenumber" name="L122" href="#L122">122</a>       JSONArray presences = content.getJSONArray(<span class="jxr_string">"presences"</span>);
-<a class="jxr_linenumber" name="L123" href="#L123">123</a>       JSONObject notes = content.getJSONObject(<span class="jxr_string">"notes"</span>);
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>       JSONArray readstates = content.has(<span class="jxr_string">"read_state"</span>) ? content.getJSONArray(<span class="jxr_string">"read_state"</span>) : <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L125" href="#L125">125</a>       JSONArray guildSettings =
-<a class="jxr_linenumber" name="L126" href="#L126">126</a>           content.has(<span class="jxr_string">"user_guild_settings"</span>) ? content.getJSONArray(<span class="jxr_string">"user_guild_settings"</span>) : <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L127" href="#L127">127</a> 
-<a class="jxr_linenumber" name="L128" href="#L128">128</a>       <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; relationships.length(); i++) {
-<a class="jxr_linenumber" name="L129" href="#L129">129</a>         JSONObject relationship = relationships.getJSONObject(i);
-<a class="jxr_linenumber" name="L130" href="#L130">130</a>         <a href="../../../../../net/dv8tion/jda/client/entities/Relationship.html">Relationship</a> r = builder.createRelationship(relationship);
-<a class="jxr_linenumber" name="L131" href="#L131">131</a>         <strong class="jxr_keyword">if</strong> (r == <strong class="jxr_keyword">null</strong>)
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>           JDAImpl.LOG.error(
-<a class="jxr_linenumber" name="L133" href="#L133">133</a>               <span class="jxr_string">"Provided relationship in READY with an unknown type! JSON: {}"</span>, relationship);
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>       }
-<a class="jxr_linenumber" name="L135" href="#L135">135</a> 
-<a class="jxr_linenumber" name="L136" href="#L136">136</a>       <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; presences.length(); i++) {
-<a class="jxr_linenumber" name="L137" href="#L137">137</a>         JSONObject presence = presences.getJSONObject(i);
-<a class="jxr_linenumber" name="L138" href="#L138">138</a>         String userId = presence.getJSONObject(<span class="jxr_string">"user"</span>).getString(<span class="jxr_string">"id"</span>);
-<a class="jxr_linenumber" name="L139" href="#L139">139</a>         <a href="../../../../../net/dv8tion/jda/client/entities/impl/FriendImpl.html">FriendImpl</a> friend = (FriendImpl) api.asClient().getFriendById(userId);
-<a class="jxr_linenumber" name="L140" href="#L140">140</a>         <strong class="jxr_keyword">if</strong> (friend == <strong class="jxr_keyword">null</strong>)
-<a class="jxr_linenumber" name="L141" href="#L141">141</a>           WebSocketClient.LOG.warn(
-<a class="jxr_linenumber" name="L142" href="#L142">142</a>               <span class="jxr_string">"Received a presence in the Presences array in READY that did not correspond to a cached Friend! JSON: {}"</span>,
-<a class="jxr_linenumber" name="L143" href="#L143">143</a>               presence);
-<a class="jxr_linenumber" name="L144" href="#L144">144</a>         <strong class="jxr_keyword">else</strong> builder.createPresence(friend, presence);
-<a class="jxr_linenumber" name="L145" href="#L145">145</a>       }
-<a class="jxr_linenumber" name="L146" href="#L146">146</a>     }
-<a class="jxr_linenumber" name="L147" href="#L147">147</a> 
-<a class="jxr_linenumber" name="L148" href="#L148">148</a>     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; privateChannels.length(); i++) {
-<a class="jxr_linenumber" name="L149" href="#L149">149</a>       JSONObject chan = privateChannels.getJSONObject(i);
-<a class="jxr_linenumber" name="L150" href="#L150">150</a>       <a href="../../../../../net/dv8tion/jda/core/entities/ChannelType.html">ChannelType</a> type = ChannelType.fromId(chan.getInt(<span class="jxr_string">"type"</span>));
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> acknowledgeGuild(
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>       <a href="../../../../../net/dv8tion/jda/core/entities/Invite.html">Guild</a> guild, <strong class="jxr_keyword">boolean</strong> available, <strong class="jxr_keyword">boolean</strong> requiresChunking, <strong class="jxr_keyword">boolean</strong> requiresSync) {
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>     acknowledgedGuilds.add(guild.getIdLong());
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>     <strong class="jxr_keyword">if</strong> (available) {
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>       <em class="jxr_comment">// We remove from unavailable guilds because it is possible that we were told it was</em>
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>       <em class="jxr_comment">// unavailable, but</em>
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>       <em class="jxr_comment">// during a long READY load it could have become available and was sent to us.</em>
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>       unavailableGuilds.remove(guild.getIdLong());
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>       <strong class="jxr_keyword">if</strong> (requiresChunking) guildsRequiringChunking.add(guild.getIdLong());
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>       <strong class="jxr_keyword">if</strong> (requiresSync) guildsRequiringSyncing.add(guild.getIdLong());
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>     } <strong class="jxr_keyword">else</strong> unavailableGuilds.add(guild.getIdLong());
+<a class="jxr_linenumber" name="L131" href="#L131">131</a> 
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>     checkIfReadyToSendRequests();
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>   }
+<a class="jxr_linenumber" name="L134" href="#L134">134</a> 
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> guildSetupComplete(<a href="../../../../../net/dv8tion/jda/core/entities/Invite.html">Guild</a> guild) {
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>     <strong class="jxr_keyword">if</strong> (!incompleteGuilds.remove(guild.getIdLong()))
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>       WebSocketClient.LOG.error(
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>           <span class="jxr_string">"Completed the setup for Guild: {} without matching id in ReadyHandler cache"</span>, guild);
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>     <strong class="jxr_keyword">if</strong> (incompleteGuilds.size() == unavailableGuilds.size())
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>       guildLoadComplete(allContent.getJSONObject(<span class="jxr_string">"d"</span>));
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>     <strong class="jxr_keyword">else</strong> checkIfReadyToSendRequests();
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>   }
+<a class="jxr_linenumber" name="L143" href="#L143">143</a> 
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> clearCache() {
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>     incompleteGuilds.clear();
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>     acknowledgedGuilds.clear();
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>     unavailableGuilds.clear();
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>     guildsRequiringChunking.clear();
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>     guildsRequiringSyncing.clear();
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>   }
 <a class="jxr_linenumber" name="L151" href="#L151">151</a> 
-<a class="jxr_linenumber" name="L152" href="#L152">152</a>       <strong class="jxr_keyword">switch</strong> (type) {
-<a class="jxr_linenumber" name="L153" href="#L153">153</a>         <strong class="jxr_keyword">case</strong> PRIVATE:
-<a class="jxr_linenumber" name="L154" href="#L154">154</a>           builder.createPrivateChannel(chan);
-<a class="jxr_linenumber" name="L155" href="#L155">155</a>           <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L156" href="#L156">156</a>         <strong class="jxr_keyword">case</strong> GROUP:
-<a class="jxr_linenumber" name="L157" href="#L157">157</a>           builder.createGroup(chan);
-<a class="jxr_linenumber" name="L158" href="#L158">158</a>           <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L159" href="#L159">159</a>         <strong class="jxr_keyword">default</strong>:
-<a class="jxr_linenumber" name="L160" href="#L160">160</a>           WebSocketClient.LOG.warn(
-<a class="jxr_linenumber" name="L161" href="#L161">161</a>               <span class="jxr_string">"Received a Channel in the priv_channels array in READY of an unknown type! JSON: {}"</span>,
-<a class="jxr_linenumber" name="L162" href="#L162">162</a>               type);
-<a class="jxr_linenumber" name="L163" href="#L163">163</a>       }
-<a class="jxr_linenumber" name="L164" href="#L164">164</a>     }
-<a class="jxr_linenumber" name="L165" href="#L165">165</a> 
-<a class="jxr_linenumber" name="L166" href="#L166">166</a>     api.getClient().ready();
-<a class="jxr_linenumber" name="L167" href="#L167">167</a>   }
-<a class="jxr_linenumber" name="L168" href="#L168">168</a> 
-<a class="jxr_linenumber" name="L169" href="#L169">169</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> acknowledgeGuild(
-<a class="jxr_linenumber" name="L170" href="#L170">170</a>       <a href="../../../../../net/dv8tion/jda/core/entities/Invite.html">Guild</a> guild, <strong class="jxr_keyword">boolean</strong> available, <strong class="jxr_keyword">boolean</strong> requiresChunking, <strong class="jxr_keyword">boolean</strong> requiresSync) {
-<a class="jxr_linenumber" name="L171" href="#L171">171</a>     acknowledgedGuilds.add(guild.getIdLong());
-<a class="jxr_linenumber" name="L172" href="#L172">172</a>     <strong class="jxr_keyword">if</strong> (available) {
-<a class="jxr_linenumber" name="L173" href="#L173">173</a>       <em class="jxr_comment">// We remove from unavailable guilds because it is possible that we were told it was</em>
-<a class="jxr_linenumber" name="L174" href="#L174">174</a>       <em class="jxr_comment">// unavailable, but</em>
-<a class="jxr_linenumber" name="L175" href="#L175">175</a>       <em class="jxr_comment">// during a long READY load it could have become available and was sent to us.</em>
-<a class="jxr_linenumber" name="L176" href="#L176">176</a>       unavailableGuilds.remove(guild.getIdLong());
-<a class="jxr_linenumber" name="L177" href="#L177">177</a>       <strong class="jxr_keyword">if</strong> (requiresChunking) guildsRequiringChunking.add(guild.getIdLong());
-<a class="jxr_linenumber" name="L178" href="#L178">178</a>       <strong class="jxr_keyword">if</strong> (requiresSync) guildsRequiringSyncing.add(guild.getIdLong());
-<a class="jxr_linenumber" name="L179" href="#L179">179</a>     } <strong class="jxr_keyword">else</strong> unavailableGuilds.add(guild.getIdLong());
-<a class="jxr_linenumber" name="L180" href="#L180">180</a> 
-<a class="jxr_linenumber" name="L181" href="#L181">181</a>     checkIfReadyToSendRequests();
-<a class="jxr_linenumber" name="L182" href="#L182">182</a>   }
-<a class="jxr_linenumber" name="L183" href="#L183">183</a> 
-<a class="jxr_linenumber" name="L184" href="#L184">184</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> guildSetupComplete(<a href="../../../../../net/dv8tion/jda/core/entities/Invite.html">Guild</a> guild) {
-<a class="jxr_linenumber" name="L185" href="#L185">185</a>     <strong class="jxr_keyword">if</strong> (!incompleteGuilds.remove(guild.getIdLong()))
-<a class="jxr_linenumber" name="L186" href="#L186">186</a>       WebSocketClient.LOG.error(
-<a class="jxr_linenumber" name="L187" href="#L187">187</a>           <span class="jxr_string">"Completed the setup for Guild: {} without matching id in ReadyHandler cache"</span>, guild);
-<a class="jxr_linenumber" name="L188" href="#L188">188</a>     <strong class="jxr_keyword">if</strong> (incompleteGuilds.size() == unavailableGuilds.size())
-<a class="jxr_linenumber" name="L189" href="#L189">189</a>       guildLoadComplete(allContent.getJSONObject(<span class="jxr_string">"d"</span>));
-<a class="jxr_linenumber" name="L190" href="#L190">190</a>     <strong class="jxr_keyword">else</strong> checkIfReadyToSendRequests();
-<a class="jxr_linenumber" name="L191" href="#L191">191</a>   }
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> checkIfReadyToSendRequests() {
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>     <strong class="jxr_keyword">if</strong> (acknowledgedGuilds.size() == incompleteGuilds.size()) {
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>       api.getClient().setChunkingAndSyncing(<strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>       sendMemberChunkRequests();
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>     }
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>   }
+<a class="jxr_linenumber" name="L158" href="#L158">158</a> 
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> sendGuildSyncRequests() {
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>     <strong class="jxr_keyword">if</strong> (guildsRequiringSyncing.isEmpty()) <strong class="jxr_keyword">return</strong>;
+<a class="jxr_linenumber" name="L161" href="#L161">161</a> 
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>     JSONArray guildIds = <strong class="jxr_keyword">new</strong> JSONArray();
+<a class="jxr_linenumber" name="L163" href="#L163">163</a> 
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>     <strong class="jxr_keyword">for</strong> (TLongIterator it = guildsRequiringSyncing.iterator(); it.hasNext(); ) {
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>       guildIds.put(it.next());
+<a class="jxr_linenumber" name="L166" href="#L166">166</a> 
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>       <em class="jxr_comment">// We can only request 50 guilds in a single request, so after we've reached 50, send them</em>
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>       <em class="jxr_comment">// and reset the</em>
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>       <strong class="jxr_keyword">if</strong> (guildIds.length() == 50) {
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>         api.getClient()
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>             .chunkOrSyncRequest(
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>                 <strong class="jxr_keyword">new</strong> JSONObject().put(<span class="jxr_string">"op"</span>, WebSocketCode.GUILD_SYNC).put(<span class="jxr_string">"d"</span>, guildIds));
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>         guildIds = <strong class="jxr_keyword">new</strong> JSONArray();
+<a class="jxr_linenumber" name="L174" href="#L174">174</a>       }
+<a class="jxr_linenumber" name="L175" href="#L175">175</a>     }
+<a class="jxr_linenumber" name="L176" href="#L176">176</a> 
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>     <em class="jxr_comment">// Send the remaining guilds that need to be sent</em>
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>     <strong class="jxr_keyword">if</strong> (guildIds.length() &gt; 0) {
+<a class="jxr_linenumber" name="L179" href="#L179">179</a>       api.getClient()
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>           .chunkOrSyncRequest(
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>               <strong class="jxr_keyword">new</strong> JSONObject().put(<span class="jxr_string">"op"</span>, WebSocketCode.GUILD_SYNC).put(<span class="jxr_string">"d"</span>, guildIds));
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>     }
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>     guildsRequiringSyncing.clear();
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>   }
+<a class="jxr_linenumber" name="L185" href="#L185">185</a> 
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> sendMemberChunkRequests() {
+<a class="jxr_linenumber" name="L187" href="#L187">187</a>     <strong class="jxr_keyword">if</strong> (guildsRequiringChunking.isEmpty()) <strong class="jxr_keyword">return</strong>;
+<a class="jxr_linenumber" name="L188" href="#L188">188</a> 
+<a class="jxr_linenumber" name="L189" href="#L189">189</a>     JSONArray guildIds = <strong class="jxr_keyword">new</strong> JSONArray();
+<a class="jxr_linenumber" name="L190" href="#L190">190</a>     <strong class="jxr_keyword">for</strong> (TLongIterator it = guildsRequiringChunking.iterator(); it.hasNext(); ) {
+<a class="jxr_linenumber" name="L191" href="#L191">191</a>       guildIds.put(it.next());
 <a class="jxr_linenumber" name="L192" href="#L192">192</a> 
-<a class="jxr_linenumber" name="L193" href="#L193">193</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> clearCache() {
-<a class="jxr_linenumber" name="L194" href="#L194">194</a>     incompleteGuilds.clear();
-<a class="jxr_linenumber" name="L195" href="#L195">195</a>     acknowledgedGuilds.clear();
-<a class="jxr_linenumber" name="L196" href="#L196">196</a>     unavailableGuilds.clear();
-<a class="jxr_linenumber" name="L197" href="#L197">197</a>     guildsRequiringChunking.clear();
-<a class="jxr_linenumber" name="L198" href="#L198">198</a>     guildsRequiringSyncing.clear();
-<a class="jxr_linenumber" name="L199" href="#L199">199</a>   }
-<a class="jxr_linenumber" name="L200" href="#L200">200</a> 
-<a class="jxr_linenumber" name="L201" href="#L201">201</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> checkIfReadyToSendRequests() {
-<a class="jxr_linenumber" name="L202" href="#L202">202</a>     <strong class="jxr_keyword">if</strong> (acknowledgedGuilds.size() == incompleteGuilds.size()) {
-<a class="jxr_linenumber" name="L203" href="#L203">203</a>       api.getClient().setChunkingAndSyncing(<strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L204" href="#L204">204</a>       <strong class="jxr_keyword">if</strong> (api.getAccountType() == AccountType.CLIENT) sendGuildSyncRequests();
-<a class="jxr_linenumber" name="L205" href="#L205">205</a>       sendMemberChunkRequests();
-<a class="jxr_linenumber" name="L206" href="#L206">206</a>     }
-<a class="jxr_linenumber" name="L207" href="#L207">207</a>   }
-<a class="jxr_linenumber" name="L208" href="#L208">208</a> 
-<a class="jxr_linenumber" name="L209" href="#L209">209</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> sendGuildSyncRequests() {
-<a class="jxr_linenumber" name="L210" href="#L210">210</a>     <strong class="jxr_keyword">if</strong> (guildsRequiringSyncing.isEmpty()) <strong class="jxr_keyword">return</strong>;
-<a class="jxr_linenumber" name="L211" href="#L211">211</a> 
-<a class="jxr_linenumber" name="L212" href="#L212">212</a>     JSONArray guildIds = <strong class="jxr_keyword">new</strong> JSONArray();
-<a class="jxr_linenumber" name="L213" href="#L213">213</a> 
-<a class="jxr_linenumber" name="L214" href="#L214">214</a>     <strong class="jxr_keyword">for</strong> (TLongIterator it = guildsRequiringSyncing.iterator(); it.hasNext(); ) {
-<a class="jxr_linenumber" name="L215" href="#L215">215</a>       guildIds.put(it.next());
-<a class="jxr_linenumber" name="L216" href="#L216">216</a> 
-<a class="jxr_linenumber" name="L217" href="#L217">217</a>       <em class="jxr_comment">// We can only request 50 guilds in a single request, so after we've reached 50, send them</em>
-<a class="jxr_linenumber" name="L218" href="#L218">218</a>       <em class="jxr_comment">// and reset the</em>
-<a class="jxr_linenumber" name="L219" href="#L219">219</a>       <strong class="jxr_keyword">if</strong> (guildIds.length() == 50) {
-<a class="jxr_linenumber" name="L220" href="#L220">220</a>         api.getClient()
-<a class="jxr_linenumber" name="L221" href="#L221">221</a>             .chunkOrSyncRequest(
-<a class="jxr_linenumber" name="L222" href="#L222">222</a>                 <strong class="jxr_keyword">new</strong> JSONObject().put(<span class="jxr_string">"op"</span>, WebSocketCode.GUILD_SYNC).put(<span class="jxr_string">"d"</span>, guildIds));
-<a class="jxr_linenumber" name="L223" href="#L223">223</a>         guildIds = <strong class="jxr_keyword">new</strong> JSONArray();
-<a class="jxr_linenumber" name="L224" href="#L224">224</a>       }
-<a class="jxr_linenumber" name="L225" href="#L225">225</a>     }
-<a class="jxr_linenumber" name="L226" href="#L226">226</a> 
-<a class="jxr_linenumber" name="L227" href="#L227">227</a>     <em class="jxr_comment">// Send the remaining guilds that need to be sent</em>
-<a class="jxr_linenumber" name="L228" href="#L228">228</a>     <strong class="jxr_keyword">if</strong> (guildIds.length() &gt; 0) {
-<a class="jxr_linenumber" name="L229" href="#L229">229</a>       api.getClient()
-<a class="jxr_linenumber" name="L230" href="#L230">230</a>           .chunkOrSyncRequest(
-<a class="jxr_linenumber" name="L231" href="#L231">231</a>               <strong class="jxr_keyword">new</strong> JSONObject().put(<span class="jxr_string">"op"</span>, WebSocketCode.GUILD_SYNC).put(<span class="jxr_string">"d"</span>, guildIds));
-<a class="jxr_linenumber" name="L232" href="#L232">232</a>     }
-<a class="jxr_linenumber" name="L233" href="#L233">233</a>     guildsRequiringSyncing.clear();
-<a class="jxr_linenumber" name="L234" href="#L234">234</a>   }
-<a class="jxr_linenumber" name="L235" href="#L235">235</a> 
-<a class="jxr_linenumber" name="L236" href="#L236">236</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> sendMemberChunkRequests() {
-<a class="jxr_linenumber" name="L237" href="#L237">237</a>     <strong class="jxr_keyword">if</strong> (guildsRequiringChunking.isEmpty()) <strong class="jxr_keyword">return</strong>;
-<a class="jxr_linenumber" name="L238" href="#L238">238</a> 
-<a class="jxr_linenumber" name="L239" href="#L239">239</a>     JSONArray guildIds = <strong class="jxr_keyword">new</strong> JSONArray();
-<a class="jxr_linenumber" name="L240" href="#L240">240</a>     <strong class="jxr_keyword">for</strong> (TLongIterator it = guildsRequiringChunking.iterator(); it.hasNext(); ) {
-<a class="jxr_linenumber" name="L241" href="#L241">241</a>       guildIds.put(it.next());
-<a class="jxr_linenumber" name="L242" href="#L242">242</a> 
-<a class="jxr_linenumber" name="L243" href="#L243">243</a>       <em class="jxr_comment">// We can only request 50 guilds in a single request, so after we've reached 50, send them</em>
-<a class="jxr_linenumber" name="L244" href="#L244">244</a>       <em class="jxr_comment">// and reset the</em>
-<a class="jxr_linenumber" name="L245" href="#L245">245</a>       <strong class="jxr_keyword">if</strong> (guildIds.length() == 50) {
-<a class="jxr_linenumber" name="L246" href="#L246">246</a>         api.getClient()
-<a class="jxr_linenumber" name="L247" href="#L247">247</a>             .chunkOrSyncRequest(
-<a class="jxr_linenumber" name="L248" href="#L248">248</a>                 <strong class="jxr_keyword">new</strong> JSONObject()
-<a class="jxr_linenumber" name="L249" href="#L249">249</a>                     .put(<span class="jxr_string">"op"</span>, WebSocketCode.MEMBER_CHUNK_REQUEST)
-<a class="jxr_linenumber" name="L250" href="#L250">250</a>                     .put(
-<a class="jxr_linenumber" name="L251" href="#L251">251</a>                         <span class="jxr_string">"d"</span>,
-<a class="jxr_linenumber" name="L252" href="#L252">252</a>                         <strong class="jxr_keyword">new</strong> JSONObject()
-<a class="jxr_linenumber" name="L253" href="#L253">253</a>                             .put(<span class="jxr_string">"guild_id"</span>, guildIds)
-<a class="jxr_linenumber" name="L254" href="#L254">254</a>                             .put(<span class="jxr_string">"query"</span>, <span class="jxr_string">""</span>)
-<a class="jxr_linenumber" name="L255" href="#L255">255</a>                             .put(<span class="jxr_string">"limit"</span>, 0)));
-<a class="jxr_linenumber" name="L256" href="#L256">256</a>         guildIds = <strong class="jxr_keyword">new</strong> JSONArray();
-<a class="jxr_linenumber" name="L257" href="#L257">257</a>       }
-<a class="jxr_linenumber" name="L258" href="#L258">258</a>     }
-<a class="jxr_linenumber" name="L259" href="#L259">259</a> 
-<a class="jxr_linenumber" name="L260" href="#L260">260</a>     <em class="jxr_comment">// Send the remaining guilds that need to be sent</em>
-<a class="jxr_linenumber" name="L261" href="#L261">261</a>     <strong class="jxr_keyword">if</strong> (guildIds.length() &gt; 0) {
-<a class="jxr_linenumber" name="L262" href="#L262">262</a>       api.getClient()
-<a class="jxr_linenumber" name="L263" href="#L263">263</a>           .chunkOrSyncRequest(
-<a class="jxr_linenumber" name="L264" href="#L264">264</a>               <strong class="jxr_keyword">new</strong> JSONObject()
-<a class="jxr_linenumber" name="L265" href="#L265">265</a>                   .put(<span class="jxr_string">"op"</span>, WebSocketCode.MEMBER_CHUNK_REQUEST)
-<a class="jxr_linenumber" name="L266" href="#L266">266</a>                   .put(
-<a class="jxr_linenumber" name="L267" href="#L267">267</a>                       <span class="jxr_string">"d"</span>,
-<a class="jxr_linenumber" name="L268" href="#L268">268</a>                       <strong class="jxr_keyword">new</strong> JSONObject().put(<span class="jxr_string">"guild_id"</span>, guildIds).put(<span class="jxr_string">"query"</span>, <span class="jxr_string">""</span>).put(<span class="jxr_string">"limit"</span>, 0)));
-<a class="jxr_linenumber" name="L269" href="#L269">269</a>     }
-<a class="jxr_linenumber" name="L270" href="#L270">270</a>     guildsRequiringChunking.clear();
-<a class="jxr_linenumber" name="L271" href="#L271">271</a>   }
-<a class="jxr_linenumber" name="L272" href="#L272">272</a> }
+<a class="jxr_linenumber" name="L193" href="#L193">193</a>       <em class="jxr_comment">// We can only request 50 guilds in a single request, so after we've reached 50, send them</em>
+<a class="jxr_linenumber" name="L194" href="#L194">194</a>       <em class="jxr_comment">// and reset the</em>
+<a class="jxr_linenumber" name="L195" href="#L195">195</a>       <strong class="jxr_keyword">if</strong> (guildIds.length() == 50) {
+<a class="jxr_linenumber" name="L196" href="#L196">196</a>         api.getClient()
+<a class="jxr_linenumber" name="L197" href="#L197">197</a>             .chunkOrSyncRequest(
+<a class="jxr_linenumber" name="L198" href="#L198">198</a>                 <strong class="jxr_keyword">new</strong> JSONObject()
+<a class="jxr_linenumber" name="L199" href="#L199">199</a>                     .put(<span class="jxr_string">"op"</span>, WebSocketCode.MEMBER_CHUNK_REQUEST)
+<a class="jxr_linenumber" name="L200" href="#L200">200</a>                     .put(
+<a class="jxr_linenumber" name="L201" href="#L201">201</a>                         <span class="jxr_string">"d"</span>,
+<a class="jxr_linenumber" name="L202" href="#L202">202</a>                         <strong class="jxr_keyword">new</strong> JSONObject()
+<a class="jxr_linenumber" name="L203" href="#L203">203</a>                             .put(<span class="jxr_string">"guild_id"</span>, guildIds)
+<a class="jxr_linenumber" name="L204" href="#L204">204</a>                             .put(<span class="jxr_string">"query"</span>, <span class="jxr_string">""</span>)
+<a class="jxr_linenumber" name="L205" href="#L205">205</a>                             .put(<span class="jxr_string">"limit"</span>, 0)));
+<a class="jxr_linenumber" name="L206" href="#L206">206</a>         guildIds = <strong class="jxr_keyword">new</strong> JSONArray();
+<a class="jxr_linenumber" name="L207" href="#L207">207</a>       }
+<a class="jxr_linenumber" name="L208" href="#L208">208</a>     }
+<a class="jxr_linenumber" name="L209" href="#L209">209</a> 
+<a class="jxr_linenumber" name="L210" href="#L210">210</a>     <em class="jxr_comment">// Send the remaining guilds that need to be sent</em>
+<a class="jxr_linenumber" name="L211" href="#L211">211</a>     <strong class="jxr_keyword">if</strong> (guildIds.length() &gt; 0) {
+<a class="jxr_linenumber" name="L212" href="#L212">212</a>       api.getClient()
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>           .chunkOrSyncRequest(
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>               <strong class="jxr_keyword">new</strong> JSONObject()
+<a class="jxr_linenumber" name="L215" href="#L215">215</a>                   .put(<span class="jxr_string">"op"</span>, WebSocketCode.MEMBER_CHUNK_REQUEST)
+<a class="jxr_linenumber" name="L216" href="#L216">216</a>                   .put(
+<a class="jxr_linenumber" name="L217" href="#L217">217</a>                       <span class="jxr_string">"d"</span>,
+<a class="jxr_linenumber" name="L218" href="#L218">218</a>                       <strong class="jxr_keyword">new</strong> JSONObject().put(<span class="jxr_string">"guild_id"</span>, guildIds).put(<span class="jxr_string">"query"</span>, <span class="jxr_string">""</span>).put(<span class="jxr_string">"limit"</span>, 0)));
+<a class="jxr_linenumber" name="L219" href="#L219">219</a>     }
+<a class="jxr_linenumber" name="L220" href="#L220">220</a>     guildsRequiringChunking.clear();
+<a class="jxr_linenumber" name="L221" href="#L221">221</a>   }
+<a class="jxr_linenumber" name="L222" href="#L222">222</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2018. All rights reserved.</div>

@@ -16,8 +16,6 @@
  */
 package net.dv8tion.jda.core.handle;
 
-import net.dv8tion.jda.client.entities.impl.GroupImpl;
-import net.dv8tion.jda.client.events.group.GroupLeaveEvent;
 import net.dv8tion.jda.core.audio.hooks.ConnectionStatus;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.entities.impl.GuildImpl;
@@ -33,149 +31,113 @@ import org.json.JSONObject;
 
 public class ChannelDeleteHandler extends SocketHandler {
   public ChannelDeleteHandler(JDAImpl api) {
-<span class="nc" id="L36">    super(api);</span>
-<span class="nc" id="L37">  }</span>
+<span class="nc" id="L34">    super(api);</span>
+<span class="nc" id="L35">  }</span>
 
   @Override
   protected Long handleInternally(JSONObject content) {
-<span class="nc" id="L41">    ChannelType type = ChannelType.fromId(content.getInt(&quot;type&quot;));</span>
+<span class="nc" id="L39">    ChannelType type = ChannelType.fromId(content.getInt(&quot;type&quot;));</span>
 
-<span class="nc" id="L43">    long guildId = 0;</span>
-<span class="nc bnc" id="L44" title="All 2 branches missed.">    if (type.isGuild()) {</span>
-<span class="nc" id="L45">      guildId = content.getLong(&quot;guild_id&quot;);</span>
-<span class="nc bnc" id="L46" title="All 2 branches missed.">      if (api.getGuildLock().isLocked(guildId)) return guildId;</span>
+<span class="nc" id="L41">    long guildId = 0;</span>
+<span class="nc bnc" id="L42" title="All 2 branches missed.">    if (type.isGuild()) {</span>
+<span class="nc" id="L43">      guildId = content.getLong(&quot;guild_id&quot;);</span>
+<span class="nc bnc" id="L44" title="All 2 branches missed.">      if (api.getGuildLock().isLocked(guildId)) return guildId;</span>
     }
 
-<span class="nc" id="L49">    final long channelId = content.getLong(&quot;id&quot;);</span>
+<span class="nc" id="L47">    final long channelId = content.getLong(&quot;id&quot;);</span>
 
-<span class="nc bnc" id="L51" title="All 6 branches missed.">    switch (type) {</span>
+<span class="nc bnc" id="L49" title="All 6 branches missed.">    switch (type) {</span>
       case TEXT:
         {
-<span class="nc" id="L54">          GuildImpl guild = (GuildImpl) api.getGuildMap().get(guildId);</span>
-<span class="nc" id="L55">          TextChannel channel = api.getTextChannelMap().remove(channelId);</span>
-<span class="nc bnc" id="L56" title="All 2 branches missed.">          if (channel == null) {</span>
+<span class="nc" id="L52">          GuildImpl guild = (GuildImpl) api.getGuildMap().get(guildId);</span>
+<span class="nc" id="L53">          TextChannel channel = api.getTextChannelMap().remove(channelId);</span>
+<span class="nc bnc" id="L54" title="All 2 branches missed.">          if (channel == null) {</span>
             //                    api.getEventCache().cache(EventCache.Type.CHANNEL, channelId, ()
             // -&gt; handle(responseNumber, allContent));
-<span class="nc" id="L59">            WebSocketClient.LOG.debug(</span>
+<span class="nc" id="L57">            WebSocketClient.LOG.debug(</span>
                 &quot;CHANNEL_DELETE attempted to delete a text channel that is not yet cached. JSON: {}&quot;,
                 content);
-<span class="nc" id="L62">            return null;</span>
+<span class="nc" id="L60">            return null;</span>
           }
 
-<span class="nc" id="L65">          guild.getTextChannelsMap().remove(channel.getIdLong());</span>
-<span class="nc" id="L66">          api.getEventManager().handle(new TextChannelDeleteEvent(api, responseNumber, channel));</span>
-<span class="nc" id="L67">          break;</span>
+<span class="nc" id="L63">          guild.getTextChannelsMap().remove(channel.getIdLong());</span>
+<span class="nc" id="L64">          api.getEventManager().handle(new TextChannelDeleteEvent(api, responseNumber, channel));</span>
+<span class="nc" id="L65">          break;</span>
         }
       case VOICE:
         {
-<span class="nc" id="L71">          GuildImpl guild = (GuildImpl) api.getGuildMap().get(guildId);</span>
-<span class="nc" id="L72">          VoiceChannel channel = guild.getVoiceChannelsMap().remove(channelId);</span>
-<span class="nc bnc" id="L73" title="All 2 branches missed.">          if (channel == null) {</span>
+<span class="nc" id="L69">          GuildImpl guild = (GuildImpl) api.getGuildMap().get(guildId);</span>
+<span class="nc" id="L70">          VoiceChannel channel = guild.getVoiceChannelsMap().remove(channelId);</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">          if (channel == null) {</span>
             //                    api.getEventCache().cache(EventCache.Type.CHANNEL, channelId, ()
             // -&gt; handle(responseNumber, allContent));
-<span class="nc" id="L76">            WebSocketClient.LOG.debug(</span>
+<span class="nc" id="L74">            WebSocketClient.LOG.debug(</span>
                 &quot;CHANNEL_DELETE attempted to delete a voice channel that is not yet cached. JSON: {}&quot;,
                 content);
-<span class="nc" id="L79">            return null;</span>
+<span class="nc" id="L77">            return null;</span>
           }
 
           // We use this instead of getAudioManager(Guild) so we don't create a new instance.
           // Efficiency!
-<span class="nc" id="L84">          AudioManagerImpl manager =</span>
-<span class="nc" id="L85">              (AudioManagerImpl) api.getAudioManagerMap().get(guild.getIdLong());</span>
-<span class="nc bnc" id="L86" title="All 2 branches missed.">          if (manager != null</span>
-<span class="nc bnc" id="L87" title="All 2 branches missed.">              &amp;&amp; manager.isConnected()</span>
-<span class="nc bnc" id="L88" title="All 2 branches missed.">              &amp;&amp; manager.getConnectedChannel().getIdLong() == channel.getIdLong()) {</span>
-<span class="nc" id="L89">            manager.closeAudioConnection(ConnectionStatus.DISCONNECTED_CHANNEL_DELETED);</span>
+<span class="nc" id="L82">          AudioManagerImpl manager =</span>
+<span class="nc" id="L83">              (AudioManagerImpl) api.getAudioManagerMap().get(guild.getIdLong());</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">          if (manager != null</span>
+<span class="nc bnc" id="L85" title="All 2 branches missed.">              &amp;&amp; manager.isConnected()</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">              &amp;&amp; manager.getConnectedChannel().getIdLong() == channel.getIdLong()) {</span>
+<span class="nc" id="L87">            manager.closeAudioConnection(ConnectionStatus.DISCONNECTED_CHANNEL_DELETED);</span>
           }
-<span class="nc" id="L91">          guild.getVoiceChannelsMap().remove(channel.getIdLong());</span>
-<span class="nc" id="L92">          api.getEventManager().handle(new VoiceChannelDeleteEvent(api, responseNumber, channel));</span>
-<span class="nc" id="L93">          break;</span>
+<span class="nc" id="L89">          guild.getVoiceChannelsMap().remove(channel.getIdLong());</span>
+<span class="nc" id="L90">          api.getEventManager().handle(new VoiceChannelDeleteEvent(api, responseNumber, channel));</span>
+<span class="nc" id="L91">          break;</span>
         }
       case CATEGORY:
         {
-<span class="nc" id="L97">          GuildImpl guild = (GuildImpl) api.getGuildMap().get(guildId);</span>
-<span class="nc" id="L98">          Category category = api.getCategoryMap().remove(channelId);</span>
-<span class="nc bnc" id="L99" title="All 2 branches missed.">          if (category == null) {</span>
+<span class="nc" id="L95">          GuildImpl guild = (GuildImpl) api.getGuildMap().get(guildId);</span>
+<span class="nc" id="L96">          Category category = api.getCategoryMap().remove(channelId);</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">          if (category == null) {</span>
             //                    api.getEventCache().cache(EventCache.Type.CHANNEL, channelId, ()
             // -&gt; handle(responseNumber, allContent));
-<span class="nc" id="L102">            WebSocketClient.LOG.debug(</span>
+<span class="nc" id="L100">            WebSocketClient.LOG.debug(</span>
                 &quot;CHANNEL_DELETE attempted to delete a category channel that is not yet cached. JSON: {}&quot;,
                 content);
-<span class="nc" id="L105">            return null;</span>
+<span class="nc" id="L103">            return null;</span>
           }
 
-<span class="nc" id="L108">          guild.getCategoriesMap().remove(channelId);</span>
-<span class="nc" id="L109">          api.getEventManager().handle(new CategoryDeleteEvent(api, responseNumber, category));</span>
-<span class="nc" id="L110">          break;</span>
+<span class="nc" id="L106">          guild.getCategoriesMap().remove(channelId);</span>
+<span class="nc" id="L107">          api.getEventManager().handle(new CategoryDeleteEvent(api, responseNumber, category));</span>
+<span class="nc" id="L108">          break;</span>
         }
       case PRIVATE:
         {
-<span class="nc" id="L114">          PrivateChannel channel = api.getPrivateChannelMap().remove(channelId);</span>
+<span class="nc" id="L112">          PrivateChannel channel = api.getPrivateChannelMap().remove(channelId);</span>
 
-<span class="nc bnc" id="L116" title="All 2 branches missed.">          if (channel == null) channel = api.getFakePrivateChannelMap().remove(channelId);</span>
-<span class="nc bnc" id="L117" title="All 2 branches missed.">          if (channel == null) {</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">          if (channel == null) channel = api.getFakePrivateChannelMap().remove(channelId);</span>
+<span class="nc bnc" id="L115" title="All 2 branches missed.">          if (channel == null) {</span>
             //                    api.getEventCache().cache(EventCache.Type.CHANNEL, channelId, ()
             // -&gt; handle(responseNumber, allContent));
-<span class="nc" id="L120">            WebSocketClient.LOG.debug(</span>
+<span class="nc" id="L118">            WebSocketClient.LOG.debug(</span>
                 &quot;CHANNEL_DELETE attempted to delete a private channel that is not yet cached. JSON: {}&quot;,
                 content);
-<span class="nc" id="L123">            return null;</span>
+<span class="nc" id="L121">            return null;</span>
           }
 
-<span class="nc bnc" id="L126" title="All 2 branches missed.">          if (channel.getUser().isFake())</span>
-<span class="nc" id="L127">            api.getFakeUserMap().remove(channel.getUser().getIdLong());</span>
+<span class="nc bnc" id="L124" title="All 2 branches missed.">          if (channel.getUser().isFake())</span>
+<span class="nc" id="L125">            api.getFakeUserMap().remove(channel.getUser().getIdLong());</span>
 
-<span class="nc" id="L129">          ((UserImpl) channel.getUser()).setPrivateChannel(null);</span>
+<span class="nc" id="L127">          ((UserImpl) channel.getUser()).setPrivateChannel(null);</span>
 
-<span class="nc" id="L131">          api.getEventManager().handle(new PrivateChannelDeleteEvent(api, responseNumber, channel));</span>
-<span class="nc" id="L132">          break;</span>
+<span class="nc" id="L129">          api.getEventManager().handle(new PrivateChannelDeleteEvent(api, responseNumber, channel));</span>
+<span class="nc" id="L130">          break;</span>
         }
       case GROUP:
-        {
-          // TODO: close call on group leave (kill audio manager)
-<span class="nc" id="L137">          final long groupId = content.getLong(&quot;id&quot;);</span>
-<span class="nc" id="L138">          GroupImpl group = (GroupImpl) api.asClient().getGroupMap().remove(groupId);</span>
-<span class="nc bnc" id="L139" title="All 2 branches missed.">          if (group == null) {</span>
-            //                    api.getEventCache().cache(EventCache.Type.CHANNEL, channelId, ()
-            // -&gt; handle(responseNumber, allContent));
-<span class="nc" id="L142">            WebSocketClient.LOG.debug(</span>
-                &quot;CHANNEL_DELETE attempted to delete a group that is not yet cached. JSON: {}&quot;,
-                content);
-<span class="nc" id="L145">            return null;</span>
-          }
-
-<span class="nc" id="L148">          group</span>
-<span class="nc" id="L149">              .getUserMap()</span>
-<span class="nc" id="L150">              .forEachEntry(</span>
-                  (userId, user) -&gt; {
-                    // User is fake, has no privateChannel, is not in a relationship, and is not in
-                    // any other groups
-                    // then we remove the fake user from the fake cache as it was only in this group
-                    // Note: we getGroups() which gets all groups, however we already removed the
-                    // current group above.
-<span class="nc bnc" id="L157" title="All 2 branches missed.">                    if (user.isFake()</span>
-<span class="nc bnc" id="L158" title="All 2 branches missed.">                        &amp;&amp; !user.hasPrivateChannel()</span>
-<span class="nc bnc" id="L159" title="All 2 branches missed.">                        &amp;&amp; api.asClient().getRelationshipMap().get(userId) == null</span>
-<span class="nc" id="L160">                        &amp;&amp; api.asClient()</span>
-<span class="nc" id="L161">                            .getGroups()</span>
-<span class="nc" id="L162">                            .stream()</span>
-<span class="nc bnc" id="L163" title="All 2 branches missed.">                            .noneMatch(g -&gt; g.getUsers().contains(user))) {</span>
-<span class="nc" id="L164">                      api.getFakeUserMap().remove(userId);</span>
-                    }
-
-<span class="nc" id="L167">                    return true;</span>
-                  });
-
-<span class="nc" id="L170">          api.getEventManager().handle(new GroupLeaveEvent(api, responseNumber, group));</span>
-<span class="nc" id="L171">          break;</span>
-        }
+        // do nothing
+<span class="nc" id="L134">        break;</span>
       default:
-<span class="nc" id="L174">        throw new IllegalArgumentException(</span>
+<span class="nc" id="L136">        throw new IllegalArgumentException(</span>
             &quot;CHANNEL_DELETE provided an unknown channel type. JSON: &quot; + content);
     }
-<span class="nc" id="L177">    api.getEventCache().clear(EventCache.Type.CHANNEL, channelId);</span>
-<span class="nc" id="L178">    return null;</span>
+<span class="nc" id="L139">    api.getEventCache().clear(EventCache.Type.CHANNEL, channelId);</span>
+<span class="nc" id="L140">    return null;</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

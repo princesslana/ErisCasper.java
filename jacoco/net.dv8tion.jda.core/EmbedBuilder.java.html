@@ -199,16 +199,9 @@ public class EmbedBuilder {
    * @throws java.lang.IllegalArgumentException If provided with {@code null}
    * @return True, if the {@link #length() length} is less or equal to the specific limit
    */
-  public boolean isValidLength(AccountType type) {
-<span class="nc" id="L203">    Checks.notNull(type, &quot;AccountType&quot;);</span>
-<span class="nc" id="L204">    final int length = length();</span>
-<span class="nc bnc" id="L205" title="All 2 branches missed.">    switch (type) {</span>
-      case BOT:
-<span class="nc bnc" id="L207" title="All 2 branches missed.">        return length &lt;= MessageEmbed.EMBED_MAX_LENGTH_BOT;</span>
-      case CLIENT:
-      default:
-<span class="nc bnc" id="L210" title="All 2 branches missed.">        return length &lt;= MessageEmbed.EMBED_MAX_LENGTH_CLIENT;</span>
-    }
+  public boolean isValidLength() {
+<span class="nc" id="L203">    final int length = length();</span>
+<span class="nc bnc" id="L204" title="All 2 branches missed.">    return length &lt;= MessageEmbed.EMBED_MAX_LENGTH_BOT;</span>
   }
 
   /**
@@ -228,7 +221,7 @@ public class EmbedBuilder {
    * @return the builder after the title has been set
    */
   public EmbedBuilder setTitle(String title) {
-<span class="nc" id="L231">    return setTitle(title, null);</span>
+<span class="nc" id="L224">    return setTitle(title, null);</span>
   }
 
   /**
@@ -252,21 +245,21 @@ public class EmbedBuilder {
    * @return the builder after the title has been set
    */
   public EmbedBuilder setTitle(String title, String url) {
-<span class="nc bnc" id="L255" title="All 2 branches missed.">    if (title == null) {</span>
-<span class="nc" id="L256">      this.title = null;</span>
-<span class="nc" id="L257">      this.url = null;</span>
+<span class="nc bnc" id="L248" title="All 2 branches missed.">    if (title == null) {</span>
+<span class="nc" id="L249">      this.title = null;</span>
+<span class="nc" id="L250">      this.url = null;</span>
     } else {
-<span class="nc bnc" id="L259" title="All 2 branches missed.">      if (title.isEmpty()) throw new IllegalArgumentException(&quot;Title cannot be empty!&quot;);</span>
-<span class="nc bnc" id="L260" title="All 2 branches missed.">      if (title.length() &gt; MessageEmbed.TITLE_MAX_LENGTH)</span>
-<span class="nc" id="L261">        throw new IllegalArgumentException(</span>
+<span class="nc bnc" id="L252" title="All 2 branches missed.">      if (title.isEmpty()) throw new IllegalArgumentException(&quot;Title cannot be empty!&quot;);</span>
+<span class="nc bnc" id="L253" title="All 2 branches missed.">      if (title.length() &gt; MessageEmbed.TITLE_MAX_LENGTH)</span>
+<span class="nc" id="L254">        throw new IllegalArgumentException(</span>
             &quot;Title cannot be longer than &quot; + MessageEmbed.TITLE_MAX_LENGTH + &quot; characters.&quot;);
-<span class="nc bnc" id="L263" title="All 2 branches missed.">      if (Helpers.isBlank(url)) url = null;</span>
-<span class="nc" id="L264">      urlCheck(url);</span>
+<span class="nc bnc" id="L256" title="All 2 branches missed.">      if (Helpers.isBlank(url)) url = null;</span>
+<span class="nc" id="L257">      urlCheck(url);</span>
 
-<span class="nc" id="L266">      this.title = title;</span>
-<span class="nc" id="L267">      this.url = url;</span>
+<span class="nc" id="L259">      this.title = title;</span>
+<span class="nc" id="L260">      this.url = url;</span>
     }
-<span class="nc" id="L269">    return this;</span>
+<span class="nc" id="L262">    return this;</span>
   }
 
   /**
@@ -277,7 +270,7 @@ public class EmbedBuilder {
    * @return StringBuilder with current description context
    */
   public StringBuilder getDescriptionBuilder() {
-<span class="nc" id="L280">    return description;</span>
+<span class="nc" id="L273">    return description;</span>
   }
 
   /**
@@ -292,9 +285,9 @@ public class EmbedBuilder {
    * @return the builder after the description has been set
    */
   public final EmbedBuilder setDescription(CharSequence description) {
-<span class="nc" id="L295">    this.description.setLength(0);</span>
-<span class="nc bnc" id="L296" title="All 4 branches missed.">    if (description != null &amp;&amp; description.length() &gt;= 1) appendDescription(description);</span>
-<span class="nc" id="L297">    return this;</span>
+<span class="nc" id="L288">    this.description.setLength(0);</span>
+<span class="nc bnc" id="L289" title="All 4 branches missed.">    if (description != null &amp;&amp; description.length() &gt;= 1) appendDescription(description);</span>
+<span class="nc" id="L290">    return this;</span>
   }
 
   /**
@@ -314,13 +307,13 @@ public class EmbedBuilder {
    * @return the builder after the description has been set
    */
   public EmbedBuilder appendDescription(CharSequence description) {
-<span class="nc" id="L317">    Checks.notNull(description, &quot;description&quot;);</span>
-<span class="nc" id="L318">    Checks.check(</span>
-<span class="nc bnc" id="L319" title="All 2 branches missed.">        this.description.length() + description.length() &lt;= MessageEmbed.TEXT_MAX_LENGTH,</span>
+<span class="nc" id="L310">    Checks.notNull(description, &quot;description&quot;);</span>
+<span class="nc" id="L311">    Checks.check(</span>
+<span class="nc bnc" id="L312" title="All 2 branches missed.">        this.description.length() + description.length() &lt;= MessageEmbed.TEXT_MAX_LENGTH,</span>
         &quot;Description cannot be longer than %d characters.&quot;,
-<span class="nc" id="L321">        MessageEmbed.TEXT_MAX_LENGTH);</span>
-<span class="nc" id="L322">    this.description.append(description);</span>
-<span class="nc" id="L323">    return this;</span>
+<span class="nc" id="L314">        MessageEmbed.TEXT_MAX_LENGTH);</span>
+<span class="nc" id="L315">    this.description.append(description);</span>
+<span class="nc" id="L316">    return this;</span>
   }
 
   /**
@@ -336,35 +329,35 @@ public class EmbedBuilder {
    * @return the builder after the timestamp has been set
    */
   public EmbedBuilder setTimestamp(TemporalAccessor temporal) {
-<span class="nc bnc" id="L339" title="All 2 branches missed.">    if (temporal == null) {</span>
-<span class="nc" id="L340">      this.timestamp = null;</span>
-<span class="nc bnc" id="L341" title="All 2 branches missed.">    } else if (temporal instanceof OffsetDateTime) {</span>
-<span class="nc" id="L342">      this.timestamp = (OffsetDateTime) temporal;</span>
+<span class="nc bnc" id="L332" title="All 2 branches missed.">    if (temporal == null) {</span>
+<span class="nc" id="L333">      this.timestamp = null;</span>
+<span class="nc bnc" id="L334" title="All 2 branches missed.">    } else if (temporal instanceof OffsetDateTime) {</span>
+<span class="nc" id="L335">      this.timestamp = (OffsetDateTime) temporal;</span>
     } else {
       ZoneOffset offset;
       try {
-<span class="nc" id="L346">        offset = ZoneOffset.from(temporal);</span>
-<span class="nc" id="L347">      } catch (DateTimeException ignore) {</span>
-<span class="nc" id="L348">        offset = ZoneOffset.UTC;</span>
-<span class="nc" id="L349">      }</span>
+<span class="nc" id="L339">        offset = ZoneOffset.from(temporal);</span>
+<span class="nc" id="L340">      } catch (DateTimeException ignore) {</span>
+<span class="nc" id="L341">        offset = ZoneOffset.UTC;</span>
+<span class="nc" id="L342">      }</span>
       try {
-<span class="nc" id="L351">        LocalDateTime ldt = LocalDateTime.from(temporal);</span>
-<span class="nc" id="L352">        this.timestamp = OffsetDateTime.of(ldt, offset);</span>
-<span class="nc" id="L353">      } catch (DateTimeException ignore) {</span>
+<span class="nc" id="L344">        LocalDateTime ldt = LocalDateTime.from(temporal);</span>
+<span class="nc" id="L345">        this.timestamp = OffsetDateTime.of(ldt, offset);</span>
+<span class="nc" id="L346">      } catch (DateTimeException ignore) {</span>
         try {
-<span class="nc" id="L355">          Instant instant = Instant.from(temporal);</span>
-<span class="nc" id="L356">          this.timestamp = OffsetDateTime.ofInstant(instant, offset);</span>
-<span class="nc" id="L357">        } catch (DateTimeException ex) {</span>
-<span class="nc" id="L358">          throw new DateTimeException(</span>
+<span class="nc" id="L348">          Instant instant = Instant.from(temporal);</span>
+<span class="nc" id="L349">          this.timestamp = OffsetDateTime.ofInstant(instant, offset);</span>
+<span class="nc" id="L350">        } catch (DateTimeException ex) {</span>
+<span class="nc" id="L351">          throw new DateTimeException(</span>
               &quot;Unable to obtain OffsetDateTime from TemporalAccessor: &quot;
                   + temporal
                   + &quot; of type &quot;
-<span class="nc" id="L362">                  + temporal.getClass().getName(),</span>
+<span class="nc" id="L355">                  + temporal.getClass().getName(),</span>
               ex);
-<span class="nc" id="L364">        }</span>
-<span class="nc" id="L365">      }</span>
+<span class="nc" id="L357">        }</span>
+<span class="nc" id="L358">      }</span>
     }
-<span class="nc" id="L367">    return this;</span>
+<span class="nc" id="L360">    return this;</span>
   }
 
   /**
@@ -376,8 +369,8 @@ public class EmbedBuilder {
    * @return the builder after the color has been set
    */
   public EmbedBuilder setColor(Color color) {
-<span class="nc" id="L379">    this.color = color;</span>
-<span class="nc" id="L380">    return this;</span>
+<span class="nc" id="L372">    this.color = color;</span>
+<span class="nc" id="L373">    return this;</span>
   }
 
   /**
@@ -415,13 +408,13 @@ public class EmbedBuilder {
    * @return the builder after the thumbnail has been set
    */
   public EmbedBuilder setThumbnail(String url) {
-<span class="nc bnc" id="L418" title="All 2 branches missed.">    if (url == null) {</span>
-<span class="nc" id="L419">      this.thumbnail = null;</span>
+<span class="nc bnc" id="L411" title="All 2 branches missed.">    if (url == null) {</span>
+<span class="nc" id="L412">      this.thumbnail = null;</span>
     } else {
-<span class="nc" id="L421">      urlCheck(url);</span>
-<span class="nc" id="L422">      this.thumbnail = new MessageEmbed.Thumbnail(url, null, 0, 0);</span>
+<span class="nc" id="L414">      urlCheck(url);</span>
+<span class="nc" id="L415">      this.thumbnail = new MessageEmbed.Thumbnail(url, null, 0, 0);</span>
     }
-<span class="nc" id="L424">    return this;</span>
+<span class="nc" id="L417">    return this;</span>
   }
 
   /**
@@ -461,13 +454,13 @@ public class EmbedBuilder {
    *     net.dv8tion.jda.core.entities.Message) MessageChannel.sendFile(...)
    */
   public EmbedBuilder setImage(String url) {
-<span class="nc bnc" id="L464" title="All 2 branches missed.">    if (url == null) {</span>
-<span class="nc" id="L465">      this.image = null;</span>
+<span class="nc bnc" id="L457" title="All 2 branches missed.">    if (url == null) {</span>
+<span class="nc" id="L458">      this.image = null;</span>
     } else {
-<span class="nc" id="L467">      urlCheck(url);</span>
-<span class="nc" id="L468">      this.image = new MessageEmbed.ImageInfo(url, null, 0, 0);</span>
+<span class="nc" id="L460">      urlCheck(url);</span>
+<span class="nc" id="L461">      this.image = new MessageEmbed.ImageInfo(url, null, 0, 0);</span>
     }
-<span class="nc" id="L470">    return this;</span>
+<span class="nc" id="L463">    return this;</span>
   }
 
   /**
@@ -482,7 +475,7 @@ public class EmbedBuilder {
    * @return the builder after the author has been set
    */
   public EmbedBuilder setAuthor(String name) {
-<span class="nc" id="L485">    return setAuthor(name, null, null);</span>
+<span class="nc" id="L478">    return setAuthor(name, null, null);</span>
   }
 
   /**
@@ -505,7 +498,7 @@ public class EmbedBuilder {
    * @return the builder after the author has been set
    */
   public EmbedBuilder setAuthor(String name, String url) {
-<span class="nc" id="L508">    return setAuthor(name, url, null);</span>
+<span class="nc" id="L501">    return setAuthor(name, url, null);</span>
   }
 
   /**
@@ -553,14 +546,14 @@ public class EmbedBuilder {
   public EmbedBuilder setAuthor(String name, String url, String iconUrl) {
     // We only check if the name is null because its presence is what determines if the
     // the author will appear in the embed.
-<span class="nc bnc" id="L556" title="All 2 branches missed.">    if (name == null) {</span>
-<span class="nc" id="L557">      this.author = null;</span>
+<span class="nc bnc" id="L549" title="All 2 branches missed.">    if (name == null) {</span>
+<span class="nc" id="L550">      this.author = null;</span>
     } else {
-<span class="nc" id="L559">      urlCheck(url);</span>
-<span class="nc" id="L560">      urlCheck(iconUrl);</span>
-<span class="nc" id="L561">      this.author = new MessageEmbed.AuthorInfo(name, url, iconUrl, null);</span>
+<span class="nc" id="L552">      urlCheck(url);</span>
+<span class="nc" id="L553">      urlCheck(iconUrl);</span>
+<span class="nc" id="L554">      this.author = new MessageEmbed.AuthorInfo(name, url, iconUrl, null);</span>
     }
-<span class="nc" id="L563">    return this;</span>
+<span class="nc" id="L556">    return this;</span>
   }
 
   /**
@@ -604,16 +597,16 @@ public class EmbedBuilder {
   public EmbedBuilder setFooter(String text, String iconUrl) {
     // We only check if the text is null because its presence is what determines if the
     // footer will appear in the embed.
-<span class="nc bnc" id="L607" title="All 2 branches missed.">    if (text == null) {</span>
-<span class="nc" id="L608">      this.footer = null;</span>
+<span class="nc bnc" id="L600" title="All 2 branches missed.">    if (text == null) {</span>
+<span class="nc" id="L601">      this.footer = null;</span>
     } else {
-<span class="nc bnc" id="L610" title="All 2 branches missed.">      if (text.length() &gt; MessageEmbed.TEXT_MAX_LENGTH)</span>
-<span class="nc" id="L611">        throw new IllegalArgumentException(</span>
+<span class="nc bnc" id="L603" title="All 2 branches missed.">      if (text.length() &gt; MessageEmbed.TEXT_MAX_LENGTH)</span>
+<span class="nc" id="L604">        throw new IllegalArgumentException(</span>
             &quot;Text cannot be longer than &quot; + MessageEmbed.TEXT_MAX_LENGTH + &quot; characters.&quot;);
-<span class="nc" id="L613">      urlCheck(iconUrl);</span>
-<span class="nc" id="L614">      this.footer = new MessageEmbed.Footer(text, iconUrl, null);</span>
+<span class="nc" id="L606">      urlCheck(iconUrl);</span>
+<span class="nc" id="L607">      this.footer = new MessageEmbed.Footer(text, iconUrl, null);</span>
     }
-<span class="nc" id="L616">    return this;</span>
+<span class="nc" id="L609">    return this;</span>
   }
 
   /**
@@ -624,7 +617,7 @@ public class EmbedBuilder {
    * @return the builder after the field has been added
    */
   public EmbedBuilder addField(MessageEmbed.Field field) {
-<span class="nc bnc" id="L627" title="All 2 branches missed.">    return field == null ? this : addField(field.getName(), field.getValue(), field.isInline());</span>
+<span class="nc bnc" id="L620" title="All 2 branches missed.">    return field == null ? this : addField(field.getName(), field.getValue(), field.isInline());</span>
   }
 
   /**
@@ -652,9 +645,9 @@ public class EmbedBuilder {
    * @return the builder after the field has been added
    */
   public EmbedBuilder addField(String name, String value, boolean inline) {
-<span class="nc bnc" id="L655" title="All 4 branches missed.">    if (name == null &amp;&amp; value == null) return this;</span>
-<span class="nc" id="L656">    this.fields.add(new MessageEmbed.Field(name, value, inline));</span>
-<span class="nc" id="L657">    return this;</span>
+<span class="nc bnc" id="L648" title="All 4 branches missed.">    if (name == null &amp;&amp; value == null) return this;</span>
+<span class="nc" id="L649">    this.fields.add(new MessageEmbed.Field(name, value, inline));</span>
+<span class="nc" id="L650">    return this;</span>
   }
 
   /**
@@ -668,8 +661,8 @@ public class EmbedBuilder {
    * @return the builder after the field has been added
    */
   public EmbedBuilder addBlankField(boolean inline) {
-<span class="nc" id="L671">    this.fields.add(new MessageEmbed.Field(ZERO_WIDTH_SPACE, ZERO_WIDTH_SPACE, inline));</span>
-<span class="nc" id="L672">    return this;</span>
+<span class="nc" id="L664">    this.fields.add(new MessageEmbed.Field(ZERO_WIDTH_SPACE, ZERO_WIDTH_SPACE, inline));</span>
+<span class="nc" id="L665">    return this;</span>
   }
 
   /**
@@ -682,8 +675,8 @@ public class EmbedBuilder {
    * @return the builder after the field has been added
    */
   public EmbedBuilder clearFields() {
-<span class="nc" id="L685">    this.fields.clear();</span>
-<span class="nc" id="L686">    return this;</span>
+<span class="nc" id="L678">    this.fields.clear();</span>
+<span class="nc" id="L679">    return this;</span>
   }
 
   /**
@@ -696,16 +689,16 @@ public class EmbedBuilder {
    * @return Mutable List of {@link net.dv8tion.jda.core.entities.MessageEmbed.Field Fields}
    */
   public List&lt;MessageEmbed.Field&gt; getFields() {
-<span class="nc" id="L699">    return fields;</span>
+<span class="nc" id="L692">    return fields;</span>
   }
 
   private void urlCheck(String url) {
-<span class="nc bnc" id="L703" title="All 2 branches missed.">    if (url == null) return;</span>
-<span class="nc bnc" id="L704" title="All 2 branches missed.">    else if (url.length() &gt; MessageEmbed.URL_MAX_LENGTH)</span>
-<span class="nc" id="L705">      throw new IllegalArgumentException(</span>
+<span class="nc bnc" id="L696" title="All 2 branches missed.">    if (url == null) return;</span>
+<span class="nc bnc" id="L697" title="All 2 branches missed.">    else if (url.length() &gt; MessageEmbed.URL_MAX_LENGTH)</span>
+<span class="nc" id="L698">      throw new IllegalArgumentException(</span>
           &quot;URL cannot be longer than &quot; + MessageEmbed.URL_MAX_LENGTH + &quot; characters.&quot;);
-<span class="nc bnc" id="L707" title="All 2 branches missed.">    else if (!URL_PATTERN.matcher(url).matches())</span>
-<span class="nc" id="L708">      throw new IllegalArgumentException(&quot;URL must be a valid http or https url.&quot;);</span>
-<span class="nc" id="L709">  }</span>
+<span class="nc bnc" id="L700" title="All 2 branches missed.">    else if (!URL_PATTERN.matcher(url).matches())</span>
+<span class="nc" id="L701">      throw new IllegalArgumentException(&quot;URL must be a valid http or https url.&quot;);</span>
+<span class="nc" id="L702">  }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

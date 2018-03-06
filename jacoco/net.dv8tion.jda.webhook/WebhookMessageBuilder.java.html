@@ -20,7 +20,6 @@ import java.io.*;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.utils.Checks;
@@ -28,8 +27,8 @@ import net.dv8tion.jda.core.utils.Helpers;
 
 /** Builder for a {@link net.dv8tion.jda.webhook.WebhookMessage WebhookMessage} */
 public class WebhookMessageBuilder {
-<span class="nc" id="L31">  protected final StringBuilder content = new StringBuilder();</span>
-<span class="nc" id="L32">  protected final List&lt;MessageEmbed&gt; embeds = new LinkedList&lt;&gt;();</span>
+<span class="nc" id="L30">  protected final StringBuilder content = new StringBuilder();</span>
+<span class="nc" id="L31">  protected final List&lt;MessageEmbed&gt; embeds = new LinkedList&lt;&gt;();</span>
   protected String username, avatarUrl, fileName;
   protected InputStream file;
   protected boolean isTTS;
@@ -42,16 +41,16 @@ public class WebhookMessageBuilder {
    * @param message The {@link net.dv8tion.jda.core.entities.Message Message} used to set initial
    *     values of the builder
    */
-<span class="nc" id="L45">  public WebhookMessageBuilder(Message message) {</span>
-<span class="nc bnc" id="L46" title="All 2 branches missed.">    if (message != null) {</span>
-<span class="nc" id="L47">      embeds.addAll(message.getEmbeds());</span>
-<span class="nc" id="L48">      setContent(message.getContentRaw());</span>
-<span class="nc" id="L49">      isTTS = message.isTTS();</span>
+<span class="nc" id="L44">  public WebhookMessageBuilder(Message message) {</span>
+<span class="nc bnc" id="L45" title="All 2 branches missed.">    if (message != null) {</span>
+<span class="nc" id="L46">      embeds.addAll(message.getEmbeds());</span>
+<span class="nc" id="L47">      setContent(message.getContentRaw());</span>
+<span class="nc" id="L48">      isTTS = message.isTTS();</span>
     }
-<span class="nc" id="L51">  }</span>
+<span class="nc" id="L50">  }</span>
 
   /** Creates a new empty WebhookMessageBuilder */
-<span class="nc" id="L54">  public WebhookMessageBuilder() {}</span>
+<span class="nc" id="L53">  public WebhookMessageBuilder() {}</span>
 
   /**
    * Whether this WebhookMessageBuilder contains any readable content. &lt;br&gt;
@@ -61,7 +60,7 @@ public class WebhookMessageBuilder {
    * @return True, if this builder has no readable content
    */
   public boolean isEmpty() {
-<span class="nc bnc" id="L64" title="All 6 branches missed.">    return content.length() == 0 &amp;&amp; embeds.isEmpty() &amp;&amp; file == null;</span>
+<span class="nc bnc" id="L63" title="All 6 branches missed.">    return content.length() == 0 &amp;&amp; embeds.isEmpty() &amp;&amp; file == null;</span>
   }
 
   /**
@@ -70,14 +69,14 @@ public class WebhookMessageBuilder {
    * @return The current WebhookMessageBuilder for chaining convenience
    */
   public WebhookMessageBuilder reset() {
-<span class="nc" id="L73">    content.setLength(0);</span>
-<span class="nc" id="L74">    embeds.clear();</span>
-<span class="nc" id="L75">    username = null;</span>
-<span class="nc" id="L76">    avatarUrl = null;</span>
-<span class="nc" id="L77">    fileName = null;</span>
-<span class="nc" id="L78">    file = null;</span>
-<span class="nc" id="L79">    isTTS = false;</span>
-<span class="nc" id="L80">    return this;</span>
+<span class="nc" id="L72">    content.setLength(0);</span>
+<span class="nc" id="L73">    embeds.clear();</span>
+<span class="nc" id="L74">    username = null;</span>
+<span class="nc" id="L75">    avatarUrl = null;</span>
+<span class="nc" id="L76">    fileName = null;</span>
+<span class="nc" id="L77">    file = null;</span>
+<span class="nc" id="L78">    isTTS = false;</span>
+<span class="nc" id="L79">    return this;</span>
   }
 
   /**
@@ -86,8 +85,8 @@ public class WebhookMessageBuilder {
    * @return The current WebhookMessageBuilder for chaining convenience
    */
   public WebhookMessageBuilder resetEmbeds() {
-<span class="nc" id="L89">    this.embeds.clear();</span>
-<span class="nc" id="L90">    return this;</span>
+<span class="nc" id="L88">    this.embeds.clear();</span>
+<span class="nc" id="L89">    return this;</span>
   }
 
   /**
@@ -103,16 +102,16 @@ public class WebhookMessageBuilder {
    * @return The current WebhookMessageBuilder for chaining convenience
    */
   public WebhookMessageBuilder addEmbeds(MessageEmbed... embeds) {
-<span class="nc" id="L106">    Checks.notNull(embeds, &quot;Embeds&quot;);</span>
-<span class="nc bnc" id="L107" title="All 2 branches missed.">    for (MessageEmbed embed : embeds) {</span>
-<span class="nc" id="L108">      Checks.notNull(embed, &quot;Embed&quot;);</span>
-<span class="nc" id="L109">      Checks.check(</span>
-<span class="nc" id="L110">          embed.isSendable(AccountType.BOT),</span>
+<span class="nc" id="L105">    Checks.notNull(embeds, &quot;Embeds&quot;);</span>
+<span class="nc bnc" id="L106" title="All 2 branches missed.">    for (MessageEmbed embed : embeds) {</span>
+<span class="nc" id="L107">      Checks.notNull(embed, &quot;Embed&quot;);</span>
+<span class="nc" id="L108">      Checks.check(</span>
+<span class="nc" id="L109">          embed.isSendable(),</span>
           &quot;One of the provided embeds is empty or exceeds the maximum character count of %d!&quot;,
-<span class="nc" id="L112">          MessageEmbed.EMBED_MAX_LENGTH_BOT);</span>
-<span class="nc" id="L113">      this.embeds.add(embed);</span>
+<span class="nc" id="L111">          MessageEmbed.EMBED_MAX_LENGTH_BOT);</span>
+<span class="nc" id="L112">      this.embeds.add(embed);</span>
     }
-<span class="nc" id="L115">    return this;</span>
+<span class="nc" id="L114">    return this;</span>
   }
 
   /**
@@ -128,16 +127,16 @@ public class WebhookMessageBuilder {
    * @return The current WebhookMessageBuilder for chaining convenience
    */
   public WebhookMessageBuilder addEmbeds(Collection&lt;MessageEmbed&gt; embeds) {
-<span class="nc" id="L131">    Checks.notNull(embeds, &quot;Embeds&quot;);</span>
-<span class="nc bnc" id="L132" title="All 2 branches missed.">    for (MessageEmbed embed : embeds) {</span>
-<span class="nc" id="L133">      Checks.notNull(embed, &quot;Embed&quot;);</span>
-<span class="nc" id="L134">      Checks.check(</span>
-<span class="nc" id="L135">          embed.isSendable(AccountType.BOT),</span>
+<span class="nc" id="L130">    Checks.notNull(embeds, &quot;Embeds&quot;);</span>
+<span class="nc bnc" id="L131" title="All 2 branches missed.">    for (MessageEmbed embed : embeds) {</span>
+<span class="nc" id="L132">      Checks.notNull(embed, &quot;Embed&quot;);</span>
+<span class="nc" id="L133">      Checks.check(</span>
+<span class="nc" id="L134">          embed.isSendable(),</span>
           &quot;One of the provided embeds is empty or exceeds the maximum character count of %d!&quot;,
-<span class="nc" id="L137">          MessageEmbed.EMBED_MAX_LENGTH_BOT);</span>
-<span class="nc" id="L138">      this.embeds.add(embed);</span>
-<span class="nc" id="L139">    }</span>
-<span class="nc" id="L140">    return this;</span>
+<span class="nc" id="L136">          MessageEmbed.EMBED_MAX_LENGTH_BOT);</span>
+<span class="nc" id="L137">      this.embeds.add(embed);</span>
+<span class="nc" id="L138">    }</span>
+<span class="nc" id="L139">    return this;</span>
   }
 
   /**
@@ -150,11 +149,11 @@ public class WebhookMessageBuilder {
    * @return The current WebhookMessageBuilder for chaining convenience
    */
   public WebhookMessageBuilder setContent(String content) {
-<span class="nc bnc" id="L153" title="All 2 branches missed.">    Checks.check(</span>
-<span class="nc bnc" id="L154" title="All 2 branches missed.">        content == null || content.length() &lt;= 2000, &quot;Content may not exceed 2000 characters!&quot;);</span>
-<span class="nc bnc" id="L155" title="All 2 branches missed.">    if (content != null) this.content.replace(0, content.length(), content);</span>
-<span class="nc" id="L156">    else this.content.setLength(0);</span>
-<span class="nc" id="L157">    return this;</span>
+<span class="nc bnc" id="L152" title="All 2 branches missed.">    Checks.check(</span>
+<span class="nc bnc" id="L153" title="All 2 branches missed.">        content == null || content.length() &lt;= 2000, &quot;Content may not exceed 2000 characters!&quot;);</span>
+<span class="nc bnc" id="L154" title="All 2 branches missed.">    if (content != null) this.content.replace(0, content.length(), content);</span>
+<span class="nc" id="L155">    else this.content.setLength(0);</span>
+<span class="nc" id="L156">    return this;</span>
   }
 
   /**
@@ -166,12 +165,12 @@ public class WebhookMessageBuilder {
    * @return The current WebhookMessageBuilder for chaining convenience
    */
   public WebhookMessageBuilder append(String content) {
-<span class="nc" id="L169">    Checks.notNull(content, &quot;Content&quot;);</span>
-<span class="nc" id="L170">    Checks.check(</span>
-<span class="nc bnc" id="L171" title="All 2 branches missed.">        this.content.length() + content.length() &lt;= 2000,</span>
+<span class="nc" id="L168">    Checks.notNull(content, &quot;Content&quot;);</span>
+<span class="nc" id="L169">    Checks.check(</span>
+<span class="nc bnc" id="L170" title="All 2 branches missed.">        this.content.length() + content.length() &lt;= 2000,</span>
         &quot;Content may not exceed 2000 characters!&quot;);
-<span class="nc" id="L173">    this.content.append(content);</span>
-<span class="nc" id="L174">    return this;</span>
+<span class="nc" id="L172">    this.content.append(content);</span>
+<span class="nc" id="L173">    return this;</span>
   }
 
   /**
@@ -182,8 +181,8 @@ public class WebhookMessageBuilder {
    * @return The current WebhookMessageBuilder for chaining convenience
    */
   public WebhookMessageBuilder setUsername(String username) {
-<span class="nc bnc" id="L185" title="All 2 branches missed.">    this.username = Helpers.isBlank(username) ? null : username;</span>
-<span class="nc" id="L186">    return this;</span>
+<span class="nc bnc" id="L184" title="All 2 branches missed.">    this.username = Helpers.isBlank(username) ? null : username;</span>
+<span class="nc" id="L185">    return this;</span>
   }
 
   /**
@@ -194,8 +193,8 @@ public class WebhookMessageBuilder {
    * @return The current WebhookMessageBuilder for chaining convenience
    */
   public WebhookMessageBuilder setAvatarUrl(String avatarUrl) {
-<span class="nc bnc" id="L197" title="All 2 branches missed.">    this.avatarUrl = Helpers.isBlank(avatarUrl) ? null : avatarUrl;</span>
-<span class="nc" id="L198">    return this;</span>
+<span class="nc bnc" id="L196" title="All 2 branches missed.">    this.avatarUrl = Helpers.isBlank(avatarUrl) ? null : avatarUrl;</span>
+<span class="nc" id="L197">    return this;</span>
   }
 
   /**
@@ -207,7 +206,7 @@ public class WebhookMessageBuilder {
    * @return The current WebhookMessageBuilder for chaining convenience
    */
   public WebhookMessageBuilder setFile(File file) {
-<span class="nc bnc" id="L210" title="All 2 branches missed.">    return setFile(file, file == null ? null : file.getName());</span>
+<span class="nc bnc" id="L209" title="All 2 branches missed.">    return setFile(file, file == null ? null : file.getName());</span>
   }
 
   /**
@@ -220,22 +219,22 @@ public class WebhookMessageBuilder {
    * @return The current WebhookMessageBuilder for chaining convenience
    */
   public WebhookMessageBuilder setFile(File file, String fileName) {
-<span class="nc bnc" id="L223" title="All 2 branches missed.">    if (file == null) {</span>
-<span class="nc" id="L224">      this.file = null;</span>
-<span class="nc" id="L225">      this.fileName = null;</span>
-<span class="nc" id="L226">      return this;</span>
+<span class="nc bnc" id="L222" title="All 2 branches missed.">    if (file == null) {</span>
+<span class="nc" id="L223">      this.file = null;</span>
+<span class="nc" id="L224">      this.fileName = null;</span>
+<span class="nc" id="L225">      return this;</span>
     }
-<span class="nc bnc" id="L228" title="All 4 branches missed.">    Checks.check(file.canRead() &amp;&amp; file.exists(), &quot;File must exist and be readable!&quot;);</span>
-<span class="nc" id="L229">    Checks.notBlank(fileName, &quot;File name&quot;);</span>
-<span class="nc" id="L230">    Checks.check(</span>
-<span class="nc bnc" id="L231" title="All 2 branches missed.">        file.length() &lt;= Message.MAX_FILE_SIZE, &quot;Provided data exceeds the maximum size of 8MB!&quot;);</span>
+<span class="nc bnc" id="L227" title="All 4 branches missed.">    Checks.check(file.canRead() &amp;&amp; file.exists(), &quot;File must exist and be readable!&quot;);</span>
+<span class="nc" id="L228">    Checks.notBlank(fileName, &quot;File name&quot;);</span>
+<span class="nc" id="L229">    Checks.check(</span>
+<span class="nc bnc" id="L230" title="All 2 branches missed.">        file.length() &lt;= Message.MAX_FILE_SIZE, &quot;Provided data exceeds the maximum size of 8MB!&quot;);</span>
     try {
-<span class="nc" id="L233">      this.file = new FileInputStream(file);</span>
-<span class="nc" id="L234">      this.fileName = fileName;</span>
-<span class="nc" id="L235">    } catch (FileNotFoundException ex) {</span>
-<span class="nc" id="L236">      throw new IllegalArgumentException(ex);</span>
-<span class="nc" id="L237">    }</span>
-<span class="nc" id="L238">    return this;</span>
+<span class="nc" id="L232">      this.file = new FileInputStream(file);</span>
+<span class="nc" id="L233">      this.fileName = fileName;</span>
+<span class="nc" id="L234">    } catch (FileNotFoundException ex) {</span>
+<span class="nc" id="L235">      throw new IllegalArgumentException(ex);</span>
+<span class="nc" id="L236">    }</span>
+<span class="nc" id="L237">    return this;</span>
   }
 
   /**
@@ -247,17 +246,17 @@ public class WebhookMessageBuilder {
    * @return The current WebhookMessageBuilder for chaining convenience
    */
   public WebhookMessageBuilder setFile(byte[] data, String fileName) {
-<span class="nc bnc" id="L250" title="All 2 branches missed.">    if (data == null) {</span>
-<span class="nc" id="L251">      this.fileName = null;</span>
-<span class="nc" id="L252">      this.file = null;</span>
-<span class="nc" id="L253">      return this;</span>
+<span class="nc bnc" id="L249" title="All 2 branches missed.">    if (data == null) {</span>
+<span class="nc" id="L250">      this.fileName = null;</span>
+<span class="nc" id="L251">      this.file = null;</span>
+<span class="nc" id="L252">      return this;</span>
     }
-<span class="nc" id="L255">    Checks.notBlank(fileName, &quot;File name&quot;);</span>
-<span class="nc bnc" id="L256" title="All 2 branches missed.">    Checks.check(</span>
+<span class="nc" id="L254">    Checks.notBlank(fileName, &quot;File name&quot;);</span>
+<span class="nc bnc" id="L255" title="All 2 branches missed.">    Checks.check(</span>
         data.length &lt;= Message.MAX_FILE_SIZE, &quot;Provided data exceeds the maximum size of 8MB!&quot;);
-<span class="nc" id="L258">    this.file = new ByteArrayInputStream(data);</span>
-<span class="nc" id="L259">    this.fileName = fileName;</span>
-<span class="nc" id="L260">    return this;</span>
+<span class="nc" id="L257">    this.file = new ByteArrayInputStream(data);</span>
+<span class="nc" id="L258">    this.fileName = fileName;</span>
+<span class="nc" id="L259">    return this;</span>
   }
 
   /**
@@ -269,12 +268,12 @@ public class WebhookMessageBuilder {
    * @return The current WebhookMessageBuilder for chaining convenience
    */
   public WebhookMessageBuilder setFile(InputStream data, String fileName) {
-<span class="nc bnc" id="L272" title="All 2 branches missed.">    Checks.check(</span>
-<span class="nc bnc" id="L273" title="All 2 branches missed.">        data == null || !Helpers.isBlank(fileName),</span>
+<span class="nc bnc" id="L271" title="All 2 branches missed.">    Checks.check(</span>
+<span class="nc bnc" id="L272" title="All 2 branches missed.">        data == null || !Helpers.isBlank(fileName),</span>
         &quot;The provided file name must not be null, empty or blank!&quot;);
-<span class="nc" id="L275">    this.file = data;</span>
-<span class="nc" id="L276">    this.fileName = fileName;</span>
-<span class="nc" id="L277">    return this;</span>
+<span class="nc" id="L274">    this.file = data;</span>
+<span class="nc" id="L275">    this.fileName = fileName;</span>
+<span class="nc" id="L276">    return this;</span>
   }
 
   /**
@@ -284,8 +283,8 @@ public class WebhookMessageBuilder {
    * @return The current WebhookMessageBuilder for chaining convenience
    */
   public WebhookMessageBuilder setTTS(boolean tts) {
-<span class="nc" id="L287">    isTTS = tts;</span>
-<span class="nc" id="L288">    return this;</span>
+<span class="nc" id="L286">    isTTS = tts;</span>
+<span class="nc" id="L287">    return this;</span>
   }
 
   /**
@@ -296,9 +295,9 @@ public class WebhookMessageBuilder {
    * @return The resulting {@link net.dv8tion.jda.webhook.WebhookMessage WebhookMessage}
    */
   public WebhookMessage build() {
-<span class="nc bnc" id="L299" title="All 2 branches missed.">    if (isEmpty()) throw new IllegalStateException(&quot;Cannot build an empty message!&quot;);</span>
-<span class="nc" id="L300">    return new WebhookMessage(</span>
-<span class="nc" id="L301">        username, avatarUrl, content.toString(), embeds, isTTS, file, fileName);</span>
+<span class="nc bnc" id="L298" title="All 2 branches missed.">    if (isEmpty()) throw new IllegalStateException(&quot;Cannot build an empty message!&quot;);</span>
+<span class="nc" id="L299">    return new WebhookMessage(</span>
+<span class="nc" id="L300">        username, avatarUrl, content.toString(), embeds, isTTS, file, fileName);</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

@@ -16,98 +16,19 @@
  */
 package net.dv8tion.jda.client.handle;
 
-import gnu.trove.map.TLongObjectMap;
-import net.dv8tion.jda.client.entities.CallUser;
-import net.dv8tion.jda.client.entities.CallableChannel;
-import net.dv8tion.jda.client.entities.Group;
-import net.dv8tion.jda.client.entities.impl.*;
-import net.dv8tion.jda.core.Region;
 import net.dv8tion.jda.core.entities.impl.JDAImpl;
-import net.dv8tion.jda.core.entities.impl.PrivateChannelImpl;
-import net.dv8tion.jda.core.handle.EventCache;
+import net.dv8tion.jda.core.exceptions.AccountTypeException;
 import net.dv8tion.jda.core.handle.SocketHandler;
-import net.dv8tion.jda.core.requests.WebSocketClient;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class CallCreateHandler extends SocketHandler {
   public CallCreateHandler(JDAImpl api) {
-<span class="nc" id="L35">    super(api);</span>
-<span class="nc" id="L36">  }</span>
+<span class="nc" id="L26">    super(api);</span>
+<span class="nc" id="L27">  }</span>
 
   @Override
   protected Long handleInternally(JSONObject content) {
-<span class="nc" id="L40">    final long channelId = content.getLong(&quot;channel_id&quot;);</span>
-<span class="nc" id="L41">    final long messageId = content.getLong(&quot;message_id&quot;);</span>
-<span class="nc" id="L42">    Region region = Region.fromKey(content.getString(&quot;region&quot;));</span>
-<span class="nc" id="L43">    JSONArray voiceStates = content.getJSONArray(&quot;voice_states&quot;);</span>
-<span class="nc" id="L44">    JSONArray ringing = content.getJSONArray(&quot;ringing&quot;);</span>
-
-<span class="nc" id="L46">    CallableChannel channel = api.asClient().getGroupById(channelId);</span>
-<span class="nc bnc" id="L47" title="All 2 branches missed.">    if (channel == null) channel = api.getPrivateChannelMap().get(channelId);</span>
-<span class="nc bnc" id="L48" title="All 2 branches missed.">    if (channel == null) {</span>
-<span class="nc" id="L49">      api.getEventCache()</span>
-<span class="nc" id="L50">          .cache(EventCache.Type.CHANNEL, channelId, () -&gt; handle(responseNumber, allContent));</span>
-<span class="nc" id="L51">      EventCache.LOG.debug(</span>
-          &quot;Received a CALL_CREATE for a Group/PrivateChannel that is not yet cached. JSON: {}&quot;,
-          content);
-<span class="nc" id="L54">      return null;</span>
-    }
-
-<span class="nc" id="L57">    CallImpl call = new CallImpl(channel, messageId);</span>
-<span class="nc" id="L58">    call.setRegion(region);</span>
-<span class="nc" id="L59">    TLongObjectMap&lt;CallUser&gt; callUsers = call.getCallUserMap();</span>
-
-<span class="nc bnc" id="L61" title="All 2 branches missed.">    if (channel instanceof Group) {</span>
-<span class="nc" id="L62">      GroupImpl group = (GroupImpl) channel;</span>
-<span class="nc bnc" id="L63" title="All 2 branches missed.">      if (group.getCurrentCall() != null)</span>
-<span class="nc" id="L64">        WebSocketClient.LOG.error(</span>
-            &quot;Received a CALL_CREATE for a Group that already has an active call cached! JSON: {}&quot;,
-            content);
-<span class="nc" id="L67">      group.setCurrentCall(call);</span>
-<span class="nc" id="L68">      group</span>
-<span class="nc" id="L69">          .getUserMap()</span>
-<span class="nc" id="L70">          .forEachEntry(</span>
-              (userId, user) -&gt; {
-<span class="nc" id="L72">                CallUserImpl callUser = new CallUserImpl(call, user);</span>
-<span class="nc" id="L73">                callUsers.put(userId, callUser);</span>
-
-<span class="nc bnc" id="L75" title="All 2 branches missed.">                for (int i = 0; i &lt; ringing.length(); i++) {</span>
-<span class="nc" id="L76">                  final long current = ringing.getLong(i);</span>
-<span class="nc bnc" id="L77" title="All 2 branches missed.">                  if (current == userId) {</span>
-<span class="nc" id="L78">                    callUser.setRinging(true);</span>
-<span class="nc" id="L79">                    break;</span>
-                  }
-                }
-
-<span class="nc" id="L83">                return true;</span>
-              });
-<span class="nc" id="L85">    } else {</span>
-<span class="nc" id="L86">      PrivateChannelImpl priv = (PrivateChannelImpl) channel;</span>
-<span class="nc bnc" id="L87" title="All 2 branches missed.">      if (priv.getCurrentCall() != null)</span>
-<span class="nc" id="L88">        WebSocketClient.LOG.error(</span>
-            &quot;Received a CALL_CREATE for a PrivateChannel that already has an active call cached! JSON: {}&quot;,
-            content);
-<span class="nc" id="L91">      priv.setCurrentCall(call);</span>
-<span class="nc" id="L92">      callUsers.put(priv.getUser().getIdLong(), new CallUserImpl(call, priv.getUser()));</span>
-<span class="nc" id="L93">      callUsers.put(api.getSelfUser().getIdLong(), new CallUserImpl(call, api.getSelfUser()));</span>
-    }
-
-<span class="nc bnc" id="L96" title="All 2 branches missed.">    for (int i = 0; i &lt; voiceStates.length(); i++) {</span>
-<span class="nc" id="L97">      JSONObject voiceState = voiceStates.getJSONObject(i);</span>
-<span class="nc" id="L98">      final long userId = voiceState.getLong(&quot;user_id&quot;);</span>
-<span class="nc" id="L99">      CallUser cUser = callUsers.get(userId);</span>
-<span class="nc" id="L100">      CallVoiceStateImpl vState = (CallVoiceStateImpl) cUser.getVoiceState();</span>
-
-<span class="nc" id="L102">      vState.setInCall(true);</span>
-<span class="nc" id="L103">      vState.setSessionId(voiceState.getString(&quot;session_id&quot;));</span>
-<span class="nc" id="L104">      vState.setSelfMuted(voiceState.getBoolean(&quot;self_mute&quot;));</span>
-<span class="nc" id="L105">      vState.setSelfDeafened(voiceState.getBoolean(&quot;self_deaf&quot;));</span>
-
-<span class="nc" id="L107">      api.asClient().getCallUserMap().put(userId, cUser);</span>
-    }
-<span class="nc" id="L109">    api.getEventCache().playbackCache(EventCache.Type.CALL, channelId);</span>
-<span class="nc" id="L110">    return null;</span>
+<span class="nc" id="L31">    throw new AccountTypeException(&quot;Not allowed for BOT&quot;);</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

@@ -18,7 +18,6 @@ package net.dv8tion.jda.core.handle;
 
 import net.dv8tion.jda.client.events.message.group.react.GroupMessageReactionAddEvent;
 import net.dv8tion.jda.client.events.message.group.react.GroupMessageReactionRemoveEvent;
-import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.entities.Emote;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.MessageReaction;
@@ -38,139 +37,136 @@ import org.slf4j.LoggerFactory;
 
 public class MessageReactionHandler extends SocketHandler {
 
-<span class="nc" id="L41">  private static final Logger LOG = LoggerFactory.getLogger(MessageReactionHandler.class);</span>
+<span class="nc" id="L40">  private static final Logger LOG = LoggerFactory.getLogger(MessageReactionHandler.class);</span>
 
   private final boolean add;
 
   public MessageReactionHandler(JDAImpl api, boolean add) {
-<span class="nc" id="L46">    super(api);</span>
-<span class="nc" id="L47">    this.add = add;</span>
-<span class="nc" id="L48">  }</span>
+<span class="nc" id="L45">    super(api);</span>
+<span class="nc" id="L46">    this.add = add;</span>
+<span class="nc" id="L47">  }</span>
 
   @Override
   protected Long handleInternally(JSONObject content) {
-<span class="nc" id="L52">    JSONObject emoji = content.getJSONObject(&quot;emoji&quot;);</span>
+<span class="nc" id="L51">    JSONObject emoji = content.getJSONObject(&quot;emoji&quot;);</span>
 
-<span class="nc" id="L54">    final long userId = content.getLong(&quot;user_id&quot;);</span>
-<span class="nc" id="L55">    final long messageId = content.getLong(&quot;message_id&quot;);</span>
-<span class="nc" id="L56">    final long channelId = content.getLong(&quot;channel_id&quot;);</span>
+<span class="nc" id="L53">    final long userId = content.getLong(&quot;user_id&quot;);</span>
+<span class="nc" id="L54">    final long messageId = content.getLong(&quot;message_id&quot;);</span>
+<span class="nc" id="L55">    final long channelId = content.getLong(&quot;channel_id&quot;);</span>
 
-<span class="nc bnc" id="L58" title="All 2 branches missed.">    final Long emojiId = emoji.isNull(&quot;id&quot;) ? null : emoji.getLong(&quot;id&quot;);</span>
-<span class="nc" id="L59">    String emojiName = emoji.optString(&quot;name&quot;, null);</span>
-<span class="nc" id="L60">    final boolean emojiAnimated = emoji.optBoolean(&quot;animated&quot;);</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">    final Long emojiId = emoji.isNull(&quot;id&quot;) ? null : emoji.getLong(&quot;id&quot;);</span>
+<span class="nc" id="L58">    String emojiName = emoji.optString(&quot;name&quot;, null);</span>
+<span class="nc" id="L59">    final boolean emojiAnimated = emoji.optBoolean(&quot;animated&quot;);</span>
 
-<span class="nc bnc" id="L62" title="All 4 branches missed.">    if (emojiId == null &amp;&amp; emojiName == null) {</span>
-<span class="nc bnc" id="L63" title="All 2 branches missed.">      LOG.debug(</span>
+<span class="nc bnc" id="L61" title="All 4 branches missed.">    if (emojiId == null &amp;&amp; emojiName == null) {</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">      LOG.debug(</span>
           &quot;Received a reaction {} with no name nor id. json: {}&quot;, add ? &quot;add&quot; : &quot;remove&quot;, content);
-<span class="nc" id="L65">      return null;</span>
+<span class="nc" id="L64">      return null;</span>
     }
 
-<span class="nc" id="L68">    User user = api.getUserById(userId);</span>
-<span class="nc bnc" id="L69" title="All 2 branches missed.">    if (user == null) user = api.getFakeUserMap().get(userId);</span>
-<span class="nc bnc" id="L70" title="All 2 branches missed.">    if (user == null) {</span>
-<span class="nc" id="L71">      api.getEventCache()</span>
-<span class="nc" id="L72">          .cache(EventCache.Type.USER, userId, () -&gt; handle(responseNumber, allContent));</span>
-<span class="nc" id="L73">      EventCache.LOG.debug(</span>
+<span class="nc" id="L67">    User user = api.getUserById(userId);</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">    if (user == null) user = api.getFakeUserMap().get(userId);</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">    if (user == null) {</span>
+<span class="nc" id="L70">      api.getEventCache()</span>
+<span class="nc" id="L71">          .cache(EventCache.Type.USER, userId, () -&gt; handle(responseNumber, allContent));</span>
+<span class="nc" id="L72">      EventCache.LOG.debug(</span>
           &quot;Received a reaction for a user that JDA does not currently have cached&quot;);
-<span class="nc" id="L75">      return null;</span>
+<span class="nc" id="L74">      return null;</span>
     }
 
-<span class="nc" id="L78">    MessageChannel channel = api.getTextChannelById(channelId);</span>
-<span class="nc bnc" id="L79" title="All 2 branches missed.">    if (channel == null) {</span>
-<span class="nc" id="L80">      channel = api.getPrivateChannelById(channelId);</span>
+<span class="nc" id="L77">    MessageChannel channel = api.getTextChannelById(channelId);</span>
+<span class="nc bnc" id="L78" title="All 2 branches missed.">    if (channel == null) {</span>
+<span class="nc" id="L79">      channel = api.getPrivateChannelById(channelId);</span>
     }
-<span class="nc bnc" id="L82" title="All 2 branches missed.">    if (channel == null) {</span>
-<span class="nc" id="L83">      channel = api.getFakePrivateChannelMap().get(channelId);</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">    if (channel == null) {</span>
+<span class="nc" id="L82">      channel = api.getFakePrivateChannelMap().get(channelId);</span>
     }
-<span class="nc bnc" id="L85" title="All 4 branches missed.">    if (channel == null &amp;&amp; api.getAccountType() == AccountType.CLIENT) {</span>
-<span class="nc" id="L86">      channel = api.asClient().getGroupById(channelId);</span>
-    }
-<span class="nc bnc" id="L88" title="All 2 branches missed.">    if (channel == null) {</span>
-<span class="nc" id="L89">      api.getEventCache()</span>
-<span class="nc" id="L90">          .cache(EventCache.Type.CHANNEL, channelId, () -&gt; handle(responseNumber, allContent));</span>
-<span class="nc" id="L91">      EventCache.LOG.debug(</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">    if (channel == null) {</span>
+<span class="nc" id="L85">      api.getEventCache()</span>
+<span class="nc" id="L86">          .cache(EventCache.Type.CHANNEL, channelId, () -&gt; handle(responseNumber, allContent));</span>
+<span class="nc" id="L87">      EventCache.LOG.debug(</span>
           &quot;Received a reaction for a channel that JDA does not currently have cached&quot;);
-<span class="nc" id="L93">      return null;</span>
+<span class="nc" id="L89">      return null;</span>
     }
 
     MessageReaction.ReactionEmote rEmote;
-<span class="nc bnc" id="L97" title="All 2 branches missed.">    if (emojiId != null) {</span>
-<span class="nc" id="L98">      Emote emote = api.getEmoteById(emojiId);</span>
-<span class="nc bnc" id="L99" title="All 2 branches missed.">      if (emote == null) {</span>
-<span class="nc bnc" id="L100" title="All 2 branches missed.">        if (emojiName != null) {</span>
-<span class="nc" id="L101">          emote = new EmoteImpl(emojiId, api).setAnimated(emojiAnimated).setName(emojiName);</span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">    if (emojiId != null) {</span>
+<span class="nc" id="L94">      Emote emote = api.getEmoteById(emojiId);</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">      if (emote == null) {</span>
+<span class="nc bnc" id="L96" title="All 2 branches missed.">        if (emojiName != null) {</span>
+<span class="nc" id="L97">          emote = new EmoteImpl(emojiId, api).setAnimated(emojiAnimated).setName(emojiName);</span>
         } else {
-<span class="nc bnc" id="L103" title="All 2 branches missed.">          LOG.debug(</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">          LOG.debug(</span>
               &quot;Received a reaction {} with a null name. json: {}&quot;, add ? &quot;add&quot; : &quot;remove&quot;, content);
-<span class="nc" id="L105">          return null;</span>
+<span class="nc" id="L101">          return null;</span>
         }
       }
-<span class="nc" id="L108">      rEmote = new MessageReaction.ReactionEmote(emote);</span>
-<span class="nc" id="L109">    } else {</span>
-<span class="nc" id="L110">      rEmote = new MessageReaction.ReactionEmote(emojiName, null, api);</span>
+<span class="nc" id="L104">      rEmote = new MessageReaction.ReactionEmote(emote);</span>
+<span class="nc" id="L105">    } else {</span>
+<span class="nc" id="L106">      rEmote = new MessageReaction.ReactionEmote(emojiName, null, api);</span>
     }
-<span class="nc" id="L112">    MessageReaction reaction =</span>
-<span class="nc" id="L113">        new MessageReaction(channel, rEmote, messageId, user.equals(api.getSelfUser()), -1);</span>
+<span class="nc" id="L108">    MessageReaction reaction =</span>
+<span class="nc" id="L109">        new MessageReaction(channel, rEmote, messageId, user.equals(api.getSelfUser()), -1);</span>
 
-<span class="nc bnc" id="L115" title="All 2 branches missed.">    if (add) onAdd(reaction, user);</span>
-<span class="nc" id="L116">    else onRemove(reaction, user);</span>
-<span class="nc" id="L117">    return null;</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">    if (add) onAdd(reaction, user);</span>
+<span class="nc" id="L112">    else onRemove(reaction, user);</span>
+<span class="nc" id="L113">    return null;</span>
   }
 
   private void onAdd(MessageReaction reaction, User user) {
-<span class="nc" id="L121">    IEventManager manager = api.getEventManager();</span>
-<span class="nc bnc" id="L122" title="All 4 branches missed.">    switch (reaction.getChannelType()) {</span>
+<span class="nc" id="L117">    IEventManager manager = api.getEventManager();</span>
+<span class="nc bnc" id="L118" title="All 4 branches missed.">    switch (reaction.getChannelType()) {</span>
       case TEXT:
-<span class="nc" id="L124">        manager.handle(</span>
+<span class="nc" id="L120">        manager.handle(</span>
             new GuildMessageReactionAddEvent(
                 api, responseNumber,
                 user, reaction));
-<span class="nc" id="L128">        break;</span>
+<span class="nc" id="L124">        break;</span>
       case GROUP:
-<span class="nc" id="L130">        manager.handle(</span>
+<span class="nc" id="L126">        manager.handle(</span>
             new GroupMessageReactionAddEvent(
                 api, responseNumber,
                 user, reaction));
-<span class="nc" id="L134">        break;</span>
+<span class="nc" id="L130">        break;</span>
       case PRIVATE:
-<span class="nc" id="L136">        manager.handle(</span>
+<span class="nc" id="L132">        manager.handle(</span>
             new PrivateMessageReactionAddEvent(
                 api, responseNumber,
                 user, reaction));
     }
 
-<span class="nc" id="L142">    manager.handle(</span>
+<span class="nc" id="L138">    manager.handle(</span>
         new MessageReactionAddEvent(
             api, responseNumber,
             user, reaction));
-<span class="nc" id="L146">  }</span>
+<span class="nc" id="L142">  }</span>
 
   private void onRemove(MessageReaction reaction, User user) {
-<span class="nc" id="L149">    IEventManager manager = api.getEventManager();</span>
-<span class="nc bnc" id="L150" title="All 4 branches missed.">    switch (reaction.getChannelType()) {</span>
+<span class="nc" id="L145">    IEventManager manager = api.getEventManager();</span>
+<span class="nc bnc" id="L146" title="All 4 branches missed.">    switch (reaction.getChannelType()) {</span>
       case TEXT:
-<span class="nc" id="L152">        manager.handle(</span>
+<span class="nc" id="L148">        manager.handle(</span>
             new GuildMessageReactionRemoveEvent(
                 api, responseNumber,
                 user, reaction));
-<span class="nc" id="L156">        break;</span>
+<span class="nc" id="L152">        break;</span>
       case GROUP:
-<span class="nc" id="L158">        manager.handle(</span>
+<span class="nc" id="L154">        manager.handle(</span>
             new GroupMessageReactionRemoveEvent(
                 api, responseNumber,
                 user, reaction));
-<span class="nc" id="L162">        break;</span>
+<span class="nc" id="L158">        break;</span>
       case PRIVATE:
-<span class="nc" id="L164">        manager.handle(</span>
+<span class="nc" id="L160">        manager.handle(</span>
             new PrivateMessageReactionRemoveEvent(
                 api, responseNumber,
                 user, reaction));
     }
 
-<span class="nc" id="L170">    manager.handle(</span>
+<span class="nc" id="L166">    manager.handle(</span>
         new MessageReactionRemoveEvent(
             api, responseNumber,
             user, reaction));
-<span class="nc" id="L174">  }</span>
+<span class="nc" id="L170">  }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

@@ -23,8 +23,6 @@ import java.util.concurrent.*;
 import java.util.stream.Collectors;
 import javax.security.auth.login.LoginException;
 import net.dv8tion.jda.bot.entities.impl.JDABotImpl;
-import net.dv8tion.jda.client.entities.impl.JDAClientImpl;
-import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.audio.AudioWebSocket;
 import net.dv8tion.jda.core.entities.*;
@@ -51,62 +49,59 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class JDAImpl implements JDA {
-<span class="nc" id="L54">  public static final Logger LOG = LoggerFactory.getLogger(JDA.class);</span>
+<span class="nc" id="L52">  public static final Logger LOG = LoggerFactory.getLogger(JDA.class);</span>
 
   public final ScheduledThreadPoolExecutor pool;
 
-<span class="nc" id="L58">  protected final SnowflakeCacheViewImpl&lt;User&gt; userCache =</span>
+<span class="nc" id="L56">  protected final SnowflakeCacheViewImpl&lt;User&gt; userCache =</span>
       new SnowflakeCacheViewImpl&lt;&gt;(User::getName);
-<span class="nc" id="L60">  protected final SnowflakeCacheViewImpl&lt;Guild&gt; guildCache =</span>
+<span class="nc" id="L58">  protected final SnowflakeCacheViewImpl&lt;Guild&gt; guildCache =</span>
       new SnowflakeCacheViewImpl&lt;&gt;(Guild::getName);
-<span class="nc" id="L62">  protected final SnowflakeCacheViewImpl&lt;Category&gt; categories =</span>
+<span class="nc" id="L60">  protected final SnowflakeCacheViewImpl&lt;Category&gt; categories =</span>
       new SnowflakeCacheViewImpl&lt;&gt;(Channel::getName);
-<span class="nc" id="L64">  protected final SnowflakeCacheViewImpl&lt;TextChannel&gt; textChannelCache =</span>
+<span class="nc" id="L62">  protected final SnowflakeCacheViewImpl&lt;TextChannel&gt; textChannelCache =</span>
       new SnowflakeCacheViewImpl&lt;&gt;(Channel::getName);
-<span class="nc" id="L66">  protected final SnowflakeCacheViewImpl&lt;VoiceChannel&gt; voiceChannelCache =</span>
+<span class="nc" id="L64">  protected final SnowflakeCacheViewImpl&lt;VoiceChannel&gt; voiceChannelCache =</span>
       new SnowflakeCacheViewImpl&lt;&gt;(Channel::getName);
-<span class="nc" id="L68">  protected final SnowflakeCacheViewImpl&lt;PrivateChannel&gt; privateChannelCache =</span>
+<span class="nc" id="L66">  protected final SnowflakeCacheViewImpl&lt;PrivateChannel&gt; privateChannelCache =</span>
       new SnowflakeCacheViewImpl&lt;&gt;(MessageChannel::getName);
 
-<span class="nc" id="L71">  protected final TLongObjectMap&lt;User&gt; fakeUsers = MiscUtil.newLongMap();</span>
-<span class="nc" id="L72">  protected final TLongObjectMap&lt;PrivateChannel&gt; fakePrivateChannels = MiscUtil.newLongMap();</span>
+<span class="nc" id="L69">  protected final TLongObjectMap&lt;User&gt; fakeUsers = MiscUtil.newLongMap();</span>
+<span class="nc" id="L70">  protected final TLongObjectMap&lt;PrivateChannel&gt; fakePrivateChannels = MiscUtil.newLongMap();</span>
 
-<span class="nc" id="L74">  protected final AbstractCacheView&lt;AudioManager&gt; audioManagers =</span>
-<span class="nc" id="L75">      new CacheView.SimpleCacheView&lt;&gt;(m -&gt; m.getGuild().getName());</span>
+<span class="nc" id="L72">  protected final AbstractCacheView&lt;AudioManager&gt; audioManagers =</span>
+<span class="nc" id="L73">      new CacheView.SimpleCacheView&lt;&gt;(m -&gt; m.getGuild().getName());</span>
 
   protected final ConcurrentMap&lt;String, String&gt; contextMap;
   protected final OkHttpClient.Builder httpClientBuilder;
   protected final WebSocketFactory wsFactory;
-  protected final AccountType accountType;
   protected final PresenceImpl presence;
-  protected final JDAClientImpl jdaClient;
   protected final JDABotImpl jdaBot;
   protected final int maxReconnectDelay;
   protected final Thread shutdownHook;
-<span class="nc" id="L86">  protected final EntityBuilder entityBuilder = new EntityBuilder(this);</span>
-<span class="nc" id="L87">  protected final EventCache eventCache = new EventCache();</span>
-<span class="nc" id="L88">  protected final GuildLock guildLock = new GuildLock(this);</span>
-<span class="nc" id="L89">  protected final Object akapLock = new Object();</span>
+<span class="nc" id="L82">  protected final EntityBuilder entityBuilder = new EntityBuilder(this);</span>
+<span class="nc" id="L83">  protected final EventCache eventCache = new EventCache();</span>
+<span class="nc" id="L84">  protected final GuildLock guildLock = new GuildLock(this);</span>
+<span class="nc" id="L85">  protected final Object akapLock = new Object();</span>
 
   protected final SessionController sessionController;
 
   protected WebSocketClient client;
   protected Requester requester;
-<span class="nc" id="L95">  protected IEventManager eventManager = new InterfacedEventManager();</span>
+<span class="nc" id="L91">  protected IEventManager eventManager = new InterfacedEventManager();</span>
   protected ScheduledThreadPoolExecutor audioKeepAlivePool;
-<span class="nc" id="L97">  protected Status status = Status.INITIALIZING;</span>
+<span class="nc" id="L93">  protected Status status = Status.INITIALIZING;</span>
   protected SelfUser selfUser;
   protected ShardInfo shardInfo;
   protected boolean audioEnabled;
   protected boolean bulkDeleteSplittingEnabled;
   protected boolean autoReconnect;
   protected long responseTotal;
-<span class="nc" id="L104">  protected long ping = -1;</span>
+<span class="nc" id="L100">  protected long ping = -1;</span>
   protected String token;
   protected String gatewayUrl;
 
   public JDAImpl(
-      AccountType accountType,
       String token,
       SessionController controller,
       OkHttpClient.Builder httpClientBuilder,
@@ -119,115 +114,112 @@ public class JDAImpl implements JDA {
       boolean enableMDC,
       int corePoolSize,
       int maxReconnectDelay,
-<span class="nc" id="L122">      ConcurrentMap&lt;String, String&gt; contextMap) {</span>
-<span class="nc" id="L123">    this.accountType = accountType;</span>
-<span class="nc" id="L124">    this.setToken(token);</span>
-<span class="nc" id="L125">    this.httpClientBuilder = httpClientBuilder;</span>
-<span class="nc" id="L126">    this.wsFactory = wsFactory;</span>
-<span class="nc" id="L127">    this.autoReconnect = autoReconnect;</span>
-<span class="nc" id="L128">    this.audioEnabled = audioEnabled;</span>
-<span class="nc bnc" id="L129" title="All 2 branches missed.">    this.shutdownHook = useShutdownHook ? new Thread(this::shutdown, &quot;JDA Shutdown Hook&quot;) : null;</span>
-<span class="nc" id="L130">    this.bulkDeleteSplittingEnabled = bulkDeleteSplittingEnabled;</span>
-<span class="nc" id="L131">    this.pool = new ScheduledThreadPoolExecutor(corePoolSize, new JDAThreadFactory());</span>
-<span class="nc" id="L132">    this.maxReconnectDelay = maxReconnectDelay;</span>
-<span class="nc bnc" id="L133" title="All 2 branches missed.">    this.sessionController = controller == null ? new SessionControllerAdapter() : controller;</span>
-<span class="nc bnc" id="L134" title="All 4 branches missed.">    if (enableMDC) this.contextMap = contextMap == null ? new ConcurrentHashMap&lt;&gt;() : contextMap;</span>
-<span class="nc" id="L135">    else this.contextMap = null;</span>
+<span class="nc" id="L117">      ConcurrentMap&lt;String, String&gt; contextMap) {</span>
+<span class="nc" id="L118">    this.setToken(token);</span>
+<span class="nc" id="L119">    this.httpClientBuilder = httpClientBuilder;</span>
+<span class="nc" id="L120">    this.wsFactory = wsFactory;</span>
+<span class="nc" id="L121">    this.autoReconnect = autoReconnect;</span>
+<span class="nc" id="L122">    this.audioEnabled = audioEnabled;</span>
+<span class="nc bnc" id="L123" title="All 2 branches missed.">    this.shutdownHook = useShutdownHook ? new Thread(this::shutdown, &quot;JDA Shutdown Hook&quot;) : null;</span>
+<span class="nc" id="L124">    this.bulkDeleteSplittingEnabled = bulkDeleteSplittingEnabled;</span>
+<span class="nc" id="L125">    this.pool = new ScheduledThreadPoolExecutor(corePoolSize, new JDAThreadFactory());</span>
+<span class="nc" id="L126">    this.maxReconnectDelay = maxReconnectDelay;</span>
+<span class="nc bnc" id="L127" title="All 2 branches missed.">    this.sessionController = controller == null ? new SessionControllerAdapter() : controller;</span>
+<span class="nc bnc" id="L128" title="All 4 branches missed.">    if (enableMDC) this.contextMap = contextMap == null ? new ConcurrentHashMap&lt;&gt;() : contextMap;</span>
+<span class="nc" id="L129">    else this.contextMap = null;</span>
 
-<span class="nc" id="L137">    this.presence = new PresenceImpl(this);</span>
-<span class="nc" id="L138">    this.requester = new Requester(this);</span>
-<span class="nc" id="L139">    this.requester.setRetryOnTimeout(retryOnTimeout);</span>
+<span class="nc" id="L131">    this.presence = new PresenceImpl(this);</span>
+<span class="nc" id="L132">    this.requester = new Requester(this);</span>
+<span class="nc" id="L133">    this.requester.setRetryOnTimeout(retryOnTimeout);</span>
 
-<span class="nc bnc" id="L141" title="All 2 branches missed.">    this.jdaClient = accountType == AccountType.CLIENT ? new JDAClientImpl(this) : null;</span>
-<span class="nc bnc" id="L142" title="All 2 branches missed.">    this.jdaBot = accountType == AccountType.BOT ? new JDABotImpl(this) : null;</span>
-<span class="nc" id="L143">  }</span>
+<span class="nc" id="L135">    this.jdaBot = new JDABotImpl(this);</span>
+<span class="nc" id="L136">  }</span>
 
   public SessionController getSessionController() {
-<span class="nc" id="L146">    return sessionController;</span>
+<span class="nc" id="L139">    return sessionController;</span>
   }
 
   public int login(String gatewayUrl, ShardInfo shardInfo) throws LoginException {
-<span class="nc" id="L150">    this.gatewayUrl = gatewayUrl;</span>
-<span class="nc" id="L151">    this.shardInfo = shardInfo;</span>
+<span class="nc" id="L143">    this.gatewayUrl = gatewayUrl;</span>
+<span class="nc" id="L144">    this.shardInfo = shardInfo;</span>
 
-<span class="nc" id="L153">    setStatus(Status.LOGGING_IN);</span>
-<span class="nc bnc" id="L154" title="All 4 branches missed.">    if (token == null || token.isEmpty())</span>
-<span class="nc" id="L155">      throw new LoginException(&quot;Provided token was null or empty!&quot;);</span>
+<span class="nc" id="L146">    setStatus(Status.LOGGING_IN);</span>
+<span class="nc bnc" id="L147" title="All 4 branches missed.">    if (token == null || token.isEmpty())</span>
+<span class="nc" id="L148">      throw new LoginException(&quot;Provided token was null or empty!&quot;);</span>
 
-<span class="nc bnc" id="L157" title="All 4 branches missed.">    if (contextMap != null &amp;&amp; shardInfo != null) {</span>
-<span class="nc" id="L158">      contextMap.put(&quot;jda.shard&quot;, shardInfo.getShardString());</span>
-<span class="nc" id="L159">      contextMap.put(&quot;jda.shard.id&quot;, String.valueOf(shardInfo.getShardId()));</span>
-<span class="nc" id="L160">      contextMap.put(&quot;jda.shard.total&quot;, String.valueOf(shardInfo.getShardTotal()));</span>
+<span class="nc bnc" id="L150" title="All 4 branches missed.">    if (contextMap != null &amp;&amp; shardInfo != null) {</span>
+<span class="nc" id="L151">      contextMap.put(&quot;jda.shard&quot;, shardInfo.getShardString());</span>
+<span class="nc" id="L152">      contextMap.put(&quot;jda.shard.id&quot;, String.valueOf(shardInfo.getShardId()));</span>
+<span class="nc" id="L153">      contextMap.put(&quot;jda.shard.total&quot;, String.valueOf(shardInfo.getShardTotal()));</span>
     }
-<span class="nc" id="L162">    verifyToken();</span>
-<span class="nc" id="L163">    LOG.info(&quot;Login Successful!&quot;);</span>
+<span class="nc" id="L155">    verifyToken();</span>
+<span class="nc" id="L156">    LOG.info(&quot;Login Successful!&quot;);</span>
 
-<span class="nc" id="L165">    client = new WebSocketClient(this);</span>
+<span class="nc" id="L158">    client = new WebSocketClient(this);</span>
 
-<span class="nc bnc" id="L167" title="All 2 branches missed.">    if (shutdownHook != null) Runtime.getRuntime().addShutdownHook(shutdownHook);</span>
+<span class="nc bnc" id="L160" title="All 2 branches missed.">    if (shutdownHook != null) Runtime.getRuntime().addShutdownHook(shutdownHook);</span>
 
-<span class="nc bnc" id="L169" title="All 2 branches missed.">    return shardInfo == null ? -1 : shardInfo.getShardTotal();</span>
+<span class="nc bnc" id="L162" title="All 2 branches missed.">    return shardInfo == null ? -1 : shardInfo.getShardTotal();</span>
   }
 
   public String getGateway() {
-<span class="nc" id="L173">    return getSessionController().getGateway(this);</span>
+<span class="nc" id="L166">    return getSessionController().getGateway(this);</span>
   }
 
   // This method also checks for a valid bot token as it is required to get the recommended shard
   // count.
   public Pair&lt;String, Integer&gt; getGatewayBot() {
-<span class="nc" id="L179">    return getSessionController().getGatewayBot(this);</span>
+<span class="nc" id="L172">    return getSessionController().getGatewayBot(this);</span>
   }
 
   public ConcurrentMap&lt;String, String&gt; getContextMap() {
-<span class="nc" id="L183">    return contextMap;</span>
+<span class="nc" id="L176">    return contextMap;</span>
   }
 
   public void setStatus(Status status) {
     //noinspection SynchronizeOnNonFinalField
-<span class="nc" id="L188">    synchronized (this.status) {</span>
-<span class="nc" id="L189">      Status oldStatus = this.status;</span>
-<span class="nc" id="L190">      this.status = status;</span>
+<span class="nc" id="L181">    synchronized (this.status) {</span>
+<span class="nc" id="L182">      Status oldStatus = this.status;</span>
+<span class="nc" id="L183">      this.status = status;</span>
 
-<span class="nc" id="L192">      eventManager.handle(new StatusChangeEvent(this, status, oldStatus));</span>
-<span class="nc" id="L193">    }</span>
-<span class="nc" id="L194">  }</span>
+<span class="nc" id="L185">      eventManager.handle(new StatusChangeEvent(this, status, oldStatus));</span>
+<span class="nc" id="L186">    }</span>
+<span class="nc" id="L187">  }</span>
 
   public void setToken(String token) {
-<span class="nc bnc" id="L197" title="All 2 branches missed.">    if (getAccountType() == AccountType.BOT) this.token = &quot;Bot &quot; + token;</span>
-<span class="nc" id="L198">    else this.token = token;</span>
-<span class="nc" id="L199">  }</span>
+<span class="nc" id="L190">    this.token = &quot;Bot &quot; + token;</span>
+<span class="nc" id="L191">  }</span>
 
   public void verifyToken() throws LoginException {
-<span class="nc" id="L202">    this.verifyToken(false);</span>
-<span class="nc" id="L203">  }</span>
+<span class="nc" id="L194">    this.verifyToken(false);</span>
+<span class="nc" id="L195">  }</span>
 
   // @param alreadyFailed If has already been a failed attempt with the current configuration
   public void verifyToken(boolean alreadyFailed) throws LoginException {
 
-<span class="nc" id="L208">    RestAction&lt;JSONObject&gt; login =</span>
-<span class="nc" id="L209">        new RestAction&lt;JSONObject&gt;(this, Route.Self.GET_SELF.compile()) {</span>
+<span class="nc" id="L200">    RestAction&lt;JSONObject&gt; login =</span>
+<span class="nc" id="L201">        new RestAction&lt;JSONObject&gt;(this, Route.Self.GET_SELF.compile()) {</span>
           @Override
           protected void handleResponse(Response response, Request&lt;JSONObject&gt; request) {
-<span class="nc bnc" id="L212" title="All 2 branches missed.">            if (response.isOk()) request.onSuccess(response.getObject());</span>
-<span class="nc bnc" id="L213" title="All 2 branches missed.">            else if (response.isRateLimit())</span>
-<span class="nc" id="L214">              request.onFailure(new RateLimitedException(request.getRoute(), response.retryAfter));</span>
-<span class="nc bnc" id="L215" title="All 2 branches missed.">            else if (response.code == 401) request.onSuccess(null);</span>
+<span class="nc bnc" id="L204" title="All 2 branches missed.">            if (response.isOk()) request.onSuccess(response.getObject());</span>
+<span class="nc bnc" id="L205" title="All 2 branches missed.">            else if (response.isRateLimit())</span>
+<span class="nc" id="L206">              request.onFailure(new RateLimitedException(request.getRoute(), response.retryAfter));</span>
+<span class="nc bnc" id="L207" title="All 2 branches missed.">            else if (response.code == 401) request.onSuccess(null);</span>
             else
-<span class="nc" id="L217">              request.onFailure(</span>
+<span class="nc" id="L209">              request.onFailure(</span>
                   new LoginException(
                       &quot;When verifying the authenticity of the provided token, Discord returned an unknown response:\n&quot;
-<span class="nc" id="L220">                          + response.toString()));</span>
-<span class="nc" id="L221">          }</span>
+<span class="nc" id="L212">                          + response.toString()));</span>
+<span class="nc" id="L213">          }</span>
         };
 
     JSONObject userResponse;
 
-<span class="nc bnc" id="L226" title="All 2 branches missed.">    if (!alreadyFailed) {</span>
-<span class="nc" id="L227">      userResponse = checkToken(login);</span>
-<span class="nc bnc" id="L228" title="All 2 branches missed.">      if (userResponse != null) {</span>
-<span class="nc" id="L229">        verifyAccountType(userResponse);</span>
-<span class="nc" id="L230">        return;</span>
+<span class="nc bnc" id="L218" title="All 2 branches missed.">    if (!alreadyFailed) {</span>
+<span class="nc" id="L219">      userResponse = checkToken(login);</span>
+<span class="nc bnc" id="L220" title="All 2 branches missed.">      if (userResponse != null) {</span>
+<span class="nc" id="L221">        verifyAccountType(userResponse);</span>
+<span class="nc" id="L222">        return;</span>
       }
     }
 
@@ -242,428 +234,386 @@ public class JDAImpl implements JDA {
 
     // If we attempted to login as a Bot, remove the &quot;Bot &quot; prefix and set the Requester to be a
     // client.
-<span class="nc bnc" id="L245" title="All 2 branches missed.">    if (getAccountType() == AccountType.BOT) {</span>
-<span class="nc" id="L246">      token = token.substring(&quot;Bot &quot;.length());</span>
-<span class="nc" id="L247">      requester = new Requester(this, AccountType.CLIENT);</span>
-    } else // If we attempted to login as a Client, prepend the &quot;Bot &quot; prefix and set the Requester
-    // to be a Bot
-    {
-<span class="nc" id="L251">      token = &quot;Bot &quot; + token;</span>
-<span class="nc" id="L252">      requester = new Requester(this, AccountType.BOT);</span>
-    }
+<span class="nc" id="L237">    token = token.substring(&quot;Bot &quot;.length());</span>
+<span class="nc" id="L238">    requester = new Requester(this);</span>
 
-<span class="nc" id="L255">    userResponse = checkToken(login);</span>
+<span class="nc" id="L240">    userResponse = checkToken(login);</span>
 
     // If the response isn't null (thus it didn't 401) send it to the secondary verify method to
     // determine
     // which account type the developer wrongly attempted to login as
-<span class="nc bnc" id="L260" title="All 2 branches missed.">    if (userResponse != null) verifyAccountType(userResponse);</span>
+<span class="nc bnc" id="L245" title="All 2 branches missed.">    if (userResponse != null) verifyAccountType(userResponse);</span>
     else // We 401'd again. This is an invalid token
-<span class="nc" id="L262">    throw new LoginException(&quot;The provided token is invalid!&quot;);</span>
-<span class="nc" id="L263">  }</span>
+<span class="nc" id="L247">    throw new LoginException(&quot;The provided token is invalid!&quot;);</span>
+<span class="nc" id="L248">  }</span>
 
   private void verifyAccountType(JSONObject userResponse) {
-<span class="nc bnc" id="L266" title="All 2 branches missed.">    if (getAccountType() == AccountType.BOT) {</span>
-<span class="nc bnc" id="L267" title="All 4 branches missed.">      if (!userResponse.has(&quot;bot&quot;) || !userResponse.getBoolean(&quot;bot&quot;))</span>
-<span class="nc" id="L268">        throw new AccountTypeException(</span>
-            AccountType.BOT, &quot;Attempted to login as a BOT with a CLIENT token!&quot;);
-    } else {
-<span class="nc bnc" id="L271" title="All 4 branches missed.">      if (userResponse.has(&quot;bot&quot;) &amp;&amp; userResponse.getBoolean(&quot;bot&quot;))</span>
-<span class="nc" id="L272">        throw new AccountTypeException(</span>
-            AccountType.CLIENT, &quot;Attempted to login as a CLIENT with a BOT token!&quot;);
+<span class="nc bnc" id="L251" title="All 4 branches missed.">    if (!userResponse.has(&quot;bot&quot;) || !userResponse.getBoolean(&quot;bot&quot;)) {</span>
+<span class="nc" id="L252">      throw new AccountTypeException(&quot;Attempted to login as a BOT with a CLIENT token!&quot;);</span>
     }
-<span class="nc" id="L275">  }</span>
+<span class="nc" id="L254">  }</span>
 
   private JSONObject checkToken(RestAction&lt;JSONObject&gt; login) throws LoginException {
     JSONObject userResponse;
     try {
-<span class="nc" id="L280">      userResponse = login.complete();</span>
-<span class="nc" id="L281">    } catch (RuntimeException e) {</span>
+<span class="nc" id="L259">      userResponse = login.complete();</span>
+<span class="nc" id="L260">    } catch (RuntimeException e) {</span>
       // We check if the LoginException is masked inside of a ExecutionException which is masked
       // inside of the RuntimeException
-<span class="nc bnc" id="L284" title="All 2 branches missed.">      Throwable ex = e.getCause() instanceof ExecutionException ? e.getCause().getCause() : null;</span>
-<span class="nc bnc" id="L285" title="All 2 branches missed.">      if (ex instanceof LoginException) throw new LoginException(ex.getMessage());</span>
-<span class="nc" id="L286">      else throw e;</span>
-<span class="nc" id="L287">    }</span>
-<span class="nc" id="L288">    return userResponse;</span>
+<span class="nc bnc" id="L263" title="All 2 branches missed.">      Throwable ex = e.getCause() instanceof ExecutionException ? e.getCause().getCause() : null;</span>
+<span class="nc bnc" id="L264" title="All 2 branches missed.">      if (ex instanceof LoginException) throw new LoginException(ex.getMessage());</span>
+<span class="nc" id="L265">      else throw e;</span>
+<span class="nc" id="L266">    }</span>
+<span class="nc" id="L267">    return userResponse;</span>
   }
 
   @Override
   public String getToken() {
-<span class="nc" id="L293">    return token;</span>
+<span class="nc" id="L272">    return token;</span>
   }
 
   @Override
   public boolean isAudioEnabled() {
-<span class="nc" id="L298">    return audioEnabled;</span>
+<span class="nc" id="L277">    return audioEnabled;</span>
   }
 
   @Override
   public boolean isBulkDeleteSplittingEnabled() {
-<span class="nc" id="L303">    return bulkDeleteSplittingEnabled;</span>
+<span class="nc" id="L282">    return bulkDeleteSplittingEnabled;</span>
   }
 
   @Override
   public void setAutoReconnect(boolean autoReconnect) {
-<span class="nc" id="L308">    this.autoReconnect = autoReconnect;</span>
-<span class="nc bnc" id="L309" title="All 2 branches missed.">    if (client != null) client.setAutoReconnect(autoReconnect);</span>
-<span class="nc" id="L310">  }</span>
+<span class="nc" id="L287">    this.autoReconnect = autoReconnect;</span>
+<span class="nc bnc" id="L288" title="All 2 branches missed.">    if (client != null) client.setAutoReconnect(autoReconnect);</span>
+<span class="nc" id="L289">  }</span>
 
   @Override
   public void setRequestTimeoutRetry(boolean retryOnTimeout) {
-<span class="nc" id="L314">    requester.setRetryOnTimeout(retryOnTimeout);</span>
-<span class="nc" id="L315">  }</span>
+<span class="nc" id="L293">    requester.setRetryOnTimeout(retryOnTimeout);</span>
+<span class="nc" id="L294">  }</span>
 
   @Override
   public boolean isAutoReconnect() {
-<span class="nc" id="L319">    return autoReconnect;</span>
+<span class="nc" id="L298">    return autoReconnect;</span>
   }
 
   @Override
   public Status getStatus() {
-<span class="nc" id="L324">    return status;</span>
+<span class="nc" id="L303">    return status;</span>
   }
 
   @Override
   public long getPing() {
-<span class="nc" id="L329">    return ping;</span>
+<span class="nc" id="L308">    return ping;</span>
   }
 
   @Override
   public List&lt;String&gt; getCloudflareRays() {
-<span class="nc" id="L334">    return Collections.unmodifiableList(new LinkedList&lt;&gt;(client.getCfRays()));</span>
+<span class="nc" id="L313">    return Collections.unmodifiableList(new LinkedList&lt;&gt;(client.getCfRays()));</span>
   }
 
   @Override
   public List&lt;String&gt; getWebSocketTrace() {
-<span class="nc" id="L339">    return Collections.unmodifiableList(new LinkedList&lt;&gt;(client.getTraces()));</span>
+<span class="nc" id="L318">    return Collections.unmodifiableList(new LinkedList&lt;&gt;(client.getTraces()));</span>
   }
 
   @Override
   public List&lt;Guild&gt; getMutualGuilds(User... users) {
-<span class="nc" id="L344">    Checks.notNull(users, &quot;users&quot;);</span>
-<span class="nc" id="L345">    return getMutualGuilds(Arrays.asList(users));</span>
+<span class="nc" id="L323">    Checks.notNull(users, &quot;users&quot;);</span>
+<span class="nc" id="L324">    return getMutualGuilds(Arrays.asList(users));</span>
   }
 
   @Override
   public List&lt;Guild&gt; getMutualGuilds(Collection&lt;User&gt; users) {
-<span class="nc" id="L350">    Checks.notNull(users, &quot;users&quot;);</span>
-<span class="nc bnc" id="L351" title="All 2 branches missed.">    for (User u : users) Checks.notNull(u, &quot;All users&quot;);</span>
-<span class="nc" id="L352">    return Collections.unmodifiableList(</span>
-<span class="nc" id="L353">        getGuilds()</span>
-<span class="nc" id="L354">            .stream()</span>
-<span class="nc" id="L355">            .filter(guild -&gt; users.stream().allMatch(guild::isMember))</span>
-<span class="nc" id="L356">            .collect(Collectors.toList()));</span>
+<span class="nc" id="L329">    Checks.notNull(users, &quot;users&quot;);</span>
+<span class="nc bnc" id="L330" title="All 2 branches missed.">    for (User u : users) Checks.notNull(u, &quot;All users&quot;);</span>
+<span class="nc" id="L331">    return Collections.unmodifiableList(</span>
+<span class="nc" id="L332">        getGuilds()</span>
+<span class="nc" id="L333">            .stream()</span>
+<span class="nc" id="L334">            .filter(guild -&gt; users.stream().allMatch(guild::isMember))</span>
+<span class="nc" id="L335">            .collect(Collectors.toList()));</span>
   }
 
   @Override
   public RestAction&lt;User&gt; retrieveUserById(String id) {
-<span class="nc" id="L361">    return retrieveUserById(MiscUtil.parseSnowflake(id));</span>
+<span class="nc" id="L340">    return retrieveUserById(MiscUtil.parseSnowflake(id));</span>
   }
 
   @Override
   public RestAction&lt;User&gt; retrieveUserById(long id) {
-<span class="nc" id="L366">    AccountTypeException.check(accountType, AccountType.BOT);</span>
-
     // check cache
-<span class="nc" id="L369">    User user = this.getUserById(id);</span>
-<span class="nc bnc" id="L370" title="All 2 branches missed.">    if (user != null) return new RestAction.EmptyRestAction&lt;&gt;(this, user);</span>
+<span class="nc" id="L346">    User user = this.getUserById(id);</span>
+<span class="nc bnc" id="L347" title="All 2 branches missed.">    if (user != null) return new RestAction.EmptyRestAction&lt;&gt;(this, user);</span>
 
-<span class="nc" id="L372">    Route.CompiledRoute route = Route.Users.GET_USER.compile(Long.toUnsignedString(id));</span>
-<span class="nc" id="L373">    return new RestAction&lt;User&gt;(this, route) {</span>
+<span class="nc" id="L349">    Route.CompiledRoute route = Route.Users.GET_USER.compile(Long.toUnsignedString(id));</span>
+<span class="nc" id="L350">    return new RestAction&lt;User&gt;(this, route) {</span>
       @Override
       protected void handleResponse(Response response, Request&lt;User&gt; request) {
-<span class="nc bnc" id="L376" title="All 2 branches missed.">        if (!response.isOk()) {</span>
-<span class="nc" id="L377">          request.onFailure(response);</span>
-<span class="nc" id="L378">          return;</span>
+<span class="nc bnc" id="L353" title="All 2 branches missed.">        if (!response.isOk()) {</span>
+<span class="nc" id="L354">          request.onFailure(response);</span>
+<span class="nc" id="L355">          return;</span>
         }
-<span class="nc" id="L380">        JSONObject user = response.getObject();</span>
-<span class="nc" id="L381">        request.onSuccess(getEntityBuilder().createFakeUser(user, false));</span>
-<span class="nc" id="L382">      }</span>
+<span class="nc" id="L357">        JSONObject user = response.getObject();</span>
+<span class="nc" id="L358">        request.onSuccess(getEntityBuilder().createFakeUser(user, false));</span>
+<span class="nc" id="L359">      }</span>
     };
   }
 
   @Override
   public CacheView&lt;AudioManager&gt; getAudioManagerCache() {
-<span class="nc" id="L388">    return audioManagers;</span>
+<span class="nc" id="L365">    return audioManagers;</span>
   }
 
   @Override
   public SnowflakeCacheView&lt;Guild&gt; getGuildCache() {
-<span class="nc" id="L393">    return guildCache;</span>
+<span class="nc" id="L370">    return guildCache;</span>
   }
 
   @Override
   public SnowflakeCacheView&lt;Role&gt; getRoleCache() {
-<span class="nc" id="L398">    return CacheView.allSnowflakes(() -&gt; guildCache.stream().map(Guild::getRoleCache));</span>
+<span class="nc" id="L375">    return CacheView.allSnowflakes(() -&gt; guildCache.stream().map(Guild::getRoleCache));</span>
   }
 
   @Override
   public SnowflakeCacheView&lt;Emote&gt; getEmoteCache() {
-<span class="nc" id="L403">    return CacheView.allSnowflakes(() -&gt; guildCache.stream().map(Guild::getEmoteCache));</span>
+<span class="nc" id="L380">    return CacheView.allSnowflakes(() -&gt; guildCache.stream().map(Guild::getEmoteCache));</span>
   }
 
   @Override
   public SnowflakeCacheView&lt;Category&gt; getCategoryCache() {
-<span class="nc" id="L408">    return categories;</span>
+<span class="nc" id="L385">    return categories;</span>
   }
 
   @Override
   public SnowflakeCacheView&lt;TextChannel&gt; getTextChannelCache() {
-<span class="nc" id="L413">    return textChannelCache;</span>
+<span class="nc" id="L390">    return textChannelCache;</span>
   }
 
   @Override
   public SnowflakeCacheView&lt;VoiceChannel&gt; getVoiceChannelCache() {
-<span class="nc" id="L418">    return voiceChannelCache;</span>
+<span class="nc" id="L395">    return voiceChannelCache;</span>
   }
 
   @Override
   public SnowflakeCacheView&lt;PrivateChannel&gt; getPrivateChannelCache() {
-<span class="nc" id="L423">    return privateChannelCache;</span>
+<span class="nc" id="L400">    return privateChannelCache;</span>
   }
 
   @Override
   public SnowflakeCacheView&lt;User&gt; getUserCache() {
-<span class="nc" id="L428">    return userCache;</span>
+<span class="nc" id="L405">    return userCache;</span>
   }
 
   public SelfUser getSelfUser() {
-<span class="nc" id="L432">    return selfUser;</span>
+<span class="nc" id="L409">    return selfUser;</span>
   }
 
   @Override
   public void shutdownNow() {
-<span class="nc" id="L437">    shutdown();</span>
+<span class="nc" id="L414">    shutdown();</span>
 
-<span class="nc" id="L439">    pool.shutdownNow();</span>
-<span class="nc" id="L440">    getRequester().shutdownNow();</span>
-<span class="nc" id="L441">  }</span>
+<span class="nc" id="L416">    pool.shutdownNow();</span>
+<span class="nc" id="L417">    getRequester().shutdownNow();</span>
+<span class="nc" id="L418">  }</span>
 
   @Override
   public void shutdown() {
-<span class="nc bnc" id="L445" title="All 4 branches missed.">    if (status == Status.SHUTDOWN || status == Status.SHUTTING_DOWN) return;</span>
+<span class="nc bnc" id="L422" title="All 4 branches missed.">    if (status == Status.SHUTDOWN || status == Status.SHUTTING_DOWN) return;</span>
 
-<span class="nc" id="L447">    setStatus(Status.SHUTTING_DOWN);</span>
-<span class="nc" id="L448">    audioManagers.forEach(AudioManager::closeAudioConnection);</span>
-<span class="nc" id="L449">    audioManagers.clear();</span>
+<span class="nc" id="L424">    setStatus(Status.SHUTTING_DOWN);</span>
+<span class="nc" id="L425">    audioManagers.forEach(AudioManager::closeAudioConnection);</span>
+<span class="nc" id="L426">    audioManagers.clear();</span>
 
-<span class="nc bnc" id="L451" title="All 2 branches missed.">    if (audioKeepAlivePool != null) audioKeepAlivePool.shutdownNow();</span>
+<span class="nc bnc" id="L428" title="All 2 branches missed.">    if (audioKeepAlivePool != null) audioKeepAlivePool.shutdownNow();</span>
 
-<span class="nc" id="L453">    getClient().shutdown();</span>
+<span class="nc" id="L430">    getClient().shutdown();</span>
 
-<span class="nc" id="L455">    final long time = 5L;</span>
-<span class="nc" id="L456">    final TimeUnit unit = TimeUnit.SECONDS;</span>
-<span class="nc" id="L457">    getRequester().shutdown(time, unit);</span>
-<span class="nc" id="L458">    pool.setKeepAliveTime(time, unit);</span>
-<span class="nc" id="L459">    pool.allowCoreThreadTimeOut(true);</span>
+<span class="nc" id="L432">    final long time = 5L;</span>
+<span class="nc" id="L433">    final TimeUnit unit = TimeUnit.SECONDS;</span>
+<span class="nc" id="L434">    getRequester().shutdown(time, unit);</span>
+<span class="nc" id="L435">    pool.setKeepAliveTime(time, unit);</span>
+<span class="nc" id="L436">    pool.allowCoreThreadTimeOut(true);</span>
 
-<span class="nc bnc" id="L461" title="All 2 branches missed.">    if (shutdownHook != null) {</span>
+<span class="nc bnc" id="L438" title="All 2 branches missed.">    if (shutdownHook != null) {</span>
       try {
-<span class="nc" id="L463">        Runtime.getRuntime().removeShutdownHook(shutdownHook);</span>
-<span class="nc" id="L464">      } catch (Exception ignored) {</span>
-<span class="nc" id="L465">      }</span>
+<span class="nc" id="L440">        Runtime.getRuntime().removeShutdownHook(shutdownHook);</span>
+<span class="nc" id="L441">      } catch (Exception ignored) {</span>
+<span class="nc" id="L442">      }</span>
     }
 
-<span class="nc" id="L468">    setStatus(Status.SHUTDOWN);</span>
-<span class="nc" id="L469">  }</span>
-
-  @Override
-  public JDAClientImpl asClient() {
-<span class="nc" id="L473">    AccountTypeException.check(getAccountType(), AccountType.CLIENT);</span>
-<span class="nc" id="L474">    return jdaClient;</span>
-  }
+<span class="nc" id="L445">    setStatus(Status.SHUTDOWN);</span>
+<span class="nc" id="L446">  }</span>
 
   @Override
   public JDABotImpl asBot() {
-<span class="nc" id="L479">    AccountTypeException.check(getAccountType(), AccountType.BOT);</span>
-<span class="nc" id="L480">    return jdaBot;</span>
+<span class="nc" id="L450">    return jdaBot;</span>
   }
 
   @Override
   public long getResponseTotal() {
-<span class="nc" id="L485">    return responseTotal;</span>
+<span class="nc" id="L455">    return responseTotal;</span>
   }
 
   @Override
   public int getMaxReconnectDelay() {
-<span class="nc" id="L490">    return maxReconnectDelay;</span>
+<span class="nc" id="L460">    return maxReconnectDelay;</span>
   }
 
   @Override
   public ShardInfo getShardInfo() {
-<span class="nc" id="L495">    return shardInfo;</span>
+<span class="nc" id="L465">    return shardInfo;</span>
   }
 
   @Override
   public Presence getPresence() {
-<span class="nc" id="L500">    return presence;</span>
-  }
-
-  // @Override
-  // public AuditableRestAction&lt;Void&gt; installAuxiliaryCable(int port) throws
-  // UnsupportedOperationException
-  // {
-  //    return new AuditableRestAction.FailedRestAction&lt;&gt;(new UnsupportedOperationException(&quot;nice
-  // try but next time think first :)&quot;));
-  // }
-
-  @Override
-  public AccountType getAccountType() {
-<span class="nc" id="L513">    return accountType;</span>
+<span class="nc" id="L470">    return presence;</span>
   }
 
   @Override
   public void setEventManager(IEventManager eventManager) {
-<span class="nc" id="L518">    this.eventManager = eventManager;</span>
-<span class="nc" id="L519">  }</span>
+<span class="nc" id="L475">    this.eventManager = eventManager;</span>
+<span class="nc" id="L476">  }</span>
 
   @Override
   public void addEventListener(Object... listeners) {
-<span class="nc" id="L523">    Checks.noneNull(listeners, &quot;listeners&quot;);</span>
+<span class="nc" id="L480">    Checks.noneNull(listeners, &quot;listeners&quot;);</span>
 
-<span class="nc bnc" id="L525" title="All 2 branches missed.">    for (Object listener : listeners) eventManager.register(listener);</span>
-<span class="nc" id="L526">  }</span>
+<span class="nc bnc" id="L482" title="All 2 branches missed.">    for (Object listener : listeners) eventManager.register(listener);</span>
+<span class="nc" id="L483">  }</span>
 
   @Override
   public void removeEventListener(Object... listeners) {
-<span class="nc" id="L530">    Checks.noneNull(listeners, &quot;listeners&quot;);</span>
+<span class="nc" id="L487">    Checks.noneNull(listeners, &quot;listeners&quot;);</span>
 
-<span class="nc bnc" id="L532" title="All 2 branches missed.">    for (Object listener : listeners) eventManager.unregister(listener);</span>
-<span class="nc" id="L533">  }</span>
+<span class="nc bnc" id="L489" title="All 2 branches missed.">    for (Object listener : listeners) eventManager.unregister(listener);</span>
+<span class="nc" id="L490">  }</span>
 
   @Override
   public List&lt;Object&gt; getRegisteredListeners() {
-<span class="nc" id="L537">    return Collections.unmodifiableList(eventManager.getRegisteredListeners());</span>
+<span class="nc" id="L494">    return Collections.unmodifiableList(eventManager.getRegisteredListeners());</span>
   }
 
   @Override
   public GuildAction createGuild(String name) {
-<span class="nc bnc" id="L542" title="All 3 branches missed.">    switch (accountType) {</span>
-      case BOT:
-<span class="nc bnc" id="L544" title="All 2 branches missed.">        if (guildCache.size() &gt;= 10)</span>
-<span class="nc" id="L545">          throw new IllegalStateException(</span>
-              &quot;Cannot create a Guild with a Bot in more than 10 guilds!&quot;);
-        break;
-      case CLIENT:
-<span class="nc bnc" id="L549" title="All 2 branches missed.">        if (guildCache.size() &gt;= 100)</span>
-<span class="nc" id="L550">          throw new IllegalStateException(</span>
-              &quot;Cannot be in more than 100 guilds with AccountType.CLIENT!&quot;);
+<span class="nc bnc" id="L499" title="All 2 branches missed.">    if (guildCache.size() &gt;= 10) {</span>
+<span class="nc" id="L500">      throw new IllegalStateException(&quot;Cannot create a Guild with a Bot in more than 10 guilds!&quot;);</span>
     }
-<span class="nc" id="L553">    return new GuildAction(this, name);</span>
+
+<span class="nc" id="L503">    return new GuildAction(this, name);</span>
   }
 
   public EntityBuilder getEntityBuilder() {
-<span class="nc" id="L557">    return entityBuilder;</span>
+<span class="nc" id="L507">    return entityBuilder;</span>
   }
 
   public GuildLock getGuildLock() {
-<span class="nc" id="L561">    return this.guildLock;</span>
+<span class="nc" id="L511">    return this.guildLock;</span>
   }
 
   public void setPing(long ping) {
-<span class="nc" id="L565">    this.ping = ping;</span>
-<span class="nc" id="L566">  }</span>
+<span class="nc" id="L515">    this.ping = ping;</span>
+<span class="nc" id="L516">  }</span>
 
   public Requester getRequester() {
-<span class="nc" id="L569">    return requester;</span>
+<span class="nc" id="L519">    return requester;</span>
   }
 
   public IEventManager getEventManager() {
-<span class="nc" id="L573">    return eventManager;</span>
+<span class="nc" id="L523">    return eventManager;</span>
   }
 
   public WebSocketFactory getWebSocketFactory() {
-<span class="nc" id="L577">    return wsFactory;</span>
+<span class="nc" id="L527">    return wsFactory;</span>
   }
 
   public WebSocketClient getClient() {
-<span class="nc" id="L581">    return client;</span>
+<span class="nc" id="L531">    return client;</span>
   }
 
   public TLongObjectMap&lt;User&gt; getUserMap() {
-<span class="nc" id="L585">    return userCache.getMap();</span>
+<span class="nc" id="L535">    return userCache.getMap();</span>
   }
 
   public TLongObjectMap&lt;Guild&gt; getGuildMap() {
-<span class="nc" id="L589">    return guildCache.getMap();</span>
+<span class="nc" id="L539">    return guildCache.getMap();</span>
   }
 
   public TLongObjectMap&lt;Category&gt; getCategoryMap() {
-<span class="nc" id="L593">    return categories.getMap();</span>
+<span class="nc" id="L543">    return categories.getMap();</span>
   }
 
   public TLongObjectMap&lt;TextChannel&gt; getTextChannelMap() {
-<span class="nc" id="L597">    return textChannelCache.getMap();</span>
+<span class="nc" id="L547">    return textChannelCache.getMap();</span>
   }
 
   public TLongObjectMap&lt;VoiceChannel&gt; getVoiceChannelMap() {
-<span class="nc" id="L601">    return voiceChannelCache.getMap();</span>
+<span class="nc" id="L551">    return voiceChannelCache.getMap();</span>
   }
 
   public TLongObjectMap&lt;PrivateChannel&gt; getPrivateChannelMap() {
-<span class="nc" id="L605">    return privateChannelCache.getMap();</span>
+<span class="nc" id="L555">    return privateChannelCache.getMap();</span>
   }
 
   public TLongObjectMap&lt;User&gt; getFakeUserMap() {
-<span class="nc" id="L609">    return fakeUsers;</span>
+<span class="nc" id="L559">    return fakeUsers;</span>
   }
 
   public TLongObjectMap&lt;PrivateChannel&gt; getFakePrivateChannelMap() {
-<span class="nc" id="L613">    return fakePrivateChannels;</span>
+<span class="nc" id="L563">    return fakePrivateChannels;</span>
   }
 
   public TLongObjectMap&lt;AudioManager&gt; getAudioManagerMap() {
-<span class="nc" id="L617">    return audioManagers.getMap();</span>
+<span class="nc" id="L567">    return audioManagers.getMap();</span>
   }
 
   public void setSelfUser(SelfUser selfUser) {
-<span class="nc" id="L621">    this.selfUser = selfUser;</span>
-<span class="nc" id="L622">  }</span>
+<span class="nc" id="L571">    this.selfUser = selfUser;</span>
+<span class="nc" id="L572">  }</span>
 
   public void setResponseTotal(int responseTotal) {
-<span class="nc" id="L625">    this.responseTotal = responseTotal;</span>
-<span class="nc" id="L626">  }</span>
+<span class="nc" id="L575">    this.responseTotal = responseTotal;</span>
+<span class="nc" id="L576">  }</span>
 
   public String getIdentifierString() {
-<span class="nc bnc" id="L629" title="All 2 branches missed.">    if (shardInfo != null) return &quot;JDA &quot; + shardInfo.getShardString();</span>
-<span class="nc" id="L630">    else return &quot;JDA&quot;;</span>
+<span class="nc bnc" id="L579" title="All 2 branches missed.">    if (shardInfo != null) return &quot;JDA &quot; + shardInfo.getShardString();</span>
+<span class="nc" id="L580">    else return &quot;JDA&quot;;</span>
   }
 
   public EventCache getEventCache() {
-<span class="nc" id="L634">    return eventCache;</span>
+<span class="nc" id="L584">    return eventCache;</span>
   }
 
   public OkHttpClient.Builder getHttpClientBuilder() {
-<span class="nc" id="L638">    return httpClientBuilder;</span>
+<span class="nc" id="L588">    return httpClientBuilder;</span>
   }
 
-<span class="nc" id="L641">  private class JDAThreadFactory implements ThreadFactory {</span>
+<span class="nc" id="L591">  private class JDAThreadFactory implements ThreadFactory {</span>
     @Override
     public Thread newThread(Runnable r) {
-<span class="nc" id="L644">      final Thread thread = new Thread(r, &quot;JDA-Thread &quot; + getIdentifierString());</span>
-<span class="nc" id="L645">      thread.setDaemon(true);</span>
-<span class="nc" id="L646">      return thread;</span>
+<span class="nc" id="L594">      final Thread thread = new Thread(r, &quot;JDA-Thread &quot; + getIdentifierString());</span>
+<span class="nc" id="L595">      thread.setDaemon(true);</span>
+<span class="nc" id="L596">      return thread;</span>
     }
   }
 
   public ScheduledThreadPoolExecutor getAudioKeepAlivePool() {
-<span class="nc" id="L651">    ScheduledThreadPoolExecutor akap = audioKeepAlivePool;</span>
-<span class="nc bnc" id="L652" title="All 2 branches missed.">    if (akap == null) {</span>
-<span class="nc" id="L653">      synchronized (akapLock) {</span>
-<span class="nc" id="L654">        akap = audioKeepAlivePool;</span>
-<span class="nc bnc" id="L655" title="All 2 branches missed.">        if (akap == null)</span>
-<span class="nc" id="L656">          akap =</span>
+<span class="nc" id="L601">    ScheduledThreadPoolExecutor akap = audioKeepAlivePool;</span>
+<span class="nc bnc" id="L602" title="All 2 branches missed.">    if (akap == null) {</span>
+<span class="nc" id="L603">      synchronized (akapLock) {</span>
+<span class="nc" id="L604">        akap = audioKeepAlivePool;</span>
+<span class="nc bnc" id="L605" title="All 2 branches missed.">        if (akap == null)</span>
+<span class="nc" id="L606">          akap =</span>
               audioKeepAlivePool =
                   new ScheduledThreadPoolExecutor(
                       1, new AudioWebSocket.KeepAliveThreadFactory(this));
-<span class="nc" id="L660">      }</span>
+<span class="nc" id="L610">      }</span>
     }
-<span class="nc" id="L662">    return akap;</span>
+<span class="nc" id="L612">    return akap;</span>
   }
 
   public String getGatewayUrl() {
-<span class="nc" id="L666">    return gatewayUrl;</span>
+<span class="nc" id="L616">    return gatewayUrl;</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

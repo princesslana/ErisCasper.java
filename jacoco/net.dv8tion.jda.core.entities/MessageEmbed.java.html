@@ -22,7 +22,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.utils.Checks;
 import net.dv8tion.jda.core.utils.Helpers;
@@ -99,7 +98,7 @@ public class MessageEmbed {
    */
   public static final int EMBED_MAX_LENGTH_CLIENT = 2000;
 
-<span class="nc" id="L102">  protected final Object mutex = new Object();</span>
+<span class="nc" id="L101">  protected final Object mutex = new Object();</span>
 
   protected final String url;
   protected final String title;
@@ -115,8 +114,8 @@ public class MessageEmbed {
   protected final ImageInfo image;
   protected final List&lt;Field&gt; fields;
 
-<span class="nc" id="L118">  protected volatile int length = -1;</span>
-<span class="nc" id="L119">  protected volatile JSONObject json = null;</span>
+<span class="nc" id="L117">  protected volatile int length = -1;</span>
+<span class="nc" id="L118">  protected volatile JSONObject json = null;</span>
 
   protected MessageEmbed(
       String url,
@@ -131,24 +130,24 @@ public class MessageEmbed {
       VideoInfo videoInfo,
       Footer footer,
       ImageInfo image,
-<span class="nc" id="L134">      List&lt;Field&gt; fields) {</span>
-<span class="nc" id="L135">    this.url = url;</span>
-<span class="nc" id="L136">    this.title = title;</span>
-<span class="nc" id="L137">    this.description = description;</span>
-<span class="nc" id="L138">    this.type = type;</span>
-<span class="nc" id="L139">    this.timestamp = timestamp;</span>
-<span class="nc" id="L140">    this.color = color;</span>
-<span class="nc" id="L141">    this.thumbnail = thumbnail;</span>
-<span class="nc" id="L142">    this.siteProvider = siteProvider;</span>
-<span class="nc" id="L143">    this.author = author;</span>
-<span class="nc" id="L144">    this.videoInfo = videoInfo;</span>
-<span class="nc" id="L145">    this.footer = footer;</span>
-<span class="nc" id="L146">    this.image = image;</span>
-<span class="nc bnc" id="L147" title="All 2 branches missed.">    this.fields =</span>
-<span class="nc bnc" id="L148" title="All 2 branches missed.">        fields != null &amp;&amp; !fields.isEmpty()</span>
-<span class="nc" id="L149">            ? Collections.unmodifiableList(fields)</span>
-<span class="nc" id="L150">            : Collections.emptyList();</span>
-<span class="nc" id="L151">  }</span>
+<span class="nc" id="L133">      List&lt;Field&gt; fields) {</span>
+<span class="nc" id="L134">    this.url = url;</span>
+<span class="nc" id="L135">    this.title = title;</span>
+<span class="nc" id="L136">    this.description = description;</span>
+<span class="nc" id="L137">    this.type = type;</span>
+<span class="nc" id="L138">    this.timestamp = timestamp;</span>
+<span class="nc" id="L139">    this.color = color;</span>
+<span class="nc" id="L140">    this.thumbnail = thumbnail;</span>
+<span class="nc" id="L141">    this.siteProvider = siteProvider;</span>
+<span class="nc" id="L142">    this.author = author;</span>
+<span class="nc" id="L143">    this.videoInfo = videoInfo;</span>
+<span class="nc" id="L144">    this.footer = footer;</span>
+<span class="nc" id="L145">    this.image = image;</span>
+<span class="nc bnc" id="L146" title="All 2 branches missed.">    this.fields =</span>
+<span class="nc bnc" id="L147" title="All 2 branches missed.">        fields != null &amp;&amp; !fields.isEmpty()</span>
+<span class="nc" id="L148">            ? Collections.unmodifiableList(fields)</span>
+<span class="nc" id="L149">            : Collections.emptyList();</span>
+<span class="nc" id="L150">  }</span>
 
   /**
    * The that was originally placed into chat that spawned this embed.
@@ -156,7 +155,7 @@ public class MessageEmbed {
    * @return Never-null String containing the original message url.
    */
   public String getUrl() {
-<span class="nc" id="L159">    return url;</span>
+<span class="nc" id="L158">    return url;</span>
   }
 
   /**
@@ -168,7 +167,7 @@ public class MessageEmbed {
    * @return Possibly-null String containing the title of the embedded resource.
    */
   public String getTitle() {
-<span class="nc" id="L171">    return title;</span>
+<span class="nc" id="L170">    return title;</span>
   }
 
   /**
@@ -180,7 +179,7 @@ public class MessageEmbed {
    * @return Possibly-null String containing a description of the embedded resource.
    */
   public String getDescription() {
-<span class="nc" id="L183">    return description;</span>
+<span class="nc" id="L182">    return description;</span>
   }
 
   /**
@@ -189,7 +188,7 @@ public class MessageEmbed {
    * @return The {@link net.dv8tion.jda.core.entities.EmbedType EmbedType} of this embed.
    */
   public EmbedType getType() {
-<span class="nc" id="L192">    return type;</span>
+<span class="nc" id="L191">    return type;</span>
   }
 
   /**
@@ -202,7 +201,7 @@ public class MessageEmbed {
    *     instance containing general information on the displayable thumbnail.
    */
   public Thumbnail getThumbnail() {
-<span class="nc" id="L205">    return thumbnail;</span>
+<span class="nc" id="L204">    return thumbnail;</span>
   }
 
   /**
@@ -213,7 +212,7 @@ public class MessageEmbed {
    *     containing site information.
    */
   public Provider getSiteProvider() {
-<span class="nc" id="L216">    return siteProvider;</span>
+<span class="nc" id="L215">    return siteProvider;</span>
   }
 
   /**
@@ -224,7 +223,7 @@ public class MessageEmbed {
    *     containing author information.
    */
   public AuthorInfo getAuthor() {
-<span class="nc" id="L227">    return author;</span>
+<span class="nc" id="L226">    return author;</span>
   }
 
   /**
@@ -237,7 +236,7 @@ public class MessageEmbed {
    *     containing the information about the video which should be embedded.
    */
   public VideoInfo getVideoInfo() {
-<span class="nc" id="L240">    return videoInfo;</span>
+<span class="nc" id="L239">    return videoInfo;</span>
   }
 
   /**
@@ -248,7 +247,7 @@ public class MessageEmbed {
    *     containing the embed footer content.
    */
   public Footer getFooter() {
-<span class="nc" id="L251">    return footer;</span>
+<span class="nc" id="L250">    return footer;</span>
   }
 
   /**
@@ -258,7 +257,7 @@ public class MessageEmbed {
    *     containing image information.
    */
   public ImageInfo getImage() {
-<span class="nc" id="L261">    return image;</span>
+<span class="nc" id="L260">    return image;</span>
   }
 
   /**
@@ -272,7 +271,7 @@ public class MessageEmbed {
    *     information.
    */
   public List&lt;Field&gt; getFields() {
-<span class="nc" id="L275">    return fields;</span>
+<span class="nc" id="L274">    return fields;</span>
   }
 
   /**
@@ -282,7 +281,7 @@ public class MessageEmbed {
    * @return Possibly-null Color.
    */
   public Color getColor() {
-<span class="nc" id="L285">    return color;</span>
+<span class="nc" id="L284">    return color;</span>
   }
 
   /**
@@ -291,7 +290,7 @@ public class MessageEmbed {
    * @return Possibly-null OffsetDateTime object representing the timestamp.
    */
   public OffsetDateTime getTimestamp() {
-<span class="nc" id="L294">    return timestamp;</span>
+<span class="nc" id="L293">    return timestamp;</span>
   }
 
   /**
@@ -300,7 +299,7 @@ public class MessageEmbed {
    * @return True, if this embed has no content
    */
   public boolean isEmpty() {
-<span class="nc bnc" id="L303" title="All 6 branches missed.">    return getLength() == 0 &amp;&amp; getImage() == null &amp;&amp; getThumbnail() == null;</span>
+<span class="nc bnc" id="L302" title="All 6 branches missed.">    return getLength() == 0 &amp;&amp; getImage() == null &amp;&amp; getThumbnail() == null;</span>
   }
 
   /**
@@ -318,20 +317,20 @@ public class MessageEmbed {
    * @return A never-negative sum of all displayed text characters.
    */
   public int getLength() {
-<span class="nc bnc" id="L321" title="All 2 branches missed.">    if (length &gt; -1) return length;</span>
-<span class="nc" id="L322">    synchronized (mutex) {</span>
-<span class="nc bnc" id="L323" title="All 2 branches missed.">      if (length &gt; -1) return length;</span>
-<span class="nc" id="L324">      length = 0;</span>
+<span class="nc bnc" id="L320" title="All 2 branches missed.">    if (length &gt; -1) return length;</span>
+<span class="nc" id="L321">    synchronized (mutex) {</span>
+<span class="nc bnc" id="L322" title="All 2 branches missed.">      if (length &gt; -1) return length;</span>
+<span class="nc" id="L323">      length = 0;</span>
 
-<span class="nc bnc" id="L326" title="All 2 branches missed.">      if (title != null) length += title.length();</span>
-<span class="nc bnc" id="L327" title="All 2 branches missed.">      if (description != null) length += description.length();</span>
-<span class="nc bnc" id="L328" title="All 2 branches missed.">      if (author != null) length += author.getName().length();</span>
-<span class="nc bnc" id="L329" title="All 2 branches missed.">      if (footer != null) length += footer.getText().length();</span>
-<span class="nc bnc" id="L330" title="All 2 branches missed.">      if (fields != null) {</span>
-<span class="nc bnc" id="L331" title="All 2 branches missed.">        for (Field f : fields) length += f.getName().length() + f.getValue().length();</span>
+<span class="nc bnc" id="L325" title="All 2 branches missed.">      if (title != null) length += title.length();</span>
+<span class="nc bnc" id="L326" title="All 2 branches missed.">      if (description != null) length += description.length();</span>
+<span class="nc bnc" id="L327" title="All 2 branches missed.">      if (author != null) length += author.getName().length();</span>
+<span class="nc bnc" id="L328" title="All 2 branches missed.">      if (footer != null) length += footer.getText().length();</span>
+<span class="nc bnc" id="L329" title="All 2 branches missed.">      if (fields != null) {</span>
+<span class="nc bnc" id="L330" title="All 2 branches missed.">        for (Field f : fields) length += f.getName().length() + f.getValue().length();</span>
       }
 
-<span class="nc" id="L334">      return length;</span>
+<span class="nc" id="L333">      return length;</span>
     }
   }
 
@@ -353,40 +352,32 @@ public class MessageEmbed {
    * @return True, if this MessageEmbed can be used to send messages for this specified AccountType
    * @see #getLength()
    */
-  public boolean isSendable(AccountType type) {
-<span class="nc" id="L357">    Checks.notNull(type, &quot;AccountType&quot;);</span>
-<span class="nc" id="L358">    final int length = getLength();</span>
-<span class="nc bnc" id="L359" title="All 2 branches missed.">    if (isEmpty()) return false;</span>
+  public boolean isSendable() {
+<span class="nc" id="L356">    Checks.notNull(type, &quot;AccountType&quot;);</span>
+<span class="nc" id="L357">    final int length = getLength();</span>
+<span class="nc bnc" id="L358" title="All 2 branches missed.">    if (isEmpty()) return false;</span>
 
-<span class="nc bnc" id="L361" title="All 3 branches missed.">    switch (type) {</span>
-      case BOT:
-<span class="nc bnc" id="L363" title="All 2 branches missed.">        return length &lt;= EMBED_MAX_LENGTH_BOT;</span>
-      case CLIENT:
-<span class="nc bnc" id="L365" title="All 2 branches missed.">        return length &lt;= EMBED_MAX_LENGTH_CLIENT;</span>
-      default:
-<span class="nc" id="L367">        throw new IllegalArgumentException(</span>
-<span class="nc" id="L368">            String.format(&quot;Cannot check against AccountType '%s'!&quot;, type));</span>
-    }
+<span class="nc bnc" id="L360" title="All 2 branches missed.">    return length &lt;= EMBED_MAX_LENGTH_BOT;</span>
   }
 
   @Override
   public boolean equals(Object obj) {
-<span class="nc bnc" id="L374" title="All 2 branches missed.">    if (!(obj instanceof MessageEmbed)) return false;</span>
-<span class="nc bnc" id="L375" title="All 2 branches missed.">    if (obj == this) return true;</span>
-<span class="nc" id="L376">    MessageEmbed other = (MessageEmbed) obj;</span>
-<span class="nc bnc" id="L377" title="All 2 branches missed.">    return Objects.equals(url, other.url)</span>
-<span class="nc bnc" id="L378" title="All 2 branches missed.">        &amp;&amp; Objects.equals(title, other.title)</span>
-<span class="nc bnc" id="L379" title="All 2 branches missed.">        &amp;&amp; Objects.equals(description, other.description)</span>
-<span class="nc bnc" id="L380" title="All 2 branches missed.">        &amp;&amp; Objects.equals(type, other.type)</span>
-<span class="nc bnc" id="L381" title="All 2 branches missed.">        &amp;&amp; Objects.equals(thumbnail, other.thumbnail)</span>
-<span class="nc bnc" id="L382" title="All 2 branches missed.">        &amp;&amp; Objects.equals(siteProvider, other.siteProvider)</span>
-<span class="nc bnc" id="L383" title="All 2 branches missed.">        &amp;&amp; Objects.equals(author, other.author)</span>
-<span class="nc bnc" id="L384" title="All 2 branches missed.">        &amp;&amp; Objects.equals(videoInfo, other.videoInfo)</span>
-<span class="nc bnc" id="L385" title="All 2 branches missed.">        &amp;&amp; Objects.equals(footer, other.footer)</span>
-<span class="nc bnc" id="L386" title="All 2 branches missed.">        &amp;&amp; Objects.equals(image, other.image)</span>
-<span class="nc bnc" id="L387" title="All 2 branches missed.">        &amp;&amp; Objects.equals(color, other.color)</span>
-<span class="nc bnc" id="L388" title="All 2 branches missed.">        &amp;&amp; Objects.equals(timestamp, other.timestamp)</span>
-<span class="nc bnc" id="L389" title="All 2 branches missed.">        &amp;&amp; Helpers.deepEquals(fields, other.fields);</span>
+<span class="nc bnc" id="L365" title="All 2 branches missed.">    if (!(obj instanceof MessageEmbed)) return false;</span>
+<span class="nc bnc" id="L366" title="All 2 branches missed.">    if (obj == this) return true;</span>
+<span class="nc" id="L367">    MessageEmbed other = (MessageEmbed) obj;</span>
+<span class="nc bnc" id="L368" title="All 2 branches missed.">    return Objects.equals(url, other.url)</span>
+<span class="nc bnc" id="L369" title="All 2 branches missed.">        &amp;&amp; Objects.equals(title, other.title)</span>
+<span class="nc bnc" id="L370" title="All 2 branches missed.">        &amp;&amp; Objects.equals(description, other.description)</span>
+<span class="nc bnc" id="L371" title="All 2 branches missed.">        &amp;&amp; Objects.equals(type, other.type)</span>
+<span class="nc bnc" id="L372" title="All 2 branches missed.">        &amp;&amp; Objects.equals(thumbnail, other.thumbnail)</span>
+<span class="nc bnc" id="L373" title="All 2 branches missed.">        &amp;&amp; Objects.equals(siteProvider, other.siteProvider)</span>
+<span class="nc bnc" id="L374" title="All 2 branches missed.">        &amp;&amp; Objects.equals(author, other.author)</span>
+<span class="nc bnc" id="L375" title="All 2 branches missed.">        &amp;&amp; Objects.equals(videoInfo, other.videoInfo)</span>
+<span class="nc bnc" id="L376" title="All 2 branches missed.">        &amp;&amp; Objects.equals(footer, other.footer)</span>
+<span class="nc bnc" id="L377" title="All 2 branches missed.">        &amp;&amp; Objects.equals(image, other.image)</span>
+<span class="nc bnc" id="L378" title="All 2 branches missed.">        &amp;&amp; Objects.equals(color, other.color)</span>
+<span class="nc bnc" id="L379" title="All 2 branches missed.">        &amp;&amp; Objects.equals(timestamp, other.timestamp)</span>
+<span class="nc bnc" id="L380" title="All 2 branches missed.">        &amp;&amp; Helpers.deepEquals(fields, other.fields);</span>
   }
 
   /**
@@ -395,49 +386,49 @@ public class MessageEmbed {
    * @return JSONObject for this embed
    */
   public JSONObject toJSONObject() {
-<span class="nc bnc" id="L398" title="All 2 branches missed.">    if (json != null) return json;</span>
-<span class="nc" id="L399">    synchronized (mutex) {</span>
-<span class="nc bnc" id="L400" title="All 2 branches missed.">      if (json != null) return json;</span>
-<span class="nc" id="L401">      JSONObject obj = new JSONObject();</span>
-<span class="nc bnc" id="L402" title="All 2 branches missed.">      if (url != null) obj.put(&quot;url&quot;, url);</span>
-<span class="nc bnc" id="L403" title="All 2 branches missed.">      if (title != null) obj.put(&quot;title&quot;, title);</span>
-<span class="nc bnc" id="L404" title="All 2 branches missed.">      if (description != null) obj.put(&quot;description&quot;, description);</span>
-<span class="nc bnc" id="L405" title="All 2 branches missed.">      if (timestamp != null) obj.put(&quot;timestamp&quot;, timestamp.format(DateTimeFormatter.ISO_INSTANT));</span>
-<span class="nc bnc" id="L406" title="All 2 branches missed.">      if (color != null) obj.put(&quot;color&quot;, color.getRGB() &amp; 0xFFFFFF);</span>
-<span class="nc bnc" id="L407" title="All 2 branches missed.">      if (thumbnail != null) obj.put(&quot;thumbnail&quot;, new JSONObject().put(&quot;url&quot;, thumbnail.getUrl()));</span>
-<span class="nc bnc" id="L408" title="All 2 branches missed.">      if (siteProvider != null) {</span>
-<span class="nc" id="L409">        JSONObject siteProviderObj = new JSONObject();</span>
-<span class="nc bnc" id="L410" title="All 2 branches missed.">        if (siteProvider.getName() != null) siteProviderObj.put(&quot;name&quot;, siteProvider.getName());</span>
-<span class="nc bnc" id="L411" title="All 2 branches missed.">        if (siteProvider.getUrl() != null) siteProviderObj.put(&quot;url&quot;, siteProvider.getUrl());</span>
-<span class="nc" id="L412">        obj.put(&quot;provider&quot;, siteProviderObj);</span>
+<span class="nc bnc" id="L389" title="All 2 branches missed.">    if (json != null) return json;</span>
+<span class="nc" id="L390">    synchronized (mutex) {</span>
+<span class="nc bnc" id="L391" title="All 2 branches missed.">      if (json != null) return json;</span>
+<span class="nc" id="L392">      JSONObject obj = new JSONObject();</span>
+<span class="nc bnc" id="L393" title="All 2 branches missed.">      if (url != null) obj.put(&quot;url&quot;, url);</span>
+<span class="nc bnc" id="L394" title="All 2 branches missed.">      if (title != null) obj.put(&quot;title&quot;, title);</span>
+<span class="nc bnc" id="L395" title="All 2 branches missed.">      if (description != null) obj.put(&quot;description&quot;, description);</span>
+<span class="nc bnc" id="L396" title="All 2 branches missed.">      if (timestamp != null) obj.put(&quot;timestamp&quot;, timestamp.format(DateTimeFormatter.ISO_INSTANT));</span>
+<span class="nc bnc" id="L397" title="All 2 branches missed.">      if (color != null) obj.put(&quot;color&quot;, color.getRGB() &amp; 0xFFFFFF);</span>
+<span class="nc bnc" id="L398" title="All 2 branches missed.">      if (thumbnail != null) obj.put(&quot;thumbnail&quot;, new JSONObject().put(&quot;url&quot;, thumbnail.getUrl()));</span>
+<span class="nc bnc" id="L399" title="All 2 branches missed.">      if (siteProvider != null) {</span>
+<span class="nc" id="L400">        JSONObject siteProviderObj = new JSONObject();</span>
+<span class="nc bnc" id="L401" title="All 2 branches missed.">        if (siteProvider.getName() != null) siteProviderObj.put(&quot;name&quot;, siteProvider.getName());</span>
+<span class="nc bnc" id="L402" title="All 2 branches missed.">        if (siteProvider.getUrl() != null) siteProviderObj.put(&quot;url&quot;, siteProvider.getUrl());</span>
+<span class="nc" id="L403">        obj.put(&quot;provider&quot;, siteProviderObj);</span>
       }
-<span class="nc bnc" id="L414" title="All 2 branches missed.">      if (author != null) {</span>
-<span class="nc" id="L415">        JSONObject authorObj = new JSONObject();</span>
-<span class="nc bnc" id="L416" title="All 2 branches missed.">        if (author.getName() != null) authorObj.put(&quot;name&quot;, author.getName());</span>
-<span class="nc bnc" id="L417" title="All 2 branches missed.">        if (author.getUrl() != null) authorObj.put(&quot;url&quot;, author.getUrl());</span>
-<span class="nc bnc" id="L418" title="All 2 branches missed.">        if (author.getIconUrl() != null) authorObj.put(&quot;icon_url&quot;, author.getIconUrl());</span>
-<span class="nc" id="L419">        obj.put(&quot;author&quot;, authorObj);</span>
+<span class="nc bnc" id="L405" title="All 2 branches missed.">      if (author != null) {</span>
+<span class="nc" id="L406">        JSONObject authorObj = new JSONObject();</span>
+<span class="nc bnc" id="L407" title="All 2 branches missed.">        if (author.getName() != null) authorObj.put(&quot;name&quot;, author.getName());</span>
+<span class="nc bnc" id="L408" title="All 2 branches missed.">        if (author.getUrl() != null) authorObj.put(&quot;url&quot;, author.getUrl());</span>
+<span class="nc bnc" id="L409" title="All 2 branches missed.">        if (author.getIconUrl() != null) authorObj.put(&quot;icon_url&quot;, author.getIconUrl());</span>
+<span class="nc" id="L410">        obj.put(&quot;author&quot;, authorObj);</span>
       }
-<span class="nc bnc" id="L421" title="All 2 branches missed.">      if (videoInfo != null) obj.put(&quot;video&quot;, new JSONObject().put(&quot;url&quot;, videoInfo.getUrl()));</span>
-<span class="nc bnc" id="L422" title="All 2 branches missed.">      if (footer != null) {</span>
-<span class="nc" id="L423">        JSONObject footerObj = new JSONObject();</span>
-<span class="nc bnc" id="L424" title="All 2 branches missed.">        if (footer.getText() != null) footerObj.put(&quot;text&quot;, footer.getText());</span>
-<span class="nc bnc" id="L425" title="All 2 branches missed.">        if (footer.getIconUrl() != null) footerObj.put(&quot;icon_url&quot;, footer.getIconUrl());</span>
-<span class="nc" id="L426">        obj.put(&quot;footer&quot;, footerObj);</span>
+<span class="nc bnc" id="L412" title="All 2 branches missed.">      if (videoInfo != null) obj.put(&quot;video&quot;, new JSONObject().put(&quot;url&quot;, videoInfo.getUrl()));</span>
+<span class="nc bnc" id="L413" title="All 2 branches missed.">      if (footer != null) {</span>
+<span class="nc" id="L414">        JSONObject footerObj = new JSONObject();</span>
+<span class="nc bnc" id="L415" title="All 2 branches missed.">        if (footer.getText() != null) footerObj.put(&quot;text&quot;, footer.getText());</span>
+<span class="nc bnc" id="L416" title="All 2 branches missed.">        if (footer.getIconUrl() != null) footerObj.put(&quot;icon_url&quot;, footer.getIconUrl());</span>
+<span class="nc" id="L417">        obj.put(&quot;footer&quot;, footerObj);</span>
       }
-<span class="nc bnc" id="L428" title="All 2 branches missed.">      if (image != null) obj.put(&quot;image&quot;, new JSONObject().put(&quot;url&quot;, image.getUrl()));</span>
-<span class="nc bnc" id="L429" title="All 2 branches missed.">      if (!fields.isEmpty()) {</span>
-<span class="nc" id="L430">        JSONArray fieldsArray = new JSONArray();</span>
-<span class="nc bnc" id="L431" title="All 2 branches missed.">        for (Field field : fields) {</span>
-<span class="nc" id="L432">          fieldsArray.put(</span>
+<span class="nc bnc" id="L419" title="All 2 branches missed.">      if (image != null) obj.put(&quot;image&quot;, new JSONObject().put(&quot;url&quot;, image.getUrl()));</span>
+<span class="nc bnc" id="L420" title="All 2 branches missed.">      if (!fields.isEmpty()) {</span>
+<span class="nc" id="L421">        JSONArray fieldsArray = new JSONArray();</span>
+<span class="nc bnc" id="L422" title="All 2 branches missed.">        for (Field field : fields) {</span>
+<span class="nc" id="L423">          fieldsArray.put(</span>
               new JSONObject()
-<span class="nc" id="L434">                  .put(&quot;name&quot;, field.getName())</span>
-<span class="nc" id="L435">                  .put(&quot;value&quot;, field.getValue())</span>
-<span class="nc" id="L436">                  .put(&quot;inline&quot;, field.isInline()));</span>
-<span class="nc" id="L437">        }</span>
-<span class="nc" id="L438">        obj.put(&quot;fields&quot;, fieldsArray);</span>
+<span class="nc" id="L425">                  .put(&quot;name&quot;, field.getName())</span>
+<span class="nc" id="L426">                  .put(&quot;value&quot;, field.getValue())</span>
+<span class="nc" id="L427">                  .put(&quot;inline&quot;, field.isInline()));</span>
+<span class="nc" id="L428">        }</span>
+<span class="nc" id="L429">        obj.put(&quot;fields&quot;, fieldsArray);</span>
       }
-<span class="nc" id="L440">      return json = obj;</span>
+<span class="nc" id="L431">      return json = obj;</span>
     }
   }
 
@@ -451,12 +442,12 @@ public class MessageEmbed {
     protected final int width;
     protected final int height;
 
-<span class="nc" id="L454">    public Thumbnail(String url, String proxyUrl, int width, int height) {</span>
-<span class="nc" id="L455">      this.url = url;</span>
-<span class="nc" id="L456">      this.proxyUrl = proxyUrl;</span>
-<span class="nc" id="L457">      this.width = width;</span>
-<span class="nc" id="L458">      this.height = height;</span>
-<span class="nc" id="L459">    }</span>
+<span class="nc" id="L445">    public Thumbnail(String url, String proxyUrl, int width, int height) {</span>
+<span class="nc" id="L446">      this.url = url;</span>
+<span class="nc" id="L447">      this.proxyUrl = proxyUrl;</span>
+<span class="nc" id="L448">      this.width = width;</span>
+<span class="nc" id="L449">      this.height = height;</span>
+<span class="nc" id="L450">    }</span>
 
     /**
      * The web url of this thumbnail image.
@@ -464,7 +455,7 @@ public class MessageEmbed {
      * @return Never-null String containing the url of the displayed image.
      */
     public String getUrl() {
-<span class="nc" id="L467">      return url;</span>
+<span class="nc" id="L458">      return url;</span>
     }
 
     /**
@@ -475,7 +466,7 @@ public class MessageEmbed {
      * @return Never-null String containing the proxied url of this image.
      */
     public String getProxyUrl() {
-<span class="nc" id="L478">      return proxyUrl;</span>
+<span class="nc" id="L469">      return proxyUrl;</span>
     }
 
     /**
@@ -484,7 +475,7 @@ public class MessageEmbed {
      * @return Never-negative, Never-zero int containing the width of the image.
      */
     public int getWidth() {
-<span class="nc" id="L487">      return width;</span>
+<span class="nc" id="L478">      return width;</span>
     }
 
     /**
@@ -493,16 +484,16 @@ public class MessageEmbed {
      * @return Never-negative, Never-zero int containing the height of the image.
      */
     public int getHeight() {
-<span class="nc" id="L496">      return height;</span>
+<span class="nc" id="L487">      return height;</span>
     }
 
     @Override
     public boolean equals(Object obj) {
-<span class="nc bnc" id="L501" title="All 2 branches missed.">      if (!(obj instanceof Thumbnail)) return false;</span>
-<span class="nc" id="L502">      Thumbnail thumbnail = (Thumbnail) obj;</span>
-<span class="nc bnc" id="L503" title="All 2 branches missed.">      return thumbnail == this</span>
-<span class="nc bnc" id="L504" title="All 2 branches missed.">          || (Objects.equals(thumbnail.url, url)</span>
-<span class="nc bnc" id="L505" title="All 6 branches missed.">              &amp;&amp; Objects.equals(thumbnail.proxyUrl, proxyUrl)</span>
+<span class="nc bnc" id="L492" title="All 2 branches missed.">      if (!(obj instanceof Thumbnail)) return false;</span>
+<span class="nc" id="L493">      Thumbnail thumbnail = (Thumbnail) obj;</span>
+<span class="nc bnc" id="L494" title="All 2 branches missed.">      return thumbnail == this</span>
+<span class="nc bnc" id="L495" title="All 2 branches missed.">          || (Objects.equals(thumbnail.url, url)</span>
+<span class="nc bnc" id="L496" title="All 6 branches missed.">              &amp;&amp; Objects.equals(thumbnail.proxyUrl, proxyUrl)</span>
               &amp;&amp; thumbnail.width == width
               &amp;&amp; thumbnail.height == height);
     }
@@ -516,10 +507,10 @@ public class MessageEmbed {
     protected final String name;
     protected final String url;
 
-<span class="nc" id="L519">    public Provider(String name, String url) {</span>
-<span class="nc" id="L520">      this.name = name;</span>
-<span class="nc" id="L521">      this.url = url;</span>
-<span class="nc" id="L522">    }</span>
+<span class="nc" id="L510">    public Provider(String name, String url) {</span>
+<span class="nc" id="L511">      this.name = name;</span>
+<span class="nc" id="L512">      this.url = url;</span>
+<span class="nc" id="L513">    }</span>
 
     /**
      * The name of the provider. &lt;br&gt;
@@ -529,7 +520,7 @@ public class MessageEmbed {
      * @return Never-null String containing the name of the provider.
      */
     public String getName() {
-<span class="nc" id="L532">      return name;</span>
+<span class="nc" id="L523">      return name;</span>
     }
 
     /**
@@ -538,15 +529,15 @@ public class MessageEmbed {
      * @return Possibly-null String containing the url of the provider.
      */
     public String getUrl() {
-<span class="nc" id="L541">      return url;</span>
+<span class="nc" id="L532">      return url;</span>
     }
 
     @Override
     public boolean equals(Object obj) {
-<span class="nc bnc" id="L546" title="All 2 branches missed.">      if (!(obj instanceof Provider)) return false;</span>
-<span class="nc" id="L547">      Provider provider = (Provider) obj;</span>
-<span class="nc bnc" id="L548" title="All 2 branches missed.">      return provider == this</span>
-<span class="nc bnc" id="L549" title="All 4 branches missed.">          || (Objects.equals(provider.name, name) &amp;&amp; Objects.equals(provider.url, url));</span>
+<span class="nc bnc" id="L537" title="All 2 branches missed.">      if (!(obj instanceof Provider)) return false;</span>
+<span class="nc" id="L538">      Provider provider = (Provider) obj;</span>
+<span class="nc bnc" id="L539" title="All 2 branches missed.">      return provider == this</span>
+<span class="nc bnc" id="L540" title="All 4 branches missed.">          || (Objects.equals(provider.name, name) &amp;&amp; Objects.equals(provider.url, url));</span>
     }
   }
 
@@ -560,11 +551,11 @@ public class MessageEmbed {
     protected final int width;
     protected final int height;
 
-<span class="nc" id="L563">    public VideoInfo(String url, int width, int height) {</span>
-<span class="nc" id="L564">      this.url = url;</span>
-<span class="nc" id="L565">      this.width = width;</span>
-<span class="nc" id="L566">      this.height = height;</span>
-<span class="nc" id="L567">    }</span>
+<span class="nc" id="L554">    public VideoInfo(String url, int width, int height) {</span>
+<span class="nc" id="L555">      this.url = url;</span>
+<span class="nc" id="L556">      this.width = width;</span>
+<span class="nc" id="L557">      this.height = height;</span>
+<span class="nc" id="L558">    }</span>
 
     /**
      * The url of the video.
@@ -572,7 +563,7 @@ public class MessageEmbed {
      * @return Never-null String containing the video url.
      */
     public String getUrl() {
-<span class="nc" id="L575">      return url;</span>
+<span class="nc" id="L566">      return url;</span>
     }
 
     /**
@@ -584,7 +575,7 @@ public class MessageEmbed {
      * @return Non-negative, Non-zero int containing the width of the embedded video.
      */
     public int getWidth() {
-<span class="nc" id="L587">      return width;</span>
+<span class="nc" id="L578">      return width;</span>
     }
 
     /**
@@ -596,15 +587,15 @@ public class MessageEmbed {
      * @return Non-negative, Non-zero int containing the height of the embedded video.
      */
     public int getHeight() {
-<span class="nc" id="L599">      return height;</span>
+<span class="nc" id="L590">      return height;</span>
     }
 
     @Override
     public boolean equals(Object obj) {
-<span class="nc bnc" id="L604" title="All 2 branches missed.">      if (!(obj instanceof VideoInfo)) return false;</span>
-<span class="nc" id="L605">      VideoInfo video = (VideoInfo) obj;</span>
-<span class="nc bnc" id="L606" title="All 2 branches missed.">      return video == this</span>
-<span class="nc bnc" id="L607" title="All 6 branches missed.">          || (Objects.equals(video.url, url) &amp;&amp; video.width == width &amp;&amp; video.height == height);</span>
+<span class="nc bnc" id="L595" title="All 2 branches missed.">      if (!(obj instanceof VideoInfo)) return false;</span>
+<span class="nc" id="L596">      VideoInfo video = (VideoInfo) obj;</span>
+<span class="nc bnc" id="L597" title="All 2 branches missed.">      return video == this</span>
+<span class="nc bnc" id="L598" title="All 6 branches missed.">          || (Objects.equals(video.url, url) &amp;&amp; video.width == width &amp;&amp; video.height == height);</span>
     }
   }
 
@@ -615,12 +606,12 @@ public class MessageEmbed {
     protected final int width;
     protected final int height;
 
-<span class="nc" id="L618">    public ImageInfo(String url, String proxyUrl, int width, int height) {</span>
-<span class="nc" id="L619">      this.url = url;</span>
-<span class="nc" id="L620">      this.proxyUrl = proxyUrl;</span>
-<span class="nc" id="L621">      this.width = width;</span>
-<span class="nc" id="L622">      this.height = height;</span>
-<span class="nc" id="L623">    }</span>
+<span class="nc" id="L609">    public ImageInfo(String url, String proxyUrl, int width, int height) {</span>
+<span class="nc" id="L610">      this.url = url;</span>
+<span class="nc" id="L611">      this.proxyUrl = proxyUrl;</span>
+<span class="nc" id="L612">      this.width = width;</span>
+<span class="nc" id="L613">      this.height = height;</span>
+<span class="nc" id="L614">    }</span>
 
     /**
      * The url of the image.
@@ -628,7 +619,7 @@ public class MessageEmbed {
      * @return Never-null String containing the image url.
      */
     public String getUrl() {
-<span class="nc" id="L631">      return url;</span>
+<span class="nc" id="L622">      return url;</span>
     }
 
     /**
@@ -639,7 +630,7 @@ public class MessageEmbed {
      * @return Never-null String containing the proxied image url.
      */
     public String getProxyUrl() {
-<span class="nc" id="L642">      return proxyUrl;</span>
+<span class="nc" id="L633">      return proxyUrl;</span>
     }
 
     /**
@@ -648,7 +639,7 @@ public class MessageEmbed {
      * @return Non-negative, Non-zero int containing the width of the embedded image.
      */
     public int getWidth() {
-<span class="nc" id="L651">      return width;</span>
+<span class="nc" id="L642">      return width;</span>
     }
 
     /**
@@ -657,16 +648,16 @@ public class MessageEmbed {
      * @return Non-negative, Non-zero int containing the height of the embedded image.
      */
     public int getHeight() {
-<span class="nc" id="L660">      return height;</span>
+<span class="nc" id="L651">      return height;</span>
     }
 
     @Override
     public boolean equals(Object obj) {
-<span class="nc bnc" id="L665" title="All 2 branches missed.">      if (!(obj instanceof ImageInfo)) return false;</span>
-<span class="nc" id="L666">      ImageInfo image = (ImageInfo) obj;</span>
-<span class="nc bnc" id="L667" title="All 2 branches missed.">      return image == this</span>
-<span class="nc bnc" id="L668" title="All 2 branches missed.">          || (Objects.equals(image.url, url)</span>
-<span class="nc bnc" id="L669" title="All 6 branches missed.">              &amp;&amp; Objects.equals(image.proxyUrl, proxyUrl)</span>
+<span class="nc bnc" id="L656" title="All 2 branches missed.">      if (!(obj instanceof ImageInfo)) return false;</span>
+<span class="nc" id="L657">      ImageInfo image = (ImageInfo) obj;</span>
+<span class="nc bnc" id="L658" title="All 2 branches missed.">      return image == this</span>
+<span class="nc bnc" id="L659" title="All 2 branches missed.">          || (Objects.equals(image.url, url)</span>
+<span class="nc bnc" id="L660" title="All 6 branches missed.">              &amp;&amp; Objects.equals(image.proxyUrl, proxyUrl)</span>
               &amp;&amp; image.width == width
               &amp;&amp; image.height == height);
     }
@@ -681,12 +672,12 @@ public class MessageEmbed {
     protected final String iconUrl;
     protected final String proxyIconUrl;
 
-<span class="nc" id="L684">    public AuthorInfo(String name, String url, String iconUrl, String proxyIconUrl) {</span>
-<span class="nc" id="L685">      this.name = name;</span>
-<span class="nc" id="L686">      this.url = url;</span>
-<span class="nc" id="L687">      this.iconUrl = iconUrl;</span>
-<span class="nc" id="L688">      this.proxyIconUrl = proxyIconUrl;</span>
-<span class="nc" id="L689">    }</span>
+<span class="nc" id="L675">    public AuthorInfo(String name, String url, String iconUrl, String proxyIconUrl) {</span>
+<span class="nc" id="L676">      this.name = name;</span>
+<span class="nc" id="L677">      this.url = url;</span>
+<span class="nc" id="L678">      this.iconUrl = iconUrl;</span>
+<span class="nc" id="L679">      this.proxyIconUrl = proxyIconUrl;</span>
+<span class="nc" id="L680">    }</span>
 
     /**
      * The name of the Author. &lt;br&gt;
@@ -695,7 +686,7 @@ public class MessageEmbed {
      * @return Possibly-null String containing the name of the author.
      */
     public String getName() {
-<span class="nc" id="L698">      return name;</span>
+<span class="nc" id="L689">      return name;</span>
     }
 
     /**
@@ -704,7 +695,7 @@ public class MessageEmbed {
      * @return Possibly-null String containing the url of the author.
      */
     public String getUrl() {
-<span class="nc" id="L707">      return url;</span>
+<span class="nc" id="L698">      return url;</span>
     }
 
     /**
@@ -713,7 +704,7 @@ public class MessageEmbed {
      * @return Possibly-null String containing the author's icon url.
      */
     public String getIconUrl() {
-<span class="nc" id="L716">      return iconUrl;</span>
+<span class="nc" id="L707">      return iconUrl;</span>
     }
 
     /**
@@ -724,18 +715,18 @@ public class MessageEmbed {
      * @return Possibly-null String containing the proxied icon url.
      */
     public String getProxyIconUrl() {
-<span class="nc" id="L727">      return proxyIconUrl;</span>
+<span class="nc" id="L718">      return proxyIconUrl;</span>
     }
 
     @Override
     public boolean equals(Object obj) {
-<span class="nc bnc" id="L732" title="All 2 branches missed.">      if (!(obj instanceof AuthorInfo)) return false;</span>
-<span class="nc" id="L733">      AuthorInfo author = (AuthorInfo) obj;</span>
-<span class="nc bnc" id="L734" title="All 2 branches missed.">      return author == this</span>
-<span class="nc bnc" id="L735" title="All 2 branches missed.">          || (Objects.equals(author.name, name)</span>
-<span class="nc bnc" id="L736" title="All 2 branches missed.">              &amp;&amp; Objects.equals(author.url, url)</span>
-<span class="nc bnc" id="L737" title="All 2 branches missed.">              &amp;&amp; Objects.equals(author.iconUrl, iconUrl)</span>
-<span class="nc bnc" id="L738" title="All 2 branches missed.">              &amp;&amp; Objects.equals(author.proxyIconUrl, proxyIconUrl));</span>
+<span class="nc bnc" id="L723" title="All 2 branches missed.">      if (!(obj instanceof AuthorInfo)) return false;</span>
+<span class="nc" id="L724">      AuthorInfo author = (AuthorInfo) obj;</span>
+<span class="nc bnc" id="L725" title="All 2 branches missed.">      return author == this</span>
+<span class="nc bnc" id="L726" title="All 2 branches missed.">          || (Objects.equals(author.name, name)</span>
+<span class="nc bnc" id="L727" title="All 2 branches missed.">              &amp;&amp; Objects.equals(author.url, url)</span>
+<span class="nc bnc" id="L728" title="All 2 branches missed.">              &amp;&amp; Objects.equals(author.iconUrl, iconUrl)</span>
+<span class="nc bnc" id="L729" title="All 2 branches missed.">              &amp;&amp; Objects.equals(author.proxyIconUrl, proxyIconUrl));</span>
     }
   }
 
@@ -745,11 +736,11 @@ public class MessageEmbed {
     protected final String iconUrl;
     protected final String proxyIconUrl;
 
-<span class="nc" id="L748">    public Footer(String text, String iconUrl, String proxyIconUrl) {</span>
-<span class="nc" id="L749">      this.text = text;</span>
-<span class="nc" id="L750">      this.iconUrl = iconUrl;</span>
-<span class="nc" id="L751">      this.proxyIconUrl = proxyIconUrl;</span>
-<span class="nc" id="L752">    }</span>
+<span class="nc" id="L739">    public Footer(String text, String iconUrl, String proxyIconUrl) {</span>
+<span class="nc" id="L740">      this.text = text;</span>
+<span class="nc" id="L741">      this.iconUrl = iconUrl;</span>
+<span class="nc" id="L742">      this.proxyIconUrl = proxyIconUrl;</span>
+<span class="nc" id="L743">    }</span>
 
     /**
      * The text in the footer
@@ -757,7 +748,7 @@ public class MessageEmbed {
      * @return Possibly-null String containing the text in the footer.
      */
     public String getText() {
-<span class="nc" id="L760">      return text;</span>
+<span class="nc" id="L751">      return text;</span>
     }
 
     /**
@@ -766,7 +757,7 @@ public class MessageEmbed {
      * @return Possibly-null String containing the footer's icon url.
      */
     public String getIconUrl() {
-<span class="nc" id="L769">      return iconUrl;</span>
+<span class="nc" id="L760">      return iconUrl;</span>
     }
 
     /**
@@ -777,17 +768,17 @@ public class MessageEmbed {
      * @return Possibly-null String containing the proxied icon url.
      */
     public String getProxyIconUrl() {
-<span class="nc" id="L780">      return proxyIconUrl;</span>
+<span class="nc" id="L771">      return proxyIconUrl;</span>
     }
 
     @Override
     public boolean equals(Object obj) {
-<span class="nc bnc" id="L785" title="All 2 branches missed.">      if (!(obj instanceof Footer)) return false;</span>
-<span class="nc" id="L786">      Footer footer = (Footer) obj;</span>
-<span class="nc bnc" id="L787" title="All 2 branches missed.">      return footer == this</span>
-<span class="nc bnc" id="L788" title="All 2 branches missed.">          || (Objects.equals(footer.text, text)</span>
-<span class="nc bnc" id="L789" title="All 2 branches missed.">              &amp;&amp; Objects.equals(footer.iconUrl, iconUrl)</span>
-<span class="nc bnc" id="L790" title="All 2 branches missed.">              &amp;&amp; Objects.equals(footer.proxyIconUrl, proxyIconUrl));</span>
+<span class="nc bnc" id="L776" title="All 2 branches missed.">      if (!(obj instanceof Footer)) return false;</span>
+<span class="nc" id="L777">      Footer footer = (Footer) obj;</span>
+<span class="nc bnc" id="L778" title="All 2 branches missed.">      return footer == this</span>
+<span class="nc bnc" id="L779" title="All 2 branches missed.">          || (Objects.equals(footer.text, text)</span>
+<span class="nc bnc" id="L780" title="All 2 branches missed.">              &amp;&amp; Objects.equals(footer.iconUrl, iconUrl)</span>
+<span class="nc bnc" id="L781" title="All 2 branches missed.">              &amp;&amp; Objects.equals(footer.proxyIconUrl, proxyIconUrl));</span>
     }
   }
 
@@ -804,31 +795,31 @@ public class MessageEmbed {
     protected final String value;
     protected final boolean inline;
 
-<span class="nc" id="L807">    protected Field(String name, String value, boolean inline, boolean checked) {</span>
-<span class="nc bnc" id="L808" title="All 2 branches missed.">      if (checked) {</span>
-<span class="nc bnc" id="L809" title="All 4 branches missed.">        if (name == null || value == null)</span>
-<span class="nc" id="L810">          throw new IllegalArgumentException(&quot;Both Name and Value must be set!&quot;);</span>
-<span class="nc bnc" id="L811" title="All 2 branches missed.">        else if (name.length() &gt; TITLE_MAX_LENGTH)</span>
-<span class="nc" id="L812">          throw new IllegalArgumentException(</span>
+<span class="nc" id="L798">    protected Field(String name, String value, boolean inline, boolean checked) {</span>
+<span class="nc bnc" id="L799" title="All 2 branches missed.">      if (checked) {</span>
+<span class="nc bnc" id="L800" title="All 4 branches missed.">        if (name == null || value == null)</span>
+<span class="nc" id="L801">          throw new IllegalArgumentException(&quot;Both Name and Value must be set!&quot;);</span>
+<span class="nc bnc" id="L802" title="All 2 branches missed.">        else if (name.length() &gt; TITLE_MAX_LENGTH)</span>
+<span class="nc" id="L803">          throw new IllegalArgumentException(</span>
               &quot;Name cannot be longer than &quot; + TITLE_MAX_LENGTH + &quot; characters.&quot;);
-<span class="nc bnc" id="L814" title="All 2 branches missed.">        else if (value.length() &gt; VALUE_MAX_LENGTH)</span>
-<span class="nc" id="L815">          throw new IllegalArgumentException(</span>
+<span class="nc bnc" id="L805" title="All 2 branches missed.">        else if (value.length() &gt; VALUE_MAX_LENGTH)</span>
+<span class="nc" id="L806">          throw new IllegalArgumentException(</span>
               &quot;Value cannot be longer than &quot; + VALUE_MAX_LENGTH + &quot; characters.&quot;);
-<span class="nc bnc" id="L817" title="All 2 branches missed.">        if (name.isEmpty()) this.name = EmbedBuilder.ZERO_WIDTH_SPACE;</span>
-<span class="nc" id="L818">        else this.name = name;</span>
-<span class="nc bnc" id="L819" title="All 2 branches missed.">        if (value.isEmpty()) this.value = EmbedBuilder.ZERO_WIDTH_SPACE;</span>
-<span class="nc" id="L820">        else this.value = value;</span>
-<span class="nc" id="L821">        this.inline = inline;</span>
+<span class="nc bnc" id="L808" title="All 2 branches missed.">        if (name.isEmpty()) this.name = EmbedBuilder.ZERO_WIDTH_SPACE;</span>
+<span class="nc" id="L809">        else this.name = name;</span>
+<span class="nc bnc" id="L810" title="All 2 branches missed.">        if (value.isEmpty()) this.value = EmbedBuilder.ZERO_WIDTH_SPACE;</span>
+<span class="nc" id="L811">        else this.value = value;</span>
+<span class="nc" id="L812">        this.inline = inline;</span>
       } else {
-<span class="nc" id="L823">        this.name = name;</span>
-<span class="nc" id="L824">        this.value = value;</span>
-<span class="nc" id="L825">        this.inline = inline;</span>
+<span class="nc" id="L814">        this.name = name;</span>
+<span class="nc" id="L815">        this.value = value;</span>
+<span class="nc" id="L816">        this.inline = inline;</span>
       }
-<span class="nc" id="L827">    }</span>
+<span class="nc" id="L818">    }</span>
 
     public Field(String name, String value, boolean inline) {
-<span class="nc" id="L830">      this(name, value, inline, true);</span>
-<span class="nc" id="L831">    }</span>
+<span class="nc" id="L821">      this(name, value, inline, true);</span>
+<span class="nc" id="L822">    }</span>
 
     /**
      * The name of the field
@@ -836,7 +827,7 @@ public class MessageEmbed {
      * @return Possibly-null String containing the name of the field.
      */
     public String getName() {
-<span class="nc" id="L839">      return name;</span>
+<span class="nc" id="L830">      return name;</span>
     }
 
     /**
@@ -845,7 +836,7 @@ public class MessageEmbed {
      * @return Possibly-null String containing the value (contents) of the field.
      */
     public String getValue() {
-<span class="nc" id="L848">      return value;</span>
+<span class="nc" id="L839">      return value;</span>
     }
 
     /**
@@ -854,17 +845,17 @@ public class MessageEmbed {
      * @return true if the field can be in line with other fields, false otherwise.
      */
     public boolean isInline() {
-<span class="nc" id="L857">      return inline;</span>
+<span class="nc" id="L848">      return inline;</span>
     }
 
     @Override
     public boolean equals(Object obj) {
-<span class="nc bnc" id="L862" title="All 2 branches missed.">      if (!(obj instanceof Field)) return false;</span>
-<span class="nc" id="L863">      final Field field = (Field) obj;</span>
-<span class="nc bnc" id="L864" title="All 4 branches missed.">      return field == this</span>
+<span class="nc bnc" id="L853" title="All 2 branches missed.">      if (!(obj instanceof Field)) return false;</span>
+<span class="nc" id="L854">      final Field field = (Field) obj;</span>
+<span class="nc bnc" id="L855" title="All 4 branches missed.">      return field == this</span>
           || (field.inline == inline
-<span class="nc bnc" id="L866" title="All 2 branches missed.">              &amp;&amp; Objects.equals(field.name, name)</span>
-<span class="nc bnc" id="L867" title="All 2 branches missed.">              &amp;&amp; Objects.equals(field.value, value));</span>
+<span class="nc bnc" id="L857" title="All 2 branches missed.">              &amp;&amp; Objects.equals(field.name, name)</span>
+<span class="nc bnc" id="L858" title="All 2 branches missed.">              &amp;&amp; Objects.equals(field.value, value));</span>
     }
   }
 }

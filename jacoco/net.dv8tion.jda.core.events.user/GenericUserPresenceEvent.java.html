@@ -21,29 +21,33 @@ import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.exceptions.AccountTypeException;
 
 public abstract class GenericUserPresenceEvent extends GenericUserEvent {
   protected final Guild guild;
 
   public GenericUserPresenceEvent(JDA api, long responseNumber, User user, Guild guild) {
-<span class="nc" id="L29">    super(api, responseNumber, user);</span>
-<span class="nc" id="L30">    this.guild = guild;</span>
-<span class="nc" id="L31">  }</span>
+<span class="nc" id="L30">    super(api, responseNumber, user);</span>
+<span class="nc" id="L31">    this.guild = guild;</span>
+<span class="nc" id="L32">  }</span>
 
   public Guild getGuild() {
-<span class="nc" id="L34">    return guild;</span>
+<span class="nc" id="L35">    return guild;</span>
   }
 
   public Member getMember() {
-<span class="nc bnc" id="L38" title="All 2 branches missed.">    return isRelationshipUpdate() ? null : getGuild().getMember(getUser());</span>
+<span class="nc bnc" id="L39" title="All 2 branches missed.">    return isRelationshipUpdate() ? null : getGuild().getMember(getUser());</span>
   }
 
   public Friend getFriend() {
-<span class="nc bnc" id="L42" title="All 2 branches missed.">    return isRelationshipUpdate() ? getJDA().asClient().getFriend(getUser()) : null;</span>
+<span class="nc bnc" id="L43" title="All 2 branches missed.">    if (isRelationshipUpdate()) {</span>
+<span class="nc" id="L44">      throw new AccountTypeException(&quot;Not allowed for BOT&quot;);</span>
+    }
+<span class="nc" id="L46">    return null;</span>
   }
 
   public boolean isRelationshipUpdate() {
-<span class="nc bnc" id="L46" title="All 2 branches missed.">    return getGuild() == null;</span>
+<span class="nc bnc" id="L50" title="All 2 branches missed.">    return getGuild() == null;</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

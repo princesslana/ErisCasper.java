@@ -19,7 +19,6 @@ package net.dv8tion.jda.core;
 import java.util.Collection;
 import java.util.List;
 import net.dv8tion.jda.bot.JDABot;
-import net.dv8tion.jda.client.JDAClient;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.hooks.IEventManager;
 import net.dv8tion.jda.core.managers.AudioManager;
@@ -36,77 +35,77 @@ import net.dv8tion.jda.core.utils.cache.SnowflakeCacheView;
 public interface JDA {
 
   /** Represents the connection status of JDA and its Main WebSocket. */
-<span class="nc" id="L39">  enum Status {</span>
+<span class="nc" id="L38">  enum Status {</span>
     /** JDA is currently setting up supporting systems like the AudioSystem. */
-<span class="nc" id="L41">    INITIALIZING(true),</span>
+<span class="nc" id="L40">    INITIALIZING(true),</span>
     /** JDA has finished setting up supporting systems and is ready to log in. */
-<span class="nc" id="L43">    INITIALIZED(true),</span>
+<span class="nc" id="L42">    INITIALIZED(true),</span>
     /** JDA is currently attempting to log in. */
-<span class="nc" id="L45">    LOGGING_IN(true),</span>
+<span class="nc" id="L44">    LOGGING_IN(true),</span>
     /** JDA is currently attempting to connect it's websocket to Discord. */
-<span class="nc" id="L47">    CONNECTING_TO_WEBSOCKET(true),</span>
+<span class="nc" id="L46">    CONNECTING_TO_WEBSOCKET(true),</span>
     /** JDA has successfully connected it's websocket to Discord and is sending authentication */
-<span class="nc" id="L49">    IDENTIFYING_SESSION(true),</span>
+<span class="nc" id="L48">    IDENTIFYING_SESSION(true),</span>
     /** JDA has sent authentication to discord and is awaiting confirmation */
-<span class="nc" id="L51">    AWAITING_LOGIN_CONFIRMATION(true),</span>
+<span class="nc" id="L50">    AWAITING_LOGIN_CONFIRMATION(true),</span>
     /**
      * JDA is populating internal objects. This process often takes the longest of all Statuses
      * (besides CONNECTED)
      */
-<span class="nc" id="L56">    LOADING_SUBSYSTEMS(true),</span>
+<span class="nc" id="L55">    LOADING_SUBSYSTEMS(true),</span>
     /**
      * JDA has finished loading everything, is receiving information from Discord and is firing
      * events.
      */
-<span class="nc" id="L61">    CONNECTED(true),</span>
+<span class="nc" id="L60">    CONNECTED(true),</span>
     /**
      * JDA's main websocket has been disconnected. This &lt;b&gt;DOES NOT&lt;/b&gt; mean JDA has shutdown
      * permanently. This is an in-between status. Most likely ATTEMPTING_TO_RECONNECT or
      * SHUTTING_DOWN/SHUTDOWN will soon follow.
      */
-<span class="nc" id="L67">    DISCONNECTED,</span>
+<span class="nc" id="L66">    DISCONNECTED,</span>
     /**
      * JDA session has been added to {@link net.dv8tion.jda.core.utils.SessionController
      * SessionController} and is awaiting to be dequeued for reconnecting.
      */
-<span class="nc" id="L72">    RECONNECT_QUEUED,</span>
+<span class="nc" id="L71">    RECONNECT_QUEUED,</span>
     /**
      * When trying to reconnect to Discord JDA encountered an issue, most likely related to a lack
      * of internet connection, and is waiting to try reconnecting again.
      */
-<span class="nc" id="L77">    WAITING_TO_RECONNECT,</span>
+<span class="nc" id="L76">    WAITING_TO_RECONNECT,</span>
     /**
      * JDA has been disconnected from Discord and is currently trying to reestablish the connection.
      */
-<span class="nc" id="L81">    ATTEMPTING_TO_RECONNECT,</span>
+<span class="nc" id="L80">    ATTEMPTING_TO_RECONNECT,</span>
     /**
      * JDA has received a shutdown request or has been disconnected from Discord and reconnect is
      * disabled, thus, JDA is in the process of shutting down
      */
-<span class="nc" id="L86">    SHUTTING_DOWN,</span>
+<span class="nc" id="L85">    SHUTTING_DOWN,</span>
     /**
      * JDA has finished shutting down and this instance can no longer be used to communicate with
      * the Discord servers.
      */
-<span class="nc" id="L91">    SHUTDOWN,</span>
+<span class="nc" id="L90">    SHUTDOWN,</span>
     /**
      * While attempting to authenticate, Discord reported that the provided authentication
      * information was invalid.
      */
-<span class="nc" id="L96">    FAILED_TO_LOGIN;</span>
+<span class="nc" id="L95">    FAILED_TO_LOGIN;</span>
 
     private final boolean isInit;
 
-<span class="nc" id="L100">    Status(boolean isInit) {</span>
-<span class="nc" id="L101">      this.isInit = isInit;</span>
-<span class="nc" id="L102">    }</span>
+<span class="nc" id="L99">    Status(boolean isInit) {</span>
+<span class="nc" id="L100">      this.isInit = isInit;</span>
+<span class="nc" id="L101">    }</span>
 
-<span class="nc" id="L104">    Status() {</span>
-<span class="nc" id="L105">      this.isInit = false;</span>
-<span class="nc" id="L106">    }</span>
+<span class="nc" id="L103">    Status() {</span>
+<span class="nc" id="L104">      this.isInit = false;</span>
+<span class="nc" id="L105">    }</span>
 
     public boolean isInit() {
-<span class="nc" id="L109">      return isInit;</span>
+<span class="nc" id="L108">      return isInit;</span>
     }
   }
 
@@ -115,10 +114,10 @@ public interface JDA {
     int shardId;
     int shardTotal;
 
-<span class="nc" id="L118">    public ShardInfo(int shardId, int shardTotal) {</span>
-<span class="nc" id="L119">      this.shardId = shardId;</span>
-<span class="nc" id="L120">      this.shardTotal = shardTotal;</span>
-<span class="nc" id="L121">    }</span>
+<span class="nc" id="L117">    public ShardInfo(int shardId, int shardTotal) {</span>
+<span class="nc" id="L118">      this.shardId = shardId;</span>
+<span class="nc" id="L119">      this.shardTotal = shardTotal;</span>
+<span class="nc" id="L120">    }</span>
 
     /**
      * Represents the id of the shard of the current instance. &lt;br&gt;
@@ -127,7 +126,7 @@ public interface JDA {
      * @return The id of the currently logged in shard.
      */
     public int getShardId() {
-<span class="nc" id="L130">      return shardId;</span>
+<span class="nc" id="L129">      return shardId;</span>
     }
 
     /**
@@ -142,7 +141,7 @@ public interface JDA {
      *     initialization.
      */
     public int getShardTotal() {
-<span class="nc" id="L145">      return shardTotal;</span>
+<span class="nc" id="L144">      return shardTotal;</span>
     }
 
     /**
@@ -153,20 +152,20 @@ public interface JDA {
      * @return A String representing the information used to build this shard.
      */
     public String getShardString() {
-<span class="nc" id="L156">      return &quot;[&quot; + shardId + &quot; / &quot; + shardTotal + &quot;]&quot;;</span>
+<span class="nc" id="L155">      return &quot;[&quot; + shardId + &quot; / &quot; + shardTotal + &quot;]&quot;;</span>
     }
 
     @Override
     public String toString() {
-<span class="nc" id="L161">      return &quot;Shard &quot; + getShardString();</span>
+<span class="nc" id="L160">      return &quot;Shard &quot; + getShardString();</span>
     }
 
     @Override
     public boolean equals(Object o) {
-<span class="nc bnc" id="L166" title="All 2 branches missed.">      if (!(o instanceof ShardInfo)) return false;</span>
+<span class="nc bnc" id="L165" title="All 2 branches missed.">      if (!(o instanceof ShardInfo)) return false;</span>
 
-<span class="nc" id="L168">      ShardInfo oInfo = (ShardInfo) o;</span>
-<span class="nc bnc" id="L169" title="All 4 branches missed.">      return shardId == oInfo.getShardId() &amp;&amp; shardTotal == oInfo.getShardTotal();</span>
+<span class="nc" id="L167">      ShardInfo oInfo = (ShardInfo) o;</span>
+<span class="nc bnc" id="L168" title="All 4 branches missed.">      return shardId == oInfo.getShardId() &amp;&amp; shardTotal == oInfo.getShardTotal();</span>
     }
   }
 
@@ -297,7 +296,7 @@ public interface JDA {
    * @return Immutable list of all created AudioManager instances
    */
   default List&lt;AudioManager&gt; getAudioManagers() {
-<span class="nc" id="L300">    return getAudioManagerCache().asList();</span>
+<span class="nc" id="L299">    return getAudioManagerCache().asList();</span>
   }
 
   /**
@@ -320,7 +319,7 @@ public interface JDA {
    * @return List of all {@link net.dv8tion.jda.core.entities.User Users} that are visible to JDA.
    */
   default List&lt;User&gt; getUsers() {
-<span class="nc" id="L323">    return getUserCache().asList();</span>
+<span class="nc" id="L322">    return getUserCache().asList();</span>
   }
 
   /**
@@ -335,7 +334,7 @@ public interface JDA {
    * @return Possibly-null {@link net.dv8tion.jda.core.entities.User User} with matching id.
    */
   default User getUserById(String id) {
-<span class="nc" id="L338">    return getUserCache().getElementById(id);</span>
+<span class="nc" id="L337">    return getUserCache().getElementById(id);</span>
   }
 
   /**
@@ -348,7 +347,7 @@ public interface JDA {
    * @return Possibly-null {@link net.dv8tion.jda.core.entities.User User} with matching id.
    */
   default User getUserById(long id) {
-<span class="nc" id="L351">    return getUserCache().getElementById(id);</span>
+<span class="nc" id="L350">    return getUserCache().getElementById(id);</span>
   }
 
   /**
@@ -367,7 +366,7 @@ public interface JDA {
    *     the same name as the provided name.
    */
   default List&lt;User&gt; getUsersByName(String name, boolean ignoreCase) {
-<span class="nc" id="L370">    return getUserCache().getElementsByName(name, ignoreCase);</span>
+<span class="nc" id="L369">    return getUserCache().getElementsByName(name, ignoreCase);</span>
   }
 
   /**
@@ -478,7 +477,7 @@ public interface JDA {
    *     this account is connected to.
    */
   default List&lt;Guild&gt; getGuilds() {
-<span class="nc" id="L481">    return getGuildCache().asList();</span>
+<span class="nc" id="L480">    return getGuildCache().asList();</span>
   }
 
   /**
@@ -493,7 +492,7 @@ public interface JDA {
    * @return Possibly-null {@link net.dv8tion.jda.core.entities.Guild Guild} with matching id.
    */
   default Guild getGuildById(String id) {
-<span class="nc" id="L496">    return getGuildCache().getElementById(id);</span>
+<span class="nc" id="L495">    return getGuildCache().getElementById(id);</span>
   }
 
   /**
@@ -506,7 +505,7 @@ public interface JDA {
    * @return Possibly-null {@link net.dv8tion.jda.core.entities.Guild Guild} with matching id.
    */
   default Guild getGuildById(long id) {
-<span class="nc" id="L509">    return getGuildCache().getElementById(id);</span>
+<span class="nc" id="L508">    return getGuildCache().getElementById(id);</span>
   }
 
   /**
@@ -522,7 +521,7 @@ public interface JDA {
    *     all have the same name as the provided name.
    */
   default List&lt;Guild&gt; getGuildsByName(String name, boolean ignoreCase) {
-<span class="nc" id="L525">    return getGuildCache().getElementsByName(name, ignoreCase);</span>
+<span class="nc" id="L524">    return getGuildCache().getElementsByName(name, ignoreCase);</span>
   }
 
   /**
@@ -544,7 +543,7 @@ public interface JDA {
    * @return Immutable List of all visible Roles
    */
   default List&lt;Role&gt; getRoles() {
-<span class="nc" id="L547">    return getRoleCache().asList();</span>
+<span class="nc" id="L546">    return getRoleCache().asList();</span>
   }
 
   /**
@@ -560,7 +559,7 @@ public interface JDA {
    *     Long#parseLong(String)}
    */
   default Role getRoleById(String id) {
-<span class="nc" id="L563">    return getRoleCache().getElementById(id);</span>
+<span class="nc" id="L562">    return getRoleCache().getElementById(id);</span>
   }
 
   /**
@@ -574,7 +573,7 @@ public interface JDA {
    * @return Possibly-null {@link net.dv8tion.jda.core.entities.Role Role} for the specified ID
    */
   default Role getRoleById(long id) {
-<span class="nc" id="L577">    return getRoleCache().getElementById(id);</span>
+<span class="nc" id="L576">    return getRoleCache().getElementById(id);</span>
   }
 
   /**
@@ -589,7 +588,7 @@ public interface JDA {
    * @return Immutable List of all Roles matching the parameters provided.
    */
   default List&lt;Role&gt; getRolesByName(String name, boolean ignoreCase) {
-<span class="nc" id="L592">    return getRoleCache().getElementsByName(name, ignoreCase);</span>
+<span class="nc" id="L591">    return getRoleCache().getElementsByName(name, ignoreCase);</span>
   }
 
   /**
@@ -612,7 +611,7 @@ public interface JDA {
    * @throws java.lang.IllegalArgumentException If the provided ID is not a valid {@code long}
    */
   default Category getCategoryById(String id) {
-<span class="nc" id="L615">    return getCategoryCache().getElementById(id);</span>
+<span class="nc" id="L614">    return getCategoryCache().getElementById(id);</span>
   }
 
   /**
@@ -626,7 +625,7 @@ public interface JDA {
    *     ID.
    */
   default Category getCategoryById(long id) {
-<span class="nc" id="L629">    return getCategoryCache().getElementById(id);</span>
+<span class="nc" id="L628">    return getCategoryCache().getElementById(id);</span>
   }
 
   /**
@@ -637,7 +636,7 @@ public interface JDA {
    *     Categories}.
    */
   default List&lt;Category&gt; getCategories() {
-<span class="nc" id="L640">    return getCategoryCache().asList();</span>
+<span class="nc" id="L639">    return getCategoryCache().asList();</span>
   }
 
   /**
@@ -651,7 +650,7 @@ public interface JDA {
    * @throws java.lang.IllegalArgumentException If the provided name is {@code null}
    */
   default List&lt;Category&gt; getCategoriesByName(String name, boolean ignoreCase) {
-<span class="nc" id="L654">    return getCategoryCache().getElementsByName(name, ignoreCase);</span>
+<span class="nc" id="L653">    return getCategoryCache().getElementsByName(name, ignoreCase);</span>
   }
 
   /**
@@ -677,7 +676,7 @@ public interface JDA {
    *     TextChannels}.
    */
   default List&lt;TextChannel&gt; getTextChannels() {
-<span class="nc" id="L680">    return getTextChannelCache().asList();</span>
+<span class="nc" id="L679">    return getTextChannelCache().asList();</span>
   }
 
   /**
@@ -700,7 +699,7 @@ public interface JDA {
    *     matching id.
    */
   default TextChannel getTextChannelById(String id) {
-<span class="nc" id="L703">    return getTextChannelCache().getElementById(id);</span>
+<span class="nc" id="L702">    return getTextChannelCache().getElementById(id);</span>
   }
 
   /**
@@ -721,7 +720,7 @@ public interface JDA {
    *     matching id.
    */
   default TextChannel getTextChannelById(long id) {
-<span class="nc" id="L724">    return getTextChannelCache().getElementById(id);</span>
+<span class="nc" id="L723">    return getTextChannelCache().getElementById(id);</span>
   }
 
   /**
@@ -745,7 +744,7 @@ public interface JDA {
    *     TextChannels} that all have the same name as the provided name.
    */
   default List&lt;TextChannel&gt; getTextChannelsByName(String name, boolean ignoreCase) {
-<span class="nc" id="L748">    return getTextChannelCache().getElementsByName(name, ignoreCase);</span>
+<span class="nc" id="L747">    return getTextChannelCache().getElementsByName(name, ignoreCase);</span>
   }
 
   /**
@@ -764,7 +763,7 @@ public interface JDA {
    *     VoiceChannels}.
    */
   default List&lt;VoiceChannel&gt; getVoiceChannels() {
-<span class="nc" id="L767">    return getVoiceChannelCache().asList();</span>
+<span class="nc" id="L766">    return getVoiceChannelCache().asList();</span>
   }
 
   /**
@@ -780,7 +779,7 @@ public interface JDA {
    *     matching id.
    */
   default VoiceChannel getVoiceChannelById(String id) {
-<span class="nc" id="L783">    return getVoiceChannelCache().getElementById(id);</span>
+<span class="nc" id="L782">    return getVoiceChannelCache().getElementById(id);</span>
   }
 
   /**
@@ -794,7 +793,7 @@ public interface JDA {
    *     matching id.
    */
   default VoiceChannel getVoiceChannelById(long id) {
-<span class="nc" id="L797">    return getVoiceChannelCache().getElementById(id);</span>
+<span class="nc" id="L796">    return getVoiceChannelCache().getElementById(id);</span>
   }
 
   /**
@@ -811,7 +810,7 @@ public interface JDA {
    *     VoiceChannels} that all have the same name as the provided name.
    */
   default List&lt;VoiceChannel&gt; getVoiceChannelByName(String name, boolean ignoreCase) {
-<span class="nc" id="L814">    return getVoiceChannelCache().getElementsByName(name, ignoreCase);</span>
+<span class="nc" id="L813">    return getVoiceChannelCache().getElementsByName(name, ignoreCase);</span>
   }
 
   /**
@@ -831,7 +830,7 @@ public interface JDA {
    *     PrivateChannels}.
    */
   default List&lt;PrivateChannel&gt; getPrivateChannels() {
-<span class="nc" id="L834">    return getPrivateChannelCache().asList();</span>
+<span class="nc" id="L833">    return getPrivateChannelCache().asList();</span>
   }
 
   /**
@@ -847,7 +846,7 @@ public interface JDA {
    *     matching id.
    */
   default PrivateChannel getPrivateChannelById(String id) {
-<span class="nc" id="L850">    return getPrivateChannelCache().getElementById(id);</span>
+<span class="nc" id="L849">    return getPrivateChannelCache().getElementById(id);</span>
   }
 
   /**
@@ -861,7 +860,7 @@ public interface JDA {
    *     matching id.
    */
   default PrivateChannel getPrivateChannelById(long id) {
-<span class="nc" id="L864">    return getPrivateChannelCache().getElementById(id);</span>
+<span class="nc" id="L863">    return getPrivateChannelCache().getElementById(id);</span>
   }
 
   /**
@@ -888,7 +887,7 @@ public interface JDA {
    * @return An immutable list of Emotes (which may or may not be available to usage).
    */
   default List&lt;Emote&gt; getEmotes() {
-<span class="nc" id="L891">    return getEmoteCache().asList();</span>
+<span class="nc" id="L890">    return getEmoteCache().asList();</span>
   }
 
   /**
@@ -903,7 +902,7 @@ public interface JDA {
    *     Long#parseLong(String)}
    */
   default Emote getEmoteById(String id) {
-<span class="nc" id="L906">    return getEmoteCache().getElementById(id);</span>
+<span class="nc" id="L905">    return getEmoteCache().getElementById(id);</span>
   }
 
   /**
@@ -916,7 +915,7 @@ public interface JDA {
    *     none is found in our cache.
    */
   default Emote getEmoteById(long id) {
-<span class="nc" id="L919">    return getEmoteCache().getElementById(id);</span>
+<span class="nc" id="L918">    return getEmoteCache().getElementById(id);</span>
   }
 
   /**
@@ -934,7 +933,7 @@ public interface JDA {
    *     all have the same name as the provided name.
    */
   default List&lt;Emote&gt; getEmotesByName(String name, boolean ignoreCase) {
-<span class="nc" id="L937">    return getEmoteCache().getElementsByName(name, ignoreCase);</span>
+<span class="nc" id="L936">    return getEmoteCache().getElementsByName(name, ignoreCase);</span>
   }
 
   /**
@@ -1069,34 +1068,6 @@ public interface JDA {
    * @see #shutdown()
    */
   void shutdownNow();
-
-  /// **
-  // * Installs an auxiliary cable into the given port of your system.
-  // *
-  // * @param  port
-  // *         The port in which the cable should be installed.
-  // *
-  // * @return {@link net.dv8tion.jda.core.requests.restaction.AuditableRestAction
-  // AuditableRestAction}{@literal &lt;}{@link Void}{@literal &gt;}
-  // */
-  // AuditableRestAction&lt;Void&gt; installAuxiliaryCable(int port);
-
-  /**
-   * The {@link net.dv8tion.jda.core.AccountType} of the currently logged in account. &lt;br&gt;
-   * Used when determining functions that are restricted based on the type of account.
-   *
-   * @return The current AccountType.
-   */
-  AccountType getAccountType();
-
-  /**
-   * Used to access Client specific functions like Groups, Calls, and Friends.
-   *
-   * @throws net.dv8tion.jda.core.exceptions.AccountTypeException Thrown if the currently logged in
-   *     account is {@link net.dv8tion.jda.core.AccountType#BOT}
-   * @return The {@link net.dv8tion.jda.client.JDAClient} registry for this instance of JDA.
-   */
-  JDAClient asClient();
 
   /**
    * Used to access Bot specific functions like OAuth information.

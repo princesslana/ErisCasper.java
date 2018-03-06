@@ -16,51 +16,21 @@
  */
 package net.dv8tion.jda.core.exceptions;
 
-import net.dv8tion.jda.core.AccountType;
-
-/**
- * Indicates that an operation is not possible unless the {@link net.dv8tion.jda.core.AccountType
- * AccountType} matches the one provided in {@link #getRequiredType()}
- */
 public class AccountTypeException extends RuntimeException {
-  private final AccountType requiredType;
+  public AccountTypeException() {
+<span class="nc" id="L21">    super();</span>
+<span class="nc" id="L22">  }</span>
 
-  /**
-   * Creates a new AccountTypeException instance
-   *
-   * @param requiredType The required {@link net.dv8tion.jda.core.AccountType AccountType} for the
-   *     operation
-   */
-  public AccountTypeException(AccountType requiredType) {
-<span class="nc" id="L35">    this(</span>
-        requiredType,
-        &quot;The current AccountType is not valid for the attempted action. Required AccountType: &quot;
-            + requiredType);
-<span class="nc" id="L39">  }</span>
+  public AccountTypeException(String msg) {
+<span class="nc" id="L25">    super(msg);</span>
+<span class="nc" id="L26">  }</span>
 
-  /**
-   * Creates a new AccountTypeException instance
-   *
-   * @param requiredType The required {@link net.dv8tion.jda.core.AccountType AccountType} for the
-   *     operation
-   * @param message A specialized message
-   */
-  public AccountTypeException(AccountType requiredType, String message) {
-<span class="nc" id="L49">    super(message);</span>
-<span class="nc" id="L50">    this.requiredType = requiredType;</span>
-<span class="nc" id="L51">  }</span>
+  public AccountTypeException(Throwable cause) {
+<span class="nc" id="L29">    super(cause);</span>
+<span class="nc" id="L30">  }</span>
 
-  /**
-   * The required {@link net.dv8tion.jda.core.AccountType AccountType} for the operation
-   *
-   * @return AccountType
-   */
-  public AccountType getRequiredType() {
-<span class="nc" id="L59">    return requiredType;</span>
-  }
-
-  public static void check(AccountType actualType, AccountType requiredType) {
-<span class="nc bnc" id="L63" title="All 2 branches missed.">    if (actualType != requiredType) throw new AccountTypeException(requiredType);</span>
-<span class="nc" id="L64">  }</span>
+  public AccountTypeException(String msg, Throwable cause) {
+<span class="nc" id="L33">    super(msg, cause);</span>
+<span class="nc" id="L34">  }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

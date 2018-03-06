@@ -16,104 +16,19 @@
  */
 package net.dv8tion.jda.client.handle;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import net.dv8tion.jda.client.entities.CallUser;
-import net.dv8tion.jda.client.entities.CallableChannel;
-import net.dv8tion.jda.client.entities.impl.CallImpl;
-import net.dv8tion.jda.client.entities.impl.CallUserImpl;
-import net.dv8tion.jda.client.events.call.update.CallUpdateRegionEvent;
-import net.dv8tion.jda.client.events.call.update.CallUpdateRingingUsersEvent;
-import net.dv8tion.jda.core.Region;
 import net.dv8tion.jda.core.entities.impl.JDAImpl;
-import net.dv8tion.jda.core.handle.EventCache;
+import net.dv8tion.jda.core.exceptions.AccountTypeException;
 import net.dv8tion.jda.core.handle.SocketHandler;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class CallUpdateHandler extends SocketHandler {
   public CallUpdateHandler(JDAImpl api) {
-<span class="nc" id="L37">    super(api);</span>
-<span class="nc" id="L38">  }</span>
+<span class="nc" id="L26">    super(api);</span>
+<span class="nc" id="L27">  }</span>
 
   @Override
   protected Long handleInternally(JSONObject content) {
-<span class="nc" id="L42">    final long channelId = content.getLong(&quot;channel_id&quot;);</span>
-<span class="nc" id="L43">    JSONArray ringing = content.getJSONArray(&quot;ringing&quot;);</span>
-<span class="nc" id="L44">    Region region = Region.fromKey(content.getString(&quot;region&quot;));</span>
-
-<span class="nc" id="L46">    CallableChannel channel = api.asClient().getGroupById(channelId);</span>
-<span class="nc bnc" id="L47" title="All 2 branches missed.">    if (channel == null) channel = api.getPrivateChannelMap().get(channelId);</span>
-<span class="nc bnc" id="L48" title="All 2 branches missed.">    if (channel == null) {</span>
-<span class="nc" id="L49">      api.getEventCache()</span>
-<span class="nc" id="L50">          .cache(EventCache.Type.CHANNEL, channelId, () -&gt; handle(responseNumber, allContent));</span>
-<span class="nc" id="L51">      EventCache.LOG.debug(</span>
-          &quot;Received a CALL_UPDATE for a Group/PrivateChannel that has not yet been cached. JSON: {}&quot;,
-          content);
-<span class="nc" id="L54">      return null;</span>
-    }
-
-<span class="nc" id="L57">    CallImpl call = (CallImpl) channel.getCurrentCall();</span>
-<span class="nc bnc" id="L58" title="All 2 branches missed.">    if (call == null) {</span>
-<span class="nc" id="L59">      api.getEventCache()</span>
-<span class="nc" id="L60">          .cache(EventCache.Type.CALL, channelId, () -&gt; handle(responseNumber, allContent));</span>
-<span class="nc" id="L61">      EventCache.LOG.debug(</span>
-          &quot;Received a CALL_UPDATE for a Call that has not yet been cached. JSON: {}&quot;, content);
-<span class="nc" id="L63">      return null;</span>
-    }
-
-<span class="nc bnc" id="L66" title="All 2 branches missed.">    if (!Objects.equals(region, call.getRegion())) {</span>
-<span class="nc" id="L67">      Region oldRegion = call.getRegion();</span>
-<span class="nc" id="L68">      call.setRegion(region);</span>
-<span class="nc" id="L69">      api.getEventManager()</span>
-<span class="nc" id="L70">          .handle(</span>
-              new CallUpdateRegionEvent(
-                  api, responseNumber,
-                  call, oldRegion));
-    }
-
-    // Deal with CallUser ringing status changes
-<span class="nc bnc" id="L77" title="All 2 branches missed.">    if (ringing.length() &gt; 0) {</span>
-<span class="nc" id="L78">      List&lt;Long&gt; givenRingingIds = toLongList(ringing);</span>
-<span class="nc" id="L79">      List&lt;CallUser&gt; stoppedRingingUsers = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L80">      List&lt;CallUser&gt; startedRingingUsers = new ArrayList&lt;&gt;();</span>
-
-<span class="nc bnc" id="L82" title="All 2 branches missed.">      for (CallUser cUser : call.getRingingUsers()) {</span>
-<span class="nc" id="L83">        final long userId = cUser.getUser().getIdLong();</span>
-
-        // If the ringing user is no longer ringing, change the ringing status
-<span class="nc bnc" id="L86" title="All 2 branches missed.">        if (!givenRingingIds.contains(userId)) {</span>
-<span class="nc" id="L87">          ((CallUserImpl) cUser).setRinging(false);</span>
-<span class="nc" id="L88">          stoppedRingingUsers.add(cUser);</span>
-        } else {
-<span class="nc" id="L90">          givenRingingIds.remove(userId);</span>
-        }
-<span class="nc" id="L92">      }</span>
-
-      // Any Ids that are users that have started ringing, so we need to set their ringing status as
-      // such
-<span class="nc bnc" id="L96" title="All 2 branches missed.">      for (long userId : givenRingingIds) {</span>
-<span class="nc" id="L97">        CallUserImpl cUser = (CallUserImpl) call.getCallUserMap().get(userId);</span>
-<span class="nc" id="L98">        cUser.setRinging(true);</span>
-<span class="nc" id="L99">        startedRingingUsers.add(cUser);</span>
-<span class="nc" id="L100">      }</span>
-
-<span class="nc bnc" id="L102" title="All 4 branches missed.">      if (stoppedRingingUsers.size() &gt; 0 || startedRingingUsers.size() &gt; 0) {</span>
-<span class="nc" id="L103">        api.getEventManager()</span>
-<span class="nc" id="L104">            .handle(</span>
-                new CallUpdateRingingUsersEvent(
-                    api, responseNumber, call, stoppedRingingUsers, startedRingingUsers));
-      }
-    }
-<span class="nc" id="L109">    return null;</span>
-  }
-
-  private List&lt;Long&gt; toLongList(JSONArray array) {
-<span class="nc" id="L113">    List&lt;Long&gt; longs = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L114" title="All 2 branches missed.">    for (int i = 0; i &lt; array.length(); i++) longs.add(array.getLong(i));</span>
-
-<span class="nc" id="L116">    return longs;</span>
+<span class="nc" id="L31">    throw new AccountTypeException(&quot;Not allowed for BOT&quot;);</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

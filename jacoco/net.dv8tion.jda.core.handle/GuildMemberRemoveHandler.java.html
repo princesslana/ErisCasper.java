@@ -16,8 +16,6 @@
  */
 package net.dv8tion.jda.core.handle;
 
-import net.dv8tion.jda.client.entities.Group;
-import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.entities.impl.*;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberLeaveEvent;
@@ -28,45 +26,45 @@ import org.json.JSONObject;
 public class GuildMemberRemoveHandler extends SocketHandler {
 
   public GuildMemberRemoveHandler(JDAImpl api) {
-<span class="nc" id="L31">    super(api);</span>
-<span class="nc" id="L32">  }</span>
+<span class="nc" id="L29">    super(api);</span>
+<span class="nc" id="L30">  }</span>
 
   @Override
   protected Long handleInternally(JSONObject content) {
-<span class="nc" id="L36">    final long id = content.getLong(&quot;guild_id&quot;);</span>
-<span class="nc bnc" id="L37" title="All 2 branches missed.">    if (api.getGuildLock().isLocked(id)) return id;</span>
+<span class="nc" id="L34">    final long id = content.getLong(&quot;guild_id&quot;);</span>
+<span class="nc bnc" id="L35" title="All 2 branches missed.">    if (api.getGuildLock().isLocked(id)) return id;</span>
 
-<span class="nc" id="L39">    GuildImpl guild = (GuildImpl) api.getGuildMap().get(id);</span>
-<span class="nc bnc" id="L40" title="All 2 branches missed.">    if (guild == null) {</span>
+<span class="nc" id="L37">    GuildImpl guild = (GuildImpl) api.getGuildMap().get(id);</span>
+<span class="nc bnc" id="L38" title="All 2 branches missed.">    if (guild == null) {</span>
       // We probably just left the guild and this event is trying to remove us from the guild,
       // therefore ignore
-<span class="nc" id="L43">      return null;</span>
+<span class="nc" id="L41">      return null;</span>
     }
 
-<span class="nc" id="L46">    final long userId = content.getJSONObject(&quot;user&quot;).getLong(&quot;id&quot;);</span>
-<span class="nc bnc" id="L47" title="All 2 branches missed.">    if (userId == api.getSelfUser().getIdLong()) {</span>
+<span class="nc" id="L44">    final long userId = content.getJSONObject(&quot;user&quot;).getLong(&quot;id&quot;);</span>
+<span class="nc bnc" id="L45" title="All 2 branches missed.">    if (userId == api.getSelfUser().getIdLong()) {</span>
       // We probably just left the guild and this event is trying to remove us from the guild,
       // therefore ignore
-<span class="nc" id="L50">      return null;</span>
+<span class="nc" id="L48">      return null;</span>
     }
-<span class="nc" id="L52">    MemberImpl member = (MemberImpl) guild.getMembersMap().remove(userId);</span>
+<span class="nc" id="L50">    MemberImpl member = (MemberImpl) guild.getMembersMap().remove(userId);</span>
 
-<span class="nc bnc" id="L54" title="All 2 branches missed.">    if (member == null) {</span>
-<span class="nc" id="L55">      WebSocketClient.LOG.debug(</span>
+<span class="nc bnc" id="L52" title="All 2 branches missed.">    if (member == null) {</span>
+<span class="nc" id="L53">      WebSocketClient.LOG.debug(</span>
           &quot;Received GUILD_MEMBER_REMOVE for a Member that does not exist in the specified Guild.&quot;);
-<span class="nc" id="L57">      return null;</span>
+<span class="nc" id="L55">      return null;</span>
     }
 
-<span class="nc" id="L60">    if (member</span>
-<span class="nc" id="L61">        .getVoiceState()</span>
-<span class="nc bnc" id="L62" title="All 2 branches missed.">        .inVoiceChannel()) // If this user was in a VoiceChannel, fire VoiceLeaveEvent.</span>
+<span class="nc" id="L58">    if (member</span>
+<span class="nc" id="L59">        .getVoiceState()</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">        .inVoiceChannel()) // If this user was in a VoiceChannel, fire VoiceLeaveEvent.</span>
     {
-<span class="nc" id="L64">      GuildVoiceStateImpl vState = (GuildVoiceStateImpl) member.getVoiceState();</span>
-<span class="nc" id="L65">      VoiceChannel channel = vState.getChannel();</span>
-<span class="nc" id="L66">      vState.setConnectedChannel(null);</span>
-<span class="nc" id="L67">      ((VoiceChannelImpl) channel).getConnectedMembersMap().remove(member.getUser().getIdLong());</span>
-<span class="nc" id="L68">      api.getEventManager()</span>
-<span class="nc" id="L69">          .handle(</span>
+<span class="nc" id="L62">      GuildVoiceStateImpl vState = (GuildVoiceStateImpl) member.getVoiceState();</span>
+<span class="nc" id="L63">      VoiceChannel channel = vState.getChannel();</span>
+<span class="nc" id="L64">      vState.setConnectedChannel(null);</span>
+<span class="nc" id="L65">      ((VoiceChannelImpl) channel).getConnectedMembersMap().remove(member.getUser().getIdLong());</span>
+<span class="nc" id="L66">      api.getEventManager()</span>
+<span class="nc" id="L67">          .handle(</span>
               new GuildVoiceLeaveEvent(
                   api, responseNumber,
                   member, channel));
@@ -75,41 +73,27 @@ public class GuildMemberRemoveHandler extends SocketHandler {
     // The user is not in a different guild that we share
     // The user also is not a friend of this account in the case that the logged in account is a
     // client account.
-<span class="nc bnc" id="L78" title="All 2 branches missed.">    if (userId != api.getSelfUser().getIdLong() // don't remove selfUser from cache</span>
-<span class="nc" id="L79">        &amp;&amp; api.getGuildMap()</span>
-<span class="nc" id="L80">            .valueCollection()</span>
-<span class="nc" id="L81">            .stream()</span>
-<span class="nc bnc" id="L82" title="All 2 branches missed.">            .noneMatch(g -&gt; ((GuildImpl) g).getMembersMap().containsKey(userId))</span>
-<span class="nc bnc" id="L83" title="All 2 branches missed.">        &amp;&amp; !(api.getAccountType() == AccountType.CLIENT</span>
-<span class="nc bnc" id="L84" title="All 2 branches missed.">            &amp;&amp; api.asClient().getFriendById(userId) != null)) {</span>
-<span class="nc" id="L85">      UserImpl user = (UserImpl) api.getUserMap().remove(userId);</span>
-<span class="nc bnc" id="L86" title="All 2 branches missed.">      if (user.hasPrivateChannel()) {</span>
-<span class="nc" id="L87">        PrivateChannelImpl priv = (PrivateChannelImpl) user.getPrivateChannel();</span>
-<span class="nc" id="L88">        user.setFake(true);</span>
-<span class="nc" id="L89">        priv.setFake(true);</span>
-<span class="nc" id="L90">        api.getFakeUserMap().put(user.getIdLong(), user);</span>
-<span class="nc" id="L91">        api.getFakePrivateChannelMap().put(priv.getIdLong(), priv);</span>
-<span class="nc bnc" id="L92" title="All 2 branches missed.">      } else if (api.getAccountType() == AccountType.CLIENT) {</span>
-        // While the user might not have a private channel, if this is a client account then the
-        // user
-        // could be in a Group, and if so we need to change the User object to be fake and
-        // place it in the FakeUserMap
-<span class="nc bnc" id="L97" title="All 2 branches missed.">        for (Group grp : api.asClient().getGroups()) {</span>
-<span class="nc bnc" id="L98" title="All 2 branches missed.">          if (grp.getNonFriendUsers().contains(user)) {</span>
-<span class="nc" id="L99">            user.setFake(true);</span>
-<span class="nc" id="L100">            api.getFakeUserMap().put(user.getIdLong(), user);</span>
-<span class="nc" id="L101">            break; // Breaks from groups loop</span>
-          }
-<span class="nc" id="L103">        }</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">    if (userId != api.getSelfUser().getIdLong() // don't remove selfUser from cache</span>
+<span class="nc" id="L77">        &amp;&amp; api.getGuildMap()</span>
+<span class="nc" id="L78">            .valueCollection()</span>
+<span class="nc" id="L79">            .stream()</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">            .noneMatch(g -&gt; ((GuildImpl) g).getMembersMap().containsKey(userId))) {</span>
+<span class="nc" id="L81">      UserImpl user = (UserImpl) api.getUserMap().remove(userId);</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">      if (user.hasPrivateChannel()) {</span>
+<span class="nc" id="L83">        PrivateChannelImpl priv = (PrivateChannelImpl) user.getPrivateChannel();</span>
+<span class="nc" id="L84">        user.setFake(true);</span>
+<span class="nc" id="L85">        priv.setFake(true);</span>
+<span class="nc" id="L86">        api.getFakeUserMap().put(user.getIdLong(), user);</span>
+<span class="nc" id="L87">        api.getFakePrivateChannelMap().put(priv.getIdLong(), priv);</span>
       }
-<span class="nc" id="L105">      api.getEventCache().clear(EventCache.Type.USER, userId);</span>
+<span class="nc" id="L89">      api.getEventCache().clear(EventCache.Type.USER, userId);</span>
     }
-<span class="nc" id="L107">    api.getEventManager()</span>
-<span class="nc" id="L108">        .handle(</span>
+<span class="nc" id="L91">    api.getEventManager()</span>
+<span class="nc" id="L92">        .handle(</span>
             new GuildMemberLeaveEvent(
                 api, responseNumber,
                 guild, member));
-<span class="nc" id="L112">    return null;</span>
+<span class="nc" id="L96">    return null;</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

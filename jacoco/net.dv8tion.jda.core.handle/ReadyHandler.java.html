@@ -19,56 +19,35 @@ package net.dv8tion.jda.core.handle;
 import gnu.trove.iterator.TLongIterator;
 import gnu.trove.set.TLongSet;
 import gnu.trove.set.hash.TLongHashSet;
-import net.dv8tion.jda.client.entities.Relationship;
-import net.dv8tion.jda.client.entities.impl.FriendImpl;
-import net.dv8tion.jda.client.entities.impl.UserSettingsImpl;
-import net.dv8tion.jda.core.AccountType;
-import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.WebSocketCode;
 import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.EntityBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.impl.JDAImpl;
-import net.dv8tion.jda.core.managers.impl.PresenceImpl;
 import net.dv8tion.jda.core.requests.WebSocketClient;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class ReadyHandler extends SocketHandler {
-<span class="nc" id="L38">  private final TLongSet incompleteGuilds = new TLongHashSet();</span>
-<span class="nc" id="L39">  private final TLongSet acknowledgedGuilds = new TLongHashSet();</span>
-<span class="nc" id="L40">  private final TLongSet unavailableGuilds = new TLongHashSet();</span>
-<span class="nc" id="L41">  private final TLongSet guildsRequiringChunking = new TLongHashSet();</span>
-<span class="nc" id="L42">  private final TLongSet guildsRequiringSyncing = new TLongHashSet();</span>
+<span class="nc" id="L32">  private final TLongSet incompleteGuilds = new TLongHashSet();</span>
+<span class="nc" id="L33">  private final TLongSet acknowledgedGuilds = new TLongHashSet();</span>
+<span class="nc" id="L34">  private final TLongSet unavailableGuilds = new TLongHashSet();</span>
+<span class="nc" id="L35">  private final TLongSet guildsRequiringChunking = new TLongHashSet();</span>
+<span class="nc" id="L36">  private final TLongSet guildsRequiringSyncing = new TLongHashSet();</span>
 
   public ReadyHandler(JDAImpl api) {
-<span class="nc" id="L45">    super(api);</span>
-<span class="nc" id="L46">  }</span>
+<span class="nc" id="L39">    super(api);</span>
+<span class="nc" id="L40">  }</span>
 
   @Override
   protected Long handleInternally(JSONObject content) {
-<span class="nc" id="L50">    EntityBuilder builder = api.getEntityBuilder();</span>
+<span class="nc" id="L44">    EntityBuilder builder = api.getEntityBuilder();</span>
 
     // Core
-<span class="nc" id="L53">    JSONArray guilds = content.getJSONArray(&quot;guilds&quot;);</span>
-<span class="nc" id="L54">    JSONObject selfJson = content.getJSONObject(&quot;user&quot;);</span>
+<span class="nc" id="L47">    JSONArray guilds = content.getJSONArray(&quot;guilds&quot;);</span>
+<span class="nc" id="L48">    JSONObject selfJson = content.getJSONObject(&quot;user&quot;);</span>
 
-<span class="nc" id="L56">    builder.createSelfUser(selfJson);</span>
-
-<span class="nc bnc" id="L58" title="All 4 branches missed.">    if (api.getAccountType() == AccountType.CLIENT &amp;&amp; !content.isNull(&quot;user_settings&quot;)) {</span>
-      // handle user settings
-<span class="nc" id="L60">      JSONObject userSettingsJson = content.getJSONObject(&quot;user_settings&quot;);</span>
-<span class="nc" id="L61">      UserSettingsImpl userSettingsObj = (UserSettingsImpl) api.asClient().getSettings();</span>
-<span class="nc" id="L62">      userSettingsObj</span>
-          // TODO: set all information and handle updates
-<span class="nc" id="L64">          .setStatus(</span>
-<span class="nc bnc" id="L65" title="All 2 branches missed.">          userSettingsJson.isNull(&quot;status&quot;)</span>
-              ? OnlineStatus.ONLINE
-<span class="nc" id="L67">              : OnlineStatus.fromKey(userSettingsJson.getString(&quot;status&quot;)));</span>
-      // update presence information unless the status is ONLINE
-<span class="nc bnc" id="L69" title="All 2 branches missed.">      if (userSettingsObj.getStatus() != OnlineStatus.ONLINE)</span>
-<span class="nc" id="L70">        ((PresenceImpl) api.getPresence()).setCacheStatus(userSettingsObj.getStatus());</span>
-    }
+<span class="nc" id="L50">    builder.createSelfUser(selfJson);</span>
 
     // Keep a list of all guilds in incompleteGuilds that need to be setup (GuildMemberChunk /
     // GuildSync)
@@ -79,9 +58,9 @@ public class ReadyHandler extends SocketHandler {
     // done, we can
     // &quot;check off&quot; the completed guild from the set of guilds in incompleteGuilds.
 
-<span class="nc bnc" id="L82" title="All 2 branches missed.">    for (int i = 0; i &lt; guilds.length(); i++) {</span>
-<span class="nc" id="L83">      JSONObject guild = guilds.getJSONObject(i);</span>
-<span class="nc" id="L84">      incompleteGuilds.add(guild.getLong(&quot;id&quot;));</span>
+<span class="nc bnc" id="L61" title="All 2 branches missed.">    for (int i = 0; i &lt; guilds.length(); i++) {</span>
+<span class="nc" id="L62">      JSONObject guild = guilds.getJSONObject(i);</span>
+<span class="nc" id="L63">      incompleteGuilds.add(guild.getLong(&quot;id&quot;));</span>
     }
 
     // We use two different for-loops here so that we cache all of the ids before sending them off
@@ -91,8 +70,8 @@ public class ReadyHandler extends SocketHandler {
     // Specifically: incompleteGuilds.size() == acknowledgedGuilds.size() and
     //  incompleteGuilds.size() == unavailableGuilds.size() respectively.
 
-<span class="nc bnc" id="L94" title="All 2 branches missed.">    for (int i = 0; i &lt; guilds.length(); i++) {</span>
-<span class="nc" id="L95">      JSONObject guild = guilds.getJSONObject(i);</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">    for (int i = 0; i &lt; guilds.length(); i++) {</span>
+<span class="nc" id="L74">      JSONObject guild = guilds.getJSONObject(i);</span>
 
       // If a Guild isn't unavailable, then it is possible that we were given all information
       // needed to fully load the guild. In this case, we provide the method `guildSetupComplete`
@@ -102,172 +81,143 @@ public class ReadyHandler extends SocketHandler {
       // If a Guild is unavailable it won't have the information needed, so we pass null as the
       // secondPassCallback
       // for now and wait for the GUILD_CREATE event to give us the required information.
-<span class="nc bnc" id="L105" title="All 4 branches missed.">      if (guild.has(&quot;unavailable&quot;) &amp;&amp; guild.getBoolean(&quot;unavailable&quot;))</span>
-<span class="nc" id="L106">        builder.createGuildFirstPass(guild, null);</span>
-<span class="nc" id="L107">      else builder.createGuildFirstPass(guild, this::guildSetupComplete);</span>
+<span class="nc bnc" id="L84" title="All 4 branches missed.">      if (guild.has(&quot;unavailable&quot;) &amp;&amp; guild.getBoolean(&quot;unavailable&quot;))</span>
+<span class="nc" id="L85">        builder.createGuildFirstPass(guild, null);</span>
+<span class="nc" id="L86">      else builder.createGuildFirstPass(guild, this::guildSetupComplete);</span>
     }
 
-<span class="nc bnc" id="L110" title="All 2 branches missed.">    if (guilds.length() == 0) guildLoadComplete(content);</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">    if (guilds.length() == 0) guildLoadComplete(content);</span>
 
-<span class="nc" id="L112">    return null;</span>
+<span class="nc" id="L91">    return null;</span>
   }
 
   public void guildLoadComplete(JSONObject content) {
-<span class="nc" id="L116">    api.getClient().setChunkingAndSyncing(false);</span>
-<span class="nc" id="L117">    EntityBuilder builder = api.getEntityBuilder();</span>
-<span class="nc" id="L118">    JSONArray privateChannels = content.getJSONArray(&quot;private_channels&quot;);</span>
+<span class="nc" id="L95">    api.getClient().setChunkingAndSyncing(false);</span>
+<span class="nc" id="L96">    EntityBuilder builder = api.getEntityBuilder();</span>
+<span class="nc" id="L97">    JSONArray privateChannels = content.getJSONArray(&quot;private_channels&quot;);</span>
 
-<span class="nc bnc" id="L120" title="All 2 branches missed.">    if (api.getAccountType() == AccountType.CLIENT) {</span>
-<span class="nc" id="L121">      JSONArray relationships = content.getJSONArray(&quot;relationships&quot;);</span>
-<span class="nc" id="L122">      JSONArray presences = content.getJSONArray(&quot;presences&quot;);</span>
-<span class="nc" id="L123">      JSONObject notes = content.getJSONObject(&quot;notes&quot;);</span>
-<span class="nc bnc" id="L124" title="All 2 branches missed.">      JSONArray readstates = content.has(&quot;read_state&quot;) ? content.getJSONArray(&quot;read_state&quot;) : null;</span>
-<span class="nc" id="L125">      JSONArray guildSettings =</span>
-<span class="nc bnc" id="L126" title="All 2 branches missed.">          content.has(&quot;user_guild_settings&quot;) ? content.getJSONArray(&quot;user_guild_settings&quot;) : null;</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">    for (int i = 0; i &lt; privateChannels.length(); i++) {</span>
+<span class="nc" id="L100">      JSONObject chan = privateChannels.getJSONObject(i);</span>
+<span class="nc" id="L101">      ChannelType type = ChannelType.fromId(chan.getInt(&quot;type&quot;));</span>
 
-<span class="nc bnc" id="L128" title="All 2 branches missed.">      for (int i = 0; i &lt; relationships.length(); i++) {</span>
-<span class="nc" id="L129">        JSONObject relationship = relationships.getJSONObject(i);</span>
-<span class="nc" id="L130">        Relationship r = builder.createRelationship(relationship);</span>
-<span class="nc bnc" id="L131" title="All 2 branches missed.">        if (r == null)</span>
-<span class="nc" id="L132">          JDAImpl.LOG.error(</span>
-              &quot;Provided relationship in READY with an unknown type! JSON: {}&quot;, relationship);
-      }
-
-<span class="nc bnc" id="L136" title="All 2 branches missed.">      for (int i = 0; i &lt; presences.length(); i++) {</span>
-<span class="nc" id="L137">        JSONObject presence = presences.getJSONObject(i);</span>
-<span class="nc" id="L138">        String userId = presence.getJSONObject(&quot;user&quot;).getString(&quot;id&quot;);</span>
-<span class="nc" id="L139">        FriendImpl friend = (FriendImpl) api.asClient().getFriendById(userId);</span>
-<span class="nc bnc" id="L140" title="All 2 branches missed.">        if (friend == null)</span>
-<span class="nc" id="L141">          WebSocketClient.LOG.warn(</span>
-              &quot;Received a presence in the Presences array in READY that did not correspond to a cached Friend! JSON: {}&quot;,
-              presence);
-<span class="nc" id="L144">        else builder.createPresence(friend, presence);</span>
-      }
-    }
-
-<span class="nc bnc" id="L148" title="All 2 branches missed.">    for (int i = 0; i &lt; privateChannels.length(); i++) {</span>
-<span class="nc" id="L149">      JSONObject chan = privateChannels.getJSONObject(i);</span>
-<span class="nc" id="L150">      ChannelType type = ChannelType.fromId(chan.getInt(&quot;type&quot;));</span>
-
-<span class="nc bnc" id="L152" title="All 3 branches missed.">      switch (type) {</span>
+<span class="nc bnc" id="L103" title="All 3 branches missed.">      switch (type) {</span>
         case PRIVATE:
-<span class="nc" id="L154">          builder.createPrivateChannel(chan);</span>
-<span class="nc" id="L155">          break;</span>
+<span class="nc" id="L105">          builder.createPrivateChannel(chan);</span>
+<span class="nc" id="L106">          break;</span>
         case GROUP:
-<span class="nc" id="L157">          builder.createGroup(chan);</span>
-<span class="nc" id="L158">          break;</span>
+<span class="nc" id="L108">          builder.createGroup(chan);</span>
+<span class="nc" id="L109">          break;</span>
         default:
-<span class="nc" id="L160">          WebSocketClient.LOG.warn(</span>
+<span class="nc" id="L111">          WebSocketClient.LOG.warn(</span>
               &quot;Received a Channel in the priv_channels array in READY of an unknown type! JSON: {}&quot;,
               type);
       }
     }
 
-<span class="nc" id="L166">    api.getClient().ready();</span>
-<span class="nc" id="L167">  }</span>
+<span class="nc" id="L117">    api.getClient().ready();</span>
+<span class="nc" id="L118">  }</span>
 
   public void acknowledgeGuild(
       Guild guild, boolean available, boolean requiresChunking, boolean requiresSync) {
-<span class="nc" id="L171">    acknowledgedGuilds.add(guild.getIdLong());</span>
-<span class="nc bnc" id="L172" title="All 2 branches missed.">    if (available) {</span>
+<span class="nc" id="L122">    acknowledgedGuilds.add(guild.getIdLong());</span>
+<span class="nc bnc" id="L123" title="All 2 branches missed.">    if (available) {</span>
       // We remove from unavailable guilds because it is possible that we were told it was
       // unavailable, but
       // during a long READY load it could have become available and was sent to us.
-<span class="nc" id="L176">      unavailableGuilds.remove(guild.getIdLong());</span>
-<span class="nc bnc" id="L177" title="All 2 branches missed.">      if (requiresChunking) guildsRequiringChunking.add(guild.getIdLong());</span>
-<span class="nc bnc" id="L178" title="All 2 branches missed.">      if (requiresSync) guildsRequiringSyncing.add(guild.getIdLong());</span>
-<span class="nc" id="L179">    } else unavailableGuilds.add(guild.getIdLong());</span>
+<span class="nc" id="L127">      unavailableGuilds.remove(guild.getIdLong());</span>
+<span class="nc bnc" id="L128" title="All 2 branches missed.">      if (requiresChunking) guildsRequiringChunking.add(guild.getIdLong());</span>
+<span class="nc bnc" id="L129" title="All 2 branches missed.">      if (requiresSync) guildsRequiringSyncing.add(guild.getIdLong());</span>
+<span class="nc" id="L130">    } else unavailableGuilds.add(guild.getIdLong());</span>
 
-<span class="nc" id="L181">    checkIfReadyToSendRequests();</span>
-<span class="nc" id="L182">  }</span>
+<span class="nc" id="L132">    checkIfReadyToSendRequests();</span>
+<span class="nc" id="L133">  }</span>
 
   public void guildSetupComplete(Guild guild) {
-<span class="nc bnc" id="L185" title="All 2 branches missed.">    if (!incompleteGuilds.remove(guild.getIdLong()))</span>
-<span class="nc" id="L186">      WebSocketClient.LOG.error(</span>
+<span class="nc bnc" id="L136" title="All 2 branches missed.">    if (!incompleteGuilds.remove(guild.getIdLong()))</span>
+<span class="nc" id="L137">      WebSocketClient.LOG.error(</span>
           &quot;Completed the setup for Guild: {} without matching id in ReadyHandler cache&quot;, guild);
-<span class="nc bnc" id="L188" title="All 2 branches missed.">    if (incompleteGuilds.size() == unavailableGuilds.size())</span>
-<span class="nc" id="L189">      guildLoadComplete(allContent.getJSONObject(&quot;d&quot;));</span>
-<span class="nc" id="L190">    else checkIfReadyToSendRequests();</span>
-<span class="nc" id="L191">  }</span>
+<span class="nc bnc" id="L139" title="All 2 branches missed.">    if (incompleteGuilds.size() == unavailableGuilds.size())</span>
+<span class="nc" id="L140">      guildLoadComplete(allContent.getJSONObject(&quot;d&quot;));</span>
+<span class="nc" id="L141">    else checkIfReadyToSendRequests();</span>
+<span class="nc" id="L142">  }</span>
 
   public void clearCache() {
-<span class="nc" id="L194">    incompleteGuilds.clear();</span>
-<span class="nc" id="L195">    acknowledgedGuilds.clear();</span>
-<span class="nc" id="L196">    unavailableGuilds.clear();</span>
-<span class="nc" id="L197">    guildsRequiringChunking.clear();</span>
-<span class="nc" id="L198">    guildsRequiringSyncing.clear();</span>
-<span class="nc" id="L199">  }</span>
+<span class="nc" id="L145">    incompleteGuilds.clear();</span>
+<span class="nc" id="L146">    acknowledgedGuilds.clear();</span>
+<span class="nc" id="L147">    unavailableGuilds.clear();</span>
+<span class="nc" id="L148">    guildsRequiringChunking.clear();</span>
+<span class="nc" id="L149">    guildsRequiringSyncing.clear();</span>
+<span class="nc" id="L150">  }</span>
 
   private void checkIfReadyToSendRequests() {
-<span class="nc bnc" id="L202" title="All 2 branches missed.">    if (acknowledgedGuilds.size() == incompleteGuilds.size()) {</span>
-<span class="nc" id="L203">      api.getClient().setChunkingAndSyncing(true);</span>
-<span class="nc bnc" id="L204" title="All 2 branches missed.">      if (api.getAccountType() == AccountType.CLIENT) sendGuildSyncRequests();</span>
-<span class="nc" id="L205">      sendMemberChunkRequests();</span>
+<span class="nc bnc" id="L153" title="All 2 branches missed.">    if (acknowledgedGuilds.size() == incompleteGuilds.size()) {</span>
+<span class="nc" id="L154">      api.getClient().setChunkingAndSyncing(true);</span>
+<span class="nc" id="L155">      sendMemberChunkRequests();</span>
     }
-<span class="nc" id="L207">  }</span>
+<span class="nc" id="L157">  }</span>
 
   private void sendGuildSyncRequests() {
-<span class="nc bnc" id="L210" title="All 2 branches missed.">    if (guildsRequiringSyncing.isEmpty()) return;</span>
+<span class="nc bnc" id="L160" title="All 2 branches missed.">    if (guildsRequiringSyncing.isEmpty()) return;</span>
 
-<span class="nc" id="L212">    JSONArray guildIds = new JSONArray();</span>
+<span class="nc" id="L162">    JSONArray guildIds = new JSONArray();</span>
 
-<span class="nc bnc" id="L214" title="All 2 branches missed.">    for (TLongIterator it = guildsRequiringSyncing.iterator(); it.hasNext(); ) {</span>
-<span class="nc" id="L215">      guildIds.put(it.next());</span>
+<span class="nc bnc" id="L164" title="All 2 branches missed.">    for (TLongIterator it = guildsRequiringSyncing.iterator(); it.hasNext(); ) {</span>
+<span class="nc" id="L165">      guildIds.put(it.next());</span>
 
       // We can only request 50 guilds in a single request, so after we've reached 50, send them
       // and reset the
-<span class="nc bnc" id="L219" title="All 2 branches missed.">      if (guildIds.length() == 50) {</span>
-<span class="nc" id="L220">        api.getClient()</span>
-<span class="nc" id="L221">            .chunkOrSyncRequest(</span>
-<span class="nc" id="L222">                new JSONObject().put(&quot;op&quot;, WebSocketCode.GUILD_SYNC).put(&quot;d&quot;, guildIds));</span>
-<span class="nc" id="L223">        guildIds = new JSONArray();</span>
+<span class="nc bnc" id="L169" title="All 2 branches missed.">      if (guildIds.length() == 50) {</span>
+<span class="nc" id="L170">        api.getClient()</span>
+<span class="nc" id="L171">            .chunkOrSyncRequest(</span>
+<span class="nc" id="L172">                new JSONObject().put(&quot;op&quot;, WebSocketCode.GUILD_SYNC).put(&quot;d&quot;, guildIds));</span>
+<span class="nc" id="L173">        guildIds = new JSONArray();</span>
       }
     }
 
     // Send the remaining guilds that need to be sent
-<span class="nc bnc" id="L228" title="All 2 branches missed.">    if (guildIds.length() &gt; 0) {</span>
-<span class="nc" id="L229">      api.getClient()</span>
-<span class="nc" id="L230">          .chunkOrSyncRequest(</span>
-<span class="nc" id="L231">              new JSONObject().put(&quot;op&quot;, WebSocketCode.GUILD_SYNC).put(&quot;d&quot;, guildIds));</span>
+<span class="nc bnc" id="L178" title="All 2 branches missed.">    if (guildIds.length() &gt; 0) {</span>
+<span class="nc" id="L179">      api.getClient()</span>
+<span class="nc" id="L180">          .chunkOrSyncRequest(</span>
+<span class="nc" id="L181">              new JSONObject().put(&quot;op&quot;, WebSocketCode.GUILD_SYNC).put(&quot;d&quot;, guildIds));</span>
     }
-<span class="nc" id="L233">    guildsRequiringSyncing.clear();</span>
-<span class="nc" id="L234">  }</span>
+<span class="nc" id="L183">    guildsRequiringSyncing.clear();</span>
+<span class="nc" id="L184">  }</span>
 
   private void sendMemberChunkRequests() {
-<span class="nc bnc" id="L237" title="All 2 branches missed.">    if (guildsRequiringChunking.isEmpty()) return;</span>
+<span class="nc bnc" id="L187" title="All 2 branches missed.">    if (guildsRequiringChunking.isEmpty()) return;</span>
 
-<span class="nc" id="L239">    JSONArray guildIds = new JSONArray();</span>
-<span class="nc bnc" id="L240" title="All 2 branches missed.">    for (TLongIterator it = guildsRequiringChunking.iterator(); it.hasNext(); ) {</span>
-<span class="nc" id="L241">      guildIds.put(it.next());</span>
+<span class="nc" id="L189">    JSONArray guildIds = new JSONArray();</span>
+<span class="nc bnc" id="L190" title="All 2 branches missed.">    for (TLongIterator it = guildsRequiringChunking.iterator(); it.hasNext(); ) {</span>
+<span class="nc" id="L191">      guildIds.put(it.next());</span>
 
       // We can only request 50 guilds in a single request, so after we've reached 50, send them
       // and reset the
-<span class="nc bnc" id="L245" title="All 2 branches missed.">      if (guildIds.length() == 50) {</span>
-<span class="nc" id="L246">        api.getClient()</span>
-<span class="nc" id="L247">            .chunkOrSyncRequest(</span>
+<span class="nc bnc" id="L195" title="All 2 branches missed.">      if (guildIds.length() == 50) {</span>
+<span class="nc" id="L196">        api.getClient()</span>
+<span class="nc" id="L197">            .chunkOrSyncRequest(</span>
                 new JSONObject()
-<span class="nc" id="L249">                    .put(&quot;op&quot;, WebSocketCode.MEMBER_CHUNK_REQUEST)</span>
-<span class="nc" id="L250">                    .put(</span>
+<span class="nc" id="L199">                    .put(&quot;op&quot;, WebSocketCode.MEMBER_CHUNK_REQUEST)</span>
+<span class="nc" id="L200">                    .put(</span>
                         &quot;d&quot;,
                         new JSONObject()
-<span class="nc" id="L253">                            .put(&quot;guild_id&quot;, guildIds)</span>
-<span class="nc" id="L254">                            .put(&quot;query&quot;, &quot;&quot;)</span>
-<span class="nc" id="L255">                            .put(&quot;limit&quot;, 0)));</span>
-<span class="nc" id="L256">        guildIds = new JSONArray();</span>
+<span class="nc" id="L203">                            .put(&quot;guild_id&quot;, guildIds)</span>
+<span class="nc" id="L204">                            .put(&quot;query&quot;, &quot;&quot;)</span>
+<span class="nc" id="L205">                            .put(&quot;limit&quot;, 0)));</span>
+<span class="nc" id="L206">        guildIds = new JSONArray();</span>
       }
     }
 
     // Send the remaining guilds that need to be sent
-<span class="nc bnc" id="L261" title="All 2 branches missed.">    if (guildIds.length() &gt; 0) {</span>
-<span class="nc" id="L262">      api.getClient()</span>
-<span class="nc" id="L263">          .chunkOrSyncRequest(</span>
+<span class="nc bnc" id="L211" title="All 2 branches missed.">    if (guildIds.length() &gt; 0) {</span>
+<span class="nc" id="L212">      api.getClient()</span>
+<span class="nc" id="L213">          .chunkOrSyncRequest(</span>
               new JSONObject()
-<span class="nc" id="L265">                  .put(&quot;op&quot;, WebSocketCode.MEMBER_CHUNK_REQUEST)</span>
-<span class="nc" id="L266">                  .put(</span>
+<span class="nc" id="L215">                  .put(&quot;op&quot;, WebSocketCode.MEMBER_CHUNK_REQUEST)</span>
+<span class="nc" id="L216">                  .put(</span>
                       &quot;d&quot;,
-<span class="nc" id="L268">                      new JSONObject().put(&quot;guild_id&quot;, guildIds).put(&quot;query&quot;, &quot;&quot;).put(&quot;limit&quot;, 0)));</span>
+<span class="nc" id="L218">                      new JSONObject().put(&quot;guild_id&quot;, guildIds).put(&quot;query&quot;, &quot;&quot;).put(&quot;limit&quot;, 0)));</span>
     }
-<span class="nc" id="L270">    guildsRequiringChunking.clear();</span>
-<span class="nc" id="L271">  }</span>
+<span class="nc" id="L220">    guildsRequiringChunking.clear();</span>
+<span class="nc" id="L221">  }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

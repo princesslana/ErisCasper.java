@@ -18,9 +18,7 @@ package net.dv8tion.jda.core.entities;
 
 import java.io.*;
 import java.util.*;
-import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.exceptions.AccountTypeException;
 import net.dv8tion.jda.core.requests.Request;
 import net.dv8tion.jda.core.requests.Response;
 import net.dv8tion.jda.core.requests.RestAction;
@@ -77,7 +75,7 @@ public interface MessageChannel extends ISnowflake, Formattable {
    * @return The most recent message's id
    */
   default String getLatestMessageId() {
-<span class="nc" id="L80">    return Long.toUnsignedString(getLatestMessageIdLong());</span>
+<span class="nc" id="L78">    return Long.toUnsignedString(getLatestMessageIdLong());</span>
   }
 
   /**
@@ -181,15 +179,15 @@ public interface MessageChannel extends ISnowflake, Formattable {
    * @see net.dv8tion.jda.core.MessageBuilder
    */
   default MessageAction sendMessage(CharSequence text) {
-<span class="nc" id="L184">    Checks.notEmpty(text, &quot;Provided text for message&quot;);</span>
-<span class="nc" id="L185">    Checks.check(</span>
-<span class="nc bnc" id="L186" title="All 2 branches missed.">        text.length() &lt;= 2000,</span>
+<span class="nc" id="L182">    Checks.notEmpty(text, &quot;Provided text for message&quot;);</span>
+<span class="nc" id="L183">    Checks.check(</span>
+<span class="nc bnc" id="L184" title="All 2 branches missed.">        text.length() &lt;= 2000,</span>
         &quot;Provided text for message must be less than 2000 characters in length&quot;);
 
-<span class="nc" id="L189">    Route.CompiledRoute route = Route.Messages.SEND_MESSAGE.compile(getId());</span>
-<span class="nc bnc" id="L190" title="All 2 branches missed.">    if (text instanceof StringBuilder)</span>
-<span class="nc" id="L191">      return new MessageAction(getJDA(), route, this, (StringBuilder) text);</span>
-<span class="nc" id="L192">    else return new MessageAction(getJDA(), route, this).append(text);</span>
+<span class="nc" id="L187">    Route.CompiledRoute route = Route.Messages.SEND_MESSAGE.compile(getId());</span>
+<span class="nc bnc" id="L188" title="All 2 branches missed.">    if (text instanceof StringBuilder)</span>
+<span class="nc" id="L189">      return new MessageAction(getJDA(), route, this, (StringBuilder) text);</span>
+<span class="nc" id="L190">    else return new MessageAction(getJDA(), route, this).append(text);</span>
   }
 
   /**
@@ -240,8 +238,8 @@ public interface MessageChannel extends ISnowflake, Formattable {
    *     The newly created Message after it has been sent to Discord.
    */
   default MessageAction sendMessageFormat(String format, Object... args) {
-<span class="nc" id="L243">    Checks.notEmpty(format, &quot;Format&quot;);</span>
-<span class="nc" id="L244">    return sendMessage(String.format(format, args));</span>
+<span class="nc" id="L241">    Checks.notEmpty(format, &quot;Format&quot;);</span>
+<span class="nc" id="L242">    return sendMessage(String.format(format, args));</span>
   }
 
   /**
@@ -292,10 +290,10 @@ public interface MessageChannel extends ISnowflake, Formattable {
    * @see net.dv8tion.jda.core.EmbedBuilder
    */
   default MessageAction sendMessage(MessageEmbed embed) {
-<span class="nc" id="L295">    Checks.notNull(embed, &quot;Provided embed&quot;);</span>
+<span class="nc" id="L293">    Checks.notNull(embed, &quot;Provided embed&quot;);</span>
 
-<span class="nc" id="L297">    Route.CompiledRoute route = Route.Messages.SEND_MESSAGE.compile(getId());</span>
-<span class="nc" id="L298">    return new MessageAction(getJDA(), route, this).embed(embed);</span>
+<span class="nc" id="L295">    Route.CompiledRoute route = Route.Messages.SEND_MESSAGE.compile(getId());</span>
+<span class="nc" id="L296">    return new MessageAction(getJDA(), route, this).embed(embed);</span>
   }
 
   /**
@@ -362,10 +360,10 @@ public interface MessageChannel extends ISnowflake, Formattable {
    * @see net.dv8tion.jda.core.MessageBuilder
    */
   default MessageAction sendMessage(Message msg) {
-<span class="nc" id="L365">    Checks.notNull(msg, &quot;Message&quot;);</span>
+<span class="nc" id="L363">    Checks.notNull(msg, &quot;Message&quot;);</span>
 
-<span class="nc" id="L367">    Route.CompiledRoute route = Route.Messages.SEND_MESSAGE.compile(getId());</span>
-<span class="nc" id="L368">    return new MessageAction(getJDA(), route, this).apply(msg);</span>
+<span class="nc" id="L365">    Route.CompiledRoute route = Route.Messages.SEND_MESSAGE.compile(getId());</span>
+<span class="nc" id="L366">    return new MessageAction(getJDA(), route, this).apply(msg);</span>
   }
 
   /**
@@ -415,7 +413,7 @@ public interface MessageChannel extends ISnowflake, Formattable {
    *     The {@link net.dv8tion.jda.core.entities.Message Message} created from this upload.
    */
   default MessageAction sendFile(File file) {
-<span class="nc" id="L418">    return sendFile(file, (Message) null);</span>
+<span class="nc" id="L416">    return sendFile(file, (Message) null);</span>
   }
 
   /**
@@ -478,7 +476,7 @@ public interface MessageChannel extends ISnowflake, Formattable {
    *     The {@link net.dv8tion.jda.core.entities.Message Message} created from this upload.
    */
   default MessageAction sendFile(File file, String fileName) {
-<span class="nc" id="L481">    return sendFile(file, fileName, null);</span>
+<span class="nc" id="L479">    return sendFile(file, fileName, null);</span>
   }
 
   /**
@@ -518,7 +516,7 @@ public interface MessageChannel extends ISnowflake, Formattable {
    *     The {@link net.dv8tion.jda.core.entities.Message Message} created from this upload.
    */
   default MessageAction sendFile(InputStream data, String fileName) {
-<span class="nc" id="L521">    return sendFile(data, fileName, null);</span>
+<span class="nc" id="L519">    return sendFile(data, fileName, null);</span>
   }
 
   /**
@@ -566,7 +564,7 @@ public interface MessageChannel extends ISnowflake, Formattable {
    *     The {@link net.dv8tion.jda.core.entities.Message Message} created from this upload.
    */
   default MessageAction sendFile(byte[] data, String fileName) {
-<span class="nc" id="L569">    return sendFile(data, fileName, null);</span>
+<span class="nc" id="L567">    return sendFile(data, fileName, null);</span>
   }
 
   /**
@@ -635,9 +633,9 @@ public interface MessageChannel extends ISnowflake, Formattable {
    *     The {@link net.dv8tion.jda.core.entities.Message Message} created from this upload.
    */
   default MessageAction sendFile(File file, Message message) {
-<span class="nc" id="L638">    Checks.notNull(file, &quot;file&quot;);</span>
+<span class="nc" id="L636">    Checks.notNull(file, &quot;file&quot;);</span>
 
-<span class="nc" id="L640">    return sendFile(file, file.getName(), message);</span>
+<span class="nc" id="L638">    return sendFile(file, file.getName(), message);</span>
   }
 
   /**
@@ -741,19 +739,19 @@ public interface MessageChannel extends ISnowflake, Formattable {
    *     The {@link net.dv8tion.jda.core.entities.Message Message} created from this upload.
    */
   default MessageAction sendFile(File file, String fileName, Message message) {
-<span class="nc" id="L744">    Checks.notNull(file, &quot;file&quot;);</span>
-<span class="nc" id="L745">    Checks.check(</span>
-<span class="nc bnc" id="L746" title="All 4 branches missed.">        file.exists() &amp;&amp; file.canRead(),</span>
+<span class="nc" id="L742">    Checks.notNull(file, &quot;file&quot;);</span>
+<span class="nc" id="L743">    Checks.check(</span>
+<span class="nc bnc" id="L744" title="All 4 branches missed.">        file.exists() &amp;&amp; file.canRead(),</span>
         &quot;Provided file is either null, doesn't exist or is not readable!&quot;);
-<span class="nc" id="L748">    Checks.check(</span>
-<span class="nc bnc" id="L749" title="All 2 branches missed.">        file.length() &lt;= getJDA().getSelfUser().getAllowedFileSize(),</span>
+<span class="nc" id="L746">    Checks.check(</span>
+<span class="nc bnc" id="L747" title="All 2 branches missed.">        file.length() &lt;= getJDA().getSelfUser().getAllowedFileSize(),</span>
         &quot;File is to big! Max file-size is 8 MiB for normal and 50 MiB for nitro users&quot;);
-<span class="nc" id="L751">    Checks.notNull(fileName, &quot;fileName&quot;);</span>
+<span class="nc" id="L749">    Checks.notNull(fileName, &quot;fileName&quot;);</span>
 
     try {
-<span class="nc" id="L754">      return sendFile(new FileInputStream(file), fileName, message);</span>
-<span class="nc" id="L755">    } catch (FileNotFoundException ex) {</span>
-<span class="nc" id="L756">      throw new IllegalArgumentException(ex);</span>
+<span class="nc" id="L752">      return sendFile(new FileInputStream(file), fileName, message);</span>
+<span class="nc" id="L753">    } catch (FileNotFoundException ex) {</span>
+<span class="nc" id="L754">      throw new IllegalArgumentException(ex);</span>
     }
   }
 
@@ -813,11 +811,11 @@ public interface MessageChannel extends ISnowflake, Formattable {
    *     The {@link net.dv8tion.jda.core.entities.Message Message} created from this upload.
    */
   default MessageAction sendFile(InputStream data, String fileName, Message message) {
-<span class="nc" id="L816">    Checks.notNull(data, &quot;data InputStream&quot;);</span>
-<span class="nc" id="L817">    Checks.notNull(fileName, &quot;fileName&quot;);</span>
+<span class="nc" id="L814">    Checks.notNull(data, &quot;data InputStream&quot;);</span>
+<span class="nc" id="L815">    Checks.notNull(fileName, &quot;fileName&quot;);</span>
 
-<span class="nc" id="L819">    Route.CompiledRoute route = Route.Messages.SEND_MESSAGE.compile(getId());</span>
-<span class="nc" id="L820">    return new MessageAction(getJDA(), route, this).apply(message).addFile(data, fileName);</span>
+<span class="nc" id="L817">    Route.CompiledRoute route = Route.Messages.SEND_MESSAGE.compile(getId());</span>
+<span class="nc" id="L818">    return new MessageAction(getJDA(), route, this).apply(message).addFile(data, fileName);</span>
   }
 
   /**
@@ -884,11 +882,11 @@ public interface MessageChannel extends ISnowflake, Formattable {
    *     The {@link net.dv8tion.jda.core.entities.Message Message} created from this upload.
    */
   default MessageAction sendFile(byte[] data, String fileName, Message message) {
-<span class="nc" id="L887">    Checks.notNull(data, &quot;data&quot;);</span>
-<span class="nc" id="L888">    Checks.notNull(fileName, &quot;fileName&quot;);</span>
-<span class="nc" id="L889">    final long maxSize = getJDA().getSelfUser().getAllowedFileSize();</span>
-<span class="nc bnc" id="L890" title="All 2 branches missed.">    Checks.check(data.length &lt;= maxSize, &quot;File is to big! Max file-size is %d bytes&quot;, maxSize);</span>
-<span class="nc" id="L891">    return sendFile(new ByteArrayInputStream(data), fileName, message);</span>
+<span class="nc" id="L885">    Checks.notNull(data, &quot;data&quot;);</span>
+<span class="nc" id="L886">    Checks.notNull(fileName, &quot;fileName&quot;);</span>
+<span class="nc" id="L887">    final long maxSize = getJDA().getSelfUser().getAllowedFileSize();</span>
+<span class="nc bnc" id="L888" title="All 2 branches missed.">    Checks.check(data.length &lt;= maxSize, &quot;File is to big! Max file-size is %d bytes&quot;, maxSize);</span>
+<span class="nc" id="L889">    return sendFile(new ByteArrayInputStream(data), fileName, message);</span>
   }
 
   /**
@@ -937,20 +935,19 @@ public interface MessageChannel extends ISnowflake, Formattable {
    *     The Message defined by the provided id.
    */
   default RestAction&lt;Message&gt; getMessageById(String messageId) {
-<span class="nc" id="L940">    AccountTypeException.check(getJDA().getAccountType(), AccountType.BOT);</span>
-<span class="nc" id="L941">    Checks.notEmpty(messageId, &quot;Provided messageId&quot;);</span>
+<span class="nc" id="L938">    Checks.notEmpty(messageId, &quot;Provided messageId&quot;);</span>
 
-<span class="nc" id="L943">    Route.CompiledRoute route = Route.Messages.GET_MESSAGE.compile(getId(), messageId);</span>
-<span class="nc" id="L944">    return new RestAction&lt;Message&gt;(getJDA(), route) {</span>
+<span class="nc" id="L940">    Route.CompiledRoute route = Route.Messages.GET_MESSAGE.compile(getId(), messageId);</span>
+<span class="nc" id="L941">    return new RestAction&lt;Message&gt;(getJDA(), route) {</span>
       @Override
       protected void handleResponse(Response response, Request&lt;Message&gt; request) {
-<span class="nc bnc" id="L947" title="All 2 branches missed.">        if (response.isOk()) {</span>
-<span class="nc" id="L948">          Message m =</span>
-<span class="nc" id="L949">              api.getEntityBuilder()</span>
-<span class="nc" id="L950">                  .createMessage(response.getObject(), MessageChannel.this, false);</span>
-<span class="nc" id="L951">          request.onSuccess(m);</span>
-<span class="nc" id="L952">        } else request.onFailure(response);</span>
-<span class="nc" id="L953">      }</span>
+<span class="nc bnc" id="L944" title="All 2 branches missed.">        if (response.isOk()) {</span>
+<span class="nc" id="L945">          Message m =</span>
+<span class="nc" id="L946">              api.getEntityBuilder()</span>
+<span class="nc" id="L947">                  .createMessage(response.getObject(), MessageChannel.this, false);</span>
+<span class="nc" id="L948">          request.onSuccess(m);</span>
+<span class="nc" id="L949">        } else request.onFailure(response);</span>
+<span class="nc" id="L950">      }</span>
     };
   }
 
@@ -999,7 +996,7 @@ public interface MessageChannel extends ISnowflake, Formattable {
    *     The Message defined by the provided id.
    */
   default RestAction&lt;Message&gt; getMessageById(long messageId) {
-<span class="nc" id="L1002">    return getMessageById(Long.toUnsignedString(messageId));</span>
+<span class="nc" id="L999">    return getMessageById(Long.toUnsignedString(messageId));</span>
   }
 
   /**
@@ -1041,15 +1038,15 @@ public interface MessageChannel extends ISnowflake, Formattable {
    * @return {@link net.dv8tion.jda.core.requests.RestAction RestAction} - Type: Void
    */
   default AuditableRestAction&lt;Void&gt; deleteMessageById(String messageId) {
-<span class="nc" id="L1044">    Checks.notEmpty(messageId, &quot;messageId&quot;);</span>
+<span class="nc" id="L1041">    Checks.notEmpty(messageId, &quot;messageId&quot;);</span>
 
-<span class="nc" id="L1046">    Route.CompiledRoute route = Route.Messages.DELETE_MESSAGE.compile(getId(), messageId);</span>
-<span class="nc" id="L1047">    return new AuditableRestAction&lt;Void&gt;(getJDA(), route) {</span>
+<span class="nc" id="L1043">    Route.CompiledRoute route = Route.Messages.DELETE_MESSAGE.compile(getId(), messageId);</span>
+<span class="nc" id="L1044">    return new AuditableRestAction&lt;Void&gt;(getJDA(), route) {</span>
       @Override
       protected void handleResponse(Response response, Request&lt;Void&gt; request) {
-<span class="nc bnc" id="L1050" title="All 2 branches missed.">        if (response.isOk()) request.onSuccess(null);</span>
-<span class="nc" id="L1051">        else request.onFailure(response);</span>
-<span class="nc" id="L1052">      }</span>
+<span class="nc bnc" id="L1047" title="All 2 branches missed.">        if (response.isOk()) request.onSuccess(null);</span>
+<span class="nc" id="L1048">        else request.onFailure(response);</span>
+<span class="nc" id="L1049">      }</span>
     };
   }
 
@@ -1092,7 +1089,7 @@ public interface MessageChannel extends ISnowflake, Formattable {
    * @return {@link net.dv8tion.jda.core.requests.RestAction RestAction} - Type: Void
    */
   default AuditableRestAction&lt;Void&gt; deleteMessageById(long messageId) {
-<span class="nc" id="L1095">    return deleteMessageById(Long.toUnsignedString(messageId));</span>
+<span class="nc" id="L1092">    return deleteMessageById(Long.toUnsignedString(messageId));</span>
   }
 
   /**
@@ -1108,7 +1105,7 @@ public interface MessageChannel extends ISnowflake, Formattable {
    *     channel.
    */
   default MessageHistory getHistory() {
-<span class="nc" id="L1111">    return new MessageHistory(this);</span>
+<span class="nc" id="L1108">    return new MessageHistory(this);</span>
   }
 
   /**
@@ -1152,7 +1149,7 @@ public interface MessageChannel extends ISnowflake, Formattable {
    *     MessagePaginationAction}
    */
   default MessagePaginationAction getIterableHistory() {
-<span class="nc" id="L1155">    return new MessagePaginationAction(this);</span>
+<span class="nc" id="L1152">    return new MessagePaginationAction(this);</span>
   }
 
   /**
@@ -1220,7 +1217,7 @@ public interface MessageChannel extends ISnowflake, Formattable {
    *     MessageHistory.getHistoryAround(MessageChannel, String)
    */
   default MessageHistory.MessageRetrieveAction getHistoryAround(String messageId, int limit) {
-<span class="nc" id="L1223">    return MessageHistory.getHistoryAround(this, messageId).limit(limit);</span>
+<span class="nc" id="L1220">    return MessageHistory.getHistoryAround(this, messageId).limit(limit);</span>
   }
 
   /**
@@ -1289,7 +1286,7 @@ public interface MessageChannel extends ISnowflake, Formattable {
    *     MessageHistory.getHistoryAround(MessageChannel, String)
    */
   default MessageHistory.MessageRetrieveAction getHistoryAround(long messageId, int limit) {
-<span class="nc" id="L1292">    return getHistoryAround(Long.toUnsignedString(messageId), limit);</span>
+<span class="nc" id="L1289">    return getHistoryAround(Long.toUnsignedString(messageId), limit);</span>
   }
 
   /**
@@ -1357,8 +1354,8 @@ public interface MessageChannel extends ISnowflake, Formattable {
    *     MessageHistory.getHistoryAround(MessageChannel, String)
    */
   default MessageHistory.MessageRetrieveAction getHistoryAround(Message message, int limit) {
-<span class="nc" id="L1360">    Checks.notNull(message, &quot;Provided target message&quot;);</span>
-<span class="nc" id="L1361">    return getHistoryAround(message.getId(), limit);</span>
+<span class="nc" id="L1357">    Checks.notNull(message, &quot;Provided target message&quot;);</span>
+<span class="nc" id="L1358">    return getHistoryAround(message.getId(), limit);</span>
   }
 
   /**
@@ -1417,7 +1414,7 @@ public interface MessageChannel extends ISnowflake, Formattable {
    *     MessageHistory.getHistoryAfter(MessageChannel, String)
    */
   default MessageHistory.MessageRetrieveAction getHistoryAfter(String messageId, int limit) {
-<span class="nc" id="L1420">    return MessageHistory.getHistoryAfter(this, messageId).limit(limit);</span>
+<span class="nc" id="L1417">    return MessageHistory.getHistoryAfter(this, messageId).limit(limit);</span>
   }
 
   /**
@@ -1472,7 +1469,7 @@ public interface MessageChannel extends ISnowflake, Formattable {
    *     MessageHistory.getHistoryAfter(MessageChannel, String)
    */
   default MessageHistory.MessageRetrieveAction getHistoryAfter(long messageId, int limit) {
-<span class="nc" id="L1475">    return getHistoryAfter(Long.toUnsignedString(messageId), limit);</span>
+<span class="nc" id="L1472">    return getHistoryAfter(Long.toUnsignedString(messageId), limit);</span>
   }
 
   /**
@@ -1531,8 +1528,8 @@ public interface MessageChannel extends ISnowflake, Formattable {
    *     MessageHistory.getHistoryAfter(MessageChannel, String)
    */
   default MessageHistory.MessageRetrieveAction getHistoryAfter(Message message, int limit) {
-<span class="nc" id="L1534">    Checks.notNull(message, &quot;Message&quot;);</span>
-<span class="nc" id="L1535">    return getHistoryAfter(message.getId(), limit);</span>
+<span class="nc" id="L1531">    Checks.notNull(message, &quot;Message&quot;);</span>
+<span class="nc" id="L1532">    return getHistoryAfter(message.getId(), limit);</span>
   }
 
   /**
@@ -1591,7 +1588,7 @@ public interface MessageChannel extends ISnowflake, Formattable {
    *     MessageHistory.getHistoryBefore(MessageChannel, String)
    */
   default MessageHistory.MessageRetrieveAction getHistoryBefore(String messageId, int limit) {
-<span class="nc" id="L1594">    return MessageHistory.getHistoryBefore(this, messageId).limit(limit);</span>
+<span class="nc" id="L1591">    return MessageHistory.getHistoryBefore(this, messageId).limit(limit);</span>
   }
 
   /**
@@ -1650,7 +1647,7 @@ public interface MessageChannel extends ISnowflake, Formattable {
    *     MessageHistory.getHistoryBefore(MessageChannel, String)
    */
   default MessageHistory.MessageRetrieveAction getHistoryBefore(long messageId, int limit) {
-<span class="nc" id="L1653">    return getHistoryBefore(Long.toUnsignedString(messageId), limit);</span>
+<span class="nc" id="L1650">    return getHistoryBefore(Long.toUnsignedString(messageId), limit);</span>
   }
 
   /**
@@ -1709,8 +1706,8 @@ public interface MessageChannel extends ISnowflake, Formattable {
    *     MessageHistory.getHistoryBefore(MessageChannel, String)
    */
   default MessageHistory.MessageRetrieveAction getHistoryBefore(Message message, int limit) {
-<span class="nc" id="L1712">    Checks.notNull(message, &quot;Message&quot;);</span>
-<span class="nc" id="L1713">    return getHistoryBefore(message.getId(), limit);</span>
+<span class="nc" id="L1709">    Checks.notNull(message, &quot;Message&quot;);</span>
+<span class="nc" id="L1710">    return getHistoryBefore(message.getId(), limit);</span>
   }
 
   /**
@@ -1749,13 +1746,13 @@ public interface MessageChannel extends ISnowflake, Formattable {
    * @return {@link net.dv8tion.jda.core.requests.RestAction RestAction} - Type: Void
    */
   default RestAction&lt;Void&gt; sendTyping() {
-<span class="nc" id="L1752">    Route.CompiledRoute route = Route.Channels.SEND_TYPING.compile(getId());</span>
-<span class="nc" id="L1753">    return new RestAction&lt;Void&gt;(getJDA(), route) {</span>
+<span class="nc" id="L1749">    Route.CompiledRoute route = Route.Channels.SEND_TYPING.compile(getId());</span>
+<span class="nc" id="L1750">    return new RestAction&lt;Void&gt;(getJDA(), route) {</span>
       @Override
       protected void handleResponse(Response response, Request&lt;Void&gt; request) {
-<span class="nc bnc" id="L1756" title="All 2 branches missed.">        if (response.isOk()) request.onSuccess(null);</span>
-<span class="nc" id="L1757">        else request.onFailure(response);</span>
-<span class="nc" id="L1758">      }</span>
+<span class="nc bnc" id="L1753" title="All 2 branches missed.">        if (response.isOk()) request.onSuccess(null);</span>
+<span class="nc" id="L1754">        else request.onFailure(response);</span>
+<span class="nc" id="L1755">      }</span>
     };
   }
 
@@ -1820,18 +1817,18 @@ public interface MessageChannel extends ISnowflake, Formattable {
    * @return {@link net.dv8tion.jda.core.requests.RestAction}
    */
   default RestAction&lt;Void&gt; addReactionById(String messageId, String unicode) {
-<span class="nc" id="L1823">    Checks.notEmpty(messageId, &quot;MessageId&quot;);</span>
-<span class="nc" id="L1824">    Checks.notEmpty(unicode, &quot;Provided Unicode&quot;);</span>
-<span class="nc" id="L1825">    Checks.noWhitespace(unicode, &quot;Provided Unicode&quot;);</span>
+<span class="nc" id="L1820">    Checks.notEmpty(messageId, &quot;MessageId&quot;);</span>
+<span class="nc" id="L1821">    Checks.notEmpty(unicode, &quot;Provided Unicode&quot;);</span>
+<span class="nc" id="L1822">    Checks.noWhitespace(unicode, &quot;Provided Unicode&quot;);</span>
 
-<span class="nc" id="L1827">    String encoded = MiscUtil.encodeUTF8(unicode);</span>
-<span class="nc" id="L1828">    Route.CompiledRoute route = Route.Messages.ADD_REACTION.compile(getId(), messageId, encoded);</span>
-<span class="nc" id="L1829">    return new RestAction&lt;Void&gt;(getJDA(), route) {</span>
+<span class="nc" id="L1824">    String encoded = MiscUtil.encodeUTF8(unicode);</span>
+<span class="nc" id="L1825">    Route.CompiledRoute route = Route.Messages.ADD_REACTION.compile(getId(), messageId, encoded);</span>
+<span class="nc" id="L1826">    return new RestAction&lt;Void&gt;(getJDA(), route) {</span>
       @Override
       protected void handleResponse(Response response, Request&lt;Void&gt; request) {
-<span class="nc bnc" id="L1832" title="All 2 branches missed.">        if (response.isOk()) request.onSuccess(null);</span>
-<span class="nc" id="L1833">        else request.onFailure(response);</span>
-<span class="nc" id="L1834">      }</span>
+<span class="nc bnc" id="L1829" title="All 2 branches missed.">        if (response.isOk()) request.onSuccess(null);</span>
+<span class="nc" id="L1830">        else request.onFailure(response);</span>
+<span class="nc" id="L1831">      }</span>
     };
   }
 
@@ -1895,7 +1892,7 @@ public interface MessageChannel extends ISnowflake, Formattable {
    * @return {@link net.dv8tion.jda.core.requests.RestAction}
    */
   default RestAction&lt;Void&gt; addReactionById(long messageId, String unicode) {
-<span class="nc" id="L1898">    return addReactionById(Long.toUnsignedString(messageId), unicode);</span>
+<span class="nc" id="L1895">    return addReactionById(Long.toUnsignedString(messageId), unicode);</span>
   }
 
   /**
@@ -1957,18 +1954,18 @@ public interface MessageChannel extends ISnowflake, Formattable {
    * @return {@link net.dv8tion.jda.core.requests.RestAction}
    */
   default RestAction&lt;Void&gt; addReactionById(String messageId, Emote emote) {
-<span class="nc" id="L1960">    Checks.notEmpty(messageId, &quot;MessageId&quot;);</span>
-<span class="nc" id="L1961">    Checks.notNull(emote, &quot;Emote&quot;);</span>
+<span class="nc" id="L1957">    Checks.notEmpty(messageId, &quot;MessageId&quot;);</span>
+<span class="nc" id="L1958">    Checks.notNull(emote, &quot;Emote&quot;);</span>
 
-<span class="nc" id="L1963">    Route.CompiledRoute route =</span>
-<span class="nc" id="L1964">        Route.Messages.ADD_REACTION.compile(</span>
-<span class="nc" id="L1965">            getId(), messageId, String.format(&quot;%s:%s&quot;, emote.getName(), emote.getId()));</span>
-<span class="nc" id="L1966">    return new RestAction&lt;Void&gt;(getJDA(), route) {</span>
+<span class="nc" id="L1960">    Route.CompiledRoute route =</span>
+<span class="nc" id="L1961">        Route.Messages.ADD_REACTION.compile(</span>
+<span class="nc" id="L1962">            getId(), messageId, String.format(&quot;%s:%s&quot;, emote.getName(), emote.getId()));</span>
+<span class="nc" id="L1963">    return new RestAction&lt;Void&gt;(getJDA(), route) {</span>
       @Override
       protected void handleResponse(Response response, Request&lt;Void&gt; request) {
-<span class="nc bnc" id="L1969" title="All 2 branches missed.">        if (response.isOk()) request.onSuccess(null);</span>
-<span class="nc" id="L1970">        else request.onFailure(response);</span>
-<span class="nc" id="L1971">      }</span>
+<span class="nc bnc" id="L1966" title="All 2 branches missed.">        if (response.isOk()) request.onSuccess(null);</span>
+<span class="nc" id="L1967">        else request.onFailure(response);</span>
+<span class="nc" id="L1968">      }</span>
     };
   }
 
@@ -2029,7 +2026,7 @@ public interface MessageChannel extends ISnowflake, Formattable {
    * @return {@link net.dv8tion.jda.core.requests.RestAction}
    */
   default RestAction&lt;Void&gt; addReactionById(long messageId, Emote emote) {
-<span class="nc" id="L2032">    return addReactionById(Long.toUnsignedString(messageId), emote);</span>
+<span class="nc" id="L2029">    return addReactionById(Long.toUnsignedString(messageId), emote);</span>
   }
 
   /**
@@ -2084,18 +2081,18 @@ public interface MessageChannel extends ISnowflake, Formattable {
    * @return {@link net.dv8tion.jda.core.requests.RestAction}
    */
   default RestAction&lt;Void&gt; removeReactionById(String messageId, String unicode) {
-<span class="nc" id="L2087">    Checks.noWhitespace(messageId, &quot;Message ID&quot;);</span>
-<span class="nc" id="L2088">    Checks.noWhitespace(unicode, &quot;Emoji&quot;);</span>
+<span class="nc" id="L2084">    Checks.noWhitespace(messageId, &quot;Message ID&quot;);</span>
+<span class="nc" id="L2085">    Checks.noWhitespace(unicode, &quot;Emoji&quot;);</span>
 
-<span class="nc" id="L2090">    final String code = MiscUtil.encodeUTF8(unicode);</span>
-<span class="nc" id="L2091">    final Route.CompiledRoute route =</span>
-<span class="nc" id="L2092">        Route.Messages.REMOVE_OWN_REACTION.compile(getId(), messageId, code);</span>
-<span class="nc" id="L2093">    return new RestAction&lt;Void&gt;(getJDA(), route) {</span>
+<span class="nc" id="L2087">    final String code = MiscUtil.encodeUTF8(unicode);</span>
+<span class="nc" id="L2088">    final Route.CompiledRoute route =</span>
+<span class="nc" id="L2089">        Route.Messages.REMOVE_OWN_REACTION.compile(getId(), messageId, code);</span>
+<span class="nc" id="L2090">    return new RestAction&lt;Void&gt;(getJDA(), route) {</span>
       @Override
       protected void handleResponse(Response response, Request&lt;Void&gt; request) {
-<span class="nc bnc" id="L2096" title="All 2 branches missed.">        if (!response.isOk()) request.onFailure(response);</span>
-<span class="nc" id="L2097">        else request.onSuccess(null);</span>
-<span class="nc" id="L2098">      }</span>
+<span class="nc bnc" id="L2093" title="All 2 branches missed.">        if (!response.isOk()) request.onFailure(response);</span>
+<span class="nc" id="L2094">        else request.onSuccess(null);</span>
+<span class="nc" id="L2095">      }</span>
     };
   }
 
@@ -2151,7 +2148,7 @@ public interface MessageChannel extends ISnowflake, Formattable {
    * @return {@link net.dv8tion.jda.core.requests.RestAction}
    */
   default RestAction&lt;Void&gt; removeReactionById(long messageId, String unicode) {
-<span class="nc" id="L2154">    return removeReactionById(Long.toUnsignedString(messageId), unicode);</span>
+<span class="nc" id="L2151">    return removeReactionById(Long.toUnsignedString(messageId), unicode);</span>
   }
 
   /**
@@ -2201,8 +2198,8 @@ public interface MessageChannel extends ISnowflake, Formattable {
    * @return {@link net.dv8tion.jda.core.requests.RestAction}
    */
   default RestAction&lt;Void&gt; removeReactionById(String messageId, Emote emote) {
-<span class="nc" id="L2204">    Checks.notNull(emote, &quot;Emote&quot;);</span>
-<span class="nc" id="L2205">    return removeReactionById(messageId, emote.getName() + &quot;:&quot; + emote.getId());</span>
+<span class="nc" id="L2201">    Checks.notNull(emote, &quot;Emote&quot;);</span>
+<span class="nc" id="L2202">    return removeReactionById(messageId, emote.getName() + &quot;:&quot; + emote.getId());</span>
   }
 
   /**
@@ -2252,8 +2249,8 @@ public interface MessageChannel extends ISnowflake, Formattable {
    * @return {@link net.dv8tion.jda.core.requests.RestAction}
    */
   default RestAction&lt;Void&gt; removeReactionById(long messageId, Emote emote) {
-<span class="nc" id="L2255">    Checks.notNull(emote, &quot;Emote&quot;);</span>
-<span class="nc" id="L2256">    return removeReactionById(messageId, emote.getName() + &quot;:&quot; + emote.getId());</span>
+<span class="nc" id="L2252">    Checks.notNull(emote, &quot;Emote&quot;);</span>
+<span class="nc" id="L2253">    return removeReactionById(messageId, emote.getName() + &quot;:&quot; + emote.getId());</span>
   }
 
   /**
@@ -2294,15 +2291,15 @@ public interface MessageChannel extends ISnowflake, Formattable {
    * @return {@link net.dv8tion.jda.core.requests.RestAction RestAction}
    */
   default RestAction&lt;Void&gt; pinMessageById(String messageId) {
-<span class="nc" id="L2297">    Checks.notEmpty(messageId, &quot;messageId&quot;);</span>
+<span class="nc" id="L2294">    Checks.notEmpty(messageId, &quot;messageId&quot;);</span>
 
-<span class="nc" id="L2299">    Route.CompiledRoute route = Route.Messages.ADD_PINNED_MESSAGE.compile(getId(), messageId);</span>
-<span class="nc" id="L2300">    return new RestAction&lt;Void&gt;(getJDA(), route) {</span>
+<span class="nc" id="L2296">    Route.CompiledRoute route = Route.Messages.ADD_PINNED_MESSAGE.compile(getId(), messageId);</span>
+<span class="nc" id="L2297">    return new RestAction&lt;Void&gt;(getJDA(), route) {</span>
       @Override
       protected void handleResponse(Response response, Request&lt;Void&gt; request) {
-<span class="nc bnc" id="L2303" title="All 2 branches missed.">        if (response.isOk()) request.onSuccess(null);</span>
-<span class="nc" id="L2304">        else request.onFailure(response);</span>
-<span class="nc" id="L2305">      }</span>
+<span class="nc bnc" id="L2300" title="All 2 branches missed.">        if (response.isOk()) request.onSuccess(null);</span>
+<span class="nc" id="L2301">        else request.onFailure(response);</span>
+<span class="nc" id="L2302">      }</span>
     };
   }
 
@@ -2344,7 +2341,7 @@ public interface MessageChannel extends ISnowflake, Formattable {
    * @return {@link net.dv8tion.jda.core.requests.RestAction RestAction}
    */
   default RestAction&lt;Void&gt; pinMessageById(long messageId) {
-<span class="nc" id="L2347">    return pinMessageById(Long.toUnsignedString(messageId));</span>
+<span class="nc" id="L2344">    return pinMessageById(Long.toUnsignedString(messageId));</span>
   }
 
   /**
@@ -2385,15 +2382,15 @@ public interface MessageChannel extends ISnowflake, Formattable {
    * @return {@link net.dv8tion.jda.core.requests.RestAction RestAction}
    */
   default RestAction&lt;Void&gt; unpinMessageById(String messageId) {
-<span class="nc" id="L2388">    Checks.notEmpty(messageId, &quot;messageId&quot;);</span>
+<span class="nc" id="L2385">    Checks.notEmpty(messageId, &quot;messageId&quot;);</span>
 
-<span class="nc" id="L2390">    Route.CompiledRoute route = Route.Messages.REMOVE_PINNED_MESSAGE.compile(getId(), messageId);</span>
-<span class="nc" id="L2391">    return new RestAction&lt;Void&gt;(getJDA(), route) {</span>
+<span class="nc" id="L2387">    Route.CompiledRoute route = Route.Messages.REMOVE_PINNED_MESSAGE.compile(getId(), messageId);</span>
+<span class="nc" id="L2388">    return new RestAction&lt;Void&gt;(getJDA(), route) {</span>
       @Override
       protected void handleResponse(Response response, Request&lt;Void&gt; request) {
-<span class="nc bnc" id="L2394" title="All 2 branches missed.">        if (response.isOk()) request.onSuccess(null);</span>
-<span class="nc" id="L2395">        else request.onFailure(response);</span>
-<span class="nc" id="L2396">      }</span>
+<span class="nc bnc" id="L2391" title="All 2 branches missed.">        if (response.isOk()) request.onSuccess(null);</span>
+<span class="nc" id="L2392">        else request.onFailure(response);</span>
+<span class="nc" id="L2393">      }</span>
     };
   }
 
@@ -2435,7 +2432,7 @@ public interface MessageChannel extends ISnowflake, Formattable {
    * @return {@link net.dv8tion.jda.core.requests.RestAction RestAction}
    */
   default RestAction&lt;Void&gt; unpinMessageById(long messageId) {
-<span class="nc" id="L2438">    return unpinMessageById(Long.toUnsignedString(messageId));</span>
+<span class="nc" id="L2435">    return unpinMessageById(Long.toUnsignedString(messageId));</span>
   }
 
   /**
@@ -2465,25 +2462,25 @@ public interface MessageChannel extends ISnowflake, Formattable {
    *     An immutable list of pinned messages
    */
   default RestAction&lt;List&lt;Message&gt;&gt; getPinnedMessages() {
-<span class="nc" id="L2468">    Route.CompiledRoute route = Route.Messages.GET_PINNED_MESSAGES.compile(getId());</span>
-<span class="nc" id="L2469">    return new RestAction&lt;List&lt;Message&gt;&gt;(getJDA(), route) {</span>
+<span class="nc" id="L2465">    Route.CompiledRoute route = Route.Messages.GET_PINNED_MESSAGES.compile(getId());</span>
+<span class="nc" id="L2466">    return new RestAction&lt;List&lt;Message&gt;&gt;(getJDA(), route) {</span>
       @Override
       protected void handleResponse(Response response, Request&lt;List&lt;Message&gt;&gt; request) {
-<span class="nc bnc" id="L2472" title="All 2 branches missed.">        if (response.isOk()) {</span>
-<span class="nc" id="L2473">          LinkedList&lt;Message&gt; pinnedMessages = new LinkedList&lt;&gt;();</span>
-<span class="nc" id="L2474">          EntityBuilder builder = api.getEntityBuilder();</span>
-<span class="nc" id="L2475">          JSONArray pins = response.getArray();</span>
+<span class="nc bnc" id="L2469" title="All 2 branches missed.">        if (response.isOk()) {</span>
+<span class="nc" id="L2470">          LinkedList&lt;Message&gt; pinnedMessages = new LinkedList&lt;&gt;();</span>
+<span class="nc" id="L2471">          EntityBuilder builder = api.getEntityBuilder();</span>
+<span class="nc" id="L2472">          JSONArray pins = response.getArray();</span>
 
-<span class="nc bnc" id="L2477" title="All 2 branches missed.">          for (int i = 0; i &lt; pins.length(); i++) {</span>
-<span class="nc" id="L2478">            pinnedMessages.add(</span>
-<span class="nc" id="L2479">                builder.createMessage(pins.getJSONObject(i), MessageChannel.this, false));</span>
+<span class="nc bnc" id="L2474" title="All 2 branches missed.">          for (int i = 0; i &lt; pins.length(); i++) {</span>
+<span class="nc" id="L2475">            pinnedMessages.add(</span>
+<span class="nc" id="L2476">                builder.createMessage(pins.getJSONObject(i), MessageChannel.this, false));</span>
           }
 
-<span class="nc" id="L2482">          request.onSuccess(Collections.unmodifiableList(pinnedMessages));</span>
-<span class="nc" id="L2483">        } else {</span>
-<span class="nc" id="L2484">          request.onFailure(response);</span>
+<span class="nc" id="L2479">          request.onSuccess(Collections.unmodifiableList(pinnedMessages));</span>
+<span class="nc" id="L2480">        } else {</span>
+<span class="nc" id="L2481">          request.onFailure(response);</span>
         }
-<span class="nc" id="L2486">      }</span>
+<span class="nc" id="L2483">      }</span>
     };
   }
 
@@ -2529,15 +2526,15 @@ public interface MessageChannel extends ISnowflake, Formattable {
    *     The modified Message after it has been sent to Discord.
    */
   default MessageAction editMessageById(String messageId, CharSequence newContent) {
-<span class="nc" id="L2532">    Checks.noWhitespace(messageId, &quot;MessageId&quot;);</span>
-<span class="nc" id="L2533">    Checks.notEmpty(newContent, &quot;Provided message content&quot;);</span>
-<span class="nc" id="L2534">    Checks.check(</span>
-<span class="nc bnc" id="L2535" title="All 2 branches missed.">        newContent.length() &lt;= 2000, &quot;Provided newContent length must be 2000 or less characters.&quot;);</span>
+<span class="nc" id="L2529">    Checks.noWhitespace(messageId, &quot;MessageId&quot;);</span>
+<span class="nc" id="L2530">    Checks.notEmpty(newContent, &quot;Provided message content&quot;);</span>
+<span class="nc" id="L2531">    Checks.check(</span>
+<span class="nc bnc" id="L2532" title="All 2 branches missed.">        newContent.length() &lt;= 2000, &quot;Provided newContent length must be 2000 or less characters.&quot;);</span>
 
-<span class="nc" id="L2537">    Route.CompiledRoute route = Route.Messages.EDIT_MESSAGE.compile(getId(), messageId);</span>
-<span class="nc bnc" id="L2538" title="All 2 branches missed.">    if (newContent instanceof StringBuilder)</span>
-<span class="nc" id="L2539">      return new MessageAction(getJDA(), route, this, (StringBuilder) newContent);</span>
-<span class="nc" id="L2540">    else return new MessageAction(getJDA(), route, this).append(newContent);</span>
+<span class="nc" id="L2534">    Route.CompiledRoute route = Route.Messages.EDIT_MESSAGE.compile(getId(), messageId);</span>
+<span class="nc bnc" id="L2535" title="All 2 branches missed.">    if (newContent instanceof StringBuilder)</span>
+<span class="nc" id="L2536">      return new MessageAction(getJDA(), route, this, (StringBuilder) newContent);</span>
+<span class="nc" id="L2537">    else return new MessageAction(getJDA(), route, this).append(newContent);</span>
   }
 
   /**
@@ -2582,7 +2579,7 @@ public interface MessageChannel extends ISnowflake, Formattable {
    *     The modified Message after it has been sent to Discord.
    */
   default MessageAction editMessageById(long messageId, CharSequence newContent) {
-<span class="nc" id="L2585">    return editMessageById(Long.toUnsignedString(messageId), newContent);</span>
+<span class="nc" id="L2582">    return editMessageById(Long.toUnsignedString(messageId), newContent);</span>
   }
 
   /**
@@ -2628,11 +2625,11 @@ public interface MessageChannel extends ISnowflake, Formattable {
    *     The modified Message after it has been sent to discord
    */
   default MessageAction editMessageById(String messageId, Message newContent) {
-<span class="nc" id="L2631">    Checks.noWhitespace(messageId, &quot;messageId&quot;);</span>
-<span class="nc" id="L2632">    Checks.notNull(newContent, &quot;message&quot;);</span>
+<span class="nc" id="L2628">    Checks.noWhitespace(messageId, &quot;messageId&quot;);</span>
+<span class="nc" id="L2629">    Checks.notNull(newContent, &quot;message&quot;);</span>
 
-<span class="nc" id="L2634">    Route.CompiledRoute route = Route.Messages.EDIT_MESSAGE.compile(getId(), messageId);</span>
-<span class="nc" id="L2635">    return new MessageAction(getJDA(), route, this).apply(newContent);</span>
+<span class="nc" id="L2631">    Route.CompiledRoute route = Route.Messages.EDIT_MESSAGE.compile(getId(), messageId);</span>
+<span class="nc" id="L2632">    return new MessageAction(getJDA(), route, this).apply(newContent);</span>
   }
 
   /**
@@ -2678,7 +2675,7 @@ public interface MessageChannel extends ISnowflake, Formattable {
    *     The modified Message after it has been sent to discord
    */
   default MessageAction editMessageById(long messageId, Message newContent) {
-<span class="nc" id="L2681">    return editMessageById(Long.toUnsignedString(messageId), newContent);</span>
+<span class="nc" id="L2678">    return editMessageById(Long.toUnsignedString(messageId), newContent);</span>
   }
 
   /**
@@ -2728,8 +2725,8 @@ public interface MessageChannel extends ISnowflake, Formattable {
    *     The modified Message after it has been sent to discord
    */
   default MessageAction editMessageFormatById(String messageId, String format, Object... args) {
-<span class="nc" id="L2731">    Checks.notBlank(format, &quot;Format String&quot;);</span>
-<span class="nc" id="L2732">    return editMessageById(messageId, String.format(format, args));</span>
+<span class="nc" id="L2728">    Checks.notBlank(format, &quot;Format String&quot;);</span>
+<span class="nc" id="L2729">    return editMessageById(messageId, String.format(format, args));</span>
   }
 
   /**
@@ -2779,8 +2776,8 @@ public interface MessageChannel extends ISnowflake, Formattable {
    *     The modified Message after it has been sent to discord
    */
   default MessageAction editMessageFormatById(long messageId, String format, Object... args) {
-<span class="nc" id="L2782">    Checks.notBlank(format, &quot;Format String&quot;);</span>
-<span class="nc" id="L2783">    return editMessageById(messageId, String.format(format, args));</span>
+<span class="nc" id="L2779">    Checks.notBlank(format, &quot;Format String&quot;);</span>
+<span class="nc" id="L2780">    return editMessageById(messageId, String.format(format, args));</span>
   }
 
   /**
@@ -2828,11 +2825,11 @@ public interface MessageChannel extends ISnowflake, Formattable {
    *     The modified Message after it has been sent to discord
    */
   default MessageAction editMessageById(String messageId, MessageEmbed newEmbed) {
-<span class="nc" id="L2831">    Checks.noWhitespace(messageId, &quot;Message ID&quot;);</span>
-<span class="nc" id="L2832">    Checks.notNull(newEmbed, &quot;MessageEmbed&quot;);</span>
+<span class="nc" id="L2828">    Checks.noWhitespace(messageId, &quot;Message ID&quot;);</span>
+<span class="nc" id="L2829">    Checks.notNull(newEmbed, &quot;MessageEmbed&quot;);</span>
 
-<span class="nc" id="L2834">    Route.CompiledRoute route = Route.Messages.EDIT_MESSAGE.compile(getId(), messageId);</span>
-<span class="nc" id="L2835">    return new MessageAction(getJDA(), route, this).embed(newEmbed);</span>
+<span class="nc" id="L2831">    Route.CompiledRoute route = Route.Messages.EDIT_MESSAGE.compile(getId(), messageId);</span>
+<span class="nc" id="L2832">    return new MessageAction(getJDA(), route, this).embed(newEmbed);</span>
   }
 
   /**
@@ -2880,21 +2877,21 @@ public interface MessageChannel extends ISnowflake, Formattable {
    *     The modified Message after it has been sent to discord
    */
   default MessageAction editMessageById(long messageId, MessageEmbed newEmbed) {
-<span class="nc" id="L2883">    return editMessageById(Long.toUnsignedString(messageId), newEmbed);</span>
+<span class="nc" id="L2880">    return editMessageById(Long.toUnsignedString(messageId), newEmbed);</span>
   }
 
   @Override
   default void formatTo(Formatter formatter, int flags, int width, int precision) {
-<span class="nc bnc" id="L2888" title="All 2 branches missed.">    boolean leftJustified =</span>
+<span class="nc bnc" id="L2885" title="All 2 branches missed.">    boolean leftJustified =</span>
         (flags &amp; FormattableFlags.LEFT_JUSTIFY) == FormattableFlags.LEFT_JUSTIFY;
-<span class="nc bnc" id="L2890" title="All 2 branches missed.">    boolean upper = (flags &amp; FormattableFlags.UPPERCASE) == FormattableFlags.UPPERCASE;</span>
-<span class="nc bnc" id="L2891" title="All 2 branches missed.">    boolean alt = (flags &amp; FormattableFlags.ALTERNATE) == FormattableFlags.ALTERNATE;</span>
+<span class="nc bnc" id="L2887" title="All 2 branches missed.">    boolean upper = (flags &amp; FormattableFlags.UPPERCASE) == FormattableFlags.UPPERCASE;</span>
+<span class="nc bnc" id="L2888" title="All 2 branches missed.">    boolean alt = (flags &amp; FormattableFlags.ALTERNATE) == FormattableFlags.ALTERNATE;</span>
     String out;
 
-<span class="nc bnc" id="L2894" title="All 2 branches missed.">    out = upper ? getName().toUpperCase(formatter.locale()) : getName();</span>
-<span class="nc bnc" id="L2895" title="All 2 branches missed.">    if (alt) out = &quot;#&quot; + out;</span>
+<span class="nc bnc" id="L2891" title="All 2 branches missed.">    out = upper ? getName().toUpperCase(formatter.locale()) : getName();</span>
+<span class="nc bnc" id="L2892" title="All 2 branches missed.">    if (alt) out = &quot;#&quot; + out;</span>
 
-<span class="nc" id="L2897">    MiscUtil.appendTo(formatter, width, precision, leftJustified, out);</span>
-<span class="nc" id="L2898">  }</span>
+<span class="nc" id="L2894">    MiscUtil.appendTo(formatter, width, precision, leftJustified, out);</span>
+<span class="nc" id="L2895">  }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

@@ -16,7 +16,6 @@
  */
 package net.dv8tion.jda.core.entities.impl;
 
-import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.PrivateChannel;
 import net.dv8tion.jda.core.entities.SelfUser;
@@ -26,7 +25,7 @@ import net.dv8tion.jda.core.managers.AccountManagerUpdatable;
 import net.dv8tion.jda.core.requests.RestAction;
 
 public class SelfUserImpl extends UserImpl implements SelfUser {
-<span class="nc" id="L29">  protected final Object mngLock = new Object();</span>
+<span class="nc" id="L28">  protected final Object mngLock = new Object();</span>
   protected volatile AccountManager manager;
   protected volatile AccountManagerUpdatable managerUpdatable;
 
@@ -40,127 +39,115 @@ public class SelfUserImpl extends UserImpl implements SelfUser {
   private boolean nitro;
 
   public SelfUserImpl(long id, JDAImpl api) {
-<span class="nc" id="L43">    super(id, api);</span>
-<span class="nc" id="L44">  }</span>
+<span class="nc" id="L42">    super(id, api);</span>
+<span class="nc" id="L43">  }</span>
 
   @Override
   public boolean hasPrivateChannel() {
-<span class="nc" id="L48">    return false;</span>
+<span class="nc" id="L47">    return false;</span>
   }
 
   @Override
   public PrivateChannel getPrivateChannel() {
-<span class="nc" id="L53">    throw new UnsupportedOperationException(</span>
+<span class="nc" id="L52">    throw new UnsupportedOperationException(</span>
         &quot;You cannot get a PrivateChannel with yourself (SelfUser)&quot;);
   }
 
   @Override
   public RestAction&lt;PrivateChannel&gt; openPrivateChannel() {
-<span class="nc" id="L59">    throw new UnsupportedOperationException(</span>
+<span class="nc" id="L58">    throw new UnsupportedOperationException(</span>
         &quot;You cannot open a PrivateChannel with yourself (SelfUser)&quot;);
   }
 
   @Override
   public boolean isVerified() {
-<span class="nc" id="L65">    return verified;</span>
+<span class="nc" id="L64">    return verified;</span>
   }
 
   @Override
   public boolean isMfaEnabled() {
-<span class="nc" id="L70">    return mfaEnabled;</span>
+<span class="nc" id="L69">    return mfaEnabled;</span>
   }
 
   @Override
   public String getEmail() throws AccountTypeException {
-<span class="nc bnc" id="L75" title="All 2 branches missed.">    if (api.getAccountType() != AccountType.CLIENT)</span>
-<span class="nc" id="L76">      throw new AccountTypeException(</span>
-          AccountType.CLIENT, &quot;Email retrieval can only be done on CLIENT accounts!&quot;);
-<span class="nc" id="L78">    return email;</span>
+<span class="nc" id="L74">    throw new AccountTypeException(&quot;Email retrieval can only be done on CLIENT accounts!&quot;);</span>
   }
 
   @Override
   public String getPhoneNumber() throws AccountTypeException {
-<span class="nc bnc" id="L83" title="All 2 branches missed.">    if (api.getAccountType() != AccountType.CLIENT)</span>
-<span class="nc" id="L84">      throw new AccountTypeException(</span>
-          AccountType.CLIENT, &quot;Phone number retrieval can only be done on CLIENT accounts!&quot;);
-<span class="nc" id="L86">    return this.phoneNumber;</span>
+<span class="nc" id="L79">    throw new AccountTypeException(&quot;Phone number retrieval can only be done on CLIENT accounts!&quot;);</span>
   }
 
   @Override
   public boolean isMobile() throws AccountTypeException {
-<span class="nc bnc" id="L91" title="All 2 branches missed.">    if (api.getAccountType() != AccountType.CLIENT)</span>
-<span class="nc" id="L92">      throw new AccountTypeException(</span>
-          AccountType.CLIENT, &quot;Mobile app retrieval can only be done on CLIENT accounts!&quot;);
-<span class="nc" id="L94">    return this.mobile;</span>
+<span class="nc" id="L84">    throw new AccountTypeException(&quot;Mobile app retrieval can only be done on CLIENT accounts!&quot;);</span>
   }
 
   @Override
   public boolean isNitro() throws AccountTypeException {
-<span class="nc bnc" id="L99" title="All 2 branches missed.">    if (api.getAccountType() != AccountType.CLIENT)</span>
-<span class="nc" id="L100">      throw new AccountTypeException(</span>
-          AccountType.CLIENT, &quot;Nitro status retrieval can only be done on CLIENT accounts!&quot;);
-<span class="nc" id="L102">    return this.nitro;</span>
+<span class="nc" id="L89">    throw new AccountTypeException(&quot;Nitro status retrieval can only be done on CLIENT accounts!&quot;);</span>
   }
 
   @Override
   public long getAllowedFileSize() {
-<span class="nc bnc" id="L107" title="All 2 branches missed.">    if (this.nitro) // by directly accessing the field we don't need to check the account type</span>
-<span class="nc" id="L108">    return Message.MAX_FILE_SIZE_NITRO;</span>
-<span class="nc" id="L109">    else return Message.MAX_FILE_SIZE;</span>
+<span class="nc bnc" id="L94" title="All 2 branches missed.">    if (this.nitro) // by directly accessing the field we don't need to check the account type</span>
+<span class="nc" id="L95">    return Message.MAX_FILE_SIZE_NITRO;</span>
+<span class="nc" id="L96">    else return Message.MAX_FILE_SIZE;</span>
   }
 
   @Override
   public AccountManager getManager() {
-<span class="nc" id="L114">    AccountManager mng = manager;</span>
-<span class="nc bnc" id="L115" title="All 2 branches missed.">    if (mng == null) {</span>
-<span class="nc" id="L116">      synchronized (mngLock) {</span>
-<span class="nc" id="L117">        mng = manager;</span>
-<span class="nc bnc" id="L118" title="All 2 branches missed.">        if (mng == null) mng = manager = new AccountManager(this);</span>
-<span class="nc" id="L119">      }</span>
+<span class="nc" id="L101">    AccountManager mng = manager;</span>
+<span class="nc bnc" id="L102" title="All 2 branches missed.">    if (mng == null) {</span>
+<span class="nc" id="L103">      synchronized (mngLock) {</span>
+<span class="nc" id="L104">        mng = manager;</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">        if (mng == null) mng = manager = new AccountManager(this);</span>
+<span class="nc" id="L106">      }</span>
     }
-<span class="nc" id="L121">    return mng;</span>
+<span class="nc" id="L108">    return mng;</span>
   }
 
   @Override
   public AccountManagerUpdatable getManagerUpdatable() {
-<span class="nc" id="L126">    AccountManagerUpdatable mng = managerUpdatable;</span>
-<span class="nc bnc" id="L127" title="All 2 branches missed.">    if (mng == null) {</span>
-<span class="nc" id="L128">      synchronized (mngLock) {</span>
-<span class="nc" id="L129">        mng = managerUpdatable;</span>
-<span class="nc bnc" id="L130" title="All 2 branches missed.">        if (mng == null) mng = managerUpdatable = new AccountManagerUpdatable(this);</span>
-<span class="nc" id="L131">      }</span>
+<span class="nc" id="L113">    AccountManagerUpdatable mng = managerUpdatable;</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">    if (mng == null) {</span>
+<span class="nc" id="L115">      synchronized (mngLock) {</span>
+<span class="nc" id="L116">        mng = managerUpdatable;</span>
+<span class="nc bnc" id="L117" title="All 2 branches missed.">        if (mng == null) mng = managerUpdatable = new AccountManagerUpdatable(this);</span>
+<span class="nc" id="L118">      }</span>
     }
-<span class="nc" id="L133">    return mng;</span>
+<span class="nc" id="L120">    return mng;</span>
   }
 
   public SelfUserImpl setVerified(boolean verified) {
-<span class="nc" id="L137">    this.verified = verified;</span>
-<span class="nc" id="L138">    return this;</span>
+<span class="nc" id="L124">    this.verified = verified;</span>
+<span class="nc" id="L125">    return this;</span>
   }
 
   public SelfUserImpl setMfaEnabled(boolean enabled) {
-<span class="nc" id="L142">    this.mfaEnabled = enabled;</span>
-<span class="nc" id="L143">    return this;</span>
+<span class="nc" id="L129">    this.mfaEnabled = enabled;</span>
+<span class="nc" id="L130">    return this;</span>
   }
 
   public SelfUserImpl setEmail(String email) {
-<span class="nc" id="L147">    this.email = email;</span>
-<span class="nc" id="L148">    return this;</span>
+<span class="nc" id="L134">    this.email = email;</span>
+<span class="nc" id="L135">    return this;</span>
   }
 
   public SelfUserImpl setPhoneNumber(String phoneNumber) {
-<span class="nc" id="L152">    this.phoneNumber = phoneNumber;</span>
-<span class="nc" id="L153">    return this;</span>
+<span class="nc" id="L139">    this.phoneNumber = phoneNumber;</span>
+<span class="nc" id="L140">    return this;</span>
   }
 
   public SelfUserImpl setMobile(boolean mobile) {
-<span class="nc" id="L157">    this.mobile = mobile;</span>
-<span class="nc" id="L158">    return this;</span>
+<span class="nc" id="L144">    this.mobile = mobile;</span>
+<span class="nc" id="L145">    return this;</span>
   }
 
   public SelfUserImpl setNitro(boolean nitro) {
-<span class="nc" id="L162">    this.nitro = nitro;</span>
-<span class="nc" id="L163">    return this;</span>
+<span class="nc" id="L149">    this.nitro = nitro;</span>
+<span class="nc" id="L150">    return this;</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

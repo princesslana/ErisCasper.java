@@ -672,7 +672,7 @@ public class MessageBuilder implements Appendable {
         break;
       case PRIVATE:
 <span class="nc" id="L674">        final PrivateChannel priv = (PrivateChannel) channel;</span>
-<span class="nc bnc" id="L675" title="All 4 branches missed.">        if (priv.getUser().isBot() &amp;&amp; channel.getJDA().getAccountType() == AccountType.BOT)</span>
+<span class="nc bnc" id="L675" title="All 2 branches missed.">        if (priv.getUser().isBot())</span>
 <span class="nc" id="L676">          throw new UnsupportedOperationException(&quot;Cannot send a private message between bots.&quot;);</span>
     }
 <span class="nc" id="L678">    final Route.CompiledRoute route = Route.Messages.SEND_MESSAGE.compile(channel.getId());</span>

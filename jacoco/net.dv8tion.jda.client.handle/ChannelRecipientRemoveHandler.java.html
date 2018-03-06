@@ -16,66 +16,19 @@
  */
 package net.dv8tion.jda.client.handle;
 
-import net.dv8tion.jda.client.entities.impl.CallImpl;
-import net.dv8tion.jda.client.entities.impl.GroupImpl;
-import net.dv8tion.jda.client.events.group.GroupUserLeaveEvent;
-import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.entities.impl.JDAImpl;
-import net.dv8tion.jda.core.handle.EventCache;
+import net.dv8tion.jda.core.exceptions.AccountTypeException;
 import net.dv8tion.jda.core.handle.SocketHandler;
 import org.json.JSONObject;
 
 public class ChannelRecipientRemoveHandler extends SocketHandler {
   public ChannelRecipientRemoveHandler(JDAImpl api) {
-<span class="nc" id="L30">    super(api);</span>
-<span class="nc" id="L31">  }</span>
+<span class="nc" id="L26">    super(api);</span>
+<span class="nc" id="L27">  }</span>
 
   @Override
   protected Long handleInternally(JSONObject content) {
-<span class="nc" id="L35">    final long groupId = content.getLong(&quot;channel_id&quot;);</span>
-<span class="nc" id="L36">    final long userId = content.getJSONObject(&quot;user&quot;).getLong(&quot;id&quot;);</span>
-
-<span class="nc" id="L38">    GroupImpl group = (GroupImpl) api.asClient().getGroupById(groupId);</span>
-<span class="nc bnc" id="L39" title="All 2 branches missed.">    if (group == null) {</span>
-<span class="nc" id="L40">      api.getEventCache()</span>
-<span class="nc" id="L41">          .cache(EventCache.Type.CHANNEL, groupId, () -&gt; handle(responseNumber, allContent));</span>
-<span class="nc" id="L42">      EventCache.LOG.debug(</span>
-          &quot;Received a CHANNEL_RECIPIENT_REMOVE for a group that is not yet cached! JSON: {}&quot;,
-          content);
-<span class="nc" id="L45">      return null;</span>
-    }
-
-<span class="nc" id="L48">    User user = group.getUserMap().remove(userId);</span>
-<span class="nc bnc" id="L49" title="All 2 branches missed.">    if (user == null) {</span>
-<span class="nc" id="L50">      api.getEventCache()</span>
-<span class="nc" id="L51">          .cache(EventCache.Type.USER, userId, () -&gt; handle(responseNumber, allContent));</span>
-<span class="nc" id="L52">      EventCache.LOG.debug(</span>
-          &quot;Received a CHANNEL_RECIPIENT_REMOVE for a user that is not yet cached in the group! JSON: {}&quot;,
-          content);
-<span class="nc" id="L55">      return null;</span>
-    }
-
-<span class="nc" id="L58">    CallImpl call = (CallImpl) group.getCurrentCall();</span>
-<span class="nc bnc" id="L59" title="All 2 branches missed.">    if (call != null) {</span>
-<span class="nc" id="L60">      call.getCallUserMap().remove(userId);</span>
-    }
-
-    // User is fake, has no privateChannel, is not in a relationship, and is not in any other groups
-    // then we remove the fake user from the fake cache as it was only in this group
-    // Note: we getGroups() which gets all groups, however we already removed the user from the
-    // current group.
-<span class="nc bnc" id="L67" title="All 2 branches missed.">    if (user.isFake()</span>
-<span class="nc bnc" id="L68" title="All 2 branches missed.">        &amp;&amp; !user.hasPrivateChannel()</span>
-<span class="nc bnc" id="L69" title="All 2 branches missed.">        &amp;&amp; api.asClient().getRelationshipById(userId) == null</span>
-<span class="nc bnc" id="L70" title="All 2 branches missed.">        &amp;&amp; api.asClient().getGroups().stream().noneMatch(g -&gt; g.getUsers().contains(user))) {</span>
-<span class="nc" id="L71">      api.getFakeUserMap().remove(userId);</span>
-    }
-<span class="nc" id="L73">    api.getEventManager()</span>
-<span class="nc" id="L74">        .handle(</span>
-            new GroupUserLeaveEvent(
-                api, responseNumber,
-                group, user));
-<span class="nc" id="L78">    return null;</span>
+<span class="nc" id="L31">    throw new AccountTypeException(&quot;Not allowed for BOT&quot;);</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

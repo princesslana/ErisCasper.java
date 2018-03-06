@@ -20,7 +20,6 @@ import java.util.LinkedList;
 import net.dv8tion.jda.client.entities.Group;
 import net.dv8tion.jda.client.events.message.group.GroupMessageEmbedEvent;
 import net.dv8tion.jda.client.events.message.group.GroupMessageUpdateEvent;
-import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.entities.impl.JDAImpl;
 import net.dv8tion.jda.core.events.message.MessageEmbedEvent;
@@ -36,143 +35,141 @@ import org.json.JSONObject;
 public class MessageUpdateHandler extends SocketHandler {
 
   public MessageUpdateHandler(JDAImpl api) {
-<span class="nc" id="L39">    super(api);</span>
-<span class="nc" id="L40">  }</span>
+<span class="nc" id="L38">    super(api);</span>
+<span class="nc" id="L39">  }</span>
 
   @Override
   protected Long handleInternally(JSONObject content) {
-<span class="nc bnc" id="L44" title="All 2 branches missed.">    if (content.has(&quot;author&quot;)) {</span>
-<span class="nc bnc" id="L45" title="All 2 branches missed.">      if (content.has(&quot;type&quot;)) {</span>
-<span class="nc" id="L46">        MessageType type = MessageType.fromId(content.getInt(&quot;type&quot;));</span>
-<span class="nc bnc" id="L47" title="All 2 branches missed.">        switch (type) {</span>
+<span class="nc bnc" id="L43" title="All 2 branches missed.">    if (content.has(&quot;author&quot;)) {</span>
+<span class="nc bnc" id="L44" title="All 2 branches missed.">      if (content.has(&quot;type&quot;)) {</span>
+<span class="nc" id="L45">        MessageType type = MessageType.fromId(content.getInt(&quot;type&quot;));</span>
+<span class="nc bnc" id="L46" title="All 2 branches missed.">        switch (type) {</span>
           case DEFAULT:
-<span class="nc" id="L49">            return handleMessage(content);</span>
+<span class="nc" id="L48">            return handleMessage(content);</span>
           default:
-<span class="nc" id="L51">            WebSocketClient.LOG.debug(</span>
+<span class="nc" id="L50">            WebSocketClient.LOG.debug(</span>
                 &quot;JDA received a message of unknown type. Type: {} JSON: {}&quot;, type, content);
-<span class="nc" id="L53">            return null;</span>
+<span class="nc" id="L52">            return null;</span>
         }
       } else {
         // Received update with no &quot;type&quot; field which means its an update for a rich embed message
-<span class="nc" id="L57">        handleMessageEmbed(content);</span>
-<span class="nc" id="L58">        return null;</span>
+<span class="nc" id="L56">        handleMessageEmbed(content);</span>
+<span class="nc" id="L57">        return null;</span>
       }
-<span class="nc bnc" id="L60" title="All 2 branches missed.">    } else if (content.has(&quot;call&quot;)) {</span>
-<span class="nc" id="L61">      handleCallMessage(content);</span>
-<span class="nc" id="L62">      return null;</span>
-<span class="nc" id="L63">    } else return handleMessageEmbed(content);</span>
+<span class="nc bnc" id="L59" title="All 2 branches missed.">    } else if (content.has(&quot;call&quot;)) {</span>
+<span class="nc" id="L60">      handleCallMessage(content);</span>
+<span class="nc" id="L61">      return null;</span>
+<span class="nc" id="L62">    } else return handleMessageEmbed(content);</span>
   }
 
   private Long handleMessage(JSONObject content) {
     Message message;
     try {
-<span class="nc" id="L69">      message = api.getEntityBuilder().createMessage(content);</span>
-<span class="nc" id="L70">    } catch (IllegalArgumentException e) {</span>
-<span class="nc bnc" id="L71" title="All 10 branches missed.">      switch (e.getMessage()) {</span>
+<span class="nc" id="L68">      message = api.getEntityBuilder().createMessage(content);</span>
+<span class="nc" id="L69">    } catch (IllegalArgumentException e) {</span>
+<span class="nc bnc" id="L70" title="All 10 branches missed.">      switch (e.getMessage()) {</span>
         case EntityBuilder.MISSING_CHANNEL:
           {
-<span class="nc" id="L74">            final long channelId = content.getLong(&quot;channel_id&quot;);</span>
-<span class="nc" id="L75">            api.getEventCache()</span>
-<span class="nc" id="L76">                .cache(</span>
-<span class="nc" id="L77">                    EventCache.Type.CHANNEL, channelId, () -&gt; handle(responseNumber, allContent));</span>
-<span class="nc" id="L78">            EventCache.LOG.debug(</span>
+<span class="nc" id="L73">            final long channelId = content.getLong(&quot;channel_id&quot;);</span>
+<span class="nc" id="L74">            api.getEventCache()</span>
+<span class="nc" id="L75">                .cache(</span>
+<span class="nc" id="L76">                    EventCache.Type.CHANNEL, channelId, () -&gt; handle(responseNumber, allContent));</span>
+<span class="nc" id="L77">            EventCache.LOG.debug(</span>
                 &quot;Received a message update for a channel that JDA does not currently have cached&quot;);
-<span class="nc" id="L80">            return null;</span>
+<span class="nc" id="L79">            return null;</span>
           }
         case EntityBuilder.MISSING_USER:
           {
-<span class="nc" id="L84">            final long authorId = content.getJSONObject(&quot;author&quot;).getLong(&quot;id&quot;);</span>
-<span class="nc" id="L85">            api.getEventCache()</span>
-<span class="nc" id="L86">                .cache(EventCache.Type.USER, authorId, () -&gt; handle(responseNumber, allContent));</span>
-<span class="nc" id="L87">            EventCache.LOG.debug(</span>
+<span class="nc" id="L83">            final long authorId = content.getJSONObject(&quot;author&quot;).getLong(&quot;id&quot;);</span>
+<span class="nc" id="L84">            api.getEventCache()</span>
+<span class="nc" id="L85">                .cache(EventCache.Type.USER, authorId, () -&gt; handle(responseNumber, allContent));</span>
+<span class="nc" id="L86">            EventCache.LOG.debug(</span>
                 &quot;Received a message update for a user that JDA does not currently have cached&quot;);
-<span class="nc" id="L89">            return null;</span>
+<span class="nc" id="L88">            return null;</span>
           }
         default:
-<span class="nc" id="L92">          throw e;</span>
+<span class="nc" id="L91">          throw e;</span>
       }
-<span class="nc" id="L94">    }</span>
+<span class="nc" id="L93">    }</span>
 
-<span class="nc bnc" id="L96" title="All 4 branches missed.">    switch (message.getChannelType()) {</span>
+<span class="nc bnc" id="L95" title="All 4 branches missed.">    switch (message.getChannelType()) {</span>
       case TEXT:
         {
-<span class="nc" id="L99">          TextChannel channel = message.getTextChannel();</span>
-<span class="nc bnc" id="L100" title="All 2 branches missed.">          if (api.getGuildLock().isLocked(channel.getGuild().getIdLong())) {</span>
-<span class="nc" id="L101">            return channel.getGuild().getIdLong();</span>
+<span class="nc" id="L98">          TextChannel channel = message.getTextChannel();</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">          if (api.getGuildLock().isLocked(channel.getGuild().getIdLong())) {</span>
+<span class="nc" id="L100">            return channel.getGuild().getIdLong();</span>
           }
-<span class="nc" id="L103">          api.getEventManager().handle(new GuildMessageUpdateEvent(api, responseNumber, message));</span>
-<span class="nc" id="L104">          break;</span>
+<span class="nc" id="L102">          api.getEventManager().handle(new GuildMessageUpdateEvent(api, responseNumber, message));</span>
+<span class="nc" id="L103">          break;</span>
         }
       case PRIVATE:
         {
-<span class="nc" id="L108">          api.getEventManager().handle(new PrivateMessageUpdateEvent(api, responseNumber, message));</span>
-<span class="nc" id="L109">          break;</span>
+<span class="nc" id="L107">          api.getEventManager().handle(new PrivateMessageUpdateEvent(api, responseNumber, message));</span>
+<span class="nc" id="L108">          break;</span>
         }
       case GROUP:
         {
-<span class="nc" id="L113">          api.getEventManager().handle(new GroupMessageUpdateEvent(api, responseNumber, message));</span>
-<span class="nc" id="L114">          break;</span>
+<span class="nc" id="L112">          api.getEventManager().handle(new GroupMessageUpdateEvent(api, responseNumber, message));</span>
+<span class="nc" id="L113">          break;</span>
         }
 
       default:
-<span class="nc" id="L118">        WebSocketClient.LOG.warn(</span>
+<span class="nc" id="L117">        WebSocketClient.LOG.warn(</span>
             &quot;Received a MESSAGE_UPDATE with a unknown MessageChannel ChannelType. JSON: {}&quot;,
             content);
-<span class="nc" id="L121">        return null;</span>
+<span class="nc" id="L120">        return null;</span>
     }
 
     // Combo event
-<span class="nc" id="L125">    api.getEventManager().handle(new MessageUpdateEvent(api, responseNumber, message));</span>
-<span class="nc" id="L126">    return null;</span>
+<span class="nc" id="L124">    api.getEventManager().handle(new MessageUpdateEvent(api, responseNumber, message));</span>
+<span class="nc" id="L125">    return null;</span>
   }
 
   private Long handleMessageEmbed(JSONObject content) {
-<span class="nc" id="L130">    EntityBuilder builder = api.getEntityBuilder();</span>
-<span class="nc" id="L131">    final long messageId = content.getLong(&quot;id&quot;);</span>
-<span class="nc" id="L132">    final long channelId = content.getLong(&quot;channel_id&quot;);</span>
-<span class="nc" id="L133">    LinkedList&lt;MessageEmbed&gt; embeds = new LinkedList&lt;&gt;();</span>
-<span class="nc" id="L134">    MessageChannel channel = api.getTextChannelMap().get(channelId);</span>
-<span class="nc bnc" id="L135" title="All 2 branches missed.">    if (channel == null) channel = api.getPrivateChannelMap().get(channelId);</span>
-<span class="nc bnc" id="L136" title="All 2 branches missed.">    if (channel == null) channel = api.getFakePrivateChannelMap().get(channelId);</span>
-<span class="nc bnc" id="L137" title="All 4 branches missed.">    if (channel == null &amp;&amp; api.getAccountType() == AccountType.CLIENT)</span>
-<span class="nc" id="L138">      channel = api.asClient().getGroupById(channelId);</span>
-<span class="nc bnc" id="L139" title="All 2 branches missed.">    if (channel == null) {</span>
-<span class="nc" id="L140">      api.getEventCache()</span>
-<span class="nc" id="L141">          .cache(EventCache.Type.CHANNEL, channelId, () -&gt; handle(responseNumber, allContent));</span>
-<span class="nc" id="L142">      EventCache.LOG.debug(</span>
+<span class="nc" id="L129">    EntityBuilder builder = api.getEntityBuilder();</span>
+<span class="nc" id="L130">    final long messageId = content.getLong(&quot;id&quot;);</span>
+<span class="nc" id="L131">    final long channelId = content.getLong(&quot;channel_id&quot;);</span>
+<span class="nc" id="L132">    LinkedList&lt;MessageEmbed&gt; embeds = new LinkedList&lt;&gt;();</span>
+<span class="nc" id="L133">    MessageChannel channel = api.getTextChannelMap().get(channelId);</span>
+<span class="nc bnc" id="L134" title="All 2 branches missed.">    if (channel == null) channel = api.getPrivateChannelMap().get(channelId);</span>
+<span class="nc bnc" id="L135" title="All 2 branches missed.">    if (channel == null) channel = api.getFakePrivateChannelMap().get(channelId);</span>
+<span class="nc bnc" id="L136" title="All 2 branches missed.">    if (channel == null) {</span>
+<span class="nc" id="L137">      api.getEventCache()</span>
+<span class="nc" id="L138">          .cache(EventCache.Type.CHANNEL, channelId, () -&gt; handle(responseNumber, allContent));</span>
+<span class="nc" id="L139">      EventCache.LOG.debug(</span>
           &quot;Received message update for embeds for a channel/group that JDA does not have cached yet.&quot;);
-<span class="nc" id="L144">      return null;</span>
+<span class="nc" id="L141">      return null;</span>
     }
 
-<span class="nc" id="L147">    JSONArray embedsJson = content.getJSONArray(&quot;embeds&quot;);</span>
-<span class="nc bnc" id="L148" title="All 2 branches missed.">    for (int i = 0; i &lt; embedsJson.length(); i++) {</span>
-<span class="nc" id="L149">      embeds.add(builder.createMessageEmbed(embedsJson.getJSONObject(i)));</span>
+<span class="nc" id="L144">    JSONArray embedsJson = content.getJSONArray(&quot;embeds&quot;);</span>
+<span class="nc bnc" id="L145" title="All 2 branches missed.">    for (int i = 0; i &lt; embedsJson.length(); i++) {</span>
+<span class="nc" id="L146">      embeds.add(builder.createMessageEmbed(embedsJson.getJSONObject(i)));</span>
     }
 
-<span class="nc bnc" id="L152" title="All 2 branches missed.">    if (channel instanceof TextChannel) {</span>
-<span class="nc" id="L153">      TextChannel tChannel = (TextChannel) channel;</span>
-<span class="nc bnc" id="L154" title="All 2 branches missed.">      if (api.getGuildLock().isLocked(tChannel.getGuild().getIdLong()))</span>
-<span class="nc" id="L155">        return tChannel.getGuild().getIdLong();</span>
+<span class="nc bnc" id="L149" title="All 2 branches missed.">    if (channel instanceof TextChannel) {</span>
+<span class="nc" id="L150">      TextChannel tChannel = (TextChannel) channel;</span>
+<span class="nc bnc" id="L151" title="All 2 branches missed.">      if (api.getGuildLock().isLocked(tChannel.getGuild().getIdLong()))</span>
+<span class="nc" id="L152">        return tChannel.getGuild().getIdLong();</span>
+<span class="nc" id="L153">      api.getEventManager()</span>
+<span class="nc" id="L154">          .handle(new GuildMessageEmbedEvent(api, responseNumber, messageId, tChannel, embeds));</span>
+<span class="nc bnc" id="L155" title="All 2 branches missed.">    } else if (channel instanceof PrivateChannel) {</span>
 <span class="nc" id="L156">      api.getEventManager()</span>
-<span class="nc" id="L157">          .handle(new GuildMessageEmbedEvent(api, responseNumber, messageId, tChannel, embeds));</span>
-<span class="nc bnc" id="L158" title="All 2 branches missed.">    } else if (channel instanceof PrivateChannel) {</span>
-<span class="nc" id="L159">      api.getEventManager()</span>
-<span class="nc" id="L160">          .handle(</span>
+<span class="nc" id="L157">          .handle(</span>
               new PrivateMessageEmbedEvent(
                   api, responseNumber, messageId, (PrivateChannel) channel, embeds));
     } else {
-<span class="nc" id="L164">      api.getEventManager()</span>
-<span class="nc" id="L165">          .handle(</span>
+<span class="nc" id="L161">      api.getEventManager()</span>
+<span class="nc" id="L162">          .handle(</span>
               new GroupMessageEmbedEvent(api, responseNumber, messageId, (Group) channel, embeds));
     }
     // Combo event
-<span class="nc" id="L169">    api.getEventManager()</span>
-<span class="nc" id="L170">        .handle(new MessageEmbedEvent(api, responseNumber, messageId, channel, embeds));</span>
-<span class="nc" id="L171">    return null;</span>
+<span class="nc" id="L166">    api.getEventManager()</span>
+<span class="nc" id="L167">        .handle(new MessageEmbedEvent(api, responseNumber, messageId, channel, embeds));</span>
+<span class="nc" id="L168">    return null;</span>
   }
 
   public void handleCallMessage(JSONObject content) {
-<span class="nc" id="L175">    WebSocketClient.LOG.debug(&quot;Received a MESSAGE_UPDATE of type CALL: {}&quot;, content);</span>
+<span class="nc" id="L172">    WebSocketClient.LOG.debug(&quot;Received a MESSAGE_UPDATE of type CALL: {}&quot;, content);</span>
     // Called when someone joins call for first time.
     //  It is not called when they leave or rejoin. That is all dictated by VOICE_STATE_UPDATE.
     //  Probably can ignore the above due to VOICE_STATE_UPDATE
@@ -180,6 +177,6 @@ public class MessageUpdateHandler extends SocketHandler {
     // call
     //  in comparison to the currently participants.
     // and when the call is ended. Ending defined by ended_timestamp != null
-<span class="nc" id="L183">  }</span>
+<span class="nc" id="L180">  }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

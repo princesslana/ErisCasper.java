@@ -17,7 +17,6 @@
 package net.dv8tion.jda.core.handle;
 
 import java.util.Objects;
-import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.entities.impl.JDAImpl;
 import net.dv8tion.jda.core.entities.impl.SelfUserImpl;
 import net.dv8tion.jda.core.events.self.*;
@@ -25,84 +24,50 @@ import org.json.JSONObject;
 
 public class UserUpdateHandler extends SocketHandler {
   public UserUpdateHandler(JDAImpl api) {
-<span class="nc" id="L28">    super(api);</span>
-<span class="nc" id="L29">  }</span>
+<span class="nc" id="L27">    super(api);</span>
+<span class="nc" id="L28">  }</span>
 
   @Override
   protected Long handleInternally(JSONObject content) {
-<span class="nc" id="L33">    SelfUserImpl self = (SelfUserImpl) api.getSelfUser();</span>
+<span class="nc" id="L32">    SelfUserImpl self = (SelfUserImpl) api.getSelfUser();</span>
 
-<span class="nc" id="L35">    String name = content.getString(&quot;username&quot;);</span>
-<span class="nc" id="L36">    String discriminator = content.getString(&quot;discriminator&quot;);</span>
-<span class="nc" id="L37">    String avatarId = content.optString(&quot;avatar&quot;, null);</span>
-<span class="nc bnc" id="L38" title="All 2 branches missed.">    Boolean verified = content.has(&quot;verified&quot;) ? content.getBoolean(&quot;verified&quot;) : null;</span>
-<span class="nc bnc" id="L39" title="All 2 branches missed.">    Boolean mfaEnabled = content.has(&quot;mfa_enabled&quot;) ? content.getBoolean(&quot;mfa_enabled&quot;) : null;</span>
+<span class="nc" id="L34">    String name = content.getString(&quot;username&quot;);</span>
+<span class="nc" id="L35">    String discriminator = content.getString(&quot;discriminator&quot;);</span>
+<span class="nc" id="L36">    String avatarId = content.optString(&quot;avatar&quot;, null);</span>
+<span class="nc bnc" id="L37" title="All 2 branches missed.">    Boolean verified = content.has(&quot;verified&quot;) ? content.getBoolean(&quot;verified&quot;) : null;</span>
+<span class="nc bnc" id="L38" title="All 2 branches missed.">    Boolean mfaEnabled = content.has(&quot;mfa_enabled&quot;) ? content.getBoolean(&quot;mfa_enabled&quot;) : null;</span>
 
-    // Client only
-<span class="nc" id="L42">    String email = content.optString(&quot;email&quot;, null);</span>
-<span class="nc bnc" id="L43" title="All 2 branches missed.">    Boolean mobile = content.has(&quot;mobile&quot;) ? content.getBoolean(&quot;mobile&quot;) : null; // mobile device</span>
-<span class="nc bnc" id="L44" title="All 2 branches missed.">    Boolean nitro = content.has(&quot;premium&quot;) ? content.getBoolean(&quot;premium&quot;) : null; // nitro</span>
-<span class="nc" id="L45">    String phoneNumber =</span>
-<span class="nc" id="L46">        content.optString(&quot;phone&quot;, null); // verified phone number (verification level !)</span>
-
-<span class="nc bnc" id="L48" title="All 2 branches missed.">    if (!Objects.equals(name, self.getName())</span>
-<span class="nc bnc" id="L49" title="All 2 branches missed.">        || !Objects.equals(discriminator, self.getDiscriminator())) {</span>
-<span class="nc" id="L50">      String oldName = self.getName();</span>
-<span class="nc" id="L51">      String oldDiscriminator = self.getDiscriminator();</span>
-<span class="nc" id="L52">      self.setName(name);</span>
-<span class="nc" id="L53">      self.setDiscriminator(discriminator);</span>
-<span class="nc" id="L54">      api.getEventManager()</span>
-<span class="nc" id="L55">          .handle(</span>
+<span class="nc bnc" id="L40" title="All 2 branches missed.">    if (!Objects.equals(name, self.getName())</span>
+<span class="nc bnc" id="L41" title="All 2 branches missed.">        || !Objects.equals(discriminator, self.getDiscriminator())) {</span>
+<span class="nc" id="L42">      String oldName = self.getName();</span>
+<span class="nc" id="L43">      String oldDiscriminator = self.getDiscriminator();</span>
+<span class="nc" id="L44">      self.setName(name);</span>
+<span class="nc" id="L45">      self.setDiscriminator(discriminator);</span>
+<span class="nc" id="L46">      api.getEventManager()</span>
+<span class="nc" id="L47">          .handle(</span>
               new SelfUpdateNameEvent(
                   api, responseNumber,
                   oldName, oldDiscriminator));
     }
 
-<span class="nc bnc" id="L61" title="All 2 branches missed.">    if (!Objects.equals(avatarId, self.getAvatarId())) {</span>
-<span class="nc" id="L62">      String oldAvatarId = self.getAvatarId();</span>
-<span class="nc" id="L63">      self.setAvatarId(avatarId);</span>
-<span class="nc" id="L64">      api.getEventManager().handle(new SelfUpdateAvatarEvent(api, responseNumber, oldAvatarId));</span>
+<span class="nc bnc" id="L53" title="All 2 branches missed.">    if (!Objects.equals(avatarId, self.getAvatarId())) {</span>
+<span class="nc" id="L54">      String oldAvatarId = self.getAvatarId();</span>
+<span class="nc" id="L55">      self.setAvatarId(avatarId);</span>
+<span class="nc" id="L56">      api.getEventManager().handle(new SelfUpdateAvatarEvent(api, responseNumber, oldAvatarId));</span>
     }
 
-<span class="nc bnc" id="L67" title="All 4 branches missed.">    if (verified != null &amp;&amp; verified != self.isVerified()) {</span>
-<span class="nc" id="L68">      boolean wasVerified = self.isVerified();</span>
-<span class="nc" id="L69">      self.setVerified(verified);</span>
-<span class="nc" id="L70">      api.getEventManager().handle(new SelfUpdateVerifiedEvent(api, responseNumber, wasVerified));</span>
+<span class="nc bnc" id="L59" title="All 4 branches missed.">    if (verified != null &amp;&amp; verified != self.isVerified()) {</span>
+<span class="nc" id="L60">      boolean wasVerified = self.isVerified();</span>
+<span class="nc" id="L61">      self.setVerified(verified);</span>
+<span class="nc" id="L62">      api.getEventManager().handle(new SelfUpdateVerifiedEvent(api, responseNumber, wasVerified));</span>
     }
 
-<span class="nc bnc" id="L73" title="All 4 branches missed.">    if (mfaEnabled != null &amp;&amp; mfaEnabled != self.isMfaEnabled()) {</span>
-<span class="nc" id="L74">      boolean wasMfaEnabled = self.isMfaEnabled();</span>
-<span class="nc" id="L75">      self.setMfaEnabled(mfaEnabled);</span>
-<span class="nc" id="L76">      api.getEventManager().handle(new SelfUpdateMFAEvent(api, responseNumber, wasMfaEnabled));</span>
+<span class="nc bnc" id="L65" title="All 4 branches missed.">    if (mfaEnabled != null &amp;&amp; mfaEnabled != self.isMfaEnabled()) {</span>
+<span class="nc" id="L66">      boolean wasMfaEnabled = self.isMfaEnabled();</span>
+<span class="nc" id="L67">      self.setMfaEnabled(mfaEnabled);</span>
+<span class="nc" id="L68">      api.getEventManager().handle(new SelfUpdateMFAEvent(api, responseNumber, wasMfaEnabled));</span>
     }
-
-<span class="nc bnc" id="L79" title="All 2 branches missed.">    if (api.getAccountType() == AccountType.CLIENT) {</span>
-<span class="nc bnc" id="L80" title="All 2 branches missed.">      if (!Objects.equals(email, self.getEmail())) {</span>
-<span class="nc" id="L81">        String oldEmail = self.getEmail();</span>
-<span class="nc" id="L82">        self.setEmail(email);</span>
-<span class="nc" id="L83">        api.getEventManager().handle(new SelfUpdateEmailEvent(api, responseNumber, oldEmail));</span>
-      }
-
-<span class="nc bnc" id="L86" title="All 4 branches missed.">      if (mobile != null &amp;&amp; mobile != self.isMobile()) {</span>
-<span class="nc" id="L87">        boolean oldMobile = self.isMobile();</span>
-<span class="nc" id="L88">        self.setMobile(mobile);</span>
-<span class="nc" id="L89">        api.getEventManager().handle(new SelfUpdateMobileEvent(api, responseNumber, oldMobile));</span>
-      }
-
-<span class="nc bnc" id="L92" title="All 4 branches missed.">      if (nitro != null &amp;&amp; nitro != self.isNitro()) {</span>
-<span class="nc" id="L93">        boolean oldNitro = self.isNitro();</span>
-<span class="nc" id="L94">        self.setNitro(nitro);</span>
-<span class="nc" id="L95">        api.getEventManager().handle(new SelfUpdateNitroEvent(api, responseNumber, oldNitro));</span>
-      }
-
-<span class="nc bnc" id="L98" title="All 2 branches missed.">      if (!Objects.equals(phoneNumber, self.getPhoneNumber())) {</span>
-<span class="nc" id="L99">        String oldPhoneNumber = self.getPhoneNumber();</span>
-<span class="nc" id="L100">        self.setPhoneNumber(phoneNumber);</span>
-<span class="nc" id="L101">        api.getEventManager()</span>
-<span class="nc" id="L102">            .handle(new SelfUpdatePhoneNumberEvent(api, responseNumber, oldPhoneNumber));</span>
-      }
-    }
-<span class="nc" id="L105">    return null;</span>
+<span class="nc" id="L70">    return null;</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

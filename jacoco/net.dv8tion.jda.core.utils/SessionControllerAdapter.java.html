@@ -22,9 +22,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import javax.security.auth.login.LoginException;
-import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.exceptions.AccountTypeException;
 import net.dv8tion.jda.core.requests.Request;
 import net.dv8tion.jda.core.requests.Response;
 import net.dv8tion.jda.core.requests.RestAction;
@@ -36,97 +34,96 @@ import org.slf4j.LoggerFactory;
 
 public class SessionControllerAdapter implements SessionController {
 
-<span class="nc" id="L39">  private static final Logger log = LoggerFactory.getLogger(SessionControllerAdapter.class);</span>
+<span class="nc" id="L37">  private static final Logger log = LoggerFactory.getLogger(SessionControllerAdapter.class);</span>
 
-<span class="nc" id="L41">  protected final Object lock = new Object();</span>
+<span class="nc" id="L39">  protected final Object lock = new Object();</span>
   protected Queue&lt;SessionConnectNode&gt; connectQueue;
   protected AtomicLong globalRatelimit;
   protected Thread workerHandle;
-<span class="nc" id="L45">  protected long lastConnect = 0;</span>
+<span class="nc" id="L43">  protected long lastConnect = 0;</span>
 
-<span class="nc" id="L47">  public SessionControllerAdapter() {</span>
-<span class="nc" id="L48">    connectQueue = new ConcurrentLinkedQueue&lt;&gt;();</span>
-<span class="nc" id="L49">    globalRatelimit = new AtomicLong(Long.MIN_VALUE);</span>
-<span class="nc" id="L50">  }</span>
+<span class="nc" id="L45">  public SessionControllerAdapter() {</span>
+<span class="nc" id="L46">    connectQueue = new ConcurrentLinkedQueue&lt;&gt;();</span>
+<span class="nc" id="L47">    globalRatelimit = new AtomicLong(Long.MIN_VALUE);</span>
+<span class="nc" id="L48">  }</span>
 
   @Override
   public void appendSession(SessionConnectNode node) {
-<span class="nc" id="L54">    connectQueue.add(node);</span>
-<span class="nc" id="L55">    runWorker();</span>
-<span class="nc" id="L56">  }</span>
+<span class="nc" id="L52">    connectQueue.add(node);</span>
+<span class="nc" id="L53">    runWorker();</span>
+<span class="nc" id="L54">  }</span>
 
   @Override
   public void removeSession(SessionConnectNode node) {
-<span class="nc" id="L60">    connectQueue.remove(node);</span>
-<span class="nc" id="L61">  }</span>
+<span class="nc" id="L58">    connectQueue.remove(node);</span>
+<span class="nc" id="L59">  }</span>
 
   @Override
   public long getGlobalRatelimit() {
-<span class="nc" id="L65">    return globalRatelimit.get();</span>
+<span class="nc" id="L63">    return globalRatelimit.get();</span>
   }
 
   @Override
   public void setGlobalRatelimit(long ratelimit) {
-<span class="nc" id="L70">    globalRatelimit.set(ratelimit);</span>
-<span class="nc" id="L71">  }</span>
+<span class="nc" id="L68">    globalRatelimit.set(ratelimit);</span>
+<span class="nc" id="L69">  }</span>
 
   @Override
   public String getGateway(JDA api) {
-<span class="nc" id="L75">    Route.CompiledRoute route = Route.Misc.GATEWAY.compile();</span>
-<span class="nc" id="L76">    return new RestAction&lt;String&gt;(api, route) {</span>
+<span class="nc" id="L73">    Route.CompiledRoute route = Route.Misc.GATEWAY.compile();</span>
+<span class="nc" id="L74">    return new RestAction&lt;String&gt;(api, route) {</span>
       @Override
       protected void handleResponse(Response response, Request&lt;String&gt; request) {
-<span class="nc bnc" id="L79" title="All 2 branches missed.">        if (response.isOk()) request.onSuccess(response.getObject().getString(&quot;url&quot;));</span>
-<span class="nc" id="L80">        else request.onFailure(response);</span>
-<span class="nc" id="L81">      }</span>
-<span class="nc" id="L82">    }.complete();</span>
+<span class="nc bnc" id="L77" title="All 2 branches missed.">        if (response.isOk()) request.onSuccess(response.getObject().getString(&quot;url&quot;));</span>
+<span class="nc" id="L78">        else request.onFailure(response);</span>
+<span class="nc" id="L79">      }</span>
+<span class="nc" id="L80">    }.complete();</span>
   }
 
   @Override
   public Pair&lt;String, Integer&gt; getGatewayBot(JDA api) {
-<span class="nc" id="L87">    AccountTypeException.check(api.getAccountType(), AccountType.BOT);</span>
-<span class="nc" id="L88">    return new RestAction&lt;Pair&lt;String, Integer&gt;&gt;(api, Route.Misc.GATEWAY_BOT.compile()) {</span>
+<span class="nc" id="L85">    return new RestAction&lt;Pair&lt;String, Integer&gt;&gt;(api, Route.Misc.GATEWAY_BOT.compile()) {</span>
       @Override
       protected void handleResponse(Response response, Request&lt;Pair&lt;String, Integer&gt;&gt; request) {
         try {
-<span class="nc bnc" id="L92" title="All 2 branches missed.">          if (response.isOk()) {</span>
-<span class="nc" id="L93">            JSONObject object = response.getObject();</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">          if (response.isOk()) {</span>
+<span class="nc" id="L90">            JSONObject object = response.getObject();</span>
 
-<span class="nc" id="L95">            String url = object.getString(&quot;url&quot;);</span>
-<span class="nc" id="L96">            int shards = object.getInt(&quot;shards&quot;);</span>
+<span class="nc" id="L92">            String url = object.getString(&quot;url&quot;);</span>
+<span class="nc" id="L93">            int shards = object.getInt(&quot;shards&quot;);</span>
 
-<span class="nc" id="L98">            request.onSuccess(Pair.of(url, shards));</span>
-<span class="nc bnc" id="L99" title="All 2 branches missed.">          } else if (response.code == 401) {</span>
-<span class="nc" id="L100">            api.verifyToken(true);</span>
+<span class="nc" id="L95">            request.onSuccess(Pair.of(url, shards));</span>
+<span class="nc bnc" id="L96" title="All 2 branches missed.">          } else if (response.code == 401) {</span>
+<span class="nc" id="L97">            api.verifyToken(true);</span>
           } else {
-<span class="nc" id="L102">            request.onFailure(</span>
+<span class="nc" id="L99">            request.onFailure(</span>
                 new LoginException(
                     &quot;When verifying the authenticity of the provided token, Discord returned an unknown response:\n&quot;
-<span class="nc" id="L105">                        + response.toString()));</span>
+<span class="nc" id="L102">                        + response.toString()));</span>
           }
-<span class="nc" id="L107">        } catch (Exception e) {</span>
-<span class="nc" id="L108">          request.onFailure(e);</span>
-<span class="nc" id="L109">        }</span>
-<span class="nc" id="L110">      }</span>
-<span class="nc" id="L111">    }.complete();</span>
+<span class="nc" id="L104">        } catch (Exception e) {</span>
+<span class="nc" id="L105">          request.onFailure(e);</span>
+<span class="nc" id="L106">        }</span>
+<span class="nc" id="L107">      }</span>
+<span class="nc" id="L108">    }.complete();</span>
   }
 
   protected void runWorker() {
-<span class="nc" id="L115">    synchronized (lock) {</span>
-<span class="nc bnc" id="L116" title="All 2 branches missed.">      if (workerHandle == null) {</span>
-<span class="nc" id="L117">        workerHandle = new QueueWorker();</span>
-<span class="nc" id="L118">        workerHandle.start();</span>
+<span class="nc" id="L112">    synchronized (lock) {</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">      if (workerHandle == null) {</span>
+<span class="nc" id="L114">        workerHandle = new QueueWorker();</span>
+<span class="nc" id="L115">        workerHandle.start();</span>
       }
-<span class="nc" id="L120">    }</span>
-<span class="nc" id="L121">  }</span>
+<span class="nc" id="L117">    }</span>
+<span class="nc" id="L118">  }</span>
 
   protected class QueueWorker extends Thread {
     /** Delay (in milliseconds) to sleep between connecting sessions */
     protected final long delay;
 
     public QueueWorker() {
-<span class="nc" id="L128">      this(IDENTIFY_DELAY);</span>
-<span class="nc" id="L129">    }</span>
+<span class="nc" id="L125">      this(IDENTIFY_DELAY);</span>
+<span class="nc" id="L126">    }</span>
 
     /**
      * Creates a QueueWorker
@@ -134,62 +131,62 @@ public class SessionControllerAdapter implements SessionController {
      * @param delay delay (in seconds) to wait between starting sessions
      */
     public QueueWorker(int delay) {
-<span class="nc" id="L137">      this(TimeUnit.SECONDS.toMillis(delay));</span>
-<span class="nc" id="L138">    }</span>
+<span class="nc" id="L134">      this(TimeUnit.SECONDS.toMillis(delay));</span>
+<span class="nc" id="L135">    }</span>
 
     /**
      * Creates a QueueWorker
      *
      * @param delay delay (in milliseconds) to wait between starting sessions
      */
-<span class="nc" id="L145">    public QueueWorker(long delay) {</span>
-<span class="nc" id="L146">      super(&quot;SessionControllerAdapter-Worker&quot;);</span>
-<span class="nc" id="L147">      this.delay = delay;</span>
-<span class="nc" id="L148">      super.setUncaughtExceptionHandler(this::handleFailure);</span>
-<span class="nc" id="L149">    }</span>
+<span class="nc" id="L142">    public QueueWorker(long delay) {</span>
+<span class="nc" id="L143">      super(&quot;SessionControllerAdapter-Worker&quot;);</span>
+<span class="nc" id="L144">      this.delay = delay;</span>
+<span class="nc" id="L145">      super.setUncaughtExceptionHandler(this::handleFailure);</span>
+<span class="nc" id="L146">    }</span>
 
     protected void handleFailure(Thread thread, Throwable exception) {
-<span class="nc" id="L152">      log.error(&quot;Worker has failed with throwable!&quot;, exception);</span>
-<span class="nc" id="L153">    }</span>
+<span class="nc" id="L149">      log.error(&quot;Worker has failed with throwable!&quot;, exception);</span>
+<span class="nc" id="L150">    }</span>
 
     @Override
     public void run() {
       try {
-<span class="nc bnc" id="L158" title="All 2 branches missed.">        if (this.delay &gt; 0) {</span>
-<span class="nc" id="L159">          final long interval = System.currentTimeMillis() - lastConnect;</span>
-<span class="nc bnc" id="L160" title="All 2 branches missed.">          if (interval &lt; this.delay) Thread.sleep(this.delay - interval);</span>
+<span class="nc bnc" id="L155" title="All 2 branches missed.">        if (this.delay &gt; 0) {</span>
+<span class="nc" id="L156">          final long interval = System.currentTimeMillis() - lastConnect;</span>
+<span class="nc bnc" id="L157" title="All 2 branches missed.">          if (interval &lt; this.delay) Thread.sleep(this.delay - interval);</span>
         }
-<span class="nc" id="L162">      } catch (InterruptedException ex) {</span>
-<span class="nc" id="L163">        log.error(&quot;Unable to backoff&quot;, ex);</span>
-<span class="nc" id="L164">      }</span>
-<span class="nc" id="L165">      processQueue();</span>
-<span class="nc" id="L166">      synchronized (lock) {</span>
-<span class="nc" id="L167">        workerHandle = null;</span>
-<span class="nc bnc" id="L168" title="All 2 branches missed.">        if (!connectQueue.isEmpty()) runWorker();</span>
-<span class="nc" id="L169">      }</span>
-<span class="nc" id="L170">    }</span>
+<span class="nc" id="L159">      } catch (InterruptedException ex) {</span>
+<span class="nc" id="L160">        log.error(&quot;Unable to backoff&quot;, ex);</span>
+<span class="nc" id="L161">      }</span>
+<span class="nc" id="L162">      processQueue();</span>
+<span class="nc" id="L163">      synchronized (lock) {</span>
+<span class="nc" id="L164">        workerHandle = null;</span>
+<span class="nc bnc" id="L165" title="All 2 branches missed.">        if (!connectQueue.isEmpty()) runWorker();</span>
+<span class="nc" id="L166">      }</span>
+<span class="nc" id="L167">    }</span>
 
     protected void processQueue() {
-<span class="nc bnc" id="L173" title="All 2 branches missed.">      while (!connectQueue.isEmpty()) {</span>
-<span class="nc" id="L174">        SessionConnectNode node = connectQueue.poll();</span>
+<span class="nc bnc" id="L170" title="All 2 branches missed.">      while (!connectQueue.isEmpty()) {</span>
+<span class="nc" id="L171">        SessionConnectNode node = connectQueue.poll();</span>
         try {
-<span class="nc" id="L176">          node.run(connectQueue.isEmpty());</span>
-<span class="nc" id="L177">          lastConnect = System.currentTimeMillis();</span>
-<span class="nc bnc" id="L178" title="All 2 branches missed.">          if (connectQueue.isEmpty()) break;</span>
-<span class="nc bnc" id="L179" title="All 2 branches missed.">          if (this.delay &gt; 0) Thread.sleep(this.delay);</span>
-<span class="nc" id="L180">        } catch (IllegalStateException e) {</span>
-<span class="nc" id="L181">          Throwable t = e.getCause();</span>
-<span class="nc bnc" id="L182" title="All 2 branches missed.">          if (t instanceof OpeningHandshakeException)</span>
-<span class="nc" id="L183">            log.error(&quot;Failed opening handshake, appending to queue. Message: {}&quot;, e.getMessage());</span>
-<span class="nc" id="L184">          else log.error(&quot;Failed to establish connection for a node, appending to queue&quot;, e);</span>
+<span class="nc" id="L173">          node.run(connectQueue.isEmpty());</span>
+<span class="nc" id="L174">          lastConnect = System.currentTimeMillis();</span>
+<span class="nc bnc" id="L175" title="All 2 branches missed.">          if (connectQueue.isEmpty()) break;</span>
+<span class="nc bnc" id="L176" title="All 2 branches missed.">          if (this.delay &gt; 0) Thread.sleep(this.delay);</span>
+<span class="nc" id="L177">        } catch (IllegalStateException e) {</span>
+<span class="nc" id="L178">          Throwable t = e.getCause();</span>
+<span class="nc bnc" id="L179" title="All 2 branches missed.">          if (t instanceof OpeningHandshakeException)</span>
+<span class="nc" id="L180">            log.error(&quot;Failed opening handshake, appending to queue. Message: {}&quot;, e.getMessage());</span>
+<span class="nc" id="L181">          else log.error(&quot;Failed to establish connection for a node, appending to queue&quot;, e);</span>
+<span class="nc" id="L182">          appendSession(node);</span>
+<span class="nc" id="L183">        } catch (InterruptedException e) {</span>
+<span class="nc" id="L184">          log.error(&quot;Failed to run node&quot;, e);</span>
 <span class="nc" id="L185">          appendSession(node);</span>
-<span class="nc" id="L186">        } catch (InterruptedException e) {</span>
-<span class="nc" id="L187">          log.error(&quot;Failed to run node&quot;, e);</span>
-<span class="nc" id="L188">          appendSession(node);</span>
-<span class="nc" id="L189">          return; // caller should start a new thread</span>
-<span class="nc" id="L190">        }</span>
-<span class="nc" id="L191">      }</span>
-<span class="nc" id="L192">    }</span>
+<span class="nc" id="L186">          return; // caller should start a new thread</span>
+<span class="nc" id="L187">        }</span>
+<span class="nc" id="L188">      }</span>
+<span class="nc" id="L189">    }</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

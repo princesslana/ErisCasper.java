@@ -21,7 +21,6 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import net.dv8tion.jda.client.entities.Group;
 import net.dv8tion.jda.client.entities.impl.GroupImpl;
-import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.PrivateChannel;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -33,43 +32,41 @@ import org.json.JSONObject;
 public class TypingStartHandler extends SocketHandler {
 
   public TypingStartHandler(JDAImpl api) {
-<span class="nc" id="L36">    super(api);</span>
-<span class="nc" id="L37">  }</span>
+<span class="nc" id="L35">    super(api);</span>
+<span class="nc" id="L36">  }</span>
 
   @Override
   protected Long handleInternally(JSONObject content) {
-<span class="nc" id="L41">    final long channelId = content.getLong(&quot;channel_id&quot;);</span>
-<span class="nc" id="L42">    MessageChannel channel = api.getTextChannelMap().get(channelId);</span>
-<span class="nc bnc" id="L43" title="All 2 branches missed.">    if (channel == null) channel = api.getPrivateChannelMap().get(channelId);</span>
-<span class="nc bnc" id="L44" title="All 2 branches missed.">    if (channel == null) channel = api.getFakePrivateChannelMap().get(channelId);</span>
-<span class="nc bnc" id="L45" title="All 4 branches missed.">    if (channel == null &amp;&amp; api.getAccountType() == AccountType.CLIENT)</span>
-<span class="nc" id="L46">      channel = api.asClient().getGroupById(channelId);</span>
-<span class="nc bnc" id="L47" title="All 2 branches missed.">    if (channel == null)</span>
-<span class="nc" id="L48">      return null; // We don't have the channel cached yet. We chose not to cache this event</span>
+<span class="nc" id="L40">    final long channelId = content.getLong(&quot;channel_id&quot;);</span>
+<span class="nc" id="L41">    MessageChannel channel = api.getTextChannelMap().get(channelId);</span>
+<span class="nc bnc" id="L42" title="All 2 branches missed.">    if (channel == null) channel = api.getPrivateChannelMap().get(channelId);</span>
+<span class="nc bnc" id="L43" title="All 2 branches missed.">    if (channel == null) channel = api.getFakePrivateChannelMap().get(channelId);</span>
+<span class="nc bnc" id="L44" title="All 2 branches missed.">    if (channel == null)</span>
+<span class="nc" id="L45">      return null; // We don't have the channel cached yet. We chose not to cache this event</span>
     // because that happen very often and could easily fill up the EventCache if
     // we, for some reason, never get the channel. Especially in an active channel.
 
-<span class="nc bnc" id="L52" title="All 2 branches missed.">    if (channel instanceof TextChannel) {</span>
-<span class="nc" id="L53">      final long guildId = ((TextChannel) channel).getGuild().getIdLong();</span>
-<span class="nc bnc" id="L54" title="All 2 branches missed.">      if (api.getGuildLock().isLocked(guildId)) return guildId;</span>
+<span class="nc bnc" id="L49" title="All 2 branches missed.">    if (channel instanceof TextChannel) {</span>
+<span class="nc" id="L50">      final long guildId = ((TextChannel) channel).getGuild().getIdLong();</span>
+<span class="nc bnc" id="L51" title="All 2 branches missed.">      if (api.getGuildLock().isLocked(guildId)) return guildId;</span>
     }
 
-<span class="nc" id="L57">    final long userId = content.getLong(&quot;user_id&quot;);</span>
+<span class="nc" id="L54">    final long userId = content.getLong(&quot;user_id&quot;);</span>
     User user;
-<span class="nc bnc" id="L59" title="All 2 branches missed.">    if (channel instanceof PrivateChannel) user = ((PrivateChannel) channel).getUser();</span>
-<span class="nc bnc" id="L60" title="All 2 branches missed.">    else if (channel instanceof Group) user = ((GroupImpl) channel).getUserMap().get(userId);</span>
-<span class="nc" id="L61">    else user = api.getUserMap().get(userId);</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">    if (channel instanceof PrivateChannel) user = ((PrivateChannel) channel).getUser();</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">    else if (channel instanceof Group) user = ((GroupImpl) channel).getUserMap().get(userId);</span>
+<span class="nc" id="L58">    else user = api.getUserMap().get(userId);</span>
 
-<span class="nc bnc" id="L63" title="All 2 branches missed.">    if (user == null)</span>
-<span class="nc" id="L64">      return null; // Just like in the comment above, if for some reason we don't have the user for</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">    if (user == null)</span>
+<span class="nc" id="L61">      return null; // Just like in the comment above, if for some reason we don't have the user for</span>
     // some reason
     // then we will just throw the event away.
 
-<span class="nc" id="L68">    OffsetDateTime timestamp =</span>
-<span class="nc" id="L69">        Instant.ofEpochSecond(content.getInt(&quot;timestamp&quot;)).atOffset(ZoneOffset.UTC);</span>
-<span class="nc" id="L70">    api.getEventManager()</span>
-<span class="nc" id="L71">        .handle(new UserTypingEvent(api, responseNumber, user, channel, timestamp));</span>
-<span class="nc" id="L72">    return null;</span>
+<span class="nc" id="L65">    OffsetDateTime timestamp =</span>
+<span class="nc" id="L66">        Instant.ofEpochSecond(content.getInt(&quot;timestamp&quot;)).atOffset(ZoneOffset.UTC);</span>
+<span class="nc" id="L67">    api.getEventManager()</span>
+<span class="nc" id="L68">        .handle(new UserTypingEvent(api, responseNumber, user, channel, timestamp));</span>
+<span class="nc" id="L69">    return null;</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>
