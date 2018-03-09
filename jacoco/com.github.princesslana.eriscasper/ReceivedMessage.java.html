@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ReceivedMessage.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">com.github.princesslana.eriscasper</a> &gt; <span class="el_source">ReceivedMessage.java</span></div><h1>ReceivedMessage.java</h1><pre class="source lang-java linenums">package com.github.princesslana.eriscasper;
+
+import io.reactivex.Completable;
+import io.reactivex.Observable;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.events.Event;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import org.immutables.value.Value;
+
+@Value.Immutable
+public interface ReceivedMessage {
+
+  User getAuthor();
+
+  Message getMessage();
+
+  TextChannel getSource();
+
+  public static Completable sendReply(ReceivedMessage to, String with) {
+<span class="nc" id="L21">    return sendReply(to, Message.from(with));</span>
+  }
+
+  public static Completable sendReply(ReceivedMessage to, Message with) {
+<span class="nc" id="L25">    return Message.send(with, to.getSource());</span>
+  }
+
+  public static ReceivedMessage from(MessageReceivedEvent evt) {
+<span class="nc" id="L29">    return ImmutableReceivedMessage.builder()</span>
+<span class="nc" id="L30">        .author(evt.getAuthor())</span>
+<span class="nc" id="L31">        .message(Message.from(evt.getMessage()))</span>
+<span class="nc" id="L32">        .source(evt.getTextChannel())</span>
+<span class="nc" id="L33">        .build();</span>
+  }
+
+  public static Observable&lt;ReceivedMessage&gt; from(ErisCasper ec) {
+<span class="nc" id="L37">    return from(ec.events());</span>
+  }
+
+  public static Observable&lt;ReceivedMessage&gt; from(Observable&lt;Event&gt; evts) {
+<span class="nc" id="L41">    return evts.ofType(MessageReceivedEvent.class).map(ReceivedMessage::from);</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

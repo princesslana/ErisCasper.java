@@ -1,4 +1,6 @@
 com.github.princesslana.eriscasper
+com.github.princesslana.eriscasper.immutable
+com.github.princesslana.eriscasper.robot
 net.dv8tion.jda
 net.dv8tion.jda.bot
 net.dv8tion.jda.bot.entities

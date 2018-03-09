@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Robot.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">com.github.princesslana.eriscasper.robot</a> &gt; <span class="el_source">Robot.java</span></div><h1>Robot.java</h1><pre class="source lang-java linenums">package com.github.princesslana.eriscasper.robot;
+
+import com.github.princesslana.eriscasper.ErisCasper;
+import com.github.princesslana.eriscasper.ReceivedMessage;
+import com.github.princesslana.eriscasper.immutable.Tuple;
+import io.reactivex.Maybe;
+import io.reactivex.Observable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.functions.Predicate;
+import java.util.regex.Pattern;
+import net.dv8tion.jda.core.entities.SelfUser;
+import org.apache.commons.lang3.StringUtils;
+import org.immutables.value.Value;
+
+public class Robot {
+
+  private static final String CHAR_PREFIX = &quot;+&quot;;
+
+  private final ErisCasper ec;
+
+<span class="nc" id="L22">  public Robot(ErisCasper ec) {</span>
+<span class="nc" id="L23">    this.ec = ec;</span>
+<span class="nc" id="L24">  }</span>
+
+  public void hear(String regex, Consumer&lt;Context&gt; run) {
+<span class="nc" id="L27">    hear(Pattern.compile(regex), run);</span>
+<span class="nc" id="L28">  }</span>
+
+  public void hear(Pattern regex, Consumer&lt;Context&gt; run) {
+<span class="nc" id="L31">    ReceivedMessage.from(ec)</span>
+<span class="nc" id="L32">        .map(m -&gt; new Context(regex.matcher(m.getMessage().getContent()), m))</span>
+<span class="nc" id="L33">        .filter(Context::isMatch)</span>
+<span class="nc" id="L34">        .subscribe(run);</span>
+<span class="nc" id="L35">  }</span>
+
+  public void respond(String regex, Consumer&lt;Context&gt; run) {
+<span class="nc" id="L38">    respond(Pattern.compile(regex), run);</span>
+<span class="nc" id="L39">  }</span>
+
+  public void respond(Pattern regex, Consumer&lt;Context&gt; run) {
+<span class="nc" id="L42">    Observable&lt;SelfUser&gt; self = ec.self().toObservable();</span>
+<span class="nc" id="L43">    Observable&lt;ReceivedMessage&gt; msgs = ReceivedMessage.from(ec);</span>
+
+<span class="nc" id="L45">    Observable.combineLatest(self, msgs, (s, m) -&gt; SelfAndMessageTuple.of(s, m))</span>
+<span class="nc" id="L46">        .flatMapMaybe(sam -&gt; toListenContext(regex, sam))</span>
+<span class="nc" id="L47">        .filter(Context::isMatch)</span>
+<span class="nc" id="L48">        .subscribe(run);</span>
+<span class="nc" id="L49">  }</span>
+
+  private Maybe&lt;Context&gt; toListenContext(Pattern regex, SelfAndMessage sam) {
+<span class="nc" id="L52">    Predicate&lt;String&gt; startsWithPrefix =</span>
+<span class="nc" id="L53">        pfx -&gt; StringUtils.startsWithIgnoreCase(sam.getContent(), pfx);</span>
+<span class="nc" id="L54">    Function&lt;String, String&gt; stripPrefix = pfx -&gt; sam.getContent().substring(pfx.length()).trim();</span>
+
+<span class="nc" id="L56">    return Observable.fromArray(CHAR_PREFIX, sam.getSelf().getName(), sam.getSelf().getAsMention())</span>
+<span class="nc" id="L57">        .filter(startsWithPrefix)</span>
+<span class="nc" id="L58">        .firstElement()</span>
+<span class="nc" id="L59">        .map(stripPrefix)</span>
+<span class="nc" id="L60">        .map(m -&gt; new Context(regex.matcher(m), sam.getReceived()));</span>
+  }
+
+  public static Robot from(ErisCasper ec) {
+<span class="nc" id="L64">    return new Robot(ec);</span>
+  }
+
+  @Value.Immutable
+  @Tuple
+  public static interface SelfAndMessage {
+
+    SelfUser getSelf();
+
+    ReceivedMessage getReceived();
+
+    default String getContent() {
+<span class="nc" id="L76">      return getReceived().getMessage().getContent();</span>
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>
