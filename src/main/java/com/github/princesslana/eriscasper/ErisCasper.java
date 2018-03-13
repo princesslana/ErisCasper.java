@@ -17,9 +17,9 @@ public class ErisCasper {
 
   private static final Logger LOG = LoggerFactory.getLogger(ErisCasper.class);
 
-  private final String token;
+  private final BotToken token;
 
-  private ErisCasper(String token) {
+  private ErisCasper(BotToken token) {
     this.token = token;
   }
 
@@ -45,6 +45,6 @@ public class ErisCasper {
   }
 
   public static ErisCasper create(String token) {
-    return new ErisCasper(token);
+    return new ErisCasper(BotToken.of(token));
   }
 }
