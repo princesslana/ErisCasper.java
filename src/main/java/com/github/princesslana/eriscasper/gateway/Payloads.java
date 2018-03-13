@@ -3,6 +3,7 @@ package com.github.princesslana.eriscasper.gateway;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.github.princesslana.eriscasper.BotToken;
 import com.github.princesslana.eriscasper.event.Event;
 import com.github.princesslana.eriscasper.rx.Maybes;
 import com.github.princesslana.eriscasper.rx.Singles;
@@ -31,7 +32,7 @@ public class Payloads {
     return ImmutablePayload.builder().op(OpCode.HEARTBEAT).s(s).build();
   }
 
-  public Payload identify(String token) {
+  public Payload identify(BotToken token) {
     return identify(ImmutableIdentify.builder().token(token).build());
   }
 
@@ -77,7 +78,7 @@ public class Payloads {
   // TODO: This structure is not complete
   @Value.Immutable
   public static interface Identify {
-    String getToken();
+    BotToken getToken();
 
     default ConnectionProperties getProperties() {
       return ConnectionProperties.ofDefault();

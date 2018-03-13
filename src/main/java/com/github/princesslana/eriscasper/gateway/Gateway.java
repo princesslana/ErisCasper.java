@@ -1,5 +1,6 @@
 package com.github.princesslana.eriscasper.gateway;
 
+import com.github.princesslana.eriscasper.BotToken;
 import com.github.princesslana.eriscasper.rx.Singles;
 import com.github.princesslana.eriscasper.rx.websocket.RxWebSocket;
 import com.github.princesslana.eriscasper.rx.websocket.RxWebSocketEvent;
@@ -71,7 +72,7 @@ public class Gateway implements Closeable {
     this.payloads = payloads;
   }
 
-  public Flowable<Payload> connect(String url, String token) {
+  public Flowable<Payload> connect(String url, BotToken token) {
     RxWebSocket ws = closer.register(new RxWebSocket(client));
 
     Flowable<Payload> ps =
@@ -103,7 +104,7 @@ public class Gateway implements Closeable {
         .flatMapCompletable(ws::send);
   }
 
-  private Completable identify(RxWebSocket ws, String token) {
+  private Completable identify(RxWebSocket ws, BotToken token) {
     return Single.just(payloads.identify(token))
         .lift(RateLimiterOperator.of(identifyLimit))
         .flatMapCompletable(p -> send(ws, p));
