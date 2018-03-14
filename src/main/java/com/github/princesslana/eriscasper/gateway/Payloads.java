@@ -5,8 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.github.princesslana.eriscasper.BotToken;
 import com.github.princesslana.eriscasper.event.Event;
+import com.github.princesslana.eriscasper.event.EventType;
 import com.github.princesslana.eriscasper.rx.Maybes;
-import com.github.princesslana.eriscasper.rx.Singles;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import java.util.Collection;
@@ -44,17 +44,14 @@ public class Payloads {
     return Single.fromCallable(() -> jackson.readValue(text, Payload.class));
   }
 
-  public Maybe<Event> toEvent(Payload payload) {
+  public Maybe<Event<?>> toEvent(Payload payload) {
     return Single.just(payload)
         .filter(Payload.isOp(OpCode.DISPATCH))
-        .flatMap(
-            p ->
-                Maybes.fromOptional(p.t())
-                    .doOnComplete(() -> LOG.warn("No type for dispatch: {}", p)))
-        .flatMap(
-            Singles.toMaybeAnd(
-                et -> dataAs(payload, et.getDataClass()),
-                (p, e) -> LOG.warn("Error getting data for event payload: {}", p, e)));
+        .flatMap(p -> Maybes.fromOptional(p.t()))
+        .map(EventType::getFactory)
+        .flatMap(f -> dataAs(payload, f.getDataClass()).map(f::apply).toMaybe())
+        .doOnError(t -> LOG.warn("Unable to convert payload to event: {}", payload, t))
+        .onErrorComplete();
   }
 
   public Single<String> writeToString(Payload p) {

@@ -23,7 +23,7 @@ public class ErisCasper {
     this.token = token;
   }
 
-  public Flowable<Event> events() {
+  public Flowable<Event<?>> events() {
     OkHttpClient httpClient = new OkHttpClient();
     ObjectMapper jackson = Jackson.newObjectMapper();
     Payloads payloads = new Payloads(jackson);
