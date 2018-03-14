@@ -1,16 +1,24 @@
 package com.github.princesslana.eriscasper.event;
 
+import com.github.princesslana.eriscasper.data.GuildCreateData;
+import com.github.princesslana.eriscasper.data.ReadyData;
+import java.util.function.Function;
+
 public enum EventType {
-  GUILD_CREATE(Events.GuildCreate.class),
-  READY(Events.Ready.class);
+  GUILD_CREATE(GuildCreateData.class, ImmutableGuildCreate::of),
+  READY(ReadyData.class, ImmutableReady::of);
 
-  private Class<? extends Event> dataClass;
+  private final EventFactory<?> factory;
 
-  private EventType(Class<? extends Event> dataClass) {
-    this.dataClass = dataClass;
+  private EventType(EventFactory<?> factory) {
+    this.factory = factory;
   }
 
-  public Class<? extends Event> getDataClass() {
-    return dataClass;
+  private <T> EventType(Class<T> dataClass, Function<T, Event<T>> factory) {
+    this(EventFactoryTuple.of(dataClass, factory));
+  }
+
+  public EventFactory<?> getFactory() {
+    return factory;
   }
 }

@@ -1,6 +1,7 @@
 package com.github.princesslana.eriscasper.event;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.github.princesslana.eriscasper.data.GuildCreateData;
+import com.github.princesslana.eriscasper.data.ReadyData;
 import org.immutables.value.Value;
 
 public class Events {
@@ -8,10 +9,8 @@ public class Events {
   private Events() {}
 
   @Value.Immutable
-  @JsonDeserialize(as = ImmutableGuildCreate.class)
-  public static interface GuildCreate extends Event {}
+  public static interface GuildCreate extends Event<GuildCreateData> {}
 
   @Value.Immutable
-  @JsonDeserialize(as = ImmutableReady.class)
-  public static interface Ready extends Event {}
+  public static interface Ready extends Event<ReadyData> {}
 }

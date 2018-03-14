@@ -1,3 +1,8 @@
 package com.github.princesslana.eriscasper.event;
 
-public interface Event {}
+import org.immutables.value.Value;
+
+public interface Event<D> {
+  @Value.Parameter
+  D getData();
+}
