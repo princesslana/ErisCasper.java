@@ -4,7 +4,6 @@ import com.github.princesslana.eriscasper.data.GuildCreateData;
 import com.github.princesslana.eriscasper.data.Message;
 import com.github.princesslana.eriscasper.data.ReadyData;
 import com.github.princesslana.eriscasper.data.TypingStartData;
-
 import org.immutables.value.Value;
 
 public class Events {
@@ -19,7 +18,7 @@ public class Events {
 
   @Value.Immutable
   public static interface Ready extends Event<ReadyData> {}
-  
+
   @Value.Immutable
   public static interface TypingStart extends Event<TypingStartData> {}
 }
