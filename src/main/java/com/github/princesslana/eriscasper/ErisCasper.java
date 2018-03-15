@@ -23,7 +23,7 @@ public class ErisCasper {
     this.token = token;
   }
 
-  public Flowable<Event<?>> events() {
+  private Flowable<Event<?>> events() {
     OkHttpClient httpClient = new OkHttpClient();
     ObjectMapper jackson = Jackson.newObjectMapper();
     Payloads payloads = new Payloads(jackson);
@@ -38,6 +38,10 @@ public class ErisCasper {
     } catch (IOException e) {
       return Flowable.error(e);
     }
+  }
+
+  public void run(Bot bot) {
+    bot.apply(events()).subscribe();
   }
 
   public static ErisCasper create() {
