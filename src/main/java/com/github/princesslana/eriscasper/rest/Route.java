@@ -8,12 +8,13 @@ public abstract class Route<Rq, Rs> {
   private static final String VERSION = "v6";
   private static final String URL = String.format("https://discordapp.com/api/%s", VERSION);
 
-  protected static enum Method {
-    GET("GET");
+  protected static enum HttpMethod {
+    GET("GET"),
+    POST("POST");
 
     private final String method;
 
-    private Method(String method) {
+    private HttpMethod(String method) {
       this.method = method;
     }
 
@@ -22,7 +23,7 @@ public abstract class Route<Rq, Rs> {
     }
   }
 
-  protected abstract Method getMethod();
+  protected abstract HttpMethod getMethod();
 
   protected abstract String getPath();
 
@@ -36,9 +37,18 @@ public abstract class Route<Rq, Rs> {
 
   public static <Rs> Route<Void, Rs> get(String path, Class<Rs> rsClass) {
     return ImmutableRoute.<Void, Rs>builder()
-        .method(Method.GET)
+        .method(HttpMethod.GET)
         .path(path)
         .requestClass(Void.class)
+        .responseClass(rsClass)
+        .build();
+  }
+
+  public static <Rq, Rs> Route<Rq, Rs> post(String path, Class<Rq> rqClass, Class<Rs> rsClass) {
+    return ImmutableRoute.<Rq, Rs>builder()
+        .method(HttpMethod.POST)
+        .path(path)
+        .requestClass(rqClass)
         .responseClass(rsClass)
         .build();
   }

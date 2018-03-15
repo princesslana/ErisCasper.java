@@ -19,17 +19,20 @@ public class ErisCasper {
 
   private final BotToken token;
 
+  private final OkHttpClient httpClient = new OkHttpClient();
+  private final ObjectMapper jackson = Jackson.newObjectMapper();
+  private final Payloads payloads = new Payloads(jackson);
+  private final Routes routes;
+
   private ErisCasper(BotToken token) {
     this.token = token;
+
+    routes = new Routes(token, httpClient, jackson);
   }
 
-  private Flowable<Event<?>> events() {
-    OkHttpClient httpClient = new OkHttpClient();
-    ObjectMapper jackson = Jackson.newObjectMapper();
-    Payloads payloads = new Payloads(jackson);
-
+  private Flowable<Event<?>> getEvents() {
     try (Gateway gateway = new Gateway(httpClient, payloads)) {
-      return new Routes(httpClient, jackson)
+      return routes
           .execute(RouteCatalog.getGateway())
           .toFlowable()
           .flatMap(gr -> gateway.connect(gr.getUrl(), token))
@@ -41,7 +44,7 @@ public class ErisCasper {
   }
 
   public void run(Bot bot) {
-    bot.apply(events()).subscribe();
+    bot.apply(new BotContext(getEvents(), routes)).subscribe();
   }
 
   public static ErisCasper create() {

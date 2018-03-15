@@ -1,9 +1,6 @@
 package com.github.princesslana.eriscasper;
 
-import com.github.princesslana.eriscasper.action.Action;
-import com.github.princesslana.eriscasper.event.Event;
-import io.reactivex.Flowable;
-import io.reactivex.functions.Consumer;
+import io.reactivex.Completable;
 import io.reactivex.functions.Function;
 
 /**
@@ -11,16 +8,12 @@ import io.reactivex.functions.Function;
  *
  * <p>We use the reactivex Function types (rather than Java's) for easier use with rxjava methods.
  */
-public interface Bot extends Function<Flowable<Event<?>>, Flowable<Action<?>>> {
+public interface Bot extends Function<BotContext, Completable> {
 
   /**
    * Override to not throw an Exception.
    *
    * @see Function#apply(Object)
    */
-  Flowable<Action<?>> apply(Flowable<Event<?>> es);
-
-  public static Bot fromConsumer(Consumer<Event<?>> c) {
-    return es -> es.doOnNext(c).ignoreElements().toFlowable();
-  }
+  Completable apply(BotContext ctx);
 }
