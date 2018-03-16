@@ -45,7 +45,7 @@ public class RxWebSocket implements Closeable {
   @Override
   public void close() {
     if (ws != null) {
-      ws.close(1000, "Closed.");
+      ws.close(1000, "Bye.");
     }
   }
 
