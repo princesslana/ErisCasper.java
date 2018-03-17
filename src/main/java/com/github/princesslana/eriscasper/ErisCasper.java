@@ -17,6 +17,7 @@ public class ErisCasper {
 
   private static final Logger LOG = LoggerFactory.getLogger(ErisCasper.class);
 
+
   private final BotToken token;
 
   private final OkHttpClient httpClient = new OkHttpClient();
@@ -37,7 +38,8 @@ public class ErisCasper {
           .toFlowable()
           .flatMap(gr -> gateway.connect(gr.getUrl(), token))
           .flatMapMaybe(payloads::toEvent)
-          .onBackpressureBuffer();
+          .onBackpressureBuffer()
+          .share();
     } catch (IOException e) {
       return Flowable.error(e);
     }
