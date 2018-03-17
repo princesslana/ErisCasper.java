@@ -37,7 +37,8 @@ public class ErisCasper {
           .toFlowable()
           .flatMap(gr -> gateway.connect(gr.getUrl(), token))
           .flatMapMaybe(payloads::toEvent)
-          .onBackpressureBuffer();
+          .onBackpressureBuffer()
+          .share();
     } catch (IOException e) {
       return Flowable.error(e);
     }
