@@ -1,621 +1,69 @@
 GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
-ErisCasper.java,net.dv8tion.jda.client.managers,EmoteManagerUpdatable,187,0,16,0,35,0,20,0,12,0
-ErisCasper.java,net.dv8tion.jda.client.managers,ApplicationManagerUpdatable.new ApplicationField() {...},25,0,4,0,5,0,4,0,2,0
-ErisCasper.java,net.dv8tion.jda.client.managers,ApplicationManagerUpdatable.new ApplicationField() {...},53,0,4,0,12,0,5,0,3,0
-ErisCasper.java,net.dv8tion.jda.client.managers,ApplicationManagerUpdatable.new ApplicationField() {...},17,0,0,0,4,0,4,0,4,0
-ErisCasper.java,net.dv8tion.jda.client.managers,ApplicationManagerUpdatable.new ApplicationField() {...},12,0,0,0,3,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.client.managers,ApplicationManagerUpdatable.new ApplicationField() {...},20,0,4,0,4,0,4,0,2,0
-ErisCasper.java,net.dv8tion.jda.client.managers,ApplicationManagerUpdatable.new ApplicationField() {...},12,0,0,0,3,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.client.managers,ApplicationManagerUpdatable.new RestAction() {...},27,0,2,0,6,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.client.managers,EmoteManager,37,0,0,0,8,0,6,0,6,0
-ErisCasper.java,net.dv8tion.jda.client.managers,EmoteManagerUpdatable.new AuditableRestAction() {...},20,0,2,0,4,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.client.managers,EmoteManagerUpdatable.new EmoteField() {...},37,0,6,0,8,0,5,0,2,0
-ErisCasper.java,net.dv8tion.jda.client.managers,EmoteManagerUpdatable.new EmoteField() {...},19,0,0,0,4,0,3,0,3,0
-ErisCasper.java,net.dv8tion.jda.client.managers,ApplicationManagerUpdatable,301,0,28,0,62,0,28,0,14,0
-ErisCasper.java,net.dv8tion.jda.client.managers,ApplicationManager,67,0,0,0,11,0,9,0,9,0
-ErisCasper.java,net.dv8tion.jda.core.events.channel.priv,PrivateChannelCreateEvent,15,0,0,0,5,0,3,0,3,0
-ErisCasper.java,net.dv8tion.jda.core.events.channel.priv,PrivateChannelDeleteEvent,15,0,0,0,5,0,3,0,3,0
-ErisCasper.java,net.dv8tion.jda.client.entities,RelationshipType,105,0,4,0,14,0,6,0,4,0
-ErisCasper.java,com.github.princesslana.eriscasper.robot,Robot.SelfAndMessage,5,0,0,0,1,0,1,0,1,0
-ErisCasper.java,com.github.princesslana.eriscasper.robot,Robot,133,0,0,0,28,0,13,0,13,0
-ErisCasper.java,com.github.princesslana.eriscasper.robot,SelfAndMessageTuple,156,0,16,0,34,0,20,0,12,0
-ErisCasper.java,com.github.princesslana.eriscasper.robot,Context,48,0,0,0,11,0,6,0,6,0
-ErisCasper.java,net.dv8tion.jda.core.managers.fields,AccountField,5,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.managers.fields,WebhookField,5,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.managers.fields,ChannelField,5,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.managers.fields,RoleField,5,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.managers.fields,PermissionField,238,0,8,0,59,0,22,0,18,0
-ErisCasper.java,net.dv8tion.jda.core.managers.fields,GuildField,5,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.managers.fields,Field,78,0,8,0,20,0,14,0,10,0
-ErisCasper.java,net.dv8tion.jda.client.events.relationship,FriendRequestSentEvent,10,0,0,0,3,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.client.events.relationship,FriendRequestCanceledEvent,10,0,0,0,3,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.client.events.relationship,UserBlockedEvent,10,0,0,0,3,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.client.events.relationship,FriendRequestReceivedEvent,10,0,0,0,3,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.client.events.relationship,GenericRelationshipAddEvent,6,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.client.events.relationship,FriendRemovedEvent,10,0,0,0,3,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.client.events.relationship,FriendAddedEvent,10,0,0,0,3,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.client.events.relationship,FriendRequestIgnoredEvent,10,0,0,0,3,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.client.events.relationship,GenericRelationshipEvent,19,0,0,0,6,0,4,0,4,0
-ErisCasper.java,net.dv8tion.jda.client.events.relationship,UserUnblockedEvent,10,0,0,0,3,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.client.events.relationship,GenericRelationshipRemoveEvent,6,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.events.guild.member,GenericGuildMemberEvent,16,0,0,0,5,0,3,0,3,0
-ErisCasper.java,net.dv8tion.jda.core.events.guild.member,GuildMemberRoleAddEvent,17,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.events.guild.member,GuildMemberRoleRemoveEvent,17,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.events.guild.member,GuildMemberNickChangeEvent,19,0,0,0,6,0,3,0,3,0
-ErisCasper.java,net.dv8tion.jda.core.events.guild.member,GuildMemberJoinEvent,7,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.events.guild.member,GuildMemberLeaveEvent,7,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.client.events.message.group.react,GroupMessageReactionRemoveEvent,7,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.client.events.message.group.react,GroupMessageReactionRemoveAllEvent,7,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.client.events.message.group.react,GroupMessageReactionAddEvent,7,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.client.events.message.group.react,GenericGroupMessageReactionEvent,26,0,0,0,7,0,4,0,4,0
-ErisCasper.java,net.dv8tion.jda.core.audio.hooks,ConnectionStatus,179,0,0,0,18,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.audio.hooks,ListenerProxy,96,0,6,0,32,0,9,0,6,0
-ErisCasper.java,net.dv8tion.jda.core.managers,GuildController,1685,0,106,0,301,0,105,0,52,0
-ErisCasper.java,net.dv8tion.jda.core.managers,PermOverrideManagerUpdatable,375,0,22,0,77,0,37,0,26,0
-ErisCasper.java,net.dv8tion.jda.core.managers,GuildManagerUpdatable.new GuildField() {...},23,0,4,0,4,0,4,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.managers,GuildManagerUpdatable.new GuildField() {...},35,0,6,0,7,0,5,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.managers,GuildManagerUpdatable.new GuildField() {...},17,0,0,0,4,0,4,0,4,0
-ErisCasper.java,net.dv8tion.jda.core.managers,GuildManagerUpdatable.new GuildField() {...},17,0,0,0,4,0,4,0,4,0
-ErisCasper.java,net.dv8tion.jda.core.managers,GuildManagerUpdatable.new GuildField() {...},12,0,0,0,3,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.managers,GuildManagerUpdatable.new GuildField() {...},25,0,4,0,5,0,4,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.managers,GuildManagerUpdatable.new AuditableRestAction() {...},20,0,2,0,4,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.managers,GuildManagerUpdatable.new GuildField() {...},20,0,2,0,5,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.managers,GuildManagerUpdatable.new GuildField() {...},23,0,4,0,4,0,4,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.managers,ChannelManagerUpdatable.new ChannelField() {...},24,0,4,0,5,0,4,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.managers,ChannelManagerUpdatable.new ChannelField() {...},16,0,2,0,3,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.managers,ChannelManagerUpdatable.new ChannelField() {...},20,0,4,0,4,0,4,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.managers,ChannelManagerUpdatable.new ChannelField() {...},19,0,2,0,5,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.managers,ChannelManagerUpdatable.new ChannelField() {...},12,0,0,0,3,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.managers,ChannelManagerUpdatable.new ChannelField() {...},25,0,4,0,5,0,4,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.managers,ChannelManagerUpdatable.new AuditableRestAction() {...},20,0,2,0,4,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.managers,ChannelManagerUpdatable.new ChannelField() {...},34,0,6,0,6,0,5,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.managers,GuildManagerUpdatable,531,0,58,0,94,0,49,0,20,0
-ErisCasper.java,net.dv8tion.jda.core.managers,GuildController.new AuditableRestAction() {...},20,0,2,0,4,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.managers,GuildController.new AuditableRestAction() {...},81,0,6,0,18,0,5,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.managers,AccountManagerUpdatable,162,0,14,0,30,0,20,0,13,0
-ErisCasper.java,net.dv8tion.jda.core.managers,GuildController.new AuditableRestAction() {...},20,0,2,0,4,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.managers,GuildController.new AuditableRestAction() {...},20,0,2,0,4,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.managers,GuildController.new AuditableRestAction() {...},19,0,2,0,4,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.managers,GuildController.new AuditableRestAction() {...},19,0,2,0,4,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.managers,RoleManagerUpdatable,295,0,28,0,48,0,29,0,15,0
-ErisCasper.java,net.dv8tion.jda.core.managers,PermOverrideManagerUpdatable.new AuditableRestAction() {...},20,0,2,0,4,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.managers,WebhookManagerUpdatable,224,0,22,0,35,0,23,0,12,0
-ErisCasper.java,net.dv8tion.jda.core.managers,GuildManagerUpdatable.new GuildField() {...},20,0,2,0,5,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.managers,GuildManagerUpdatable.new GuildField() {...},20,0,2,0,5,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.managers,GuildManagerUpdatable.new GuildField() {...},20,0,2,0,4,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.managers,GuildController.new AuditableRestAction() {...},20,0,2,0,4,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.managers,GuildController.new RestAction() {...},20,0,2,0,4,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.managers,GuildController.new AuditableRestAction() {...},19,0,2,0,4,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.managers,GuildController.new AuditableRestAction() {...},23,0,2,0,4,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.managers,GuildController.new AuditableRestAction() {...},20,0,2,0,4,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.managers,GuildController.new AuditableRestAction() {...},43,0,4,0,6,0,4,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.managers,GuildController.new AuditableRestAction() {...},19,0,2,0,4,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.managers,GuildController.new AuditableRestAction() {...},20,0,2,0,4,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.managers,GuildController.new AuditableRestAction() {...},43,0,4,0,6,0,4,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.managers,GuildManager,105,0,0,0,16,0,14,0,14,0
-ErisCasper.java,net.dv8tion.jda.core.managers,RoleManager,99,0,0,0,17,0,15,0,15,0
-ErisCasper.java,net.dv8tion.jda.core.managers,ChannelManagerUpdatable,466,0,78,0,75,0,55,0,16,0
-ErisCasper.java,net.dv8tion.jda.core.managers,ChannelManager,81,0,0,0,13,0,11,0,11,0
-ErisCasper.java,net.dv8tion.jda.core.managers,RoleManagerUpdatable.new RoleField() {...},24,0,4,0,5,0,5,0,3,0
-ErisCasper.java,net.dv8tion.jda.core.managers,RoleManagerUpdatable.new RoleField() {...},12,0,0,0,3,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.managers,RoleManagerUpdatable.new AuditableRestAction() {...},20,0,2,0,4,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.managers,RoleManagerUpdatable.new RoleField() {...},24,0,4,0,5,0,4,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.managers,RoleManagerUpdatable.new RoleField() {...},12,0,0,0,3,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.managers,AccountManagerUpdatable.new RestAction() {...},34,0,2,0,9,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.managers,AccountManagerUpdatable.new AccountField() {...},25,0,4,0,5,0,4,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.managers,AccountManagerUpdatable.new AccountField() {...},17,0,0,0,4,0,4,0,4,0
-ErisCasper.java,net.dv8tion.jda.core.managers,PermOverrideManager,79,0,0,0,16,0,14,0,14,0
-ErisCasper.java,net.dv8tion.jda.core.managers,WebhookManagerUpdatable.new WebhookField() {...},20,0,0,0,5,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.managers,WebhookManagerUpdatable.new AuditableRestAction() {...},20,0,2,0,4,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.managers,WebhookManagerUpdatable.new WebhookField() {...},17,0,0,0,4,0,4,0,4,0
-ErisCasper.java,net.dv8tion.jda.core.managers,WebhookManagerUpdatable.new WebhookField() {...},12,0,0,0,3,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.managers,WebhookManager,49,0,0,0,10,0,8,0,8,0
-ErisCasper.java,net.dv8tion.jda.core.managers,AccountManager,63,0,0,0,11,0,9,0,9,0
-ErisCasper.java,net.dv8tion.jda.core.entities,MessageReaction.ReactionEmote,114,0,14,0,20,0,17,0,10,0
-ErisCasper.java,net.dv8tion.jda.core.entities,RichPresence,206,0,28,0,34,0,28,0,14,0
-ErisCasper.java,net.dv8tion.jda.core.entities,EntityBuilder,3555,0,337,0,709,0,221,0,48,0
-ErisCasper.java,net.dv8tion.jda.core.entities,MessageEmbed.Footer,54,0,10,0,14,0,10,0,5,0
-ErisCasper.java,net.dv8tion.jda.core.entities,Guild.ExplicitContentLevel,93,0,4,0,14,0,7,0,5,0
-ErisCasper.java,net.dv8tion.jda.core.entities,MessageEmbed.VideoInfo,52,0,10,0,12,0,10,0,5,0
-ErisCasper.java,net.dv8tion.jda.core.entities,MessageEmbed.AuthorInfo,66,0,12,0,17,0,12,0,6,0
-ErisCasper.java,net.dv8tion.jda.core.entities,Message,5,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.entities,IMentionable,36,0,6,0,5,0,4,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.entities,Guild,156,0,0,0,29,0,29,0,29,0
-ErisCasper.java,net.dv8tion.jda.core.entities,Guild.MFALevel,72,0,4,0,11,0,6,0,4,0
-ErisCasper.java,net.dv8tion.jda.core.entities,Invite,14,0,0,0,2,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.entities,RichPresence.Image,89,0,6,0,12,0,10,0,7,0
-ErisCasper.java,net.dv8tion.jda.core.entities,MessageChannel,857,0,26,0,129,0,64,0,51,0
-ErisCasper.java,net.dv8tion.jda.core.entities,MessageType,138,0,4,0,17,0,6,0,4,0
-ErisCasper.java,net.dv8tion.jda.core.entities,Message.MentionType,82,0,0,0,11,0,3,0,3,0
-ErisCasper.java,net.dv8tion.jda.core.entities,RichPresence.Timestamps,124,0,14,0,19,0,17,0,10,0
-ErisCasper.java,net.dv8tion.jda.core.entities,ChannelType,121,0,4,0,18,0,8,0,6,0
-ErisCasper.java,net.dv8tion.jda.core.entities,Game.new Object() {...},33,0,0,0,1,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.entities,Game.GameType,69,0,4,0,14,0,7,0,4,0
-ErisCasper.java,net.dv8tion.jda.core.entities,Guild.VerificationLevel,105,0,4,0,14,0,6,0,4,0
-ErisCasper.java,net.dv8tion.jda.core.entities,RichPresence.Party,102,0,8,0,15,0,13,0,9,0
-ErisCasper.java,net.dv8tion.jda.core.entities,MessageEmbed,610,0,104,0,104,0,71,0,19,0
-ErisCasper.java,net.dv8tion.jda.core.entities,MessageHistory.MessageRetrieveAction,108,0,10,0,24,0,9,0,4,0
-ErisCasper.java,net.dv8tion.jda.core.entities,MessageHistory.new RestAction() {...},67,0,6,0,15,0,5,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.entities,MessageHistory.new RestAction() {...},61,0,4,0,12,0,5,0,3,0
-ErisCasper.java,net.dv8tion.jda.core.entities,MessageReaction,299,0,34,0,49,0,37,0,20,0
-ErisCasper.java,net.dv8tion.jda.core.entities,MessageChannel.new AuditableRestAction() {...},19,0,2,0,4,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.entities,MessageChannel.new RestAction() {...},29,0,2,0,8,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.entities,MessageChannel.new RestAction() {...},19,0,2,0,4,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.entities,MessageChannel.new RestAction() {...},19,0,2,0,4,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.entities,MessageChannel.new RestAction() {...},19,0,2,0,4,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.entities,MessageChannel.new RestAction() {...},19,0,2,0,4,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.entities,MessageChannel.new RestAction() {...},50,0,4,0,12,0,4,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.entities,MessageChannel.new RestAction() {...},19,0,2,0,4,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.entities,MessageChannel.new RestAction() {...},19,0,2,0,4,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.entities,EmbedType,92,0,4,0,12,0,5,0,3,0
-ErisCasper.java,net.dv8tion.jda.core.entities,ISnowflake,4,4,0,0,1,1,1,1,1,1
-ErisCasper.java,net.dv8tion.jda.core.entities,Message.Attachment,163,0,6,0,43,0,20,0,17,0
-ErisCasper.java,net.dv8tion.jda.core.entities,Channel,5,0,0,0,1,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.entities,Guild.NotificationLevel,72,0,4,0,11,0,6,0,4,0
-ErisCasper.java,net.dv8tion.jda.core.entities,Icon,54,0,0,0,13,0,5,0,5,0
-ErisCasper.java,net.dv8tion.jda.core.entities,Role,5,0,0,0,1,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.entities,MessageEmbed.Provider,42,0,8,0,10,0,8,0,4,0
-ErisCasper.java,net.dv8tion.jda.core.entities,EntityBuilder.new Object() {...},58,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.entities,Guild.Ban,42,0,2,0,7,0,5,0,4,0
-ErisCasper.java,net.dv8tion.jda.core.entities,Guild.Timeout,104,0,4,0,13,0,6,0,4,0
-ErisCasper.java,net.dv8tion.jda.core.entities,MessageEmbed.Field,113,0,24,0,27,0,18,0,6,0
-ErisCasper.java,net.dv8tion.jda.core.entities,Emote,54,0,4,0,5,0,7,0,5,0
-ErisCasper.java,net.dv8tion.jda.core.entities,Game,216,0,23,0,42,0,31,0,18,0
-ErisCasper.java,net.dv8tion.jda.core.entities,TextChannel,97,0,10,0,12,0,10,0,5,0
-ErisCasper.java,net.dv8tion.jda.core.entities,MessageEmbed.Thumbnail,64,0,12,0,15,0,12,0,6,0
-ErisCasper.java,net.dv8tion.jda.core.entities,MessageEmbed.ImageInfo,64,0,12,0,15,0,12,0,6,0
-ErisCasper.java,net.dv8tion.jda.core.entities,MessageReaction.new RestAction() {...},19,0,2,0,4,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.entities,MessageHistory,347,0,26,0,57,0,27,0,14,0
-ErisCasper.java,net.dv8tion.jda.core.utils.tuple,MutablePair,32,0,0,0,13,0,7,0,7,0
-ErisCasper.java,net.dv8tion.jda.core.utils.tuple,ImmutablePair,21,0,0,0,7,0,4,0,4,0
-ErisCasper.java,net.dv8tion.jda.core.utils.tuple,MutableTriple,22,0,0,0,7,0,4,0,4,0
-ErisCasper.java,net.dv8tion.jda.core.utils.tuple,Pair,63,0,8,0,11,0,9,0,5,0
-ErisCasper.java,net.dv8tion.jda.core.events.self,SelfUpdateEmailEvent,11,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.events.self,SelfUpdateNameEvent,17,0,0,0,6,0,3,0,3,0
-ErisCasper.java,net.dv8tion.jda.core.events.self,SelfUpdatePhoneNumberEvent,11,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.events.self,SelfUpdateNitroEvent,11,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.events.self,SelfUpdateAvatarEvent,34,0,2,0,6,0,4,0,3,0
-ErisCasper.java,net.dv8tion.jda.core.events.self,SelfUpdateMobileEvent,11,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.events.self,SelfUpdateMFAEvent,11,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.events.self,GenericSelfUpdateEvent,9,0,0,0,3,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.events.self,SelfUpdateVerifiedEvent,11,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.requests.restaction.order,CategoryOrderAction.new Object() {...},19,0,0,0,1,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.requests.restaction.order,ChannelOrderAction.new Object() {...},26,0,0,0,1,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.requests.restaction.order,CategoryOrderAction,61,0,3,0,16,0,6,0,4,0
-ErisCasper.java,net.dv8tion.jda.core.requests.restaction.order,ChannelOrderAction,171,0,8,0,33,0,14,0,9,0
-ErisCasper.java,net.dv8tion.jda.core.requests.restaction.order,RoleOrderAction,170,0,22,0,32,0,15,0,4,0
-ErisCasper.java,net.dv8tion.jda.core.requests.restaction.order,OrderAction,389,0,30,0,70,0,32,0,17,0
-ErisCasper.java,net.dv8tion.jda.core.events.channel.voice,GenericVoiceChannelEvent,15,0,0,0,5,0,3,0,3,0
-ErisCasper.java,net.dv8tion.jda.core.events.channel.voice,VoiceChannelDeleteEvent,6,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.events.channel.voice,VoiceChannelCreateEvent,6,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.events.user,UserGameUpdateEvent,24,0,2,0,5,0,4,0,3,0
-ErisCasper.java,net.dv8tion.jda.core.events.user,GenericUserEvent,11,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.events.user,UserTypingEvent,60,0,8,0,11,0,12,0,8,0
-ErisCasper.java,net.dv8tion.jda.core.events.user,UserOnlineStatusUpdateEvent,24,0,2,0,5,0,4,0,3,0
-ErisCasper.java,net.dv8tion.jda.core.events.user,GenericUserPresenceEvent,40,0,6,0,9,0,8,0,5,0
-ErisCasper.java,net.dv8tion.jda.core.events.user,UserAvatarUpdateEvent,35,0,2,0,6,0,4,0,3,0
-ErisCasper.java,net.dv8tion.jda.core.events.user,UserNameUpdateEvent,18,0,0,0,6,0,3,0,3,0
-ErisCasper.java,net.dv8tion.jda.core.events.role.update,RoleUpdateMentionableEvent,12,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.events.role.update,RoleUpdatePermissionsEvent,17,0,0,0,5,0,3,0,3,0
-ErisCasper.java,net.dv8tion.jda.core.events.role.update,GenericRoleUpdateEvent,6,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.events.role.update,RoleUpdateColorEvent,12,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.events.role.update,RoleUpdateHoistedEvent,12,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.events.role.update,RoleUpdateNameEvent,12,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.events.role.update,RoleUpdatePositionEvent,18,0,0,0,6,0,3,0,3,0
-ErisCasper.java,net.dv8tion.jda.core.events.channel.text,TextChannelCreateEvent,6,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.events.channel.text,TextChannelDeleteEvent,6,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.events.channel.text,GenericTextChannelEvent,15,0,0,0,5,0,3,0,3,0
-ErisCasper.java,net.dv8tion.jda.webhook,WebhookMessage,168,0,14,0,34,0,14,0,7,0
-ErisCasper.java,net.dv8tion.jda.webhook,WebhookClientBuilder.DefaultWebhookThreadFactory,28,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.webhook,WebhookClient.Bucket,144,0,18,0,37,0,15,0,6,0
-ErisCasper.java,net.dv8tion.jda.webhook,WebhookMessageBuilder,368,0,44,0,85,0,39,0,17,0
-ErisCasper.java,net.dv8tion.jda.webhook,WebhookClient,359,0,18,0,79,0,33,0,24,0
-ErisCasper.java,net.dv8tion.jda.webhook,WebhookCluster,551,0,38,0,114,0,50,0,31,0
-ErisCasper.java,net.dv8tion.jda.webhook,WebhookClientBuilder,124,0,10,0,36,0,15,0,10,0
-ErisCasper.java,net.dv8tion.jda.bot.entities.impl,ApplicationInfoImpl,144,0,12,0,32,0,20,0,14,0
-ErisCasper.java,net.dv8tion.jda.bot.entities.impl,JDABotImpl.new RestAction() {...},31,0,2,0,8,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.bot.entities.impl,JDABotImpl,90,0,10,0,23,0,13,0,8,0
-ErisCasper.java,net.dv8tion.jda.core.events.channel.text.update,TextChannelUpdatePositionEvent,12,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.events.channel.text.update,TextChannelUpdateNSFWEvent,12,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.events.channel.text.update,TextChannelUpdatePermissionsEvent,48,0,0,0,14,0,6,0,6,0
-ErisCasper.java,net.dv8tion.jda.core.events.channel.text.update,TextChannelUpdateNameEvent,12,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.events.channel.text.update,TextChannelUpdateTopicEvent,12,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.events.channel.text.update,GenericTextChannelUpdateEvent,6,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.events.channel.text.update,TextChannelUpdateParentEvent,12,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.bot.utils.cache,ShardCacheView,5,0,0,0,1,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.events.channel.category,CategoryDeleteEvent,6,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.events.channel.category,CategoryCreateEvent,6,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.events.channel.category,GenericCategoryEvent,23,0,0,0,7,0,5,0,5,0
-ErisCasper.java,net.dv8tion.jda.core.exceptions,HierarchyException,4,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.exceptions,HttpException,9,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.exceptions,InsufficientPermissionException,18,0,0,0,5,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.exceptions,PermissionException,28,0,0,0,9,0,4,0,4,0
-ErisCasper.java,net.dv8tion.jda.core.exceptions,ErrorResponseException,117,0,16,0,26,0,15,0,7,0
-ErisCasper.java,net.dv8tion.jda.core.exceptions,ContextException,33,0,4,0,9,0,6,0,4,0
-ErisCasper.java,net.dv8tion.jda.core.exceptions,AccountTypeException,16,0,0,0,8,0,4,0,4,0
-ErisCasper.java,net.dv8tion.jda.core.exceptions,GuildUnavailableException,8,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.exceptions,RateLimitedException,34,0,0,0,10,0,4,0,4,0
-ErisCasper.java,net.dv8tion.jda.client,JDAClient,22,0,0,0,4,0,4,0,4,0
-ErisCasper.java,net.dv8tion.jda.core.events.message.guild,GuildMessageEmbedEvent,13,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.events.message.guild,GuildMessageReceivedEvent,34,0,2,0,7,0,6,0,5,0
-ErisCasper.java,net.dv8tion.jda.core.events.message.guild,GenericGuildMessageEvent,36,0,2,0,9,0,7,0,6,0
-ErisCasper.java,net.dv8tion.jda.core.events.message.guild,GuildMessageUpdateEvent,25,0,0,0,6,0,4,0,4,0
-ErisCasper.java,net.dv8tion.jda.core.events.message.guild,GuildMessageDeleteEvent,7,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.events.message.guild.react,GenericGuildMessageReactionEvent,36,0,0,0,9,0,6,0,6,0
-ErisCasper.java,net.dv8tion.jda.core.events.message.guild.react,GuildMessageReactionRemoveAllEvent,7,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.events.message.guild.react,GuildMessageReactionRemoveEvent,7,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.events.message.guild.react,GuildMessageReactionAddEvent,7,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.client.events.call.voice,CallVoiceSelfMuteEvent,14,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.client.events.call.voice,GenericCallVoiceEvent,17,0,0,0,5,0,3,0,3,0
-ErisCasper.java,net.dv8tion.jda.client.events.call.voice,CallVoiceLeaveEvent,6,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.client.events.call.voice,CallVoiceSelfDeafenEvent,14,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.client.events.call.voice,CallVoiceJoinEvent,6,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.events.message.priv,PrivateMessageDeleteEvent,7,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.events.message.priv,GenericPrivateMessageEvent,21,0,0,0,7,0,4,0,4,0
-ErisCasper.java,net.dv8tion.jda.core.events.message.priv,PrivateMessageEmbedEvent,13,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.events.message.priv,PrivateMessageReceivedEvent,19,0,0,0,5,0,3,0,3,0
-ErisCasper.java,net.dv8tion.jda.core.events.message.priv,PrivateMessageUpdateEvent,19,0,0,0,5,0,3,0,3,0
-ErisCasper.java,net.dv8tion.jda.core.utils,WidgetUtil.BannerType,59,0,0,0,6,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.utils,WidgetUtil.WidgetTheme,29,0,0,0,3,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.utils,MiscUtil,153,0,8,0,35,0,18,0,14,0
-ErisCasper.java,net.dv8tion.jda.core.utils,SessionControllerAdapter.new RestAction() {...},58,0,4,0,14,0,4,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.utils,SessionControllerAdapter.new RestAction() {...},22,0,2,0,4,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.utils,Checks,281,0,28,0,49,0,37,0,23,0
-ErisCasper.java,net.dv8tion.jda.core.utils,PermissionUtil.new Object() {...},12,0,0,0,1,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.utils,Helpers,261,0,62,0,50,0,45,0,14,0
-ErisCasper.java,net.dv8tion.jda.core.utils,SessionControllerAdapter,96,0,2,0,26,0,10,0,9,0
-ErisCasper.java,net.dv8tion.jda.core.utils,WidgetUtil.Widget.VoiceChannel,89,0,6,0,19,0,13,0,10,0
-ErisCasper.java,net.dv8tion.jda.core.utils,PermissionUtil,776,0,108,0,163,0,74,0,20,0
-ErisCasper.java,net.dv8tion.jda.core.utils,Promise,22,0,0,0,8,0,4,0,4,0
-ErisCasper.java,net.dv8tion.jda.core.utils,WidgetUtil.Widget.VoiceState,137,0,18,0,29,0,25,0,16,0
-ErisCasper.java,net.dv8tion.jda.core.utils,MiscUtil.new RequestBody() {...},23,0,0,0,5,0,3,0,3,0
-ErisCasper.java,net.dv8tion.jda.core.utils,WidgetUtil,233,0,5,0,44,0,12,0,8,0
-ErisCasper.java,net.dv8tion.jda.core.utils,WidgetUtil.Widget,289,0,18,0,62,0,25,0,16,0
-ErisCasper.java,net.dv8tion.jda.core.utils,WidgetUtil.Widget.Member,243,0,20,0,42,0,31,0,21,0
-ErisCasper.java,net.dv8tion.jda.core.utils,SessionControllerAdapter.QueueWorker,153,0,14,0,42,0,13,0,6,0
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,UserImpl.new RestAction() {...},31,0,2,0,8,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,PermissionOverrideImpl,261,0,26,0,52,0,35,0,22,0
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,VoiceChannelImpl,199,0,22,0,38,0,24,0,13,0
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,GuildImpl.new RestAction() {...},22,0,2,0,6,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,GuildImpl.new RestAction() {...},56,0,4,0,15,0,4,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,InviteImpl,259,0,20,0,51,0,26,0,16,0
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,JDAImpl,860,0,60,0,196,0,106,0,76,0
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,GuildImpl.new RestAction() {...},49,0,4,0,11,0,4,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,GuildImpl.new RestAction() {...},19,0,2,0,4,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,GuildImpl.new RestAction() {...},20,0,2,0,4,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,GuildImpl.new RestAction() {...},61,0,4,0,13,0,4,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,GuildImpl.new RestAction() {...},23,0,2,0,4,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,PermissionOverrideImpl.new AuditableRestAction() {...},19,0,2,0,4,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,GuildVoiceStateImpl,168,0,18,0,44,0,34,0,25,0
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,SystemMessage,158,0,0,0,21,0,11,0,11,0
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,MemberImpl,298,0,18,0,62,0,42,0,33,0
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,AbstractMessage,265,0,12,0,106,0,53,0,47,0
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,InviteImpl.GuildImpl,71,0,4,0,12,0,9,0,7,0
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,WebhookImpl.new AuditableRestAction() {...},19,0,2,0,4,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,UserImpl,241,84,24,4,39,17,31,8,19,6
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,EmoteImpl.new AuditableRestAction() {...},19,0,2,0,4,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,TextChannelImpl,767,0,56,0,148,0,68,0,40,0
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,PrivateChannelImpl,167,0,10,0,40,0,28,0,23,0
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,ReceivedMessage,1601,0,236,0,299,0,183,0,61,0
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,GuildImpl,821,0,56,0,179,0,100,0,72,0
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,SelfUserImpl,116,0,8,0,31,0,19,0,15,0
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,ReceivedMessage.FormatToken,9,0,0,0,4,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,CategoryImpl,300,0,20,0,68,0,33,0,23,0
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,ReceivedMessage.new Object() {...},58,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,UserImpl.DefaultAvatar,0,70,0,0,0,10,0,3,0,3
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,WebhookImpl,201,0,12,0,42,0,26,0,20,0
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,JDAImpl.JDAThreadFactory,26,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,DataMessage,87,0,14,0,19,0,16,0,9,0
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,InviteImpl.new RestAction() {...},23,0,2,0,7,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,InviteImpl.new AuditableRestAction() {...},19,0,2,0,4,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,InviteImpl.new RestAction() {...},55,0,6,0,13,0,5,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,TextChannelImpl.new RestAction() {...},56,0,4,0,15,0,4,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,TextChannelImpl.new RestAction() {...},20,0,2,0,4,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,TextChannelImpl.new AuditableRestAction() {...},19,0,2,0,4,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,TextChannelImpl.new RestAction() {...},19,0,2,0,4,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,TextChannelImpl.new RestAction() {...},19,0,2,0,4,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,RoleImpl,459,0,40,0,97,0,55,0,35,0
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,PrivateChannelImpl.new RestAction() {...},19,0,2,0,4,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,EmoteImpl,313,0,26,0,65,0,34,0,21,0
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,RoleImpl.new AuditableRestAction() {...},19,0,2,0,4,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,InviteImpl.ChannelImpl,21,0,0,0,8,0,4,0,4,0
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,AbstractChannelImpl,412,0,34,0,84,0,44,0,27,0
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,JDAImpl.new RestAction() {...},52,0,6,0,8,0,5,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,JDAImpl.new RestAction() {...},27,0,2,0,7,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,AbstractChannelImpl.new AuditableRestAction() {...},19,0,2,0,4,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.entities.impl,AbstractChannelImpl.new RestAction() {...},49,0,4,0,11,0,4,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.audit,AuditLogEntry,238,0,24,0,49,0,33,0,21,0
-ErisCasper.java,net.dv8tion.jda.core.audit,ActionType,393,0,4,0,39,0,7,0,5,0
-ErisCasper.java,net.dv8tion.jda.core.audit,AuditLogKey,547,0,0,0,53,0,4,0,4,0
-ErisCasper.java,net.dv8tion.jda.core.audit,AuditLogOption,118,0,0,0,14,0,4,0,4,0
-ErisCasper.java,net.dv8tion.jda.core.audit,AuditLogChange,90,0,8,0,15,0,11,0,7,0
-ErisCasper.java,net.dv8tion.jda.core.audit,TargetType,89,0,0,0,9,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.audio,ConnectionStage,39,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.audio,AudioWebSocket.new Object() {...},65,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.audio,VoiceCode.Close,201,0,4,0,23,0,7,0,5,0
-ErisCasper.java,net.dv8tion.jda.core.audio,AudioConnection,343,0,46,0,94,0,41,0,18,0
-ErisCasper.java,net.dv8tion.jda.core.audio,CombinedAudio,72,0,4,0,16,0,5,0,3,0
-ErisCasper.java,net.dv8tion.jda.core.audio,AudioSendHandler,12,0,0,0,2,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.audio,AudioReceiveHandler,10,0,0,0,1,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.audio,AudioWebSocket.KeepAliveThreadFactory,48,0,0,0,9,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.audio,UserAudio,71,0,4,0,16,0,5,0,3,0
-ErisCasper.java,net.dv8tion.jda.core.audio,VoiceCode,3,0,0,0,1,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.audio,ConnectionRequest,51,0,0,0,20,0,9,0,9,0
-ErisCasper.java,net.dv8tion.jda.core.audio,AudioWebSocket,1127,0,106,0,301,0,94,0,35,0
-ErisCasper.java,net.dv8tion.jda.core.events.channel.category.update,CategoryUpdateNameEvent,12,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.events.channel.category.update,GenericCategoryUpdateEvent,6,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.events.channel.category.update,CategoryUpdatePositionEvent,12,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.events.channel.category.update,CategoryUpdatePermissionsEvent,48,0,0,0,14,0,6,0,6,0
-ErisCasper.java,net.dv8tion.jda.core.requests.restaction,GuildAction.RoleData,238,0,28,0,45,0,25,0,11,0
-ErisCasper.java,net.dv8tion.jda.core.requests.restaction,PermissionOverrideAction,338,0,34,0,70,0,41,0,24,0
-ErisCasper.java,net.dv8tion.jda.core.requests.restaction,ChannelAction,485,0,75,0,97,0,53,0,14,0
-ErisCasper.java,net.dv8tion.jda.core.requests.restaction,PermOverrideData,46,0,0,0,12,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.requests.restaction,GuildAction.ChannelData,265,0,48,0,54,0,33,0,9,0
-ErisCasper.java,net.dv8tion.jda.core.requests.restaction,AuditableRestAction,72,0,6,0,17,0,10,0,7,0
-ErisCasper.java,net.dv8tion.jda.core.requests.restaction,WebhookAction,88,0,8,0,23,0,10,0,6,0
-ErisCasper.java,net.dv8tion.jda.core.requests.restaction,InviteAction,147,0,16,0,31,0,17,0,9,0
-ErisCasper.java,net.dv8tion.jda.core.requests.restaction,AuditableRestAction.EmptyRestAction,27,0,2,0,9,0,6,0,5,0
-ErisCasper.java,net.dv8tion.jda.core.requests.restaction,GuildAction,259,0,22,0,55,0,29,0,18,0
-ErisCasper.java,net.dv8tion.jda.core.requests.restaction,MessageAction,643,0,76,0,124,0,69,0,31,0
-ErisCasper.java,net.dv8tion.jda.core.requests.restaction,RoleAction,252,0,34,0,51,0,30,0,13,0
-ErisCasper.java,net.dv8tion.jda.core.requests.restaction,ChannelAction.new Object() {...},26,0,0,0,1,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.client.exceptions,VerificationLevelException,14,0,0,0,3,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.events,ResumedEvent,5,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.events,StatusChangeEvent,17,0,0,0,6,0,3,0,3,0
-ErisCasper.java,net.dv8tion.jda.core.events,ExceptionEvent,17,0,0,0,6,0,3,0,3,0
-ErisCasper.java,net.dv8tion.jda.core.events,ReconnectedEvent,5,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.events,ShutdownEvent,21,0,0,0,7,0,4,0,4,0
-ErisCasper.java,net.dv8tion.jda.core.events,DisconnectEvent,43,0,2,0,12,0,8,0,7,0
-ErisCasper.java,net.dv8tion.jda.core.events,Event,25,0,0,0,10,0,4,0,4,0
-ErisCasper.java,net.dv8tion.jda.core.events,ReadyEvent,5,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.client.events.group,GroupUserLeaveEvent,12,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.client.events.group,GroupLeaveEvent,6,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.client.events.group,GenericGroupEvent,11,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.client.events.group,GroupJoinEvent,6,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.client.events.group,GroupUserJoinEvent,12,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.client.events.call,CallDeleteEvent,6,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.client.events.call,CallCreateEvent,6,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.client.events.call,GenericCallEvent,23,0,0,0,7,0,5,0,5,0
-ErisCasper.java,net.dv8tion.jda.core.audio.factory,IAudioSendSystem,1,0,0,0,1,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.bot.utils.cache.impl,ShardCacheViewImpl,134,0,12,0,28,0,19,0,13,0
-ErisCasper.java,net.dv8tion.jda.bot.utils.cache.impl,ShardCacheViewImpl.UnifiedShardCacheViewImpl,117,0,0,0,25,0,13,0,13,0
-ErisCasper.java,net.dv8tion.jda.core,MessageBuilder,1107,0,147,0,213,0,112,0,36,0
-ErisCasper.java,net.dv8tion.jda.core,JDABuilder,368,0,26,0,94,0,38,0,25,0
-ErisCasper.java,net.dv8tion.jda.core,MessageBuilder.Formatting,70,0,0,0,10,0,3,0,3,0
-ErisCasper.java,net.dv8tion.jda.core,OnlineStatus,106,0,4,0,15,0,6,0,4,0
-ErisCasper.java,net.dv8tion.jda.core,WebSocketCode,3,0,0,0,1,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core,MessageBuilder.SplitPolicy.CharSequenceSplitPolicy,37,0,4,0,10,0,4,0,2,0
-ErisCasper.java,net.dv8tion.jda.core,JDA.Status,181,0,0,0,23,0,4,0,4,0
-ErisCasper.java,net.dv8tion.jda.core,MessageBuilder.new Object() {...},58,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core,EmbedBuilder,674,0,76,0,148,0,67,0,29,0
-ErisCasper.java,net.dv8tion.jda.core,JDA.ShardInfo,64,0,6,0,11,0,9,0,6,0
-ErisCasper.java,net.dv8tion.jda.core,Region,406,0,4,0,41,0,9,0,7,0
-ErisCasper.java,net.dv8tion.jda.core,JDA,174,0,0,0,32,0,32,0,32,0
-ErisCasper.java,net.dv8tion.jda.core,Permission,646,0,24,0,70,0,25,0,13,0
-ErisCasper.java,net.dv8tion.jda.core,MessageBuilder.SplitPolicy,31,0,0,0,4,0,3,0,3,0
-ErisCasper.java,net.dv8tion.jda.core,JDAInfo,31,0,2,0,4,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.events.guild.voice,GuildVoiceSelfMuteEvent,14,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.events.guild.voice,GuildVoiceLeaveEvent,7,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.events.guild.voice,GuildVoiceGuildMuteEvent,14,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.events.guild.voice,GuildVoiceUpdateEvent,12,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.events.guild.voice,GenericGuildVoiceEvent,17,0,0,0,5,0,3,0,3,0
-ErisCasper.java,net.dv8tion.jda.core.events.guild.voice,GuildVoiceJoinEvent,14,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.events.guild.voice,GuildVoiceMuteEvent,14,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.events.guild.voice,GuildVoiceGuildDeafenEvent,14,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.events.guild.voice,GuildVoiceDeafenEvent,14,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.events.guild.voice,GuildVoiceSelfDeafenEvent,14,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.events.guild.voice,GuildVoiceMoveEvent,15,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.events.guild.voice,GuildVoiceSuppressEvent,14,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.client.managers.fields,ApplicationField,5,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.client.managers.fields,EmoteField,5,0,0,0,2,0,1,0,1,0
-ErisCasper.java,com.github.princesslana.eriscasper,ReceivedMessage,33,0,0,0,9,0,5,0,5,0
-ErisCasper.java,com.github.princesslana.eriscasper,ErisCasperFatalException,16,0,0,0,8,0,4,0,4,0
-ErisCasper.java,com.github.princesslana.eriscasper,ImmutableMessage,88,0,10,0,24,0,14,0,9,0
-ErisCasper.java,com.github.princesslana.eriscasper,ErisCasper,24,34,0,0,4,10,2,4,2,4
-ErisCasper.java,com.github.princesslana.eriscasper,ImmutableReceivedMessage.Builder,135,0,8,0,25,0,11,0,7,0
-ErisCasper.java,com.github.princesslana.eriscasper,Message,27,0,0,0,4,0,4,0,4,0
-ErisCasper.java,com.github.princesslana.eriscasper,ImmutableMessage.Builder,71,0,4,0,15,0,7,0,5,0
-ErisCasper.java,com.github.princesslana.eriscasper,ImmutableReceivedMessage,187,0,20,0,40,0,23,0,13,0
-ErisCasper.java,net.dv8tion.jda.core.requests.ratelimit,BotRateLimiter,267,0,26,0,66,0,22,0,9,0
-ErisCasper.java,net.dv8tion.jda.core.requests.ratelimit,BotRateLimiter.Bucket,286,0,34,0,73,0,27,0,10,0
-ErisCasper.java,net.dv8tion.jda.core.requests.ratelimit,IBucket,7,0,2,0,1,0,2,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.requests.ratelimit,ClientRateLimiter.Bucket,236,0,24,0,62,0,22,0,10,0
-ErisCasper.java,net.dv8tion.jda.core.requests.ratelimit,ClientRateLimiter,152,0,10,0,36,0,10,0,5,0
-ErisCasper.java,net.dv8tion.jda.core.events.message,GenericMessageEvent,34,0,2,0,9,0,7,0,6,0
-ErisCasper.java,net.dv8tion.jda.core.events.message,MessageBulkDeleteEvent,22,0,0,0,7,0,4,0,4,0
-ErisCasper.java,net.dv8tion.jda.core.events.message,MessageUpdateEvent,47,0,2,0,10,0,9,0,8,0
-ErisCasper.java,net.dv8tion.jda.core.events.message,MessageEmbedEvent,54,0,8,0,8,0,10,0,6,0
-ErisCasper.java,net.dv8tion.jda.core.events.message,MessageDeleteEvent,47,0,8,0,6,0,9,0,5,0
-ErisCasper.java,net.dv8tion.jda.core.events.message,MessageReceivedEvent,54,0,4,0,12,0,11,0,9,0
-ErisCasper.java,net.dv8tion.jda.core.managers.impl,PresenceImpl,245,0,24,0,59,0,30,0,18,0
-ErisCasper.java,net.dv8tion.jda.core.managers.impl,AudioManagerImpl,405,0,50,0,106,0,60,0,35,0
-ErisCasper.java,net.dv8tion.jda.core.utils.cache.impl,AbstractCacheView,148,0,14,0,32,0,19,0,12,0
-ErisCasper.java,net.dv8tion.jda.core.utils.cache.impl,UnifiedCacheViewImpl.UnifiedMemberCacheViewImpl,99,0,0,0,28,0,11,0,11,0
-ErisCasper.java,net.dv8tion.jda.core.utils.cache.impl,SnowflakeCacheViewImpl,10,0,0,0,3,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.utils.cache.impl,UnifiedCacheViewImpl.UnifiedSnowflakeCacheView,22,0,0,0,8,0,3,0,3,0
-ErisCasper.java,net.dv8tion.jda.core.utils.cache.impl,UnifiedCacheViewImpl,99,0,0,0,19,0,11,0,11,0
-ErisCasper.java,net.dv8tion.jda.core.utils.cache.impl,MemberCacheViewImpl,250,0,40,0,46,0,27,0,7,0
-ErisCasper.java,net.dv8tion.jda.core.utils.cache.impl,SortedSnowflakeCacheView,82,0,0,0,16,0,10,0,10,0
-ErisCasper.java,net.dv8tion.jda.client.requests.restaction.pagination,MentionPaginationAction,191,0,12,0,39,0,14,0,8,0
-ErisCasper.java,net.dv8tion.jda.client.requests.restaction,ApplicationAction,120,0,18,0,27,0,16,0,7,0
-ErisCasper.java,net.dv8tion.jda.client.handle,CallDeleteHandler,9,0,0,0,3,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.client.handle,CallUpdateHandler,9,0,0,0,3,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.client.handle,RelationshipRemoveHandler,9,0,0,0,3,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.client.handle,RelationshipAddHandler,100,0,7,0,22,0,7,0,2,0
-ErisCasper.java,net.dv8tion.jda.client.handle,ChannelRecipientRemoveHandler,9,0,0,0,3,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.client.handle,RelationshipAddHandler.new Object() {...},33,0,0,0,1,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.client.handle,CallCreateHandler,9,0,0,0,3,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.client.handle,ChannelRecipientAddHandler,9,0,0,0,3,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.requests.restaction.pagination,PaginationAction,334,0,22,0,83,0,39,0,28,0
-ErisCasper.java,net.dv8tion.jda.core.requests.restaction.pagination,ReactionPaginationAction,163,0,12,0,35,0,11,0,5,0
-ErisCasper.java,net.dv8tion.jda.core.requests.restaction.pagination,MessagePaginationAction,155,0,12,0,35,0,11,0,5,0
-ErisCasper.java,net.dv8tion.jda.core.requests.restaction.pagination,PaginationAction.PaginationIterator,54,0,8,0,10,0,8,0,4,0
-ErisCasper.java,net.dv8tion.jda.core.requests.restaction.pagination,PaginationAction.ChainedConsumer,88,0,10,0,21,0,7,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.requests.restaction.pagination,AuditLogPaginationAction,250,0,18,0,46,0,17,0,8,0
-ErisCasper.java,net.dv8tion.jda.core.events.channel.voice.update,GenericVoiceChannelUpdateEvent,6,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.events.channel.voice.update,VoiceChannelUpdateBitrateEvent,12,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.events.channel.voice.update,VoiceChannelUpdatePositionEvent,12,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.events.channel.voice.update,VoiceChannelUpdateNameEvent,12,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.events.channel.voice.update,VoiceChannelUpdatePermissionsEvent,48,0,0,0,14,0,6,0,6,0
-ErisCasper.java,net.dv8tion.jda.core.events.channel.voice.update,VoiceChannelUpdateUserLimitEvent,12,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.events.channel.voice.update,VoiceChannelUpdateParentEvent,12,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.client.events.group.update,GenericGroupUpdateEvent,6,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.client.events.group.update,GroupUpdateIconEvent,35,0,2,0,6,0,4,0,3,0
-ErisCasper.java,net.dv8tion.jda.client.events.group.update,GroupUpdateOwnerEvent,12,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.client.events.group.update,GroupUpdateNameEvent,12,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.events.message.priv.react,PrivateMessageReactionAddEvent,7,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.events.message.priv.react,PrivateMessageReactionRemoveEvent,7,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.events.message.priv.react,GenericPrivateMessageReactionEvent,26,0,0,0,7,0,4,0,4,0
-ErisCasper.java,net.dv8tion.jda.core.utils.cache,CacheView.SimpleCacheView,4,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.utils.cache,CacheView,90,0,0,0,18,0,10,0,10,0
-ErisCasper.java,net.dv8tion.jda.core.utils.cache,UnifiedMemberCacheView,15,0,0,0,3,0,3,0,3,0
-ErisCasper.java,net.dv8tion.jda.core.utils.cache,SnowflakeCacheView,5,0,0,0,1,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.utils.cache,MemberCacheView,15,0,0,0,3,0,3,0,3,0
-ErisCasper.java,net.dv8tion.jda.core.hooks,InterfacedEventManager,58,0,4,0,16,0,7,0,5,0
-ErisCasper.java,net.dv8tion.jda.core.hooks,AnnotatedEventManager,214,0,30,0,49,0,23,0,8,0
-ErisCasper.java,net.dv8tion.jda.client.events.message.group,GroupMessageUpdateEvent,19,0,0,0,5,0,3,0,3,0
-ErisCasper.java,net.dv8tion.jda.client.events.message.group,GroupMessageEmbedEvent,13,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.client.events.message.group,GroupMessageReceivedEvent,19,0,0,0,5,0,3,0,3,0
-ErisCasper.java,net.dv8tion.jda.client.events.message.group,GenericGroupMessageEvent,16,0,0,0,5,0,3,0,3,0
-ErisCasper.java,net.dv8tion.jda.client.events.message.group,GroupMessageDeleteEvent,7,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.requests,RestAction.CheckWrapper.new RestAction.CheckWrapper() {...},7,0,0,0,2,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.requests,Route.Relationships,40,0,0,0,5,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.requests,Route.Guilds,391,0,0,0,32,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.requests,Route.Invites,61,0,0,0,6,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.requests,Method,79,0,0,0,8,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.requests,RateLimiter,119,0,6,0,30,0,11,0,8,0
-ErisCasper.java,net.dv8tion.jda.core.requests,Route.Messages,200,0,0,0,16,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.requests,RateLimiter.RateLimitThreadFactory,63,0,2,0,12,0,4,0,3,0
-ErisCasper.java,net.dv8tion.jda.core.requests,Route.Channels,184,0,0,0,17,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.requests,Route,271,0,22,0,48,0,23,0,12,0
-ErisCasper.java,net.dv8tion.jda.core.requests,RestFuture,60,0,8,0,12,0,8,0,4,0
-ErisCasper.java,net.dv8tion.jda.core.requests,Route.Self,103,0,0,0,12,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.requests,ErrorResponse,634,0,8,0,60,0,10,0,6,0
-ErisCasper.java,net.dv8tion.jda.core.requests,Route.Custom,49,0,0,0,6,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.requests,WebSocketClient.new Object() {...},58,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.requests,WebSocketClient.ReconnectNode,37,0,8,0,8,0,7,0,3,0
-ErisCasper.java,net.dv8tion.jda.core.requests,CloseCode,247,0,4,0,28,0,10,0,8,0
-ErisCasper.java,net.dv8tion.jda.core.requests,Route.Roles,69,0,0,0,6,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.requests,Route.CompiledRoute,163,0,16,0,28,0,18,0,10,0
-ErisCasper.java,net.dv8tion.jda.core.requests,Route.Webhooks,97,0,0,0,10,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.requests,Route.Applications,112,0,0,0,13,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.requests,WebSocketClient,3017,0,277,0,696,0,213,0,69,0
-ErisCasper.java,net.dv8tion.jda.core.requests,RestAction.EmptyRestAction,25,0,2,0,8,0,6,0,5,0
-ErisCasper.java,net.dv8tion.jda.core.requests,Request,207,0,14,0,53,0,26,0,19,0
-ErisCasper.java,net.dv8tion.jda.core.requests,Route.Emotes,31,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.requests,Route.RateLimit,15,0,0,0,6,0,3,0,3,0
-ErisCasper.java,net.dv8tion.jda.core.requests,WebSocketClient.StartingNode,37,0,6,0,10,0,6,0,3,0
-ErisCasper.java,net.dv8tion.jda.core.requests,Route.Users,40,0,0,0,5,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.requests,RestAction.CheckWrapper,48,0,12,0,8,0,11,0,5,0
-ErisCasper.java,net.dv8tion.jda.core.requests,RequestFuture,94,0,0,0,16,0,10,0,10,0
-ErisCasper.java,net.dv8tion.jda.core.requests,GuildLock,107,0,8,0,26,0,11,0,7,0
-ErisCasper.java,net.dv8tion.jda.core.requests,RestAction,368,0,28,0,89,0,49,0,35,0
-ErisCasper.java,net.dv8tion.jda.core.requests,WebSocketClient.ConnectNode,15,0,0,0,3,0,3,0,3,0
-ErisCasper.java,net.dv8tion.jda.core.requests,Requester,429,0,46,0,88,0,34,0,11,0
-ErisCasper.java,net.dv8tion.jda.core.requests,Response,284,0,30,0,54,0,36,0,21,0
-ErisCasper.java,net.dv8tion.jda.core.requests,Route.Misc,40,0,0,0,5,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.events.emote.update,EmoteUpdateRolesEvent,20,0,0,0,5,0,3,0,3,0
-ErisCasper.java,net.dv8tion.jda.core.events.emote.update,EmoteUpdateNameEvent,16,0,0,0,5,0,3,0,3,0
-ErisCasper.java,net.dv8tion.jda.core.events.emote.update,GenericEmoteUpdateEvent,6,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.events.http,HttpRequestEvent,102,0,8,0,21,0,21,0,17,0
-ErisCasper.java,net.dv8tion.jda.core.events.emote,EmoteRemovedEvent,6,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.events.emote,EmoteAddedEvent,6,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.events.emote,GenericEmoteEvent,19,0,0,0,6,0,4,0,4,0
-ErisCasper.java,net.dv8tion.jda.client.entities.impl,ApplicationImpl.new RestAction() {...},23,0,2,0,5,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.client.entities.impl,ApplicationImpl.new RestAction() {...},19,0,2,0,4,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.client.entities.impl,ApplicationImpl.new RestAction() {...},29,0,2,0,5,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.client.entities.impl,ApplicationImpl.BotImpl.new RestAction() {...},23,0,2,0,4,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.client.entities.impl,GroupImpl,168,0,10,0,39,0,31,0,26,0
-ErisCasper.java,net.dv8tion.jda.client.entities.impl,FriendImpl,79,0,2,0,21,0,14,0,13,0
-ErisCasper.java,net.dv8tion.jda.client.entities.impl,ApplicationImpl,339,0,28,0,62,0,37,0,23,0
-ErisCasper.java,net.dv8tion.jda.client.entities.impl,UserSettingsImpl,79,0,4,0,24,0,22,0,20,0
-ErisCasper.java,net.dv8tion.jda.client.entities.impl,OutgoingFriendRequestImpl,52,0,2,0,11,0,8,0,7,0
-ErisCasper.java,net.dv8tion.jda.client.entities.impl,BlockedUserImpl,58,0,2,0,11,0,8,0,7,0
-ErisCasper.java,net.dv8tion.jda.client.entities.impl,JDAClientImpl,308,0,14,0,68,0,41,0,34,0
-ErisCasper.java,net.dv8tion.jda.client.entities.impl,IncomingFriendRequestImpl,54,0,2,0,12,0,9,0,8,0
-ErisCasper.java,net.dv8tion.jda.client.entities.impl,AuthorizedApplicationImpl.new RestAction() {...},19,0,2,0,4,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.client.entities.impl,CallImpl,154,0,10,0,35,0,25,0,20,0
-ErisCasper.java,net.dv8tion.jda.client.entities.impl,JDAClientImpl.new RestAction() {...},49,0,4,0,11,0,4,0,2,0
-ErisCasper.java,net.dv8tion.jda.client.entities.impl,JDAClientImpl.new RestAction() {...},24,0,2,0,5,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.client.entities.impl,JDAClientImpl.new RestAction() {...},49,0,4,0,11,0,4,0,2,0
-ErisCasper.java,net.dv8tion.jda.client.entities.impl,JDAClientImpl.new RestAction() {...},24,0,2,0,6,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.client.entities.impl,CallVoiceStateImpl,121,0,2,0,32,0,22,0,21,0
-ErisCasper.java,net.dv8tion.jda.client.entities.impl,AuthorizedApplicationImpl,117,0,6,0,23,0,16,0,13,0
-ErisCasper.java,net.dv8tion.jda.client.entities.impl,ApplicationImpl.BotImpl,196,0,16,0,35,0,26,0,18,0
-ErisCasper.java,net.dv8tion.jda.client.entities.impl,CallUserImpl,91,0,6,0,16,0,12,0,9,0
-ErisCasper.java,net.dv8tion.jda.bot.entities,ApplicationInfo,28,0,0,0,5,0,5,0,5,0
-ErisCasper.java,net.dv8tion.jda.core.events.guild,GenericGuildEvent,11,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.events.guild,UnavailableGuildJoinedEvent,15,0,0,0,5,0,3,0,3,0
-ErisCasper.java,net.dv8tion.jda.core.events.guild,GuildJoinEvent,6,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.events.guild,GuildAvailableEvent,6,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.events.guild,GuildBanEvent,12,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.events.guild,GuildLeaveEvent,6,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.events.guild,GuildUnbanEvent,12,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.events.guild,GuildUnavailableEvent,6,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.events.message.react,MessageReactionAddEvent,7,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.events.message.react,MessageReactionRemoveEvent,7,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.events.message.react,MessageReactionRemoveAllEvent,47,0,8,0,7,0,9,0,5,0
-ErisCasper.java,net.dv8tion.jda.core.events.message.react,GenericMessageReactionEvent,77,0,10,0,14,0,14,0,9,0
-ErisCasper.java,net.dv8tion.jda.bot.sharding,DefaultShardManagerBuilder,443,0,24,0,106,0,47,0,35,0
-ErisCasper.java,net.dv8tion.jda.bot.sharding,DefaultShardManager,806,0,94,0,184,0,70,0,23,0
-ErisCasper.java,net.dv8tion.jda.bot.sharding,ShardManager,435,0,4,0,93,0,75,0,73,0
-ErisCasper.java,net.dv8tion.jda.client.events.call.update,CallUpdateRegionEvent,12,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.client.events.call.update,GenericCallUpdateEvent,6,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.client.events.call.update,CallUpdateRingingUsersEvent,20,0,0,0,6,0,3,0,3,0
-ErisCasper.java,net.dv8tion.jda.core.handle,VoiceStateUpdateHandler,451,0,54,0,80,0,34,0,7,0
-ErisCasper.java,net.dv8tion.jda.core.handle,GuildMembersChunkHandler,153,0,8,0,36,0,9,0,5,0
-ErisCasper.java,net.dv8tion.jda.core.handle,MessageBulkDeleteHandler,124,0,6,0,28,0,8,0,5,0
-ErisCasper.java,net.dv8tion.jda.core.handle,GuildEmojisUpdateHandler,275,0,24,0,55,0,16,0,4,0
-ErisCasper.java,net.dv8tion.jda.core.handle,MessageReactionHandler,334,0,36,0,64,0,27,0,7,0
-ErisCasper.java,net.dv8tion.jda.core.handle,GuildSyncHandler,43,0,2,0,11,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.handle,GuildUpdateHandler,452,0,34,0,98,0,19,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.handle,ChannelDeleteHandler.new Object() {...},40,0,0,0,1,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.handle,EventCache.Type,69,0,0,0,7,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.handle,MessageReactionBulkRemoveHandler,91,0,5,0,19,0,6,0,3,0
-ErisCasper.java,net.dv8tion.jda.core.handle,GuildMemberAddHandler,73,0,4,0,16,0,5,0,3,0
-ErisCasper.java,net.dv8tion.jda.core.handle,SocketHandler.NOPHandler,6,0,0,0,3,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.handle,GuildDeleteHandler,271,0,24,0,50,0,18,0,6,0
-ErisCasper.java,net.dv8tion.jda.core.handle,VoiceServerUpdateHandler,133,0,12,0,31,0,8,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.handle,GuildRoleCreateHandler,78,0,4,0,16,0,5,0,3,0
-ErisCasper.java,net.dv8tion.jda.core.handle,GuildMemberRemoveHandler,173,0,16,0,39,0,11,0,3,0
-ErisCasper.java,net.dv8tion.jda.core.handle,ChannelCreateHandler,142,0,10,0,31,0,9,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.handle,MessageUpdateHandler.new Object() {...},37,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.handle,MessageReactionHandler.new Object() {...},26,0,0,0,1,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.handle,EventCache,154,0,8,0,37,0,13,0,9,0
-ErisCasper.java,net.dv8tion.jda.core.handle,ReadyHandler,402,0,43,0,95,0,31,0,9,0
-ErisCasper.java,net.dv8tion.jda.core.handle,GuildRoleDeleteHandler,106,0,8,0,22,0,7,0,3,0
-ErisCasper.java,net.dv8tion.jda.core.handle,ChannelUpdateHandler.new Object() {...},26,0,0,0,1,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.handle,GuildCreateHandler,132,0,14,0,25,0,11,0,4,0
-ErisCasper.java,net.dv8tion.jda.core.handle,GuildRoleUpdateHandler,275,0,20,0,56,0,14,0,4,0
-ErisCasper.java,net.dv8tion.jda.core.handle,GuildBanHandler,102,0,8,0,20,0,8,0,4,0
-ErisCasper.java,net.dv8tion.jda.core.handle,PresenceUpdateHandler,321,0,38,0,71,0,22,0,3,0
-ErisCasper.java,net.dv8tion.jda.core.handle,GuildMemberUpdateHandler,271,0,30,0,64,0,21,0,6,0
-ErisCasper.java,net.dv8tion.jda.core.handle,MessageUpdateHandler,388,0,38,0,76,0,29,0,8,0
-ErisCasper.java,net.dv8tion.jda.core.handle,MessageReactionBulkRemoveHandler.new Object() {...},19,0,0,0,1,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.handle,MessageDeleteHandler,177,0,24,0,38,0,15,0,3,0
-ErisCasper.java,net.dv8tion.jda.core.handle,ChannelCreateHandler.new Object() {...},40,0,0,0,1,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.handle,ChannelUpdateHandler,834,0,80,0,171,0,58,0,16,0
-ErisCasper.java,net.dv8tion.jda.core.handle,MessageCreateHandler,204,0,18,0,42,0,15,0,4,0
-ErisCasper.java,net.dv8tion.jda.core.handle,TypingStartHandler,112,0,16,0,22,0,10,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.handle,ChannelDeleteHandler,256,0,28,0,53,0,18,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.handle,MessageCreateHandler.new Object() {...},26,0,0,0,1,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.handle,ReadyHandler.new Object() {...},19,0,0,0,1,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.handle,SocketHandler,28,0,2,0,8,0,3,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.handle,UserUpdateHandler,161,0,18,0,29,0,11,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.events.guild.update,GuildUpdateVerificationLevelEvent,12,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.events.guild.update,GuildUpdateExplicitContentLevelEvent,12,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.events.guild.update,GuildUpdateAfkTimeoutEvent,12,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.events.guild.update,GuildUpdateMFALevelEvent,12,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.events.guild.update,GenericGuildUpdateEvent,6,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.events.guild.update,GuildUpdateRegionEvent,26,0,0,0,8,0,5,0,5,0
-ErisCasper.java,net.dv8tion.jda.core.events.guild.update,GuildUpdateNotificationLevelEvent,12,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.events.guild.update,GuildUpdateIconEvent,35,0,2,0,6,0,4,0,3,0
-ErisCasper.java,net.dv8tion.jda.core.events.guild.update,GuildUpdateOwnerEvent,12,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.events.guild.update,GuildUpdateNameEvent,12,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.events.guild.update,GuildUpdateFeaturesEvent,12,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.events.guild.update,GuildUpdateSystemChannelEvent,12,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.events.guild.update,GuildUpdateSplashEvent,35,0,2,0,6,0,4,0,3,0
-ErisCasper.java,net.dv8tion.jda.core.events.guild.update,GuildUpdateAfkChannelEvent,12,0,0,0,4,0,2,0,2,0
-ErisCasper.java,net.dv8tion.jda.core.events.role,RoleCreateEvent,6,0,0,0,2,0,1,0,1,0
-ErisCasper.java,net.dv8tion.jda.core.events.role,GenericRoleEvent,15,0,0,0,5,0,3,0,3,0
-ErisCasper.java,net.dv8tion.jda.core.events.role,RoleDeleteEvent,6,0,0,0,2,0,1,0,1,0
+ErisCasper.java,com.github.princesslana.eriscasper.data,ImmutableMessage.Json,19,0,0,0,7,0,5,0,5,0
+ErisCasper.java,com.github.princesslana.eriscasper.data,ImmutableTypingStartData,47,0,8,0,16,0,12,0,8,0
+ErisCasper.java,com.github.princesslana.eriscasper.data,ImmutableReadyData,47,0,8,0,16,0,12,0,8,0
+ErisCasper.java,com.github.princesslana.eriscasper.data,ImmutableReadyData.Json,3,0,0,0,1,0,1,0,1,0
+ErisCasper.java,com.github.princesslana.eriscasper.data,ImmutableGuildCreateData.Builder,12,0,0,0,3,0,2,0,2,0
+ErisCasper.java,com.github.princesslana.eriscasper.data,ImmutableGuildCreateData.Json,3,0,0,0,1,0,1,0,1,0
+ErisCasper.java,com.github.princesslana.eriscasper.data,ImmutableMessage.Builder,103,0,6,0,20,0,9,0,6,0
+ErisCasper.java,com.github.princesslana.eriscasper.data,ImmutableReadyData.Builder,12,0,0,0,3,0,2,0,2,0
+ErisCasper.java,com.github.princesslana.eriscasper.data,ImmutableTypingStartData.Json,3,0,0,0,1,0,1,0,1,0
+ErisCasper.java,com.github.princesslana.eriscasper.data,ImmutableMessage,160,0,20,0,38,0,22,0,12,0
+ErisCasper.java,com.github.princesslana.eriscasper.data,ImmutableTypingStartData.Builder,12,0,0,0,3,0,2,0,2,0
+ErisCasper.java,com.github.princesslana.eriscasper.data,ImmutableGuildCreateData,47,0,8,0,16,0,12,0,8,0
+ErisCasper.java,com.github.princesslana.eriscasper.util,Jackson,0,17,0,0,0,4,0,1,0,1
+ErisCasper.java,com.github.princesslana.eriscasper.rest,ImmutableSendMessageRequest,88,0,10,0,24,0,14,0,9,0
+ErisCasper.java,com.github.princesslana.eriscasper.rest,Route,49,0,0,0,15,0,5,0,5,0
+ErisCasper.java,com.github.princesslana.eriscasper.rest,ImmutableGatewayResponse.Builder,71,0,4,0,15,0,7,0,5,0
+ErisCasper.java,com.github.princesslana.eriscasper.rest,ImmutableSendMessageRequest.Builder,71,0,4,0,15,0,7,0,5,0
+ErisCasper.java,com.github.princesslana.eriscasper.rest,Route.HttpMethod,37,0,0,0,7,0,3,0,3,0
+ErisCasper.java,com.github.princesslana.eriscasper.rest,ImmutableGatewayResponse,101,0,12,0,28,0,16,0,10,0
+ErisCasper.java,com.github.princesslana.eriscasper.rest,ImmutableRoute.Builder,167,0,10,0,30,0,13,0,8,0
+ErisCasper.java,com.github.princesslana.eriscasper.rest,ImmutableGatewayResponse.Json,11,0,0,0,4,0,3,0,3,0
+ErisCasper.java,com.github.princesslana.eriscasper.rest,RouteCatalog,16,0,0,0,3,0,2,0,2,0
+ErisCasper.java,com.github.princesslana.eriscasper.rest,ImmutableRoute,242,0,24,0,48,0,27,0,15,0
+ErisCasper.java,com.github.princesslana.eriscasper.rest,Routes,135,0,4,0,27,0,9,0,7,0
+ErisCasper.java,com.github.princesslana.eriscasper.gateway,OpCode,34,144,2,0,5,16,5,2,4,2
+ErisCasper.java,com.github.princesslana.eriscasper.gateway,SequenceNumber,69,0,6,0,18,0,11,0,8,0
+ErisCasper.java,com.github.princesslana.eriscasper.gateway,ImmutableHeartbeat,118,41,18,2,25,13,17,5,7,5
+ErisCasper.java,com.github.princesslana.eriscasper.gateway,ImmutablePayload.Json,44,0,0,0,16,0,9,0,9,0
+ErisCasper.java,com.github.princesslana.eriscasper.gateway,SequenceNumber.Json,11,0,0,0,4,0,3,0,3,0
+ErisCasper.java,com.github.princesslana.eriscasper.gateway,ImmutableHeartbeat.Builder,55,48,5,1,9,11,5,4,2,4
+ErisCasper.java,com.github.princesslana.eriscasper.gateway,Payloads,86,27,0,0,11,6,11,4,11,4
+ErisCasper.java,com.github.princesslana.eriscasper.gateway,Payloads.ConnectionProperties,0,10,0,0,0,5,0,1,0,1
+ErisCasper.java,com.github.princesslana.eriscasper.gateway,ImmutableConnectionProperties.Builder,71,64,7,1,11,14,6,5,2,5
+ErisCasper.java,com.github.princesslana.eriscasper.gateway,ImmutableIdentify.Builder,39,32,3,1,7,8,4,3,2,3
+ErisCasper.java,com.github.princesslana.eriscasper.gateway,Payload,26,3,2,0,2,1,5,1,4,1
+ErisCasper.java,com.github.princesslana.eriscasper.gateway,ImmutableIdentify,73,14,10,0,19,5,11,3,6,3
+ErisCasper.java,com.github.princesslana.eriscasper.gateway,Payloads.Identify,0,2,0,0,0,1,0,1,0,1
+ErisCasper.java,com.github.princesslana.eriscasper.gateway,ImmutableHeartbeat.Json,8,11,0,0,2,5,2,3,2,3
+ErisCasper.java,com.github.princesslana.eriscasper.gateway,ImmutablePayload,321,27,38,0,58,9,34,4,15,4
+ErisCasper.java,com.github.princesslana.eriscasper.gateway,ImmutablePayload.Builder,109,46,9,1,26,10,12,4,7,4
+ErisCasper.java,com.github.princesslana.eriscasper.gateway,ImmutableConnectionProperties,164,26,20,0,31,9,18,5,8,5
+ErisCasper.java,com.github.princesslana.eriscasper.gateway,Gateway,181,53,2,0,30,23,14,3,13,3
+ErisCasper.java,com.github.princesslana.eriscasper.examples,PingBot,39,0,0,0,13,0,6,0,6,0
+ErisCasper.java,com.github.princesslana.eriscasper.rx.websocket,StringMessageTuple,107,50,11,5,24,10,16,4,8,4
+ErisCasper.java,com.github.princesslana.eriscasper.rx.websocket,FailureTuple,216,0,20,0,43,0,24,0,14,0
+ErisCasper.java,com.github.princesslana.eriscasper.rx.websocket,RxWebSocket.Listener,42,13,0,0,11,5,5,2,5,2
+ErisCasper.java,com.github.princesslana.eriscasper.rx.websocket,ClosingTuple,207,0,20,0,41,0,24,0,14,0
+ErisCasper.java,com.github.princesslana.eriscasper.rx.websocket,OpenTuple,156,0,16,0,34,0,20,0,12,0
+ErisCasper.java,com.github.princesslana.eriscasper.rx.websocket,ClosedTuple,207,0,20,0,41,0,24,0,14,0
+ErisCasper.java,com.github.princesslana.eriscasper.rx.websocket,ByteStringMessageTuple,156,0,16,0,34,0,20,0,12,0
+ErisCasper.java,com.github.princesslana.eriscasper.rx.websocket,RxWebSocket,24,53,0,2,2,13,4,7,4,6
+ErisCasper.java,com.github.princesslana.eriscasper,ErisCasper,99,0,0,0,22,0,7,0,7,0
+ErisCasper.java,com.github.princesslana.eriscasper,BotContext,23,0,0,0,7,0,4,0,4,0
+ErisCasper.java,com.github.princesslana.eriscasper,BotToken,37,17,6,0,7,5,6,3,3,3
+ErisCasper.java,com.github.princesslana.eriscasper,BotTokenWrapper,2,3,0,0,1,1,1,1,1,1
+ErisCasper.java,com.github.princesslana.eriscasper.event,ImmutableTypingStart,102,0,10,0,28,0,16,0,11,0
+ErisCasper.java,com.github.princesslana.eriscasper.event,ImmutableMessageCreate.Builder,73,0,4,0,15,0,7,0,5,0
+ErisCasper.java,com.github.princesslana.eriscasper.event,ImmutableReady,102,0,10,0,28,0,16,0,11,0
+ErisCasper.java,com.github.princesslana.eriscasper.event,EventFactoryTuple,156,0,16,0,34,0,20,0,12,0
+ErisCasper.java,com.github.princesslana.eriscasper.event,ImmutableGuildCreate,102,0,10,0,28,0,16,0,11,0
+ErisCasper.java,com.github.princesslana.eriscasper.event,ImmutableTypingStart.Builder,73,0,4,0,15,0,7,0,5,0
+ErisCasper.java,com.github.princesslana.eriscasper.event,ImmutableGuildCreate.Builder,73,0,4,0,15,0,7,0,5,0
+ErisCasper.java,com.github.princesslana.eriscasper.event,EventFactory,12,0,0,0,2,0,2,0,2,0
+ErisCasper.java,com.github.princesslana.eriscasper.event,ImmutableReady.Builder,73,0,4,0,15,0,7,0,5,0
+ErisCasper.java,com.github.princesslana.eriscasper.event,ImmutableMessageCreate,102,0,10,0,28,0,16,0,11,0
+ErisCasper.java,com.github.princesslana.eriscasper.event,EventType,71,0,0,0,11,0,4,0,4,0
+ErisCasper.java,com.github.princesslana.eriscasper.rx,Maybes,7,0,0,0,1,0,1,0,1,0
+ErisCasper.java,com.github.princesslana.eriscasper.rx,Singles,20,0,0,0,1,0,3,0,3,0

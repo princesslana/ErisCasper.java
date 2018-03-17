@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Gateway.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">com.github.princesslana.eriscasper.gateway</a> &gt; <span class="el_source">Gateway.java</span></div><h1>Gateway.java</h1><pre class="source lang-java linenums">package com.github.princesslana.eriscasper.gateway;
+
+import com.github.princesslana.eriscasper.BotToken;
+import com.github.princesslana.eriscasper.rx.Singles;
+import com.github.princesslana.eriscasper.rx.websocket.RxWebSocket;
+import com.github.princesslana.eriscasper.rx.websocket.RxWebSocketEvent;
+import com.google.common.io.Closer;
+import io.github.resilience4j.ratelimiter.RateLimiter;
+import io.github.resilience4j.ratelimiter.RateLimiterConfig;
+import io.github.resilience4j.ratelimiter.operator.RateLimiterOperator;
+import io.reactivex.Completable;
+import io.reactivex.Flowable;
+import io.reactivex.Observable;
+import io.reactivex.Single;
+import java.io.Closeable;
+import java.io.IOException;
+import java.time.Duration;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+import okhttp3.OkHttpClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class Gateway implements Closeable {
+
+<span class="fc" id="L26">  private static final Logger LOG = LoggerFactory.getLogger(Gateway.class);</span>
+
+  /**
+   * @see &lt;a href=&quot;https://discordapp.com/developers/docs/topics/gateway#sending-payloads&quot;&gt;
+   *     https://discordapp.com/developers/docs/topics/gateway#sending-payloads&lt;/a&gt;
+   */
+  private static final int MAX_MESSAGE_SIZE = 4096;
+
+  private static final String VERSION = &quot;6&quot;;
+  private static final String ENCODING = &quot;json&quot;;
+
+  private final OkHttpClient client;
+  private final Payloads payloads;
+
+<span class="fc" id="L40">  private final AtomicReference&lt;SequenceNumber&gt; lastSeenSequenceNumber = new AtomicReference&lt;&gt;();</span>
+
+<span class="fc" id="L42">  private final Closer closer = Closer.create();</span>
+
+  /**
+   * @see &lt;a href=&quot;https://discordapp.com/developers/docs/topics/gateway#rate-limiting&quot;&gt;
+   *     https://discordapp.com/developers/docs/topics/gateway#rate-limiting&lt;/a&gt;
+   */
+<span class="fc" id="L48">  private final RateLimiter sendLimit =</span>
+<span class="fc" id="L49">      RateLimiter.of(</span>
+          &quot;Gateway#sendLimit&quot;,
+<span class="fc" id="L51">          RateLimiterConfig.custom()</span>
+<span class="fc" id="L52">              .limitRefreshPeriod(Duration.ofSeconds(60))</span>
+<span class="fc" id="L53">              .limitForPeriod(120)</span>
+<span class="fc" id="L54">              .timeoutDuration(Duration.ofSeconds(60))</span>
+<span class="fc" id="L55">              .build());</span>
+
+  /**
+   * @see &lt;a href=&quot;https://discordapp.com/developers/docs/topics/gateway#identifying&quot;&gt;
+   *     https://discordapp.com/developers/docs/topics/gateway#identifying&lt;/a&gt;
+   */
+<span class="fc" id="L61">  private final RateLimiter identifyLimit =</span>
+<span class="fc" id="L62">      RateLimiter.of(</span>
+          &quot;Gateway#identifyLimit&quot;,
+<span class="fc" id="L64">          RateLimiterConfig.custom()</span>
+<span class="fc" id="L65">              .limitRefreshPeriod(Duration.ofSeconds(5))</span>
+<span class="fc" id="L66">              .limitForPeriod(1)</span>
+<span class="fc" id="L67">              .timeoutDuration(Duration.ofSeconds(60))</span>
+<span class="fc" id="L68">              .build());</span>
+
+<span class="fc" id="L70">  public Gateway(OkHttpClient client, Payloads payloads) {</span>
+<span class="fc" id="L71">    this.client = client;</span>
+<span class="fc" id="L72">    this.payloads = payloads;</span>
+<span class="fc" id="L73">  }</span>
+
+  public Flowable&lt;Payload&gt; connect(String url, BotToken token) {
+<span class="nc" id="L76">    RxWebSocket ws = closer.register(new RxWebSocket(client));</span>
+
+<span class="nc" id="L78">    Flowable&lt;Payload&gt; ps =</span>
+<span class="nc" id="L79">        ws.connect(String.format(&quot;%s?v=%s&amp;encoding=%s&quot;, url, VERSION, ENCODING))</span>
+<span class="nc" id="L80">            .ofType(RxWebSocketEvent.StringMessage.class)</span>
+<span class="nc" id="L81">            .map(RxWebSocketEvent.StringMessage::getText)</span>
+<span class="nc" id="L82">            .flatMapMaybe(</span>
+<span class="nc" id="L83">                Singles.toMaybeAnd(</span>
+<span class="nc" id="L84">                    payloads::read, (s, t) -&gt; LOG.warn(&quot;Error reading payload: {}&quot;, s, t)))</span>
+<span class="nc" id="L85">            .doOnNext(p -&gt; p.s().ifPresent(lastSeenSequenceNumber::set))</span>
+<span class="nc" id="L86">            .share();</span>
+
+<span class="nc" id="L88">    Completable heartbeat =</span>
+<span class="nc" id="L89">        ps.filter(Payload.isOp(OpCode.HELLO)).flatMapCompletable(p -&gt; heartbeat(ws, p));</span>
+
+<span class="nc" id="L91">    Completable identify =</span>
+<span class="nc" id="L92">        ps.filter(Payload.isOp(OpCode.HELLO)).flatMapCompletable(p -&gt; identify(ws, token));</span>
+
+<span class="nc" id="L94">    return Flowable.merge(</span>
+<span class="nc" id="L95">        Flowable.just(ps, heartbeat.&lt;Payload&gt;toFlowable(), identify.&lt;Payload&gt;toFlowable()));</span>
+  }
+
+  private Completable send(RxWebSocket ws, Payload payload) {
+<span class="nc" id="L99">    return payloads</span>
+<span class="nc" id="L100">        .writeToString(payload)</span>
+<span class="nc" id="L101">        .lift(RateLimiterOperator.of(sendLimit))</span>
+<span class="nc bnc" id="L102" title="All 2 branches missed.">        .filter(s -&gt; s.getBytes().length &lt;= MAX_MESSAGE_SIZE)</span>
+<span class="nc" id="L103">        .doOnComplete(() -&gt; LOG.warn(&quot;Payload rejected as too long: {}.&quot;, payload))</span>
+<span class="nc" id="L104">        .flatMapCompletable(ws::send);</span>
+  }
+
+  private Completable identify(RxWebSocket ws, BotToken token) {
+<span class="nc" id="L108">    return Single.just(payloads.identify(token))</span>
+<span class="nc" id="L109">        .lift(RateLimiterOperator.of(identifyLimit))</span>
+<span class="nc" id="L110">        .flatMapCompletable(p -&gt; send(ws, p));</span>
+  }
+
+  private Completable heartbeat(RxWebSocket ws, Payload hello) {
+<span class="nc" id="L114">    return payloads</span>
+<span class="nc" id="L115">        .dataAs(hello, Payloads.Heartbeat.class)</span>
+<span class="nc" id="L116">        .flatMapObservable(</span>
+<span class="nc" id="L117">            h -&gt; Observable.interval(h.getHeartbeatInterval(), TimeUnit.MILLISECONDS))</span>
+<span class="nc" id="L118">        .flatMapCompletable(l -&gt; send(ws, payloads.heartbeat(lastSeenSequenceNumber.get())));</span>
+  }
+
+  @Override
+  public void close() throws IOException {
+<span class="fc" id="L123">    closer.close();</span>
+<span class="fc" id="L124">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

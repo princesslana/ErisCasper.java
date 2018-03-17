@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Payload.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">com.github.princesslana.eriscasper.gateway</a> &gt; <span class="el_source">Payload.java</span></div><h1>Payload.java</h1><pre class="source lang-java linenums">package com.github.princesslana.eriscasper.gateway;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.github.princesslana.eriscasper.event.EventType;
+import com.github.princesslana.eriscasper.immutable.Wrapped;
+import com.github.princesslana.eriscasper.immutable.Wrapper;
+import io.reactivex.Single;
+import io.reactivex.functions.Predicate;
+import java.util.Optional;
+import org.immutables.value.Value;
+
+/**
+ * @see &lt;a href=&quot;https://discordapp.com/developers/docs/topics/gateway#payloads&quot;&gt;
+ *     https://discordapp.com/developers/docs/topics/gateway#payloads&lt;/a&gt;
+ */
+@Value.Immutable
+@JsonDeserialize(as = ImmutablePayload.class)
+<span class="fc" id="L20">public abstract class Payload {</span>
+  public abstract OpCode op();
+
+  protected abstract Optional&lt;JsonNode&gt; d();
+
+  public abstract Optional&lt;SequenceNumber&gt; s();
+
+  public abstract Optional&lt;EventType&gt; t();
+
+  public &lt;T&gt; Single&lt;T&gt; d(ObjectMapper jackson, Class&lt;T&gt; clazz) {
+<span class="nc" id="L30">    return Single.fromCallable(() -&gt; jackson.readerFor(clazz).readValue(d().get()));</span>
+  }
+
+  public static Predicate&lt;Payload&gt; isOp(OpCode op) {
+<span class="nc bnc" id="L34" title="All 2 branches missed.">    return p -&gt; p.op() == op;</span>
+  }
+
+  @Value.Immutable
+  @Wrapped
+  public static interface SequenceNumberWrapper extends Wrapper&lt;Integer&gt; {}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

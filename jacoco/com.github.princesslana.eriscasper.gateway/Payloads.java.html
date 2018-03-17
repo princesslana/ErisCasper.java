@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Payloads.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">com.github.princesslana.eriscasper.gateway</a> &gt; <span class="el_source">Payloads.java</span></div><h1>Payloads.java</h1><pre class="source lang-java linenums">package com.github.princesslana.eriscasper.gateway;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.github.princesslana.eriscasper.BotToken;
+import com.github.princesslana.eriscasper.event.Event;
+import com.github.princesslana.eriscasper.event.EventType;
+import com.github.princesslana.eriscasper.rx.Maybes;
+import io.reactivex.Maybe;
+import io.reactivex.Single;
+import java.util.Collection;
+import org.immutables.value.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class Payloads {
+
+<span class="fc" id="L19">  private static final Logger LOG = LoggerFactory.getLogger(Payloads.class);</span>
+
+  private ObjectMapper jackson;
+
+<span class="fc" id="L23">  public Payloads(ObjectMapper jackson) {</span>
+<span class="fc" id="L24">    this.jackson = jackson;</span>
+<span class="fc" id="L25">  }</span>
+
+  public &lt;T&gt; Single&lt;T&gt; dataAs(Payload p, Class&lt;T&gt; clazz) {
+<span class="nc" id="L28">    return Single.fromCallable(() -&gt; jackson.readerFor(clazz).readValue(p.d().get()));</span>
+  }
+
+  public Payload heartbeat(SequenceNumber s) {
+<span class="nc" id="L32">    return ImmutablePayload.builder().op(OpCode.HEARTBEAT).s(s).build();</span>
+  }
+
+  public Payload identify(BotToken token) {
+<span class="fc" id="L36">    return identify(ImmutableIdentify.builder().token(token).build());</span>
+  }
+
+  public Payload identify(Identify id) {
+<span class="fc" id="L40">    return ImmutablePayload.builder().op(OpCode.IDENTIFY).d(jackson.valueToTree(id)).build();</span>
+  }
+
+  public Single&lt;Payload&gt; read(String text) {
+<span class="nc" id="L44">    return Single.fromCallable(() -&gt; jackson.readValue(text, Payload.class));</span>
+  }
+
+  public Maybe&lt;Event&lt;?&gt;&gt; toEvent(Payload payload) {
+<span class="nc" id="L48">    return Single.just(payload)</span>
+<span class="nc" id="L49">        .filter(Payload.isOp(OpCode.DISPATCH))</span>
+<span class="nc" id="L50">        .flatMap(p -&gt; Maybes.fromOptional(p.t()))</span>
+<span class="nc" id="L51">        .map(EventType::getFactory)</span>
+<span class="nc" id="L52">        .flatMap(f -&gt; dataAs(payload, f.getDataClass()).map(f::apply).toMaybe())</span>
+<span class="nc" id="L53">        .doOnError(t -&gt; LOG.warn(&quot;Unable to convert payload to event: {}&quot;, payload, t))</span>
+<span class="nc" id="L54">        .onErrorComplete();</span>
+  }
+
+  public Single&lt;String&gt; writeToString(Payload p) {
+<span class="nc" id="L58">    return Single.fromCallable(() -&gt; jackson.writeValueAsString(p));</span>
+  }
+
+  @Value.Immutable
+  @JsonDeserialize(as = ImmutableHeartbeat.class)
+  public static interface Heartbeat {
+    @JsonProperty(&quot;heartbeat_interval&quot;)
+    Long getHeartbeatInterval();
+
+    @JsonProperty(&quot;_trace&quot;)
+    Collection&lt;String&gt; getTrace();
+  }
+
+  /**
+   * @see &lt;a href=&quot;https://discordapp.com/developers/docs/topics/gateway#identify&quot;&gt;
+   *     https://discordapp.com/developers/docs/topics/gateway#identify&lt;/a&gt;
+   */
+  // TODO: This structure is not complete
+  @Value.Immutable
+  public static interface Identify {
+    BotToken getToken();
+
+    default ConnectionProperties getProperties() {
+<span class="fc" id="L81">      return ConnectionProperties.ofDefault();</span>
+    }
+  }
+
+  /**
+   * @see &lt;a
+   *     href=&quot;https://discordapp.com/developers/docs/topics/gateway#identify-identify-connection-properties&quot;&gt;
+   *     https://discordapp.com/developers/docs/topics/gateway#identify-identify-connection-properties&lt;/a&gt;
+   */
+  @Value.Immutable
+  public static interface ConnectionProperties {
+    @JsonProperty(&quot;$os&quot;)
+    String getOs();
+
+    @JsonProperty(&quot;$browser&quot;)
+    String getBrowser();
+
+    @JsonProperty(&quot;$device&quot;)
+    String getDevice();
+
+    public static ConnectionProperties ofDefault() {
+<span class="fc" id="L102">      return ImmutableConnectionProperties.builder()</span>
+<span class="fc" id="L103">          .os(System.getProperty(&quot;os.name&quot;))</span>
+<span class="fc" id="L104">          .browser(&quot;ErisCasper.java&quot;)</span>
+<span class="fc" id="L105">          .device(&quot;ErisCasper.java&quot;)</span>
+<span class="fc" id="L106">          .build();</span>
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

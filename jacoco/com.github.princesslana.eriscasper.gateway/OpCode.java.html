@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OpCode.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">com.github.princesslana.eriscasper.gateway</a> &gt; <span class="el_source">OpCode.java</span></div><h1>OpCode.java</h1><pre class="source lang-java linenums">package com.github.princesslana.eriscasper.gateway;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+import java.util.Arrays;
+
+/**
+ * @see &lt;a href=&quot;https://discordapp.com/developers/docs/topics/opcodes-and-status-codes#gateway&quot;&gt;
+ *     https://discordapp.com/developers/docs/topics/opcodes-and-status-codes#gateway&lt;/a&gt;
+ */
+<span class="fc" id="L11">public enum OpCode {</span>
+<span class="fc" id="L12">  DISPATCH(0),</span>
+<span class="fc" id="L13">  HEARTBEAT(1),</span>
+<span class="fc" id="L14">  IDENTIFY(2),</span>
+<span class="fc" id="L15">  STATUS_UPDATE(3),</span>
+<span class="fc" id="L16">  VOICE_STATE_UPDATE(4),</span>
+<span class="fc" id="L17">  VOICE_SERVER_PING(5),</span>
+<span class="fc" id="L18">  RESUME(6),</span>
+<span class="fc" id="L19">  RECONNECT(7),</span>
+<span class="fc" id="L20">  REQUEST_GUILD_MEMBERS(8),</span>
+<span class="fc" id="L21">  INVALID_SESSION(9),</span>
+<span class="fc" id="L22">  HELLO(10),</span>
+<span class="fc" id="L23">  HEARTBEAT_ACK(11);</span>
+
+  private final int code;
+
+<span class="fc" id="L27">  private OpCode(int code) {</span>
+<span class="fc" id="L28">    this.code = code;</span>
+<span class="fc" id="L29">  }</span>
+
+  @JsonValue
+  public int getCode() {
+<span class="nc" id="L33">    return code;</span>
+  }
+
+  @JsonCreator
+  public static OpCode fromCode(int code) {
+<span class="nc" id="L38">    return Arrays.stream(OpCode.values())</span>
+<span class="nc bnc" id="L39" title="All 2 branches missed.">        .filter(o -&gt; o.code == code)</span>
+<span class="nc" id="L40">        .findFirst()</span>
+<span class="nc" id="L41">        .orElseThrow(() -&gt; new IllegalStateException(&quot;Unknown opcode: &quot; + code));</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

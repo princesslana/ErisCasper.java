@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EventType.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">com.github.princesslana.eriscasper.event</a> &gt; <span class="el_source">EventType.java</span></div><h1>EventType.java</h1><pre class="source lang-java linenums">package com.github.princesslana.eriscasper.event;
+
+import com.github.princesslana.eriscasper.data.GuildCreateData;
+import com.github.princesslana.eriscasper.data.Message;
+import com.github.princesslana.eriscasper.data.ReadyData;
+import com.github.princesslana.eriscasper.data.TypingStartData;
+import java.util.function.Function;
+
+/**
+ * Possible event types that we can receive from Discord.
+ *
+ * &lt;p&gt;Each EventType is associated with an {@link EventFactory} so that it is known how to construct
+ * an {@link Event} from a {@link com.github.princesslana.eriscasper.gateway.Payload}.
+ *
+ * &lt;p&gt;It is tempting to try and merge EventType and {@link EventFactory} into a single class, but we
+ * can not match the dataClass and factory types using generics within the EventType enum.
+ *
+ * @see &lt;a
+ *     href=&quot;https://discordapp.com/developers/docs/topics/gateway#commands-and-events-gateway-events&quot;&gt;
+ *     https://discordapp.com/developers/docs/topics/gateway#commands-and-events-gateway-events&lt;/a&gt;
+ */
+<span class="nc" id="L22">public enum EventType {</span>
+<span class="nc" id="L23">  GUILD_CREATE(GuildCreateData.class, ImmutableGuildCreate::of),</span>
+<span class="nc" id="L24">  MESSAGE_CREATE(Message.class, ImmutableMessageCreate::of),</span>
+<span class="nc" id="L25">  READY(ReadyData.class, ImmutableReady::of),</span>
+<span class="nc" id="L26">  TYPING_START(TypingStartData.class, ImmutableTypingStart::of);</span>
+
+  private final EventFactory&lt;?&gt; factory;
+
+<span class="nc" id="L30">  private EventType(EventFactory&lt;?&gt; factory) {</span>
+<span class="nc" id="L31">    this.factory = factory;</span>
+<span class="nc" id="L32">  }</span>
+
+  private &lt;T&gt; EventType(Class&lt;T&gt; dataClass, Function&lt;T, Event&lt;T&gt;&gt; factory) {
+<span class="nc" id="L35">    this(EventFactoryTuple.of(dataClass, factory));</span>
+<span class="nc" id="L36">  }</span>
+
+  public EventFactory&lt;?&gt; getFactory() {
+<span class="nc" id="L39">    return factory;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

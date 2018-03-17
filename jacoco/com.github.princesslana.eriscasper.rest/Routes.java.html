@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Routes.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">com.github.princesslana.eriscasper.rest</a> &gt; <span class="el_source">Routes.java</span></div><h1>Routes.java</h1><pre class="source lang-java linenums">package com.github.princesslana.eriscasper.rest;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.princesslana.eriscasper.BotToken;
+import io.reactivex.Single;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class Routes {
+
+<span class="nc" id="L16">  private static final Logger LOG = LoggerFactory.getLogger(Routes.class);</span>
+
+  private final BotToken token;
+
+  private final OkHttpClient client;
+  private final ObjectMapper jackson;
+
+<span class="nc" id="L23">  public Routes(BotToken token, OkHttpClient client, ObjectMapper jackson) {</span>
+<span class="nc" id="L24">    this.token = token;</span>
+<span class="nc" id="L25">    this.client = client;</span>
+<span class="nc" id="L26">    this.jackson = jackson;</span>
+<span class="nc" id="L27">  }</span>
+
+  public &lt;Rs&gt; Single&lt;Rs&gt; execute(Route&lt;Void, Rs&gt; route) {
+<span class="nc" id="L30">    return execute(route, null);</span>
+  }
+
+  public &lt;Rq, Rs&gt; Single&lt;Rs&gt; execute(Route&lt;Rq, Rs&gt; route, Rq data) {
+<span class="nc" id="L34">    return Single.fromCallable(</span>
+            () -&gt; {
+<span class="nc" id="L36">              LOG.debug(&quot;Executing: {}...&quot;, route);</span>
+
+<span class="nc bnc" id="L38" title="All 2 branches missed.">              RequestBody body =</span>
+                  data == null
+                      ? null
+<span class="nc" id="L41">                      : RequestBody.create(</span>
+<span class="nc" id="L42">                          MediaType.parse(&quot;application/json&quot;), jackson.writeValueAsString(data));</span>
+
+<span class="nc" id="L44">              Request rq =</span>
+                  new Request.Builder()
+<span class="nc" id="L46">                      .method(route.getMethod().get(), body)</span>
+<span class="nc" id="L47">                      .url(route.getUrl())</span>
+<span class="nc" id="L48">                      .header(&quot;Authorization&quot;, &quot;Bot &quot; + token.unwrap())</span>
+<span class="nc" id="L49">                      .build();</span>
+
+<span class="nc" id="L51">              try (Response rs = client.newCall(rq).execute()) {</span>
+<span class="nc" id="L52">                String rsBody = rs.body().string();</span>
+
+<span class="nc" id="L54">                LOG.debug(&quot;Response: {}&quot;, rs);</span>
+<span class="nc" id="L55">                LOG.debug(&quot;Headers: {}&quot;, rs.headers());</span>
+<span class="nc" id="L56">                LOG.debug(&quot;Body: {}&quot;, rsBody);</span>
+
+<span class="nc bnc" id="L58" title="All 2 branches missed.">                if (!rs.isSuccessful()) {</span>
+<span class="nc" id="L59">                  throw new IllegalStateException(String.format(&quot;Request failed: %s&quot;, rs));</span>
+                }
+
+<span class="nc" id="L62">                return jackson.readValue(rsBody, route.getResponseClass());</span>
+              }
+            })
+<span class="nc" id="L65">        .doOnSuccess(r -&gt; LOG.debug(&quot;Done: {} -&gt; {}.&quot;, route, r))</span>
+<span class="nc" id="L66">        .doOnError(e -&gt; LOG.warn(&quot;Error: {} - {}.&quot;, route, e));</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>
