@@ -9,7 +9,7 @@ addons:
     organization: "ianagbip1oti-github"
 
 before_install:
-- 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then bash ./etc/extract_secrets.sh; fi'
+- 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then bash ./etc/extract_secrets.sh; fi'
 
 stages:
 - build
