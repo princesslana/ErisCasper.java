@@ -1,2 +1,0 @@
-version: ${project.version}
-url: ${project.url}
