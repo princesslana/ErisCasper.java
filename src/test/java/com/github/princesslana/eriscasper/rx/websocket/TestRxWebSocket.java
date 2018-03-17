@@ -63,12 +63,12 @@ public class TestRxWebSocket {
   }
 
   @Test
-  public void close_whenBeforeConnect_doesNotError() {
+  public void close_whenBeforeConnect_shouldNotError() {
     Assertions.assertThatCode(() -> subject.close()).doesNotThrowAnyException();
   }
 
   @Test
-  public void close_whenAfterSubscribe_closesWebSocket() {
+  public void close_whenAfterSubscribe_shouldCloseWebSocket() {
     given(mockClient.newWebSocket(notNull(), notNull())).willReturn(mockWebSocket);
 
     subject.connect(TEST_WS_URL).subscribe();
