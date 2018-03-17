@@ -7,6 +7,7 @@ import com.github.princesslana.eriscasper.gateway.Payloads;
 import com.github.princesslana.eriscasper.rest.RouteCatalog;
 import com.github.princesslana.eriscasper.rest.Routes;
 import com.github.princesslana.eriscasper.util.Jackson;
+import com.github.princesslana.eriscasper.util.OkHttp;
 import io.reactivex.Flowable;
 import java.io.IOException;
 import okhttp3.OkHttpClient;
@@ -19,7 +20,7 @@ public class ErisCasper {
 
   private final BotToken token;
 
-  private final OkHttpClient httpClient = new OkHttpClient();
+  private final OkHttpClient httpClient = OkHttp.newHttpClient();
   private final ObjectMapper jackson = Jackson.newObjectMapper();
   private final Payloads payloads = new Payloads(jackson);
   private final Routes routes;
