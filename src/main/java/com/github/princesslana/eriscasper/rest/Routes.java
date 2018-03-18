@@ -3,17 +3,26 @@ package com.github.princesslana.eriscasper.rest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.princesslana.eriscasper.BotToken;
 import com.github.princesslana.eriscasper.rx.Maybes;
+
+import io.github.resilience4j.ratelimiter.RateLimiter;
+import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
+import io.github.resilience4j.ratelimiter.operator.RateLimiterOperator;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
+
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.concurrent.Callable;
+
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +31,8 @@ public class Routes {
   private static final Logger LOG = LoggerFactory.getLogger(Routes.class);
 
   private static final MediaType MEDIA_TYPE_JSON = MediaType.parse("application/json");
+
+  private final RateLimiterRegistry rateLimiterRegistry = RateLimiterRegistry.ofDefaults();
 
   private final BotToken token;
 
@@ -52,7 +63,8 @@ public class Routes {
         .map(Optional::of)
         .toSingle(Optional.empty())
         .map(buildRequest)
-        .flatMap(rq -> executeRequest(route, rq));
+        .flatMap(rq -> executeRequest(route, rq))
+        .lift(RateLimiterOperator.of(getRateLimiter(route)));
   }
 
   private <O> Single<O> executeRequest(Route<?, O> route, Request rq) {
@@ -68,6 +80,23 @@ public class Routes {
           LOG.debug("Closed: {}.", r);
         };
 
+    Consumer<Response> updateRateLimit =
+        r -> {
+          try {
+            int remaining = Integer.parseInt(r.header("X-RateLimit-Remaining"), 10);
+            Instant until = Instant.ofEpochSecond(Long.parseLong(r.header("X-RateLimit-Reset")));
+            
+            RateLimiter rl = getRateLimiter(route);
+            
+            Duration reset = Duration.between(Instant.now(), until);
+            
+            rl.changeLimitForPeriod(remaining);
+            rl.changeTimeoutDuration(reset.isNegative() ? Duration.ZERO : reset);
+          } catch (NumberFormatException e) {
+            // ignore
+          }
+        };
+
     // Single#using does not work here, as it performs the close operation immediately upon emitting
     // the response, because once it's received the response it knows it can receive no more.
     //
@@ -76,13 +105,18 @@ public class Routes {
     // close.
     return Observable.using(execute, Observable::just, close)
         .doOnNext(r -> LOG.debug("Done: {} -> {}.", route, r))
+        .doOnNext(updateRateLimit)
         .flatMapSingle(
             r ->
                 r.isSuccessful()
                     ? Single.just(r)
-                    : Single.error(new IllegalStateException("Unexpected response")))
+                    : Single.error(new IllegalStateException("Unexpected response: ")))
         .doOnError(e -> LOG.warn("Error: {} - {}.", route, e))
         .map(rs -> jackson.readValue(rs.body().byteStream(), route.getResponseClass()))
         .firstOrError();
+  }
+
+  private RateLimiter getRateLimiter(Route<?, ?> r) {
+    return rateLimiterRegistry.rateLimiter(r.getUrl());
   }
 }
