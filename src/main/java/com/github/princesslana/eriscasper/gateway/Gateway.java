@@ -1,9 +1,13 @@
 package com.github.princesslana.eriscasper.gateway;
 
 import com.github.princesslana.eriscasper.BotToken;
+import com.github.princesslana.eriscasper.data.SessionId;
+import com.github.princesslana.eriscasper.event.Event;
+import com.github.princesslana.eriscasper.event.Events;
 import com.github.princesslana.eriscasper.rx.Singles;
 import com.github.princesslana.eriscasper.rx.websocket.RxWebSocket;
 import com.github.princesslana.eriscasper.rx.websocket.RxWebSocketEvent;
+import com.google.common.base.Preconditions;
 import com.google.common.io.Closer;
 import io.github.resilience4j.ratelimiter.RateLimiter;
 import io.github.resilience4j.ratelimiter.RateLimiterConfig;
@@ -15,8 +19,8 @@ import io.reactivex.Single;
 import java.io.Closeable;
 import java.io.IOException;
 import java.time.Duration;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 import okhttp3.OkHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +41,9 @@ public class Gateway implements Closeable {
   private final OkHttpClient client;
   private final Payloads payloads;
 
-  private final AtomicReference<SequenceNumber> lastSeenSequenceNumber = new AtomicReference<>();
+  private Optional<SequenceNumber> lastSeenSequenceNumber = Optional.empty();
+
+  private Optional<SessionId> sessionId = Optional.empty();
 
   private final Closer closer = Closer.create();
 
@@ -72,7 +78,19 @@ public class Gateway implements Closeable {
     this.payloads = payloads;
   }
 
-  public Flowable<Payload> connect(String url, BotToken token) {
+  private boolean isResumable() {
+    return sessionId.isPresent() && lastSeenSequenceNumber.isPresent();
+  }
+
+  private void setSessionId(SessionId sid) {
+    this.sessionId = Optional.of(sid);
+  }
+
+  private void sequenceNumberSeen(Optional<SequenceNumber> seq) {
+    seq.ifPresent(sid -> lastSeenSequenceNumber = Optional.of(sid));
+  }
+
+  public Flowable<Event<?>> connect(String url, BotToken token) {
     RxWebSocket ws = closer.register(new RxWebSocket(client));
 
     Flowable<Payload> ps =
@@ -82,17 +100,30 @@ public class Gateway implements Closeable {
             .flatMapMaybe(
                 Singles.toMaybeAnd(
                     payloads::read, (s, t) -> LOG.warn("Error reading payload: {}", s, t)))
-            .doOnNext(p -> p.s().ifPresent(lastSeenSequenceNumber::set))
+            .doOnNext(p -> sequenceNumberSeen(p.s()))
             .share();
 
     Completable heartbeat =
         ps.filter(Payload.isOp(OpCode.HELLO)).flatMapCompletable(p -> heartbeat(ws, p));
 
     Completable identify =
-        ps.filter(Payload.isOp(OpCode.HELLO)).flatMapCompletable(p -> identify(ws, token));
+        ps.filter(Payload.isOp(OpCode.HELLO))
+            .flatMapCompletable(p -> isResumable() ? resume(ws, token) : identify(ws, token));
 
-    return Flowable.merge(
-        Flowable.just(ps, heartbeat.<Payload>toFlowable(), identify.<Payload>toFlowable()));
+    Flowable<Event<?>> events =
+        Flowable.merge(
+                Flowable.just(ps, heartbeat.<Payload>toFlowable(), identify.<Payload>toFlowable()))
+            .flatMapMaybe(payloads::toEvent)
+            .share();
+
+    Completable setSessionId =
+        events
+            .ofType(Events.Ready.class)
+            .map(r -> r.getData().getSessionId())
+            .doOnNext(this::setSessionId)
+            .ignoreElements();
+
+    return Flowable.merge(Flowable.just(events, setSessionId.toFlowable()));
   }
 
   private Completable send(RxWebSocket ws, Payload payload) {
@@ -115,7 +146,22 @@ public class Gateway implements Closeable {
         .dataAs(hello, Payloads.Heartbeat.class)
         .flatMapObservable(
             h -> Observable.interval(h.getHeartbeatInterval(), TimeUnit.MILLISECONDS))
-        .flatMapCompletable(l -> send(ws, payloads.heartbeat(lastSeenSequenceNumber.get())));
+        .flatMapCompletable(l -> send(ws, payloads.heartbeat(lastSeenSequenceNumber)));
+  }
+
+  public Completable resume(RxWebSocket ws, BotToken token) {
+    Preconditions.checkState(sessionId.isPresent(), "Can not resume without a session id");
+    Preconditions.checkState(
+        lastSeenSequenceNumber.isPresent(), "Can not resume without a sequence number");
+
+    return Single.just(
+            ImmutableResume.builder()
+                .token(token)
+                .sessionId(sessionId.get())
+                .seq(lastSeenSequenceNumber.get())
+                .build())
+        .map(payloads::resume)
+        .flatMapCompletable(p -> send(ws, p));
   }
 
   @Override
