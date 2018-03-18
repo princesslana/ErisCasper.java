@@ -25,7 +25,7 @@ import okhttp3.OkHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Gateway implements Closeable {
+public class Gateway {
 
   private static final Logger LOG = LoggerFactory.getLogger(Gateway.class);
 
@@ -44,8 +44,6 @@ public class Gateway implements Closeable {
   private Optional<SequenceNumber> lastSeenSequenceNumber = Optional.empty();
 
   private Optional<SessionId> sessionId = Optional.empty();
-
-  private final Closer closer = Closer.create();
 
   /**
    * @see <a href="https://discordapp.com/developers/docs/topics/gateway#rate-limiting">
@@ -91,7 +89,7 @@ public class Gateway implements Closeable {
   }
 
   public Flowable<Event<?>> connect(String url, BotToken token) {
-    RxWebSocket ws = closer.register(new RxWebSocket(client));
+    RxWebSocket ws = new RxWebSocket(client);
 
     Flowable<Payload> ps =
         ws.connect(String.format("%s?v=%s&encoding=%s", url, VERSION, ENCODING))
@@ -162,10 +160,5 @@ public class Gateway implements Closeable {
                 .build())
         .map(payloads::resume)
         .flatMapCompletable(p -> send(ws, p));
-  }
-
-  @Override
-  public void close() throws IOException {
-    closer.close();
   }
 }

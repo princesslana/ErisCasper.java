@@ -32,16 +32,13 @@ public class ErisCasper {
   }
 
   private Flowable<Event<?>> getEvents() {
-    try (Gateway gateway = new Gateway(httpClient, payloads)) {
-      return routes
-          .execute(RouteCatalog.getGateway())
-          .toFlowable()
-          .flatMap(gr -> gateway.connect(gr.getUrl(), token))
-          .onBackpressureBuffer()
-          .share();
-    } catch (IOException e) {
-      return Flowable.error(e);
-    }
+    Gateway gateway = new Gateway(httpClient, payloads);
+    return routes
+        .execute(RouteCatalog.getGateway())
+        .toFlowable()
+        .flatMap(gr -> gateway.connect(gr.getUrl(), token))
+        .onBackpressureBuffer()
+        .share();
   }
 
   public void run(Bot bot) {
