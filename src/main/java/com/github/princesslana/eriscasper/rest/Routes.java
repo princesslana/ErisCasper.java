@@ -3,7 +3,6 @@ package com.github.princesslana.eriscasper.rest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.princesslana.eriscasper.BotToken;
 import com.github.princesslana.eriscasper.rx.Maybes;
-
 import io.github.resilience4j.ratelimiter.RateLimiter;
 import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
 import io.github.resilience4j.ratelimiter.operator.RateLimiterOperator;
@@ -11,18 +10,15 @@ import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.concurrent.Callable;
-
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,11 +81,11 @@ public class Routes {
           try {
             int remaining = Integer.parseInt(r.header("X-RateLimit-Remaining"), 10);
             Instant until = Instant.ofEpochSecond(Long.parseLong(r.header("X-RateLimit-Reset")));
-            
+
             RateLimiter rl = getRateLimiter(route);
-            
+
             Duration reset = Duration.between(Instant.now(), until);
-            
+
             rl.changeLimitForPeriod(remaining);
             rl.changeTimeoutDuration(reset.isNegative() ? Duration.ZERO : reset);
           } catch (NumberFormatException e) {
