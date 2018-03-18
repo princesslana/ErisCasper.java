@@ -25,7 +25,7 @@ public abstract class Route<Rq, Rs> {
 
   protected abstract HttpMethod getMethod();
 
-  protected abstract String getPath();
+  public abstract String getPath();
 
   protected abstract Class<Rq> getRequestClass();
 
