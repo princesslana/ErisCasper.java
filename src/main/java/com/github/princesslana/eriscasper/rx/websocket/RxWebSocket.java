@@ -4,7 +4,6 @@ import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.FlowableEmitter;
-import java.io.Closeable;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
