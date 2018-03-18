@@ -45,7 +45,10 @@ public class ErisCasper {
   }
 
   public void run(Bot bot) {
-    bot.apply(new BotContext(getEvents(), routes)).subscribe();
+    bot.apply(new BotContext(getEvents(), routes))
+        .doOnError(t -> LOG.warn("Exception thrown by Bot", t))
+        .retry()
+        .subscribe();
   }
 
   public static ErisCasper create() {
