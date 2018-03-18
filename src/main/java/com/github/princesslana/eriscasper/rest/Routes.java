@@ -78,18 +78,26 @@ public class Routes {
 
     Consumer<Response> updateRateLimit =
         r -> {
+          String remainingHeader = r.header("X-RateLimit-Remaining");
+          String resetHeader = r.header("X-RateLimit-Reset");
+
           try {
-            int remaining = Integer.parseInt(r.header("X-RateLimit-Remaining"), 10);
-            Instant until = Instant.ofEpochSecond(Long.parseLong(r.header("X-RateLimit-Reset")));
+            int remaining = Integer.parseInt(remainingHeader, 10);
+            Instant until = Instant.ofEpochSecond(Long.parseLong(resetHeader));
 
             RateLimiter rl = getRateLimiter(route);
 
-            Duration reset = Duration.between(Instant.now(), until);
-
             rl.changeLimitForPeriod(remaining);
-            rl.changeTimeoutDuration(reset.isNegative() ? Duration.ZERO : reset);
-          } catch (NumberFormatException e) {
-            // ignore
+            rl.changeTimeoutDuration(Duration.between(Instant.now(), until));
+          } catch (IllegalArgumentException e) {
+            // we use a little EAFP here (https://docs.python.org/3/glossary.html#term-eafp)
+            // If the headers are absent or not numeric or the values passed into the rate limiter
+            // are invalid we may end up here
+            LOG.debug(
+                "Could not update rate limit to {}/{} ({})",
+                remainingHeader,
+                resetHeader,
+                e.getMessage());
           }
         };
 
