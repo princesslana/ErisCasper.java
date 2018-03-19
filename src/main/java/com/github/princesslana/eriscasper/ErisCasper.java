@@ -36,7 +36,6 @@ public class ErisCasper {
         .execute(RouteCatalog.getGateway())
         .toFlowable()
         .flatMap(gr -> gateway.connect(gr.getUrl(), token))
-        .doOnNext(e -> LOG.debug("Event: {}.", e))
         .onBackpressureBuffer()
         .share();
   }
