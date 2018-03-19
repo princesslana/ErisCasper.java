@@ -9,4 +9,10 @@ public interface Snowflake extends Wrapper<String> {
 
   @Value.Immutable
   interface ChannelIdWrapper extends Snowflake {}
+
+  @Value.Immutable
+  interface MessageIdWrapper extends Snowflake {}
+
+  @Value.Immutable
+  interface UserIdWrapper extends Snowflake {}
 }
