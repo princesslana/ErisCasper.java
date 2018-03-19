@@ -116,7 +116,8 @@ public class Gateway {
 
     return Flowable.merge(
         Flowable.just(
-            events, setSessionId.toFlowable(), heartbeat.toFlowable(), identify.toFlowable()));
+            events, setSessionId.toFlowable(), heartbeat.toFlowable(), identify.toFlowable()))
+        .doOnNext(e -> LOG.debug("Event: {}.", e));
   }
 
   private Completable send(RxWebSocket ws, Payload payload) {
@@ -125,7 +126,8 @@ public class Gateway {
         .lift(RateLimiterOperator.of(sendLimit))
         .filter(s -> s.getBytes().length <= MAX_MESSAGE_SIZE)
         .doOnComplete(() -> LOG.warn("Payload rejected as too long: {}.", payload))
-        .flatMapCompletable(ws::send);
+        .flatMapCompletable(ws::send)
+        .doOnComplete(() -> LOG.debug("Sent: {}.", payload));
   }
 
   private Completable identify(RxWebSocket ws, BotToken token) {

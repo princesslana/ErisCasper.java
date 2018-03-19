@@ -32,13 +32,13 @@ public class RxWebSocket {
               ws = http.newWebSocket(rq, new Listener(em));
             },
             BackpressureStrategy.BUFFER)
-        .doOnNext(e -> LOG.debug("Received: {}.", e))
+        .doOnNext(e -> LOG.trace("Received: {}.", e))
         .doOnError(e -> LOG.warn("Error: {}.", e));
   }
 
   public Completable send(String text) {
     return Completable.fromAction(() -> ws.send(text))
-        .doOnComplete(() -> LOG.debug("Sent: {}.", text));
+        .doOnComplete(() -> LOG.trace("Sent: {}.", text));
   }
 
   private static class Listener extends WebSocketListener {
