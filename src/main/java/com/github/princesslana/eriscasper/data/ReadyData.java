@@ -10,6 +10,8 @@ import org.immutables.value.Value;
 @JsonDeserialize(as = ImmutableReadyData.class)
 public interface ReadyData {
 
+  User getUser();
+
   @JsonProperty("session_id")
   SessionId getSessionId();
 
