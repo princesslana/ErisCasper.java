@@ -4,7 +4,6 @@ import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.FlowableEmitter;
-import java.io.Closeable;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -13,7 +12,7 @@ import okhttp3.WebSocketListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RxWebSocket implements Closeable {
+public class RxWebSocket {
 
   private static final Logger LOG = LoggerFactory.getLogger(RxWebSocket.class);
 
@@ -40,13 +39,6 @@ public class RxWebSocket implements Closeable {
   public Completable send(String text) {
     return Completable.fromAction(() -> ws.send(text))
         .doOnComplete(() -> LOG.debug("Sent: {}.", text));
-  }
-
-  @Override
-  public void close() {
-    if (ws != null) {
-      ws.close(1000, "Bye.");
-    }
   }
 
   private static class Listener extends WebSocketListener {
