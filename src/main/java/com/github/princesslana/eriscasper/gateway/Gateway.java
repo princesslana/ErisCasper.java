@@ -115,8 +115,8 @@ public class Gateway {
             .ignoreElements();
 
     return Flowable.merge(
-        Flowable.just(
-            events, setSessionId.toFlowable(), heartbeat.toFlowable(), identify.toFlowable()))
+            Flowable.just(
+                events, setSessionId.toFlowable(), heartbeat.toFlowable(), identify.toFlowable()))
         .doOnNext(e -> LOG.debug("Event: {}.", e));
   }
 
