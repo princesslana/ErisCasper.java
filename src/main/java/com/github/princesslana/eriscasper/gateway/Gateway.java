@@ -105,11 +105,7 @@ public class Gateway {
         ps.filter(Payload.isOp(OpCode.HELLO))
             .flatMapCompletable(p -> isResumable() ? resume(ws, token) : identify(ws, token));
 
-    Flowable<Event<?>> events =
-        Flowable.merge(
-                Flowable.just(ps, heartbeat.<Payload>toFlowable(), identify.<Payload>toFlowable()))
-            .flatMapMaybe(payloads::toEvent)
-            .share();
+    Flowable<Event<?>> events = ps.flatMapMaybe(payloads::toEvent).share();
 
     Completable setSessionId =
         events
@@ -118,7 +114,9 @@ public class Gateway {
             .doOnNext(this::setSessionId)
             .ignoreElements();
 
-    return Flowable.merge(Flowable.just(events, setSessionId.toFlowable()));
+    return Flowable.merge(
+        Flowable.just(
+            events, setSessionId.toFlowable(), heartbeat.toFlowable(), identify.toFlowable()));
   }
 
   private Completable send(RxWebSocket ws, Payload payload) {
