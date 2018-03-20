@@ -13,14 +13,19 @@ public class EchoBot {
             .run(
                 ctx ->
                     ctx.getEvents()
+
+                        //Same type as PingBot
                         .ofType(Events.MessageCreate.class)
                         .map(Event::getData)
+
+                        //Need to check for bot's own message
                         .filter(d -> !d.getAuthor().isBot())
                         .filter(d -> d.getContent().startsWith("+echo"))
 
                         .flatMapCompletable( d -> {
                             String replyMessage = d.getContent().replaceFirst("\\+echo", "");
 
+                            //Empty Arguments
                             if (replyMessage.trim().isEmpty()) {
                                 replyMessage = "This command requires 1 argument";
                             }
