@@ -9,6 +9,8 @@ import com.github.princesslana.eriscasper.rest.Routes;
 import com.github.princesslana.eriscasper.util.Jackson;
 import com.github.princesslana.eriscasper.util.OkHttp;
 import io.reactivex.Flowable;
+import io.reactivex.Single;
+import io.reactivex.schedulers.Schedulers;
 import okhttp3.OkHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,11 +34,14 @@ public class ErisCasper {
 
   private Flowable<Event<?>> getEvents() {
     Gateway gateway = new Gateway(httpClient, payloads);
-    return routes
-        .execute(RouteCatalog.getGateway())
+
+    return Single.just(RouteCatalog.getGateway())
+        .observeOn(Schedulers.io())
+        .flatMap(routes::execute)
         .toFlowable()
         .flatMap(gr -> gateway.connect(gr.getUrl(), token))
         .onBackpressureBuffer()
+        .observeOn(Schedulers.computation())
         .share();
   }
 
@@ -44,7 +49,7 @@ public class ErisCasper {
     bot.apply(new BotContext(getEvents(), routes))
         .doOnError(t -> LOG.warn("Exception thrown by Bot", t))
         .retry()
-        .subscribe();
+        .blockingAwait();
   }
 
   public static ErisCasper create() {
