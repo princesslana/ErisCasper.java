@@ -15,6 +15,7 @@ import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
+import io.reactivex.schedulers.Schedulers;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -126,8 +127,10 @@ public class Gateway {
         .lift(RateLimiterOperator.of(sendLimit))
         .filter(s -> s.getBytes().length <= MAX_MESSAGE_SIZE)
         .doOnComplete(() -> LOG.warn("Payload rejected as too long: {}.", payload))
+        .observeOn(Schedulers.io())
         .flatMapCompletable(ws::send)
-        .doOnComplete(() -> LOG.debug("Sent: {}.", payload));
+        .doOnComplete(() -> LOG.debug("Sent: {}.", payload))
+        .observeOn(Schedulers.computation());
   }
 
   private Completable identify(RxWebSocket ws, BotToken token) {
