@@ -34,6 +34,7 @@
   </distributionManagement>
   <properties>
     <revision>0-SNAPSHOT</revision>
+    <exec.logLevel>debug</exec.logLevel>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -282,7 +283,7 @@
           <systemProperties>
             <systemProperty>
               <key>org.slf4j.simpleLogger.defaultLogLevel</key>
-              <value>debug</value>
+              <value>${exec.logLevel}</value>
             </systemProperty>
           </systemProperties>
         </configuration>
