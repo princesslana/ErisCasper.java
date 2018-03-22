@@ -23,7 +23,7 @@ public class RepositoryManager {
         !repositories.containsKey(def.getName()),
         "Duplicate repository created: %s",
         def.getName());
-        
+
     repositories.put(def.getName(), repository);
   }
 
