@@ -4,10 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.princesslana.eriscasper.event.Event;
 import com.github.princesslana.eriscasper.gateway.Gateway;
 import com.github.princesslana.eriscasper.gateway.Payloads;
+import com.github.princesslana.eriscasper.repository.RepositoryManager;
 import com.github.princesslana.eriscasper.rest.RouteCatalog;
 import com.github.princesslana.eriscasper.rest.Routes;
 import com.github.princesslana.eriscasper.util.Jackson;
 import com.github.princesslana.eriscasper.util.OkHttp;
+import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
@@ -24,6 +26,7 @@ public class ErisCasper {
   private final OkHttpClient httpClient = OkHttp.newHttpClient();
   private final ObjectMapper jackson = Jackson.newObjectMapper();
   private final Payloads payloads = new Payloads(jackson);
+
   private final Routes routes;
 
   private ErisCasper(BotToken token) {
@@ -46,10 +49,16 @@ public class ErisCasper {
   }
 
   public void run(Bot bot) {
-    bot.apply(new BotContext(getEvents(), routes))
-        .doOnError(t -> LOG.warn("Exception thrown by Bot", t))
-        .retry()
-        .blockingAwait();
+    Flowable<Event<?>> events = getEvents();
+
+    RepositoryManager rm = RepositoryManager.create();
+
+    Completable b =
+        bot.apply(new BotContext(events, routes, rm))
+            .doOnError(t -> LOG.warn("Exception thrown by Bot", t))
+            .retry();
+
+    Completable.mergeArray(rm.connect(events), b).blockingAwait();
   }
 
   public static ErisCasper create() {
