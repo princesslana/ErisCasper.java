@@ -10,19 +10,19 @@ import io.reactivex.Single;
 
 public class BotContext {
 
-  private final Flowable<Event<?>> events;
+  private final Flowable<Event> events;
 
   private Routes routes;
 
   private RepositoryManager repositories;
 
-  public BotContext(Flowable<Event<?>> events, Routes routes, RepositoryManager repositories) {
+  public BotContext(Flowable<Event> events, Routes routes, RepositoryManager repositories) {
     this.events = events;
     this.routes = routes;
     this.repositories = repositories;
   }
 
-  public Flowable<Event<?>> getEvents() {
+  public Flowable<Event> getEvents() {
     return events;
   }
 

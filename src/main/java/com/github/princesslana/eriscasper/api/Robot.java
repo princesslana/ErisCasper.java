@@ -5,7 +5,6 @@ import com.github.princesslana.eriscasper.BotContext;
 import com.github.princesslana.eriscasper.Bots;
 import com.github.princesslana.eriscasper.ErisCasper;
 import com.github.princesslana.eriscasper.data.Message;
-import com.github.princesslana.eriscasper.event.Event;
 import com.github.princesslana.eriscasper.event.Events;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
@@ -72,7 +71,7 @@ public class Robot {
   private static Flowable<Message> messages(BotContext bctx) {
     return bctx.getEvents()
         .ofType(Events.MessageCreate.class)
-        .map(Event::getData)
+        .map(Events.MessageCreate::getData)
         .filter(m -> !m.getAuthor().isBot());
   }
 }

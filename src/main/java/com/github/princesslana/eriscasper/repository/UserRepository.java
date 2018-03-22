@@ -20,10 +20,10 @@ public class UserRepository {
     return self;
   }
 
-  public Completable connect(Flowable<Event<?>> events) {
+  public Completable connect(Flowable<Event> events) {
     return events
         .ofType(Events.Ready.class)
-        .map(Event::getData)
+        .map(Events.Ready::getData)
         .map(d -> d.getUser())
         .doOnNext(u -> LOG.debug("Updating self user"))
         .doOnNext(u -> self = u)

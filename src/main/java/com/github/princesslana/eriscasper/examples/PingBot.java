@@ -1,7 +1,6 @@
 package com.github.princesslana.eriscasper.examples;
 
 import com.github.princesslana.eriscasper.ErisCasper;
-import com.github.princesslana.eriscasper.event.Event;
 import com.github.princesslana.eriscasper.event.Events;
 import com.github.princesslana.eriscasper.rest.ImmutableSendMessageRequest;
 import com.github.princesslana.eriscasper.rest.RouteCatalog;
@@ -17,7 +16,7 @@ public class PingBot {
 
                     // only message create events
                     .ofType(Events.MessageCreate.class)
-                    .map(Event::getData)
+                    .map(Events.MessageCreate::getData)
 
                     // only with content "+ping"
                     .filter(d -> d.getContent().equals("+ping"))

@@ -29,7 +29,7 @@ public class RepositoryManager {
     repositories.put(def.getName(), repository);
   }
 
-  public Completable connect(Flowable<Event<?>> events) {
+  public Completable connect(Flowable<Event> events) {
     return get(RepositoryDefinition.USER).connect(events);
   }
 
