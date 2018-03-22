@@ -37,7 +37,11 @@ public enum EventType {
     this(EventFactoryTuple.of(dataClass, factory));
   }
 
-  public EventFactory<?> getFactory() {
-    return factory;
+  public Class<?> getDataClass() {
+    return factory.getDataClass();
+  }
+
+  public Event newEvent(Object data) {
+    return factory.apply(data);
   }
 }
