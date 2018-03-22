@@ -85,7 +85,7 @@ public class Gateway {
     seq.ifPresent(sid -> lastSeenSequenceNumber = Optional.of(sid));
   }
 
-  public Flowable<Event<?>> connect(String url, BotToken token) {
+  public Flowable<Event> connect(String url, BotToken token) {
     RxWebSocket ws = new RxWebSocket(client);
 
     Flowable<Payload> ps =
@@ -105,7 +105,7 @@ public class Gateway {
         ps.filter(Payload.isOp(OpCode.HELLO))
             .flatMapCompletable(p -> isResumable() ? resume(ws, token) : identify(ws, token));
 
-    Flowable<Event<?>> events = ps.flatMapMaybe(payloads::toEvent).share();
+    Flowable<Event> events = ps.flatMapMaybe(payloads::toEvent).share();
 
     Completable setSessionId =
         events

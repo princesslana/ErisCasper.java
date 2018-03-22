@@ -50,7 +50,7 @@ public class Payloads {
     return ImmutablePayload.builder().op(OpCode.RESUME).d(jackson.valueToTree(r)).build();
   }
 
-  public Maybe<Event<?>> toEvent(Payload payload) {
+  public Maybe<Event> toEvent(Payload payload) {
     return Single.just(payload)
         .filter(Payload.isOp(OpCode.DISPATCH))
         .flatMap(p -> Maybes.fromOptional(p.t()))

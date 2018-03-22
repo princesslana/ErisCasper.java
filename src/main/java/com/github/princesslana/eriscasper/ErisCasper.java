@@ -35,7 +35,7 @@ public class ErisCasper {
     routes = new Routes(token, httpClient, jackson);
   }
 
-  private Flowable<Event<?>> getEvents() {
+  private Flowable<Event> getEvents() {
     Gateway gateway = new Gateway(httpClient, payloads);
 
     return Single.just(RouteCatalog.getGateway())
@@ -49,7 +49,7 @@ public class ErisCasper {
   }
 
   public void run(Bot bot) {
-    Flowable<Event<?>> events = getEvents();
+    Flowable<Event> events = getEvents();
 
     RepositoryManager rm = RepositoryManager.create();
 
