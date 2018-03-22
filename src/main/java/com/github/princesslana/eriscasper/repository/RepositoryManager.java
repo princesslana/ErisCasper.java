@@ -2,6 +2,7 @@ package com.github.princesslana.eriscasper.repository;
 
 import com.github.princesslana.eriscasper.event.Event;
 import com.google.common.base.Preconditions;
+import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -15,6 +16,7 @@ public class RepositoryManager {
   public <R> R get(RepositoryDefinition<R> def) {
     Preconditions.checkState(
         repositories.containsKey(def.getName()), "No such repository: %s", def.getName());
+
     return (R) repositories.get(def.getName());
   }
 
@@ -27,9 +29,13 @@ public class RepositoryManager {
     repositories.put(def.getName(), repository);
   }
 
-  public static RepositoryManager create(Flowable<Event<?>> events) {
+  public Completable connect(Flowable<Event<?>> events) {
+    return get(RepositoryDefinition.USER).connect(events);
+  }
+
+  public static RepositoryManager create() {
     RepositoryManager rm = new RepositoryManager();
-    rm.put(RepositoryDefinition.USER, new UserRepository(events));
+    rm.put(RepositoryDefinition.USER, new UserRepository());
     return rm;
   }
 }
