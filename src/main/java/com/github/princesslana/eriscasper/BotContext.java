@@ -1,6 +1,8 @@
 package com.github.princesslana.eriscasper;
 
 import com.github.princesslana.eriscasper.event.Event;
+import com.github.princesslana.eriscasper.repository.RepositoryDefinition;
+import com.github.princesslana.eriscasper.repository.RepositoryManager;
 import com.github.princesslana.eriscasper.rest.Route;
 import com.github.princesslana.eriscasper.rest.Routes;
 import io.reactivex.Flowable;
@@ -12,9 +14,12 @@ public class BotContext {
 
   private Routes routes;
 
-  public BotContext(Flowable<Event<?>> events, Routes routes) {
+  private RepositoryManager repositories;
+
+  public BotContext(Flowable<Event<?>> events, Routes routes, RepositoryManager repositories) {
     this.events = events;
     this.routes = routes;
+    this.repositories = repositories;
   }
 
   public Flowable<Event<?>> getEvents() {
@@ -27,5 +32,9 @@ public class BotContext {
 
   public <Rq, Rs> Single<Rs> execute(Route<Rq, Rs> route, Rq request) {
     return routes.execute(route, request);
+  }
+
+  public <R> R getRepository(RepositoryDefinition<R> def) {
+    return repositories.get(def);
   }
 }

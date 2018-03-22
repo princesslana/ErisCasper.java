@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.princesslana.eriscasper.event.Event;
 import com.github.princesslana.eriscasper.gateway.Gateway;
 import com.github.princesslana.eriscasper.gateway.Payloads;
+import com.github.princesslana.eriscasper.repository.RepositoryManager;
 import com.github.princesslana.eriscasper.rest.RouteCatalog;
 import com.github.princesslana.eriscasper.rest.Routes;
 import com.github.princesslana.eriscasper.util.Jackson;
@@ -24,6 +25,7 @@ public class ErisCasper {
   private final OkHttpClient httpClient = OkHttp.newHttpClient();
   private final ObjectMapper jackson = Jackson.newObjectMapper();
   private final Payloads payloads = new Payloads(jackson);
+
   private final Routes routes;
 
   private ErisCasper(BotToken token) {
@@ -46,7 +48,9 @@ public class ErisCasper {
   }
 
   public void run(Bot bot) {
-    bot.apply(new BotContext(getEvents(), routes))
+    RepositoryManager repositories = RepositoryManager.create(getEvents());
+
+    bot.apply(new BotContext(getEvents(), routes, repositories))
         .doOnError(t -> LOG.warn("Exception thrown by Bot", t))
         .retry()
         .blockingAwait();
