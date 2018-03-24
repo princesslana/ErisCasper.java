@@ -84,6 +84,7 @@ public class Gateway {
     seq.ifPresent(sid -> lastSeenSequenceNumber = Optional.of(sid));
   }
 
+  @SuppressWarnings("unchecked")
   public Observable<Event> connect(String url, BotToken token) {
     Observable<Payload> ps =
         ws.connect(String.format("%s?v=%s&encoding=%s", url, VERSION, ENCODING))
