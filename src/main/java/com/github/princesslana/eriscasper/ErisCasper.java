@@ -9,7 +9,6 @@ import com.github.princesslana.eriscasper.rest.RouteCatalog;
 import com.github.princesslana.eriscasper.rest.Routes;
 import com.github.princesslana.eriscasper.util.Jackson;
 import com.github.princesslana.eriscasper.util.OkHttp;
-import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
@@ -53,12 +52,12 @@ public class ErisCasper {
 
     RepositoryManager rm = RepositoryManager.create();
 
-    Completable b =
-        bot.apply(new BotContext(events, routes, rm))
-            .doOnError(t -> LOG.warn("Exception thrown by Bot", t))
-            .retry();
+    rm.connect(events);
 
-    Completable.mergeArray(rm.connect(events), b).blockingAwait();
+    bot.apply(new BotContext(events, routes, rm))
+        .doOnError(t -> LOG.warn("Exception thrown by Bot", t))
+        .retry()
+        .blockingAwait();
   }
 
   public static ErisCasper create() {

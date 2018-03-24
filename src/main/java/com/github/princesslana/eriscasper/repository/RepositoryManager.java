@@ -2,7 +2,6 @@ package com.github.princesslana.eriscasper.repository;
 
 import com.github.princesslana.eriscasper.event.Event;
 import com.google.common.base.Preconditions;
-import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -29,8 +28,8 @@ public class RepositoryManager {
     repositories.put(def.getName(), repository);
   }
 
-  public Completable connect(Flowable<Event> events) {
-    return get(RepositoryDefinition.USER).connect(events);
+  public void connect(Flowable<Event> events) {
+    get(RepositoryDefinition.USER).connect(events);
   }
 
   public static RepositoryManager create() {

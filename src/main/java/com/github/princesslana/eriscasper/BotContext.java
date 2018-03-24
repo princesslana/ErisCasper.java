@@ -1,10 +1,13 @@
 package com.github.princesslana.eriscasper;
 
+import com.github.princesslana.eriscasper.action.Action;
 import com.github.princesslana.eriscasper.event.Event;
 import com.github.princesslana.eriscasper.repository.RepositoryDefinition;
 import com.github.princesslana.eriscasper.repository.RepositoryManager;
 import com.github.princesslana.eriscasper.rest.Route;
 import com.github.princesslana.eriscasper.rest.Routes;
+import com.google.common.base.Function;
+import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
 
@@ -24,6 +27,23 @@ public class BotContext {
 
   public Flowable<Event> getEvents() {
     return events;
+  }
+
+  public <E extends Event> Completable on(Class<E> evt, Function<E, Completable> f) {
+    return events.ofType(evt).flatMapCompletable(f::apply);
+  }
+
+  public Completable doNothing() {
+    return Completable.complete();
+  }
+
+  /**
+   * Executing an Action means we want to ignore the result.
+   *
+   * <p>(As opposed to a Query)
+   */
+  public <I, O> Completable execute(Action<I, O> action) {
+    return execute(action.getRoute(), action.getData()).toCompletable();
   }
 
   public <Rs> Single<Rs> execute(Route<Void, Rs> route) {
