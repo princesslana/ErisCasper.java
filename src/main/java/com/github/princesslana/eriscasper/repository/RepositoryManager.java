@@ -1,7 +1,7 @@
 package com.github.princesslana.eriscasper.repository;
 
 import com.github.princesslana.eriscasper.event.Event;
-import com.github.princesslana.eriscasper.repository.event.UserRepositoryFromEvents;
+import com.github.princesslana.eriscasper.repository.event.UsersFromEvents;
 import com.google.common.base.Preconditions;
 import io.reactivex.Observable;
 import java.util.concurrent.ConcurrentHashMap;
@@ -31,7 +31,7 @@ public class RepositoryManager {
 
   public static RepositoryManager create(Observable<Event> events) {
     RepositoryManager rm = new RepositoryManager();
-    rm.put(RepositoryDefinition.USER, new UserRepositoryFromEvents(events));
+    rm.put(RepositoryDefinition.USER, new UsersFromEvents(events));
     return rm;
   }
 }

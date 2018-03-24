@@ -8,11 +8,11 @@ import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.observables.ConnectableObservable;
 
-public class UserRepositoryFromEvents implements UserRepository {
+public class UsersFromEvents implements UserRepository {
 
   private ConnectableObservable<User> self;
 
-  public UserRepositoryFromEvents(Observable<Event> events) {
+  public UsersFromEvents(Observable<Event> events) {
     self =
         events
             .ofType(Events.Ready.class)
