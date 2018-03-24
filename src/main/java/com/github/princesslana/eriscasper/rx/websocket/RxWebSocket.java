@@ -1,9 +1,6 @@
 package com.github.princesslana.eriscasper.rx.websocket;
 
-import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;
-import io.reactivex.Flowable;
-import io.reactivex.FlowableEmitter;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import okhttp3.OkHttpClient;
@@ -11,7 +8,6 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

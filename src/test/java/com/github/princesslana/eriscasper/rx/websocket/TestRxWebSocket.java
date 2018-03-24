@@ -2,13 +2,12 @@ package com.github.princesslana.eriscasper.rx.websocket;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.notNull;
+
 import io.reactivex.observers.TestObserver;
-import io.reactivex.subscribers.TestSubscriber;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;
-
 import org.assertj.core.api.Assertions;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;

@@ -12,7 +12,6 @@ import io.github.resilience4j.ratelimiter.RateLimiter;
 import io.github.resilience4j.ratelimiter.RateLimiterConfig;
 import io.github.resilience4j.ratelimiter.operator.RateLimiterOperator;
 import io.reactivex.Completable;
-import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import java.time.Duration;
@@ -113,7 +112,7 @@ public class Gateway {
             .ignoreElements();
 
     return Observable.mergeArray(
-                events, setSessionId.toObservable(), heartbeat.toObservable(), identify.toObservable())
+            events, setSessionId.toObservable(), heartbeat.toObservable(), identify.toObservable())
         .doOnNext(e -> LOG.debug("Event: {}.", e));
   }
 
@@ -155,9 +154,8 @@ public class Gateway {
         .map(payloads::resume)
         .flatMapCompletable(p -> send(ws, p));
   }
-  
+
   public static Gateway create(OkHttpClient client, Payloads payloads) {
     return new Gateway(new RxWebSocket(client), payloads);
   }
-
 }

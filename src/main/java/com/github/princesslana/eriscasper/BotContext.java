@@ -7,9 +7,7 @@ import com.github.princesslana.eriscasper.repository.RepositoryManager;
 import com.github.princesslana.eriscasper.rest.Route;
 import com.github.princesslana.eriscasper.rest.Routes;
 import com.google.common.base.Function;
-
 import io.reactivex.Completable;
-import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 

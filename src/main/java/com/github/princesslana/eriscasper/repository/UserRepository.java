@@ -3,8 +3,6 @@ package com.github.princesslana.eriscasper.repository;
 import com.github.princesslana.eriscasper.data.User;
 import com.github.princesslana.eriscasper.event.Event;
 import com.github.princesslana.eriscasper.event.Events;
-
-import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 
