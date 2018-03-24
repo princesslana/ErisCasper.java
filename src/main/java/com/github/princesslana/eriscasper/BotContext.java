@@ -7,25 +7,27 @@ import com.github.princesslana.eriscasper.repository.RepositoryManager;
 import com.github.princesslana.eriscasper.rest.Route;
 import com.github.princesslana.eriscasper.rest.Routes;
 import com.google.common.base.Function;
+
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
+import io.reactivex.Observable;
 import io.reactivex.Single;
 
 public class BotContext {
 
-  private final Flowable<Event> events;
+  private final Observable<Event> events;
 
   private Routes routes;
 
   private RepositoryManager repositories;
 
-  public BotContext(Flowable<Event> events, Routes routes, RepositoryManager repositories) {
+  public BotContext(Observable<Event> events, Routes routes, RepositoryManager repositories) {
     this.events = events;
     this.routes = routes;
     this.repositories = repositories;
   }
 
-  public Flowable<Event> getEvents() {
+  public Observable<Event> getEvents() {
     return events;
   }
 

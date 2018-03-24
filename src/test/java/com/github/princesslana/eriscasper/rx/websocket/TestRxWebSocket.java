@@ -2,12 +2,13 @@ package com.github.princesslana.eriscasper.rx.websocket;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.notNull;
-
+import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;
+
 import org.assertj.core.api.Assertions;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -50,7 +51,7 @@ public class TestRxWebSocket {
   public void connect_whenStringMessage_emitsStringMessageEvent() {
     ArgumentCaptor<WebSocketListener> wsl = ArgumentCaptor.forClass(WebSocketListener.class);
 
-    TestSubscriber<RxWebSocketEvent> subscriber = new TestSubscriber<>();
+    TestObserver<RxWebSocketEvent> subscriber = new TestObserver<>();
 
     given(mockClient.newWebSocket(notNull(), wsl.capture())).willReturn(mockWebSocket);
 

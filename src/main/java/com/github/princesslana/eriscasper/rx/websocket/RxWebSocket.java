@@ -4,11 +4,14 @@ import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.FlowableEmitter;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,14 +27,13 @@ public class RxWebSocket {
     this.http = http;
   }
 
-  public Flowable<RxWebSocketEvent> connect(String url) {
-    return Flowable.<RxWebSocketEvent>create(
+  public Observable<RxWebSocketEvent> connect(String url) {
+    return Observable.<RxWebSocketEvent>create(
             em -> {
               Request rq = new Request.Builder().url(url).build();
 
               ws = http.newWebSocket(rq, new Listener(em));
-            },
-            BackpressureStrategy.BUFFER)
+            })
         .doOnNext(e -> LOG.trace("Received: {}.", e))
         .doOnError(e -> LOG.warn("Error: {}.", e));
   }
@@ -42,9 +44,9 @@ public class RxWebSocket {
   }
 
   private static class Listener extends WebSocketListener {
-    private final FlowableEmitter<RxWebSocketEvent> em;
+    private final ObservableEmitter<RxWebSocketEvent> em;
 
-    public Listener(FlowableEmitter<RxWebSocketEvent> em) {
+    public Listener(ObservableEmitter<RxWebSocketEvent> em) {
       this.em = em;
     }
 
