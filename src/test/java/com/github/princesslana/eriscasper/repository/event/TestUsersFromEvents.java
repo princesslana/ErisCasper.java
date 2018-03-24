@@ -26,10 +26,8 @@ public class TestUsersFromEvents {
     TestObserver<User> observer = new TestObserver<>();
 
     User self = UserFaker.user();
-
     ReadyData ready =
         ImmutableReadyData.builder().user(self).sessionId(DiscordFaker.sessionId()).build();
-
     events.onNext(ReadyTuple.of(ready));
 
     subject.getSelf().subscribe(observer);
