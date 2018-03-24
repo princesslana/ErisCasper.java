@@ -3,7 +3,7 @@ package com.github.princesslana.eriscasper.gateway;
 import com.github.princesslana.eriscasper.BotToken;
 import com.github.princesslana.eriscasper.data.SessionId;
 import com.github.princesslana.eriscasper.event.Event;
-import com.github.princesslana.eriscasper.event.Events;
+import com.github.princesslana.eriscasper.event.Ready;
 import com.github.princesslana.eriscasper.rx.Singles;
 import com.github.princesslana.eriscasper.rx.websocket.RxWebSocket;
 import com.github.princesslana.eriscasper.rx.websocket.RxWebSocketEvent;
@@ -107,8 +107,8 @@ public class Gateway {
 
     Completable setSessionId =
         events
-            .ofType(Events.Ready.class)
-            .map(r -> r.getData().getSessionId())
+            .ofType(Ready.class)
+            .map(r -> r.unwrap().getSessionId())
             .doOnNext(this::setSessionId)
             .ignoreElements();
 
