@@ -2,7 +2,7 @@ package com.github.princesslana.eriscasper.repository;
 
 import com.github.princesslana.eriscasper.event.Event;
 import com.google.common.base.Preconditions;
-import io.reactivex.Flowable;
+import io.reactivex.Observable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -28,7 +28,7 @@ public class RepositoryManager {
     repositories.put(def.getName(), repository);
   }
 
-  public void connect(Flowable<Event> events) {
+  public void connect(Observable<Event> events) {
     get(RepositoryDefinition.USER).connect(events);
   }
 

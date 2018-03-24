@@ -7,7 +7,7 @@ import com.github.princesslana.eriscasper.ErisCasper;
 import com.github.princesslana.eriscasper.data.Message;
 import com.github.princesslana.eriscasper.event.Events;
 import io.reactivex.Completable;
-import io.reactivex.Flowable;
+import io.reactivex.Observable;
 import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Function;
 import io.reactivex.functions.Predicate;
@@ -68,7 +68,7 @@ public class Robot {
     ec.run(Bots.merge(bots));
   }
 
-  private static Flowable<Message> messages(BotContext bctx) {
+  private static Observable<Message> messages(BotContext bctx) {
     return bctx.getEvents()
         .ofType(Events.MessageCreate.class)
         .map(Events.MessageCreate::getData)
