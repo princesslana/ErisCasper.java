@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.github.princesslana.eriscasper.immutable.Wrapped;
 import com.github.princesslana.eriscasper.immutable.Wrapper;
-import java.util.Collection;
+import com.google.common.collect.ImmutableList;
 import org.immutables.value.Value;
 
 /**
@@ -27,7 +27,7 @@ public interface ReadyData {
 
   /** Used for debugging - the guilds the user is in */
   @JsonProperty("_trace")
-  Collection<String> getTrace();
+  ImmutableList<String> getTrace();
 
   @Value.Immutable
   @Wrapped
