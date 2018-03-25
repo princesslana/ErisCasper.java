@@ -21,6 +21,9 @@ public interface ReadyData {
   /** Information about the user including email */
   User getUser();
 
+  /** The guilds the user is in */
+  ImmutableList<UnavailableGuild> getGuilds();
+
   /** Used for resuming connections */
   @JsonProperty("session_id")
   SessionId getSessionId();
