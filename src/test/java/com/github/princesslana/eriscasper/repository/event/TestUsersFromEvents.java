@@ -5,7 +5,7 @@ import com.github.princesslana.eriscasper.data.ReadyData;
 import com.github.princesslana.eriscasper.data.User;
 import com.github.princesslana.eriscasper.event.Event;
 import com.github.princesslana.eriscasper.event.Ready;
-import com.github.princesslana.eriscasper.faker.DiscordFaker;
+import com.github.princesslana.eriscasper.faker.DataFaker;
 import com.github.princesslana.eriscasper.faker.UserFaker;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subjects.PublishSubject;
@@ -28,8 +28,7 @@ public class TestUsersFromEvents {
     TestObserver<User> observer = new TestObserver<>();
 
     User self = UserFaker.user();
-    ReadyData ready =
-        ImmutableReadyData.builder().user(self).sessionId(DiscordFaker.sessionId()).build();
+    ReadyData ready = ImmutableReadyData.copyOf(DataFaker.ready()).withUser(self);
     events.onNext(Ready.of(ready));
 
     subject.getSelf().subscribe(observer);
