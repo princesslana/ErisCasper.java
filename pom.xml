@@ -35,6 +35,7 @@
   <properties>
     <revision>0-SNAPSHOT</revision>
     <exec.logLevel>debug</exec.logLevel>
+    <surefire.logLevel>off</surefire.logLevel>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -386,6 +387,11 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>${plugin.surefire.version}</version>
+        <configuration>
+          <systemPropertyVariables>
+            <org.slf4j.simpleLogger.defaultLogLevel>${surefire.logLevel}</org.slf4j.simpleLogger.defaultLogLevel>
+          </systemPropertyVariables>
+        </configuration>
       </plugin>
     </plugins>
   </build>
