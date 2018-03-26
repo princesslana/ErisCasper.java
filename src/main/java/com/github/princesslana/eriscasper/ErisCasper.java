@@ -53,7 +53,6 @@ public class ErisCasper {
 
     bot.apply(new BotContext(events, routes, rm))
         .doOnError(t -> LOG.warn("Exception thrown by Bot", t))
-        .retry()
         .blockingAwait();
   }
 

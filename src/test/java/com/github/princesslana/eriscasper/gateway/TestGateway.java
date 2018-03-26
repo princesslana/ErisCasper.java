@@ -6,7 +6,11 @@ import static org.mockito.BDDMockito.notNull;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.princesslana.eriscasper.BotToken;
+import com.github.princesslana.eriscasper.data.ReadyData;
 import com.github.princesslana.eriscasper.event.Event;
+import com.github.princesslana.eriscasper.event.EventType;
+import com.github.princesslana.eriscasper.event.Ready;
+import com.github.princesslana.eriscasper.faker.DataFaker;
 import com.github.princesslana.eriscasper.faker.DiscordFaker;
 import com.github.princesslana.eriscasper.gateway.Payloads.ConnectionProperties;
 import com.github.princesslana.eriscasper.gateway.Payloads.Identify;
@@ -31,6 +35,8 @@ public class TestGateway {
   @Mock private RxWebSocket mockRxWebSocket;
   @Mock private WebSocket mockWebSocket;
 
+  private final PublishSubject<RxWebSocketEvent> wsEvents = PublishSubject.create();
+
   private final ObjectMapper jackson = Jackson.newObjectMapper();
   private final Payloads payloads = new Payloads(jackson);
 
@@ -44,40 +50,44 @@ public class TestGateway {
   @BeforeMethod
   public void subject() {
     subject = new Gateway(mockRxWebSocket, payloads);
+
+    given(mockRxWebSocket.connect(notNull())).willReturn(wsEvents);
   }
 
   @Test
   public void connect_shouldConnectWithVersionAndJsonEncoding() {
-    PublishSubject<RxWebSocketEvent> wsEvents = PublishSubject.create();
-
     ArgumentCaptor<String> urlCapture = ArgumentCaptor.forClass(String.class);
     given(mockRxWebSocket.connect(urlCapture.capture())).willReturn(wsEvents);
 
-    subject.connect("wss://localhost", DiscordFaker.botToken());
+    connect();
 
     Assertions.assertThat(urlCapture.getValue()).isEqualTo("wss://localhost?v=6&encoding=json");
   }
 
   @Test
-  public void connect_whenHelloPayload_shouldIdentify() throws IOException {
-    PublishSubject<RxWebSocketEvent> wsEvents = PublishSubject.create();
+  public void connect_whenInvalidPayload_shouldNotComplete() {
+    TestObserver<Event> subscriber = connect();
 
+    wsEvents.onNext(StringMessageTuple.of(mockWebSocket, "bad_payload_data"));
+
+    subscriber.assertNotComplete();
+    subscriber.assertNoValues();
+  }
+
+  @Test
+  public void connect_whenHelloPayload_shouldIdentify() throws IOException {
     ArgumentCaptor<String> message = ArgumentCaptor.forClass(String.class);
 
-    given(mockRxWebSocket.connect(notNull())).willReturn(wsEvents);
     given(mockRxWebSocket.send(message.capture())).willReturn(Completable.complete());
 
     BotToken token = DiscordFaker.botToken();
 
-    TestObserver<Event> subscriber = subject.connect("wss://localhost", token).test();
+    TestObserver<Event> subscriber = connect(token);
 
     JsonNode d =
         jackson.valueToTree(ImmutableHeartbeat.builder().heartbeatInterval(Long.MAX_VALUE).build());
 
-    wsEvents.onNext(
-        StringMessageTuple.of(
-            mockWebSocket,
-            jackson.writeValueAsString(ImmutablePayload.builder().op(OpCode.HELLO).d(d).build())));
+    wsEvents.onNext(stringMessageOf(ImmutablePayload.builder().op(OpCode.HELLO).d(d).build()));
 
     String sent = message.getValue();
 
@@ -89,5 +99,61 @@ public class TestGateway {
     Assertions.assertThat(identify)
         .hasFieldOrPropertyWithValue("token", token)
         .hasFieldOrPropertyWithValue("properties", ConnectionProperties.ofDefault());
+  }
+
+  @Test
+  public void connect_whenReadyPayload_shouldEmitReadyEvent() {
+    TestObserver<Event> subscriber = connect();
+
+    ReadyData ready = DataFaker.ready();
+
+    wsEvents.onNext(
+        stringMessageOf(
+            ImmutablePayload.builder()
+                .op(OpCode.DISPATCH)
+                .d(jackson.valueToTree(ready))
+                .t(EventType.READY)
+                .build()));
+
+    subscriber.assertNotComplete();
+    subscriber.assertValues(Ready.of(ready));
+  }
+
+  @Test
+  public void connect_whenBadEventType_shouldNotComplete() {
+    TestObserver<Event> subscriber = connect();
+
+    wsEvents.onNext(StringMessageTuple.of(mockWebSocket, "{\"op\":0,\"t\":\"BAD_EVENT_TYPE\"}"));
+
+    subscriber.assertNotComplete();
+    subscriber.assertNoValues();
+  }
+
+  @Test
+  public void connect_whenBadEventData_shouldNotComplete() {
+    TestObserver<Event> subscriber = connect();
+
+    wsEvents.onNext(
+        StringMessageTuple.of(
+            mockWebSocket, "{\"op\":0,\"d\":\"bad_event_data\",\"t\":\"READY\"}"));
+
+    subscriber.assertNotComplete();
+    subscriber.assertNoValues();
+  }
+
+  private TestObserver<Event> connect() {
+    return connect(DiscordFaker.botToken());
+  }
+
+  private TestObserver<Event> connect(BotToken token) {
+    return subject.connect("wss://localhost", token).test();
+  }
+
+  private RxWebSocketEvent.StringMessage stringMessageOf(Payload payload) {
+    try {
+      return StringMessageTuple.of(mockWebSocket, jackson.writeValueAsString(payload));
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 }
