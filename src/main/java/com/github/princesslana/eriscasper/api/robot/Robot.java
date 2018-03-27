@@ -17,9 +17,13 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 
-public class Robot {
+public class Robot implements Bot {
 
   private List<Bot> bots = new ArrayList<>();
+
+  public Completable apply(BotContext bctx) {
+    return Bots.merge(bots).apply(bctx);
+  }
 
   public void hear(String regex, Function<RobotContext, Completable> f) {
     hear(Pattern.compile(regex), f);
@@ -65,7 +69,7 @@ public class Robot {
   }
 
   public void run(ErisCasper ec) {
-    ec.run(Bots.merge(bots));
+    ec.run(this);
   }
 
   private static Observable<Message> messages(BotContext bctx) {

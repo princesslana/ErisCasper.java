@@ -6,7 +6,6 @@ import com.github.princesslana.eriscasper.data.User;
 import com.github.princesslana.eriscasper.event.Event;
 import com.github.princesslana.eriscasper.event.Ready;
 import com.github.princesslana.eriscasper.faker.DataFaker;
-import com.github.princesslana.eriscasper.faker.UserFaker;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subjects.PublishSubject;
 import org.testng.annotations.BeforeMethod;
@@ -27,7 +26,7 @@ public class TestUsersFromEvents {
   public void getSelf_whenAfterReady_shouldReturnSelf() {
     TestObserver<User> observer = new TestObserver<>();
 
-    User self = UserFaker.user();
+    User self = DataFaker.user();
     ReadyData ready = ImmutableReadyData.copyOf(DataFaker.ready()).withUser(self);
     events.onNext(Ready.of(ready));
 
