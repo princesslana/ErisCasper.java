@@ -2,7 +2,7 @@ package com.github.princesslana.eriscasper.rx.websocket;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.notNull;
-import static org.mockito.BDDMockito.verify;
+import static org.mockito.BDDMockito.then;
 
 import io.reactivex.observers.TestObserver;
 import okhttp3.OkHttpClient;
@@ -74,6 +74,6 @@ public class TestRxWebSocket {
     TestObserver<Void> subscriber = subject.send(TEST_MESSAGE).test();
 
     subscriber.assertComplete();
-    verify(mockWebSocket).send(TEST_MESSAGE);
+    then(mockWebSocket).should().send(TEST_MESSAGE);
   }
 }
