@@ -20,7 +20,7 @@ public class DiscordFaker {
   }
 
   public static BotToken botToken() {
-    return BotToken.of(RandomStringUtils.random(32));
+    return BotToken.of(RandomStringUtils.randomAlphanumeric(32));
   }
 
   public static SessionId sessionId() {
