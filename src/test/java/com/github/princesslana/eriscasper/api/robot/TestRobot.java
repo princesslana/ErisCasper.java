@@ -8,6 +8,7 @@ import com.github.javafaker.Faker;
 import com.github.princesslana.eriscasper.BotContext;
 import com.github.princesslana.eriscasper.data.ChannelId;
 import com.github.princesslana.eriscasper.data.ImmutableMessage;
+import com.github.princesslana.eriscasper.data.ImmutableUser;
 import com.github.princesslana.eriscasper.data.User;
 import com.github.princesslana.eriscasper.data.Users;
 import com.github.princesslana.eriscasper.event.Event;
@@ -92,6 +93,21 @@ public class TestRobot {
 
     events.onNext(
         MessageCreate.of(ImmutableMessage.copyOf(DataFaker.message()).withContent("ping")));
+
+    then(routes).shouldHaveZeroInteractions();
+    subscriber.assertNotTerminated();
+  }
+
+  @Test
+  public void listen_whenForPing_shouldIgnoreBot() {
+    subject.listen("ping", ctx -> ctx.reply("pong"));
+    TestObserver<Void> subscriber = run();
+
+    User author = ImmutableUser.copyOf(DataFaker.user()).withIsBot(true);
+
+    events.onNext(
+        MessageCreate.of(
+            ImmutableMessage.copyOf(DataFaker.message()).withAuthor(author).withContent("+ping")));
 
     then(routes).shouldHaveZeroInteractions();
     subscriber.assertNotTerminated();
