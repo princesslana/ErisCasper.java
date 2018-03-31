@@ -2,7 +2,9 @@ package com.github.princesslana.eriscasper.event;
 
 import com.github.princesslana.eriscasper.data.GuildCreateData;
 import com.github.princesslana.eriscasper.data.Message;
-import com.github.princesslana.eriscasper.data.ReadyData;
+import com.github.princesslana.eriscasper.data.event.Event;
+import com.github.princesslana.eriscasper.data.event.ReadyEvent;
+import com.github.princesslana.eriscasper.data.event.ReadyEventData;
 import com.github.princesslana.eriscasper.data.ResumedData;
 import com.github.princesslana.eriscasper.data.TypingStartData;
 import java.util.function.Function;
@@ -23,7 +25,7 @@ import java.util.function.Function;
 public enum EventType {
   GUILD_CREATE(GuildCreateData.class, GuildCreate::of),
   MESSAGE_CREATE(Message.class, MessageCreate::of),
-  READY(ReadyData.class, Ready::of),
+  READY(ReadyEventData.class, ReadyEvent::of),
   RESUMED(ResumedData.class, Resumed::of),
   TYPING_START(TypingStartData.class, TypingStart::of);
 

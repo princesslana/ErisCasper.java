@@ -13,10 +13,10 @@ import org.immutables.value.Value;
 @JsonDeserialize(as = ImmutableTypingStartData.class)
 public interface TypingStartData {
   @JsonProperty("channel_id")
-  ChannelId getChannelId();
+  Snowflake getChannelId();
 
   @JsonProperty("user_id")
-  UserId getUserId();
+  Snowflake getUserId();
 
   Instant getTimestamp();
 }

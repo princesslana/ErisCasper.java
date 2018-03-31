@@ -4,13 +4,17 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.github.princesslana.eriscasper.BotToken;
-import com.github.princesslana.eriscasper.data.SessionId;
-import com.github.princesslana.eriscasper.event.Event;
+import com.github.princesslana.eriscasper.data.event.Event;
+import com.github.princesslana.eriscasper.data.immutable.Wrapped;
+import com.github.princesslana.eriscasper.data.immutable.Wrapper;
 import com.github.princesslana.eriscasper.rx.Maybes;
 import com.google.common.collect.ImmutableList;
+
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+
 import java.util.Optional;
+
 import org.immutables.value.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -125,4 +129,8 @@ public class Payloads {
 
     SequenceNumber getSeq();
   }
+  
+  @Value.Immutable
+  @Wrapped
+  public static interface SessionIdWrapper extends Wrapper<String> { }
 }
