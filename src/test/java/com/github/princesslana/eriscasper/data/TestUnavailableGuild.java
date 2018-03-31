@@ -1,5 +1,7 @@
 package com.github.princesslana.eriscasper.data;
 
+import com.github.princesslana.eriscasper.data.resource.UnavailableGuildResource;
+import java.util.Optional;
 import org.testng.annotations.Test;
 
 public class TestUnavailableGuild {
@@ -13,8 +15,8 @@ public class TestUnavailableGuild {
   public void deserialize_whenExamplePayload_shouldDeseralize() {
     String payload = "{ \"id\": \"41771983423143937\", \"unavailable\": true }";
 
-    DataAssert.thatFromJson(payload, UnavailableGuild.class)
-        .hasFieldOrPropertyWithValue("id", GuildId.of("41771983423143937"))
-        .hasFieldOrPropertyWithValue("unavailable", true);
+    DataAssert.thatFromJson(payload, UnavailableGuildResource.class)
+        .hasFieldOrPropertyWithValue("id", Snowflake.of("41771983423143937"))
+        .hasFieldOrPropertyWithValue("unavailable", Optional.of(true));
   }
 }

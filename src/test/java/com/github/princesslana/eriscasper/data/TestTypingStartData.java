@@ -12,8 +12,8 @@ public class TestTypingStartData {
             + "\"channel_id\":\"424363501012779009\"}";
 
     DataAssert.thatFromJson(payload, TypingStartData.class)
-        .hasFieldOrPropertyWithValue("userId", UserId.of("215210079148834816"))
-        .hasFieldOrPropertyWithValue("channelId", ChannelId.of("424363501012779009"))
+        .hasFieldOrPropertyWithValue("userId", Snowflake.of("215210079148834816"))
+        .hasFieldOrPropertyWithValue("channelId", Snowflake.of("424363501012779009"))
         .hasFieldOrPropertyWithValue("timestamp", Instant.ofEpochSecond(1521450931));
   }
 }

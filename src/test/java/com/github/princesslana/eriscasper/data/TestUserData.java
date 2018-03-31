@@ -1,5 +1,6 @@
 package com.github.princesslana.eriscasper.data;
 
+import com.github.princesslana.eriscasper.data.resource.UserResource;
 import java.util.Optional;
 import org.testng.annotations.Test;
 
@@ -15,14 +16,14 @@ public class TestUserData {
             + "\"avatar\"       :null"
             + "}";
 
-    DataAssert.thatFromJson(payload, User.class)
-        .hasFieldOrPropertyWithValue("id", UserId.of("417388135027048495"))
+    DataAssert.thatFromJson(payload, UserResource.class)
+        .hasFieldOrPropertyWithValue("id", Snowflake.of("417388135027048495"))
         .hasFieldOrPropertyWithValue("username", "LaBotuel")
         .hasFieldOrPropertyWithValue("discriminator", "7013")
         .hasFieldOrPropertyWithValue("avatar", Optional.empty())
-        .hasFieldOrPropertyWithValue("bot", true)
-        .hasFieldOrPropertyWithValue("mfaEnabled", false)
-        .hasFieldOrPropertyWithValue("verified", false)
+        .hasFieldOrPropertyWithValue("bot", Optional.of(true))
+        .hasFieldOrPropertyWithValue("mfaEnabled", Optional.empty())
+        .hasFieldOrPropertyWithValue("verified", Optional.empty())
         .hasFieldOrPropertyWithValue("email", Optional.empty());
   }
 
@@ -41,14 +42,14 @@ public class TestUserData {
             + "\"email\"        : \"nelly@discordapp.com\""
             + "}";
 
-    DataAssert.thatFromJson(payload, User.class)
-        .hasFieldOrPropertyWithValue("id", UserId.of("80351110224678912"))
+    DataAssert.thatFromJson(payload, UserResource.class)
+        .hasFieldOrPropertyWithValue("id", Snowflake.of("80351110224678912"))
         .hasFieldOrPropertyWithValue("username", "Nelly")
         .hasFieldOrPropertyWithValue("discriminator", "1337")
         .hasFieldOrPropertyWithValue("avatar", Optional.of("8342729096ea3675442027381ff50dfe"))
-        .hasFieldOrPropertyWithValue("bot", false)
-        .hasFieldOrPropertyWithValue("mfaEnabled", false)
-        .hasFieldOrPropertyWithValue("verified", true)
+        .hasFieldOrPropertyWithValue("bot", Optional.empty())
+        .hasFieldOrPropertyWithValue("mfaEnabled", Optional.empty())
+        .hasFieldOrPropertyWithValue("verified", Optional.of(true))
         .hasFieldOrPropertyWithValue("email", Optional.of("nelly@discordapp.com"));
   }
 }

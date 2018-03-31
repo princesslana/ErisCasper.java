@@ -2,7 +2,7 @@ package com.github.princesslana.eriscasper.gateway;
 
 import com.github.princesslana.eriscasper.BotToken;
 import com.github.princesslana.eriscasper.data.event.Event;
-import com.github.princesslana.eriscasper.data.event.HelloEvent;
+import com.github.princesslana.eriscasper.data.event.HelloEventData;
 import com.github.princesslana.eriscasper.data.event.ReadyEvent;
 import com.github.princesslana.eriscasper.rx.Singles;
 import com.github.princesslana.eriscasper.rx.websocket.RxWebSocket;
@@ -135,9 +135,9 @@ public class Gateway {
 
   private Completable heartbeat(RxWebSocket ws, Payload hello) {
     return payloads
-        .dataAs(hello, HelloEvent.class)
+        .dataAs(hello, HelloEventData.class)
         .flatMapObservable(
-            h -> Observable.interval(h.unwrap().getHeartbeatInterval(), TimeUnit.MILLISECONDS))
+            h -> Observable.interval(h.getHeartbeatInterval(), TimeUnit.MILLISECONDS))
         .flatMapCompletable(l -> send(ws, payloads.heartbeat(lastSeenSequenceNumber)));
   }
 

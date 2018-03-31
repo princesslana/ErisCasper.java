@@ -2,11 +2,11 @@ package com.github.princesslana.eriscasper.event;
 
 import com.github.princesslana.eriscasper.data.GuildCreateData;
 import com.github.princesslana.eriscasper.data.Message;
+import com.github.princesslana.eriscasper.data.ResumedData;
+import com.github.princesslana.eriscasper.data.TypingStartData;
 import com.github.princesslana.eriscasper.data.event.Event;
 import com.github.princesslana.eriscasper.data.event.ReadyEvent;
 import com.github.princesslana.eriscasper.data.event.ReadyEventData;
-import com.github.princesslana.eriscasper.data.ResumedData;
-import com.github.princesslana.eriscasper.data.TypingStartData;
 import java.util.function.Function;
 
 /**
