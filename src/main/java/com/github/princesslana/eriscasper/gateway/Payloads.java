@@ -66,16 +66,6 @@ public class Payloads {
     return Single.fromCallable(() -> jackson.writeValueAsString(p));
   }
 
-  @Value.Immutable
-  @JsonDeserialize(as = ImmutableHeartbeat.class)
-  public static interface Heartbeat {
-    @JsonProperty("heartbeat_interval")
-    Long getHeartbeatInterval();
-
-    @JsonProperty("_trace")
-    ImmutableList<String> getTrace();
-  }
-
   /**
    * @see <a href="https://discordapp.com/developers/docs/topics/gateway#identify">
    *     https://discordapp.com/developers/docs/topics/gateway#identify</a>
