@@ -1,5 +1,7 @@
 package com.github.princesslana.eriscasper.data;
 
+import com.github.princesslana.eriscasper.data.resource.User;
+
 public class Users {
   private Users() {}
 

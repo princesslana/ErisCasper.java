@@ -76,6 +76,6 @@ public class Robot implements Bot {
     return bctx.getEvents()
         .ofType(MessageCreate.class)
         .map(MessageCreate::unwrap)
-        .filter(m -> !m.getAuthor().isBot());
+        .filter(m -> !m.getAuthor().isBot().orElse(false));
   }
 }

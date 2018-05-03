@@ -6,14 +6,15 @@ import static org.mockito.BDDMockito.then;
 
 import com.github.javafaker.Faker;
 import com.github.princesslana.eriscasper.BotContext;
-import com.github.princesslana.eriscasper.data.ChannelId;
 import com.github.princesslana.eriscasper.data.ImmutableMessage;
-import com.github.princesslana.eriscasper.data.ImmutableUser;
-import com.github.princesslana.eriscasper.data.User;
+import com.github.princesslana.eriscasper.data.Snowflake;
 import com.github.princesslana.eriscasper.data.Users;
-import com.github.princesslana.eriscasper.event.Event;
+import com.github.princesslana.eriscasper.data.event.Event;
+import com.github.princesslana.eriscasper.data.resource.ImmutableUser;
+import com.github.princesslana.eriscasper.data.resource.User;
 import com.github.princesslana.eriscasper.event.MessageCreate;
 import com.github.princesslana.eriscasper.faker.DataFaker;
+import com.github.princesslana.eriscasper.faker.DiscordFaker;
 import com.github.princesslana.eriscasper.rest.RouteCatalog;
 import com.github.princesslana.eriscasper.rest.Routes;
 import com.github.princesslana.eriscasper.rest.SendMessageRequest;
@@ -53,7 +54,7 @@ public class TestRobot {
     subject.hear("ping", ctx -> ctx.send("pong"));
     TestObserver<Void> subscriber = run();
 
-    ChannelId channelId = DataFaker.channelId();
+    Snowflake channelId = DiscordFaker.snowflake();
 
     events.onNext(
         MessageCreate.of(
@@ -70,7 +71,7 @@ public class TestRobot {
     subject.listen("ping", ctx -> ctx.reply("pong"));
     TestObserver<Void> subscriber = run();
 
-    ChannelId channelId = DataFaker.channelId();
+    Snowflake channelId = DiscordFaker.snowflake();
     User author = DataFaker.user();
 
     events.onNext(
@@ -118,7 +119,7 @@ public class TestRobot {
     subject.listen("echo (.+)", ctx -> ctx.send(ctx.match(1)));
     TestObserver<Void> subscriber = run();
 
-    ChannelId channelId = DataFaker.channelId();
+    Snowflake channelId = DiscordFaker.snowflake();
 
     String fact = Faker.instance().chuckNorris().fact();
 
@@ -136,7 +137,7 @@ public class TestRobot {
     return subject.apply(bctx).test();
   }
 
-  private void thenShouldSend(ChannelId channelId, String msg) {
+  private void thenShouldSend(Snowflake channelId, String msg) {
     then(routes)
         .should()
         .execute(RouteCatalog.createMessage(channelId), SendMessageRequest.ofText(msg));
