@@ -1,6 +1,7 @@
-package com.github.princesslana.eriscasper.data;
+package com.github.princesslana.eriscasper.data.resource;
 
-import com.github.princesslana.eriscasper.data.resource.UserResource;
+import com.github.princesslana.eriscasper.data.DataAssert;
+import com.github.princesslana.eriscasper.data.Snowflake;
 import java.util.Optional;
 import org.testng.annotations.Test;
 
@@ -16,7 +17,7 @@ public class TestUserData {
             + "\"avatar\"       :null"
             + "}";
 
-    DataAssert.thatFromJson(payload, UserResource.class)
+    DataAssert.thatFromJson(payload, User.class)
         .hasFieldOrPropertyWithValue("id", Snowflake.of("417388135027048495"))
         .hasFieldOrPropertyWithValue("username", "LaBotuel")
         .hasFieldOrPropertyWithValue("discriminator", "7013")
@@ -42,7 +43,7 @@ public class TestUserData {
             + "\"email\"        : \"nelly@discordapp.com\""
             + "}";
 
-    DataAssert.thatFromJson(payload, UserResource.class)
+    DataAssert.thatFromJson(payload, User.class)
         .hasFieldOrPropertyWithValue("id", Snowflake.of("80351110224678912"))
         .hasFieldOrPropertyWithValue("username", "Nelly")
         .hasFieldOrPropertyWithValue("discriminator", "1337")

@@ -2,7 +2,7 @@ package com.github.princesslana.eriscasper.data;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.github.princesslana.eriscasper.data.resource.UserResource;
+import com.github.princesslana.eriscasper.data.resource.User;
 import org.immutables.value.Value;
 
 /**
@@ -15,7 +15,7 @@ public interface Message {
 
   Snowflake getId();
 
-  UserResource getAuthor();
+  User getAuthor();
 
   @JsonProperty("channel_id")
   Snowflake getChannelId();

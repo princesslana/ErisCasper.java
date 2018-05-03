@@ -4,7 +4,7 @@ import com.github.princesslana.eriscasper.data.event.Event;
 import com.github.princesslana.eriscasper.data.event.ImmutableReadyEventData;
 import com.github.princesslana.eriscasper.data.event.ReadyEvent;
 import com.github.princesslana.eriscasper.data.event.ReadyEventData;
-import com.github.princesslana.eriscasper.data.resource.UserResource;
+import com.github.princesslana.eriscasper.data.resource.User;
 import com.github.princesslana.eriscasper.faker.DataFaker;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subjects.PublishSubject;
@@ -24,9 +24,9 @@ public class TestUsersFromEvents {
 
   @Test
   public void getSelf_whenAfterReady_shouldReturnSelf() {
-    TestObserver<UserResource> observer = new TestObserver<>();
+    TestObserver<User> observer = new TestObserver<>();
 
-    UserResource self = DataFaker.user();
+    User self = DataFaker.user();
     ReadyEventData ready = ImmutableReadyEventData.copyOf(DataFaker.ready()).withUser(self);
     events.onNext(ReadyEvent.of(ready));
 

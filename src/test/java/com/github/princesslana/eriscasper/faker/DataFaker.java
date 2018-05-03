@@ -5,8 +5,8 @@ import com.github.princesslana.eriscasper.data.ImmutableMessage;
 import com.github.princesslana.eriscasper.data.Message;
 import com.github.princesslana.eriscasper.data.event.ImmutableReadyEventData;
 import com.github.princesslana.eriscasper.data.event.ReadyEventData;
-import com.github.princesslana.eriscasper.data.resource.ImmutableUserResource;
-import com.github.princesslana.eriscasper.data.resource.UserResource;
+import com.github.princesslana.eriscasper.data.resource.ImmutableUser;
+import com.github.princesslana.eriscasper.data.resource.User;
 import org.apache.commons.lang3.RandomStringUtils;
 
 public class DataFaker {
@@ -33,8 +33,8 @@ public class DataFaker {
         .build();
   }
 
-  public static UserResource user() {
-    return ImmutableUserResource.builder()
+  public static User user() {
+    return ImmutableUser.builder()
         .id(DiscordFaker.snowflake())
         .username(username())
         .discriminator(discriminator())

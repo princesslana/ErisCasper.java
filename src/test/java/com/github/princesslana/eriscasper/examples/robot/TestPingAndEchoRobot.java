@@ -8,7 +8,7 @@ import com.github.princesslana.eriscasper.data.ImmutableMessage;
 import com.github.princesslana.eriscasper.data.Snowflake;
 import com.github.princesslana.eriscasper.data.Users;
 import com.github.princesslana.eriscasper.data.event.Event;
-import com.github.princesslana.eriscasper.data.resource.UserResource;
+import com.github.princesslana.eriscasper.data.resource.User;
 import com.github.princesslana.eriscasper.event.MessageCreate;
 import com.github.princesslana.eriscasper.faker.DataFaker;
 import com.github.princesslana.eriscasper.faker.DiscordFaker;
@@ -43,7 +43,7 @@ public class TestPingAndEchoRobot {
     TestObserver<Void> subscriber = subject.apply(ctx).test();
 
     Snowflake channelId = DiscordFaker.snowflake();
-    UserResource author = DataFaker.user();
+    User author = DataFaker.user();
 
     events.onNext(
         MessageCreate.of(

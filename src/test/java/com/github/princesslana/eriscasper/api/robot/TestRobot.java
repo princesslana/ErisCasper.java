@@ -10,8 +10,8 @@ import com.github.princesslana.eriscasper.data.ImmutableMessage;
 import com.github.princesslana.eriscasper.data.Snowflake;
 import com.github.princesslana.eriscasper.data.Users;
 import com.github.princesslana.eriscasper.data.event.Event;
-import com.github.princesslana.eriscasper.data.resource.ImmutableUserResource;
-import com.github.princesslana.eriscasper.data.resource.UserResource;
+import com.github.princesslana.eriscasper.data.resource.ImmutableUser;
+import com.github.princesslana.eriscasper.data.resource.User;
 import com.github.princesslana.eriscasper.event.MessageCreate;
 import com.github.princesslana.eriscasper.faker.DataFaker;
 import com.github.princesslana.eriscasper.faker.DiscordFaker;
@@ -72,7 +72,7 @@ public class TestRobot {
     TestObserver<Void> subscriber = run();
 
     Snowflake channelId = DiscordFaker.snowflake();
-    UserResource author = DataFaker.user();
+    User author = DataFaker.user();
 
     events.onNext(
         MessageCreate.of(
@@ -104,7 +104,7 @@ public class TestRobot {
     subject.listen("ping", ctx -> ctx.reply("pong"));
     TestObserver<Void> subscriber = run();
 
-    UserResource author = ImmutableUserResource.copyOf(DataFaker.user()).withIsBot(true);
+    User author = ImmutableUser.copyOf(DataFaker.user()).withIsBot(true);
 
     events.onNext(
         MessageCreate.of(
