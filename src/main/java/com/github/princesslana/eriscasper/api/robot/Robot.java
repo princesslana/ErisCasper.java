@@ -19,12 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class Robot implements Bot {
-
-  private static final Logger LOG = LoggerFactory.getLogger(Robot.class);
 
   private List<Bot> bots = new ArrayList<>();
 
@@ -63,7 +59,6 @@ public class Robot implements Bot {
         (btx, m) ->
             prefix
                 .apply(btx)
-                .doOnSuccess(p -> LOG.debug("Checking prefix {}...", p, m))
                 .flatMapMaybe(p -> m.getContent().startsWith(p) ? Maybe.just(m) : Maybe.empty());
 
     BiFunction<BotContext, Message, Single<RobotContext>> toRobotContext =
