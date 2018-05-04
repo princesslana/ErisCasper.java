@@ -7,13 +7,13 @@ import com.github.princesslana.eriscasper.ErisCasper;
 import com.github.princesslana.eriscasper.data.Message;
 import com.github.princesslana.eriscasper.event.MessageCreate;
 import io.reactivex.Completable;
+import io.reactivex.Maybe;
 import io.reactivex.Observable;
+import io.reactivex.Single;
 import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Function;
-import io.reactivex.functions.Predicate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 
@@ -30,7 +30,7 @@ public class Robot implements Bot {
   }
 
   public void hear(Pattern regex, Function<RobotContext, Completable> f) {
-    listen(regex, f, Optional.empty());
+    listen(regex, f, "");
   }
 
   public void listen(String regex, Function<RobotContext, Completable> f) {
@@ -39,27 +39,28 @@ public class Robot implements Bot {
 
   public void listen(Pattern regex, Function<RobotContext, Completable> f) {
     // TODO: Add more prefixes. e.g., name, which requires BotContext#getSelf
-    listen(regex, f, Optional.of("+"));
+    listen(regex, f, "+");
   }
 
-  private void listen(
-      Pattern regex, Function<RobotContext, Completable> f, Optional<String> prefix) {
-    Predicate<Message> startsWithPrefix =
-        m -> prefix.map(p -> m.getContent().startsWith(p)).orElse(true);
+  private void listen(Pattern regex, Function<RobotContext, Completable> f, String prefix) {
+    listen(regex, f, Single.just(prefix));
+  }
 
-    BiFunction<BotContext, Message, RobotContext> toRobotContext =
-        (bctx, m) -> {
-          String content =
-              prefix.map(p -> StringUtils.removeStart(m.getContent(), p)).orElse(m.getContent());
+  private void listen(Pattern regex, Function<RobotContext, Completable> f, Single<String> prefix) {
+    Function<Message, Maybe<Message>> startsWithPrefix =
+        m -> prefix.flatMapMaybe(p -> m.getContent().startsWith(p) ? Maybe.just(m) : Maybe.empty());
 
-          return new RobotContext(bctx, regex.matcher(content), m);
-        };
+    BiFunction<BotContext, Message, Single<RobotContext>> toRobotContext =
+        (bctx, m) ->
+            prefix
+                .map(p -> StringUtils.removeStart(m.getContent(), p))
+                .map(c -> new RobotContext(bctx, regex.matcher(c), m));
 
     bots.add(
         bctx ->
             messages(bctx)
-                .filter(startsWithPrefix)
-                .map(msg -> toRobotContext.apply(bctx, msg))
+                .flatMapMaybe(startsWithPrefix)
+                .flatMapSingle(msg -> toRobotContext.apply(bctx, msg))
                 .filter(RobotContext::matches)
                 .flatMapCompletable(f));
   }
