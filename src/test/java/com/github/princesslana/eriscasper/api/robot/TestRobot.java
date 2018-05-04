@@ -15,6 +15,9 @@ import com.github.princesslana.eriscasper.data.resource.User;
 import com.github.princesslana.eriscasper.event.MessageCreate;
 import com.github.princesslana.eriscasper.faker.DataFaker;
 import com.github.princesslana.eriscasper.faker.DiscordFaker;
+import com.github.princesslana.eriscasper.repository.RepositoryDefinition;
+import com.github.princesslana.eriscasper.repository.RepositoryManager;
+import com.github.princesslana.eriscasper.repository.UserRepository;
 import com.github.princesslana.eriscasper.rest.RouteCatalog;
 import com.github.princesslana.eriscasper.rest.Routes;
 import com.github.princesslana.eriscasper.rest.SendMessageRequest;
@@ -30,6 +33,9 @@ public class TestRobot {
 
   @Mock private Routes routes;
 
+  @Mock private RepositoryManager repositoryManager;
+  @Mock private UserRepository userRepository;
+
   private Robot subject;
 
   private BotContext bctx;
@@ -40,7 +46,10 @@ public class TestRobot {
     MockitoAnnotations.initMocks(this);
     subject = new Robot();
 
-    bctx = new BotContext(events, routes, null);
+    bctx = new BotContext(events, routes, repositoryManager);
+
+    given(repositoryManager.get(RepositoryDefinition.USER)).willReturn(userRepository);
+    given(userRepository.getSelf()).willReturn(Single.just(DataFaker.user()));
 
     // This mocks out the message create endpoint.
     // Returning a fake message does not match with the actual endpoint

@@ -5,15 +5,18 @@ import com.github.princesslana.eriscasper.BotContext;
 import com.github.princesslana.eriscasper.Bots;
 import com.github.princesslana.eriscasper.ErisCasper;
 import com.github.princesslana.eriscasper.data.Message;
+import com.github.princesslana.eriscasper.data.Users;
+import com.github.princesslana.eriscasper.data.resource.User;
 import com.github.princesslana.eriscasper.event.MessageCreate;
+import com.github.princesslana.eriscasper.repository.RepositoryDefinition;
 import io.reactivex.Completable;
+import io.reactivex.Maybe;
 import io.reactivex.Observable;
+import io.reactivex.Single;
 import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Function;
-import io.reactivex.functions.Predicate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 
@@ -30,7 +33,7 @@ public class Robot implements Bot {
   }
 
   public void hear(Pattern regex, Function<RobotContext, Completable> f) {
-    listen(regex, f, Optional.empty());
+    listen(regex, f, "");
   }
 
   public void listen(String regex, Function<RobotContext, Completable> f) {
@@ -38,28 +41,38 @@ public class Robot implements Bot {
   }
 
   public void listen(Pattern regex, Function<RobotContext, Completable> f) {
-    // TODO: Add more prefixes. e.g., name, which requires BotContext#getSelf
-    listen(regex, f, Optional.of("+"));
+    listen(regex, f, "+");
+    listen(regex, f, bctx -> getSelf(bctx).map(s -> s.getUsername() + " "));
+    listen(regex, f, bctx -> getSelf(bctx).map(s -> Users.mention(s) + " "));
+  }
+
+  private void listen(Pattern regex, Function<RobotContext, Completable> f, String prefix) {
+    listen(regex, f, __ -> Single.just(prefix));
   }
 
   private void listen(
-      Pattern regex, Function<RobotContext, Completable> f, Optional<String> prefix) {
-    Predicate<Message> startsWithPrefix =
-        m -> prefix.map(p -> m.getContent().startsWith(p)).orElse(true);
+      Pattern regex,
+      Function<RobotContext, Completable> f,
+      Function<BotContext, Single<String>> prefix) {
 
-    BiFunction<BotContext, Message, RobotContext> toRobotContext =
-        (bctx, m) -> {
-          String content =
-              prefix.map(p -> StringUtils.removeStart(m.getContent(), p)).orElse(m.getContent());
+    BiFunction<BotContext, Message, Maybe<Message>> startsWithPrefix =
+        (btx, m) ->
+            prefix
+                .apply(btx)
+                .flatMapMaybe(p -> m.getContent().startsWith(p) ? Maybe.just(m) : Maybe.empty());
 
-          return new RobotContext(bctx, regex.matcher(content), m);
-        };
+    BiFunction<BotContext, Message, Single<RobotContext>> toRobotContext =
+        (bctx, m) ->
+            prefix
+                .apply(bctx)
+                .map(p -> StringUtils.removeStart(m.getContent(), p))
+                .map(c -> new RobotContext(bctx, regex.matcher(c), m));
 
     bots.add(
         bctx ->
             messages(bctx)
-                .filter(startsWithPrefix)
-                .map(msg -> toRobotContext.apply(bctx, msg))
+                .flatMapMaybe(m -> startsWithPrefix.apply(bctx, m))
+                .flatMapSingle(msg -> toRobotContext.apply(bctx, msg))
                 .filter(RobotContext::matches)
                 .flatMapCompletable(f));
   }
@@ -77,5 +90,9 @@ public class Robot implements Bot {
         .ofType(MessageCreate.class)
         .map(MessageCreate::unwrap)
         .filter(m -> !m.getAuthor().isBot().orElse(false));
+  }
+
+  private static Single<User> getSelf(BotContext bctx) {
+    return bctx.getRepository(RepositoryDefinition.USER).getSelf();
   }
 }
