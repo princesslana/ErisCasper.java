@@ -20,37 +20,71 @@ import java.util.List;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 
+/**
+ * Robot presents an API that allows execution of callbacks when messages matching regexes are
+ * received.
+ */
 public class Robot implements Bot {
 
   private List<Bot> bots = new ArrayList<>();
 
+  @Override
   public Completable apply(BotContext bctx) {
     return Bots.merge(bots).apply(bctx);
   }
 
+  /**
+   * See {@link hear(Pattern, Function)}.
+   *
+   * @param regex regex to match
+   * @param f function to execute when matched
+   */
   public void hear(String regex, Function<RobotContext, Completable> f) {
     hear(Pattern.compile(regex), f);
   }
 
+  /**
+   * Checks all messages sent against the provided regex. Executes the provided function when there
+   * is a match.
+   *
+   * @param regex regex to match
+   * @param f function to execute when matched
+   */
   public void hear(Pattern regex, Function<RobotContext, Completable> f) {
-    listen(regex, f, "");
+    respond(regex, f, "");
   }
 
-  public void listen(String regex, Function<RobotContext, Completable> f) {
-    listen(Pattern.compile(regex), f);
+  /**
+   * See {@link respond(Pattern, Function)}.
+   *
+   * @param regex regex to match
+   * @param f function to execute when matched
+   */
+  public void respond(String regex, Function<RobotContext, Completable> f) {
+    respond(Pattern.compile(regex), f);
   }
 
-  public void listen(Pattern regex, Function<RobotContext, Completable> f) {
-    listen(regex, f, "+");
-    listen(regex, f, bctx -> getSelf(bctx).map(s -> s.getUsername() + " "));
-    listen(regex, f, bctx -> getSelf(bctx).map(s -> Users.mention(s) + " "));
+  /**
+   * Checks all messages sent directly to the Robot against the provided regex. Executes the
+   * provided function when there is a match.
+   *
+   * <p>Messages are considered to be directed at the Robot if they begin with "+", the username of
+   * the bot account, or a mention of the bot account.
+   *
+   * @param regex regex to match
+   * @param f function to execute when matched
+   */
+  public void respond(Pattern regex, Function<RobotContext, Completable> f) {
+    respond(regex, f, "+");
+    respond(regex, f, bctx -> getSelf(bctx).map(s -> s.getUsername() + " "));
+    respond(regex, f, bctx -> getSelf(bctx).map(s -> Users.mention(s) + " "));
   }
 
-  private void listen(Pattern regex, Function<RobotContext, Completable> f, String prefix) {
-    listen(regex, f, __ -> Single.just(prefix));
+  private void respond(Pattern regex, Function<RobotContext, Completable> f, String prefix) {
+    respond(regex, f, __ -> Single.just(prefix));
   }
 
-  private void listen(
+  private void respond(
       Pattern regex,
       Function<RobotContext, Completable> f,
       Function<BotContext, Single<String>> prefix) {
@@ -77,10 +111,16 @@ public class Robot implements Bot {
                 .flatMapCompletable(f));
   }
 
+  /** Run this Robot on a newly created ErisCasper instance. */
   public void run() {
     run(ErisCasper.create());
   }
 
+  /**
+   * Run this Robot on the provided ErisCasper instance.
+   *
+   * @param ec an ErisCasper instance to run on
+   */
   public void run(ErisCasper ec) {
     ec.run(this);
   }
