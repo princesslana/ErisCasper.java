@@ -76,8 +76,8 @@ public class TestRobot {
   }
 
   @Test
-  public void listen_whenForPing_shouldReplyPong() {
-    subject.listen("ping", ctx -> ctx.reply("pong"));
+  public void respond_whenForPing_shouldReplyPong() {
+    subject.respond("ping", ctx -> ctx.reply("pong"));
     TestObserver<Void> subscriber = run();
 
     Snowflake channelId = DiscordFaker.snowflake();
@@ -97,8 +97,8 @@ public class TestRobot {
   }
 
   @Test
-  public void listen_whenForPing_shouldNotHear() {
-    subject.listen("ping", ctx -> ctx.reply("pong"));
+  public void respond_whenForPing_shouldNotHear() {
+    subject.respond("ping", ctx -> ctx.reply("pong"));
     TestObserver<Void> subscriber = run();
 
     events.onNext(
@@ -109,8 +109,8 @@ public class TestRobot {
   }
 
   @Test
-  public void listen_whenForPing_shouldIgnoreBot() {
-    subject.listen("ping", ctx -> ctx.reply("pong"));
+  public void respond_whenForPing_shouldIgnoreBot() {
+    subject.respond("ping", ctx -> ctx.reply("pong"));
     TestObserver<Void> subscriber = run();
 
     User author = ImmutableUser.copyOf(DataFaker.user()).withIsBot(true);
@@ -124,8 +124,8 @@ public class TestRobot {
   }
 
   @Test
-  public void listen_whenForEchoRegex_shouldSendEcho() {
-    subject.listen("echo (.+)", ctx -> ctx.send(ctx.match(1)));
+  public void respond_whenForEchoRegex_shouldSendEcho() {
+    subject.respond("echo (.+)", ctx -> ctx.send(ctx.match(1)));
     TestObserver<Void> subscriber = run();
 
     Snowflake channelId = DiscordFaker.snowflake();
