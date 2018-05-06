@@ -1,32 +1,68 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BotContext.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">com.github.princesslana.eriscasper</a> &gt; <span class="el_source">BotContext.java</span></div><h1>BotContext.java</h1><pre class="source lang-java linenums">package com.github.princesslana.eriscasper;
 
-import com.github.princesslana.eriscasper.event.Event;
+import com.github.princesslana.eriscasper.action.Action;
+import com.github.princesslana.eriscasper.data.event.Event;
+import com.github.princesslana.eriscasper.data.immutable.Wrapper;
+import com.github.princesslana.eriscasper.repository.RepositoryDefinition;
+import com.github.princesslana.eriscasper.repository.RepositoryManager;
 import com.github.princesslana.eriscasper.rest.Route;
 import com.github.princesslana.eriscasper.rest.Routes;
-import io.reactivex.Flowable;
+import com.google.common.base.Function;
+import io.reactivex.Completable;
+import io.reactivex.Observable;
 import io.reactivex.Single;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BotContext {
 
-  private final Flowable&lt;Event&lt;?&gt;&gt; events;
+<span class="fc" id="L19">  private static final Logger LOG = LoggerFactory.getLogger(BotContext.class);</span>
+
+  private final Observable&lt;Event&gt; events;
 
   private Routes routes;
 
-<span class="nc" id="L15">  public BotContext(Flowable&lt;Event&lt;?&gt;&gt; events, Routes routes) {</span>
-<span class="nc" id="L16">    this.events = events;</span>
-<span class="nc" id="L17">    this.routes = routes;</span>
-<span class="nc" id="L18">  }</span>
+  private RepositoryManager repositories;
 
-  public Flowable&lt;Event&lt;?&gt;&gt; getEvents() {
-<span class="nc" id="L21">    return events;</span>
+<span class="fc" id="L27">  public BotContext(Observable&lt;Event&gt; events, Routes routes, RepositoryManager repositories) {</span>
+<span class="fc" id="L28">    this.events = events;</span>
+<span class="fc" id="L29">    this.routes = routes;</span>
+<span class="fc" id="L30">    this.repositories = repositories;</span>
+<span class="fc" id="L31">  }</span>
+
+  public Observable&lt;Event&gt; getEvents() {
+<span class="fc" id="L34">    return events;</span>
+  }
+
+  public &lt;D, E extends Event &amp; Wrapper&lt;D&gt;&gt; Completable on(
+      Class&lt;E&gt; evt, Function&lt;D, Completable&gt; f) {
+<span class="nc" id="L39">    return events.ofType(evt).map(e -&gt; e.unwrap()).flatMapCompletable(f::apply);</span>
+  }
+
+  public Completable doNothing() {
+<span class="nc" id="L43">    return Completable.complete();</span>
+  }
+
+  /**
+   * Executing an Action means we want to ignore the result.
+   *
+   * &lt;p&gt;(As opposed to a Query)
+   */
+  public &lt;I, O&gt; Completable execute(Action&lt;I, O&gt; action) {
+<span class="fc" id="L52">    LOG.debug(&quot;Executing {}...&quot;, action);</span>
+<span class="fc" id="L53">    return execute(action.getRoute(), action.getData()).toCompletable();</span>
   }
 
   public &lt;Rs&gt; Single&lt;Rs&gt; execute(Route&lt;Void, Rs&gt; route) {
-<span class="nc" id="L25">    return routes.execute(route);</span>
+<span class="nc" id="L57">    return routes.execute(route);</span>
   }
 
   public &lt;Rq, Rs&gt; Single&lt;Rs&gt; execute(Route&lt;Rq, Rs&gt; route, Rq request) {
-<span class="nc" id="L29">    return routes.execute(route, request);</span>
+<span class="fc" id="L61">    return routes.execute(route, request);</span>
+  }
+
+  public &lt;R&gt; R getRepository(RepositoryDefinition&lt;R&gt; def) {
+<span class="fc" id="L65">    return repositories.get(def);</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

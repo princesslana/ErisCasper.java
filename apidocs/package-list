@@ -1,9 +1,14 @@
 com.github.princesslana.eriscasper
+com.github.princesslana.eriscasper.action
+com.github.princesslana.eriscasper.api.robot
 com.github.princesslana.eriscasper.data
 com.github.princesslana.eriscasper.event
 com.github.princesslana.eriscasper.examples
+com.github.princesslana.eriscasper.examples.robot
 com.github.princesslana.eriscasper.gateway
 com.github.princesslana.eriscasper.immutable
+com.github.princesslana.eriscasper.repository
+com.github.princesslana.eriscasper.repository.event
 com.github.princesslana.eriscasper.rest
 com.github.princesslana.eriscasper.rx
 com.github.princesslana.eriscasper.rx.websocket

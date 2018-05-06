@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EchoBot.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">com.github.princesslana.eriscasper.examples</a> &gt; <span class="el_source">EchoBot.java</span></div><h1>EchoBot.java</h1><pre class="source lang-java linenums">package com.github.princesslana.eriscasper.examples;
+
+import com.github.princesslana.eriscasper.ErisCasper;
+import com.github.princesslana.eriscasper.event.MessageCreate;
+import com.github.princesslana.eriscasper.rest.ImmutableSendMessageRequest;
+import com.github.princesslana.eriscasper.rest.RouteCatalog;
+
+<span class="nc" id="L8">public class EchoBot {</span>
+  public static void main(String args[]) {
+<span class="nc" id="L10">    ErisCasper.create()</span>
+<span class="nc" id="L11">        .run(</span>
+            ctx -&gt;
+<span class="nc" id="L13">                ctx.getEvents()</span>
+
+                    // Same type as PingBot in examples
+<span class="nc" id="L16">                    .ofType(MessageCreate.class)</span>
+<span class="nc" id="L17">                    .map(MessageCreate::unwrap)</span>
+
+                    // Need to check for bot's own message
+<span class="nc bnc" id="L20" title="All 2 branches missed.">                    .filter(d -&gt; !d.getAuthor().isBot().orElse(false))</span>
+<span class="nc" id="L21">                    .filter(d -&gt; d.getContent().startsWith(&quot;+echo&quot;))</span>
+<span class="nc" id="L22">                    .flatMapCompletable(</span>
+                        d -&gt; {
+<span class="nc" id="L24">                          String replyMessage = d.getContent().replaceFirst(&quot;\\+echo&quot;, &quot;&quot;);</span>
+
+                          // Empty Arguments
+<span class="nc bnc" id="L27" title="All 2 branches missed.">                          if (replyMessage.trim().isEmpty()) {</span>
+<span class="nc" id="L28">                            replyMessage = &quot;This command requires 1 argument&quot;;</span>
+                          }
+
+<span class="nc" id="L31">                          return ctx.execute(</span>
+<span class="nc" id="L32">                                  RouteCatalog.createMessage(d.getChannelId()),</span>
+<span class="nc" id="L33">                                  ImmutableSendMessageRequest.builder()</span>
+<span class="nc" id="L34">                                      .content(replyMessage)</span>
+<span class="nc" id="L35">                                      .build())</span>
+<span class="nc" id="L36">                              .toCompletable();</span>
+                        }));
+<span class="nc" id="L38">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

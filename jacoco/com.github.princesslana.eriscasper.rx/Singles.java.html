@@ -11,7 +11,7 @@ public class Singles {
 
   public static &lt;A, T&gt; Function&lt;A, Maybe&lt;T&gt;&gt; toMaybeAnd(
       Function&lt;A, Single&lt;T&gt;&gt; s, BiConsumer&lt;A, Throwable&gt; onError) {
-<span class="nc" id="L14">    return a -&gt; s.apply(a).toMaybe().doOnError(e -&gt; onError.accept(a, e)).onErrorComplete();</span>
+<span class="fc" id="L14">    return a -&gt; s.apply(a).toMaybe().doOnError(e -&gt; onError.accept(a, e)).onErrorComplete();</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

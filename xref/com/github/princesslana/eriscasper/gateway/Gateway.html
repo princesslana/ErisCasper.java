@@ -9,27 +9,27 @@
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <strong class="jxr_keyword">package</strong> com.github.princesslana.eriscasper.gateway;
 <a class="jxr_linenumber" name="L2" href="#L2">2</a>   
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <strong class="jxr_keyword">import</strong> com.github.princesslana.eriscasper.BotToken;
-<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <strong class="jxr_keyword">import</strong> com.github.princesslana.eriscasper.rx.Singles;
-<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">import</strong> com.github.princesslana.eriscasper.rx.websocket.RxWebSocket;
-<a class="jxr_linenumber" name="L6" href="#L6">6</a>   <strong class="jxr_keyword">import</strong> com.github.princesslana.eriscasper.rx.websocket.RxWebSocketEvent;
-<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> com.google.common.io.Closer;
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> io.github.resilience4j.ratelimiter.RateLimiter;
-<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> io.github.resilience4j.ratelimiter.RateLimiterConfig;
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> io.github.resilience4j.ratelimiter.<strong class="jxr_keyword">operator</strong>.RateLimiterOperator;
-<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> io.reactivex.Completable;
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> io.reactivex.Flowable;
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> io.reactivex.Observable;
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> io.reactivex.Single;
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> java.io.Closeable;
-<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> java.io.IOException;
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <strong class="jxr_keyword">import</strong> com.github.princesslana.eriscasper.data.event.Event;
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">import</strong> com.github.princesslana.eriscasper.data.event.HelloEventData;
+<a class="jxr_linenumber" name="L6" href="#L6">6</a>   <strong class="jxr_keyword">import</strong> com.github.princesslana.eriscasper.data.event.ReadyEvent;
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> com.github.princesslana.eriscasper.rx.Singles;
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> com.github.princesslana.eriscasper.rx.websocket.RxWebSocket;
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> com.github.princesslana.eriscasper.rx.websocket.RxWebSocketEvent;
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> com.google.common.base.Preconditions;
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> io.github.resilience4j.ratelimiter.RateLimiter;
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> io.github.resilience4j.ratelimiter.RateLimiterConfig;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> io.github.resilience4j.ratelimiter.<strong class="jxr_keyword">operator</strong>.RateLimiterOperator;
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> io.reactivex.Completable;
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> io.reactivex.Observable;
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> io.reactivex.Single;
 <a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> java.time.Duration;
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> java.util.concurrent.TimeUnit;
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> java.util.concurrent.atomic.AtomicReference;
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> java.util.Optional;
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> java.util.concurrent.TimeUnit;
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> okhttp3.OkHttpClient;
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> org.slf4j.Logger;
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> org.slf4j.LoggerFactory;
 <a class="jxr_linenumber" name="L23" href="#L23">23</a>  
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../com/github/princesslana/eriscasper/gateway/Gateway.html">Gateway</a> <strong class="jxr_keyword">implements</strong> Closeable {
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../com/github/princesslana/eriscasper/gateway/Gateway.html">Gateway</a> {
 <a class="jxr_linenumber" name="L25" href="#L25">25</a>  
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger LOG = LoggerFactory.getLogger(Gateway.<strong class="jxr_keyword">class</strong>);
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>  
@@ -42,12 +42,12 @@
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String VERSION = <span class="jxr_string">"6"</span>;
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String ENCODING = <span class="jxr_string">"json"</span>;
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> OkHttpClient client;
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../com/github/princesslana/eriscasper/rx/websocket/RxWebSocket.html">RxWebSocket</a> ws;
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../com/github/princesslana/eriscasper/gateway/Payloads.html">Payloads</a> payloads;
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>  
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> AtomicReference&lt;SequenceNumber&gt; lastSeenSequenceNumber = <strong class="jxr_keyword">new</strong> AtomicReference&lt;&gt;();
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>    <strong class="jxr_keyword">private</strong> Optional&lt;SequenceNumber&gt; lastSeenSequenceNumber = Optional.empty();
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>  
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Closer closer = Closer.create();
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>    <strong class="jxr_keyword">private</strong> Optional&lt;SessionId&gt; sessionId = Optional.empty();
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>  
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>    <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>  <em class="jxr_javadoccomment">   * @see &lt;a href="https://discordapp.com/developers/docs/topics/gateway#rate-limiting"&gt;</em>
@@ -75,62 +75,99 @@
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>                .timeoutDuration(Duration.ofSeconds(60))
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>                .build());
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>  
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>    <strong class="jxr_keyword">public</strong> <a href="../../../../../com/github/princesslana/eriscasper/gateway/Gateway.html">Gateway</a>(OkHttpClient client, <a href="../../../../../com/github/princesslana/eriscasper/gateway/Payloads.html">Payloads</a> payloads) {
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>      <strong class="jxr_keyword">this</strong>.client = client;
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>    <strong class="jxr_keyword">public</strong> <a href="../../../../../com/github/princesslana/eriscasper/gateway/Gateway.html">Gateway</a>(<a href="../../../../../com/github/princesslana/eriscasper/rx/websocket/RxWebSocket.html">RxWebSocket</a> ws, <a href="../../../../../com/github/princesslana/eriscasper/gateway/Payloads.html">Payloads</a> payloads) {
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>      <strong class="jxr_keyword">this</strong>.ws = ws;
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>      <strong class="jxr_keyword">this</strong>.payloads = payloads;
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>    }
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>  
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>    <strong class="jxr_keyword">public</strong> Flowable&lt;Payload&gt; connect(String url, BotToken token) {
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>      <a href="../../../../../com/github/princesslana/eriscasper/rx/websocket/RxWebSocket.html">RxWebSocket</a> ws = closer.register(<strong class="jxr_keyword">new</strong> <a href="../../../../../com/github/princesslana/eriscasper/rx/websocket/RxWebSocket.html">RxWebSocket</a>(client));
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>  
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>      Flowable&lt;Payload&gt; ps =
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>          ws.connect(String.format(<span class="jxr_string">"%s?v=%s&amp;encoding=%s"</span>, url, VERSION, ENCODING))
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>              .ofType(RxWebSocketEvent.StringMessage.<strong class="jxr_keyword">class</strong>)
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>              .map(RxWebSocketEvent.StringMessage::getText)
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>              .flatMapMaybe(
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>                  Singles.toMaybeAnd(
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>                      payloads::read, (s, t) -&gt; LOG.warn(<span class="jxr_string">"Error reading payload: {}"</span>, s, t)))
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>              .doOnNext(p -&gt; p.s().ifPresent(lastSeenSequenceNumber::set))
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>              .share();
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>  
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>      Completable heartbeat =
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>          ps.filter(Payload.isOp(OpCode.HELLO)).flatMapCompletable(p -&gt; heartbeat(ws, p));
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>  
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>      Completable identify =
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>          ps.filter(Payload.isOp(OpCode.HELLO)).flatMapCompletable(p -&gt; identify(ws, token));
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>  
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>      <strong class="jxr_keyword">return</strong> Flowable.merge(
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>          Flowable.just(ps, heartbeat.&lt;Payload&gt;toFlowable(), identify.&lt;Payload&gt;toFlowable()));
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>    }
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>  
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>    <strong class="jxr_keyword">private</strong> Completable send(<a href="../../../../../com/github/princesslana/eriscasper/rx/websocket/RxWebSocket.html">RxWebSocket</a> ws, <a href="../../../../../com/github/princesslana/eriscasper/gateway/Payload.html">Payload</a> payload) {
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>      <strong class="jxr_keyword">return</strong> payloads
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>         .writeToString(payload)
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>         .lift(RateLimiterOperator.of(sendLimit))
-<a class="jxr_linenumber" name="L102" href="#L102">102</a>         .filter(s -&gt; s.getBytes().length &lt;= MAX_MESSAGE_SIZE)
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>         .doOnComplete(() -&gt; LOG.warn(<span class="jxr_string">"Payload rejected as too long: {}."</span>, payload))
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>         .flatMapCompletable(ws::send);
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>   }
-<a class="jxr_linenumber" name="L106" href="#L106">106</a> 
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>   <strong class="jxr_keyword">private</strong> Completable identify(<a href="../../../../../com/github/princesslana/eriscasper/rx/websocket/RxWebSocket.html">RxWebSocket</a> ws, BotToken token) {
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>     <strong class="jxr_keyword">return</strong> Single.just(payloads.identify(token))
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>         .lift(RateLimiterOperator.of(identifyLimit))
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>         .flatMapCompletable(p -&gt; send(ws, p));
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>   }
-<a class="jxr_linenumber" name="L112" href="#L112">112</a> 
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>   <strong class="jxr_keyword">private</strong> Completable heartbeat(<a href="../../../../../com/github/princesslana/eriscasper/rx/websocket/RxWebSocket.html">RxWebSocket</a> ws, <a href="../../../../../com/github/princesslana/eriscasper/gateway/Payload.html">Payload</a> hello) {
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>     <strong class="jxr_keyword">return</strong> payloads
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>         .dataAs(hello, Payloads.Heartbeat.<strong class="jxr_keyword">class</strong>)
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>         .flatMapObservable(
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>             h -&gt; Observable.interval(h.getHeartbeatInterval(), TimeUnit.MILLISECONDS))
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>         .flatMapCompletable(l -&gt; send(ws, payloads.heartbeat(lastSeenSequenceNumber.get())));
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>   }
-<a class="jxr_linenumber" name="L120" href="#L120">120</a> 
-<a class="jxr_linenumber" name="L121" href="#L121">121</a>   @Override
-<a class="jxr_linenumber" name="L122" href="#L122">122</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> close() <strong class="jxr_keyword">throws</strong> IOException {
-<a class="jxr_linenumber" name="L123" href="#L123">123</a>     closer.close();
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>   }
-<a class="jxr_linenumber" name="L125" href="#L125">125</a> }
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> isResumable() {
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>      <strong class="jxr_keyword">return</strong> sessionId.isPresent() &amp;&amp; lastSeenSequenceNumber.isPresent();
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>    }
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>  
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> setSessionId(SessionId sid) {
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>      <strong class="jxr_keyword">this</strong>.sessionId = Optional.of(sid);
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>    }
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>  
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> sequenceNumberSeen(Optional&lt;SequenceNumber&gt; seq) {
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>      seq.ifPresent(sid -&gt; lastSeenSequenceNumber = Optional.of(sid));
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>    }
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>  
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>    @SuppressWarnings(<span class="jxr_string">"unchecked"</span>)
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>    <strong class="jxr_keyword">public</strong> Observable&lt;Event&gt; connect(String url, BotToken token) {
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>      Observable&lt;Payload&gt; ps =
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>          ws.connect(String.format(<span class="jxr_string">"%s?v=%s&amp;encoding=%s"</span>, url, VERSION, ENCODING))
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>              .ofType(RxWebSocketEvent.StringMessage.<strong class="jxr_keyword">class</strong>)
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>              .map(RxWebSocketEvent.StringMessage::getText)
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>              .flatMapMaybe(
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>                  Singles.toMaybeAnd(
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>                      payloads::read, (s, t) -&gt; LOG.warn(<span class="jxr_string">"Error reading payload: {}"</span>, s, t)))
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>              .doOnNext(p -&gt; sequenceNumberSeen(p.s()))
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>              .share();
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>  
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>      Completable heartbeat =
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>         ps.filter(Payload.isOp(OpCode.HELLO)).flatMapCompletable(p -&gt; heartbeat(ws, p));
+<a class="jxr_linenumber" name="L101" href="#L101">101</a> 
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>     Completable identify =
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>         ps.filter(Payload.isOp(OpCode.HELLO))
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>             .flatMapCompletable(p -&gt; isResumable() ? resume(ws, token) : identify(ws, token));
+<a class="jxr_linenumber" name="L105" href="#L105">105</a> 
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>     Observable&lt;Event&gt; events = ps.flatMapMaybe(payloads::toEvent).share();
+<a class="jxr_linenumber" name="L107" href="#L107">107</a> 
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>     Completable setSessionId =
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>         events
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>             .ofType(ReadyEvent.<strong class="jxr_keyword">class</strong>)
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>             .map(r -&gt; r.unwrap().getSessionId())
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>             .doOnNext(s -&gt; setSessionId(SessionId.of(s)))
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>             .ignoreElements();
+<a class="jxr_linenumber" name="L114" href="#L114">114</a> 
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>     <strong class="jxr_keyword">return</strong> Observable.mergeArray(
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>             events, setSessionId.toObservable(), heartbeat.toObservable(), identify.toObservable())
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>         .doOnNext(e -&gt; LOG.debug(<span class="jxr_string">"Event: {}."</span>, e));
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>   }
+<a class="jxr_linenumber" name="L119" href="#L119">119</a> 
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>   <strong class="jxr_keyword">private</strong> Completable send(<a href="../../../../../com/github/princesslana/eriscasper/rx/websocket/RxWebSocket.html">RxWebSocket</a> ws, <a href="../../../../../com/github/princesslana/eriscasper/gateway/Payload.html">Payload</a> payload) {
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>     <strong class="jxr_keyword">return</strong> payloads
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>         .writeToString(payload)
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>         .lift(RateLimiterOperator.of(sendLimit))
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>         .filter(s -&gt; s.getBytes().length &lt;= MAX_MESSAGE_SIZE)
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>         .doOnComplete(() -&gt; LOG.warn(<span class="jxr_string">"Payload rejected as too long: {}."</span>, payload))
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>         .flatMapCompletable(ws::send)
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>         .doOnComplete(() -&gt; LOG.debug(<span class="jxr_string">"Sent: {}."</span>, payload));
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>   }
+<a class="jxr_linenumber" name="L129" href="#L129">129</a> 
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>   <strong class="jxr_keyword">private</strong> Completable identify(<a href="../../../../../com/github/princesslana/eriscasper/rx/websocket/RxWebSocket.html">RxWebSocket</a> ws, BotToken token) {
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>     <strong class="jxr_keyword">return</strong> Single.just(payloads.identify(token))
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>         .lift(RateLimiterOperator.of(identifyLimit))
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>         .flatMapCompletable(p -&gt; send(ws, p));
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>   }
+<a class="jxr_linenumber" name="L135" href="#L135">135</a> 
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>   <strong class="jxr_keyword">private</strong> Completable heartbeat(<a href="../../../../../com/github/princesslana/eriscasper/rx/websocket/RxWebSocket.html">RxWebSocket</a> ws, <a href="../../../../../com/github/princesslana/eriscasper/gateway/Payload.html">Payload</a> hello) {
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>     <strong class="jxr_keyword">return</strong> payloads
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>         .dataAs(hello, HelloEventData.<strong class="jxr_keyword">class</strong>)
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>         .flatMapObservable(
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>             h -&gt; Observable.interval(h.getHeartbeatInterval(), TimeUnit.MILLISECONDS))
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>         .flatMapCompletable(l -&gt; send(ws, payloads.heartbeat(lastSeenSequenceNumber)));
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>   }
+<a class="jxr_linenumber" name="L143" href="#L143">143</a> 
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>   <strong class="jxr_keyword">private</strong> Completable resume(<a href="../../../../../com/github/princesslana/eriscasper/rx/websocket/RxWebSocket.html">RxWebSocket</a> ws, BotToken token) {
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>     Preconditions.checkState(sessionId.isPresent(), <span class="jxr_string">"Can not resume without a session id"</span>);
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>     Preconditions.checkState(
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>         lastSeenSequenceNumber.isPresent(), <span class="jxr_string">"Can not resume without a sequence number"</span>);
+<a class="jxr_linenumber" name="L148" href="#L148">148</a> 
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>     <strong class="jxr_keyword">return</strong> Single.just(
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>             ImmutableResume.builder()
+<a class="jxr_linenumber" name="L151" href="#L151">151</a>                 .token(token)
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>                 .sessionId(sessionId.get())
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>                 .seq(lastSeenSequenceNumber.get())
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>                 .build())
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>         .map(payloads::resume)
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>         .flatMapCompletable(p -&gt; send(ws, p));
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>   }
+<a class="jxr_linenumber" name="L158" href="#L158">158</a> 
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../../com/github/princesslana/eriscasper/gateway/Gateway.html">Gateway</a> create(OkHttpClient client, <a href="../../../../../com/github/princesslana/eriscasper/gateway/Payloads.html">Payloads</a> payloads) {
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../com/github/princesslana/eriscasper/gateway/Gateway.html">Gateway</a>(<strong class="jxr_keyword">new</strong> <a href="../../../../../com/github/princesslana/eriscasper/rx/websocket/RxWebSocket.html">RxWebSocket</a>(client), payloads);
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>   }
+<a class="jxr_linenumber" name="L162" href="#L162">162</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2018. All rights reserved.</div>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RepositoryManager.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">com.github.princesslana.eriscasper.repository</a> &gt; <span class="el_source">RepositoryManager.java</span></div><h1>RepositoryManager.java</h1><pre class="source lang-java linenums">package com.github.princesslana.eriscasper.repository;
+
+import com.github.princesslana.eriscasper.data.event.Event;
+import com.github.princesslana.eriscasper.repository.event.UsersFromEvents;
+import com.google.common.base.Preconditions;
+import io.reactivex.Observable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
+public class RepositoryManager {
+<span class="nc" id="L11">  private final ConcurrentMap&lt;String, Object&gt; repositories = new ConcurrentHashMap&lt;&gt;();</span>
+
+<span class="nc" id="L13">  private RepositoryManager() {}</span>
+
+  @SuppressWarnings(&quot;unchecked&quot;)
+  public &lt;R&gt; R get(RepositoryDefinition&lt;R&gt; def) {
+<span class="nc" id="L17">    Preconditions.checkState(</span>
+<span class="nc" id="L18">        repositories.containsKey(def.getName()), &quot;No such repository: %s&quot;, def.getName());</span>
+
+<span class="nc" id="L20">    return (R) repositories.get(def.getName());</span>
+  }
+
+  private &lt;R&gt; void put(RepositoryDefinition&lt;R&gt; def, R repository) {
+<span class="nc" id="L24">    Preconditions.checkState(</span>
+<span class="nc bnc" id="L25" title="All 2 branches missed.">        !repositories.containsKey(def.getName()),</span>
+        &quot;Duplicate repository created: %s&quot;,
+<span class="nc" id="L27">        def.getName());</span>
+
+<span class="nc" id="L29">    repositories.put(def.getName(), repository);</span>
+<span class="nc" id="L30">  }</span>
+
+  public static RepositoryManager create(Observable&lt;Event&gt; events) {
+<span class="nc" id="L33">    RepositoryManager rm = new RepositoryManager();</span>
+<span class="nc" id="L34">    rm.put(RepositoryDefinition.USER, new UsersFromEvents(events));</span>
+<span class="nc" id="L35">    return rm;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

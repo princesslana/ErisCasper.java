@@ -226,7 +226,7 @@
 <a class="jxr_linenumber" name="L218" href="#L218">218</a>   @Deprecated
 <a class="jxr_linenumber" name="L219" href="#L219">219</a>   @JsonDeserialize
 <a class="jxr_linenumber" name="L220" href="#L220">220</a>   @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.NONE)
-<a class="jxr_linenumber" name="L221" href="#L221">221</a>   <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../com/github/princesslana/eriscasper/gateway/SequenceNumber.html">Json</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../com/github/princesslana/eriscasper/gateway/Payload.html">Payload</a> {
+<a class="jxr_linenumber" name="L221" href="#L221">221</a>   <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../com/github/princesslana/eriscasper/gateway/ImmutableIdentify.html">Json</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../com/github/princesslana/eriscasper/gateway/Payload.html">Payload</a> {
 <a class="jxr_linenumber" name="L222" href="#L222">222</a>     @Nullable <a href="../../../../../com/github/princesslana/eriscasper/gateway/OpCode.html">OpCode</a> op;
 <a class="jxr_linenumber" name="L223" href="#L223">223</a>     Optional&lt;JsonNode&gt; d = Optional.empty();
 <a class="jxr_linenumber" name="L224" href="#L224">224</a>     Optional&lt;SequenceNumber&gt; s = Optional.empty();
@@ -264,7 +264,7 @@
 <a class="jxr_linenumber" name="L256" href="#L256">256</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L257" href="#L257">257</a>   @Deprecated
 <a class="jxr_linenumber" name="L258" href="#L258">258</a>   @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
-<a class="jxr_linenumber" name="L259" href="#L259">259</a>   <strong class="jxr_keyword">static</strong> <a href="../../../../../com/github/princesslana/eriscasper/gateway/ImmutablePayload.html">ImmutablePayload</a> fromJson(<a href="../../../../../com/github/princesslana/eriscasper/gateway/SequenceNumber.html">Json</a> json) {
+<a class="jxr_linenumber" name="L259" href="#L259">259</a>   <strong class="jxr_keyword">static</strong> <a href="../../../../../com/github/princesslana/eriscasper/gateway/ImmutablePayload.html">ImmutablePayload</a> fromJson(<a href="../../../../../com/github/princesslana/eriscasper/gateway/ImmutableIdentify.html">Json</a> json) {
 <a class="jxr_linenumber" name="L260" href="#L260">260</a>     ImmutablePayload.Builder builder = ImmutablePayload.builder();
 <a class="jxr_linenumber" name="L261" href="#L261">261</a>     <strong class="jxr_keyword">if</strong> (json.op != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L262" href="#L262">262</a>       builder.op(json.op);
@@ -313,7 +313,7 @@
 <a class="jxr_linenumber" name="L305" href="#L305">305</a> <em class="jxr_javadoccomment">   * but instead used immediately to create instances.&lt;/em&gt;</em>
 <a class="jxr_linenumber" name="L306" href="#L306">306</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L307" href="#L307">307</a>   @NotThreadSafe
-<a class="jxr_linenumber" name="L308" href="#L308">308</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../com/github/princesslana/eriscasper/event/ImmutableMessageCreate.html">Builder</a> {
+<a class="jxr_linenumber" name="L308" href="#L308">308</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../com/github/princesslana/eriscasper/gateway/ImmutableIdentify.html">Builder</a> {
 <a class="jxr_linenumber" name="L309" href="#L309">309</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> INIT_BIT_OP = 0x1L;
 <a class="jxr_linenumber" name="L310" href="#L310">310</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> initBits = 0x1L;
 <a class="jxr_linenumber" name="L311" href="#L311">311</a> 
@@ -322,7 +322,7 @@
 <a class="jxr_linenumber" name="L314" href="#L314">314</a>     <strong class="jxr_keyword">private</strong> @Nullable <a href="../../../../../com/github/princesslana/eriscasper/gateway/SequenceNumber.html">SequenceNumber</a> s;
 <a class="jxr_linenumber" name="L315" href="#L315">315</a>     <strong class="jxr_keyword">private</strong> @Nullable <a href="../../../../../com/github/princesslana/eriscasper/event/EventType.html">EventType</a> t;
 <a class="jxr_linenumber" name="L316" href="#L316">316</a> 
-<a class="jxr_linenumber" name="L317" href="#L317">317</a>     <strong class="jxr_keyword">private</strong> <a href="../../../../../com/github/princesslana/eriscasper/event/ImmutableMessageCreate.html">Builder</a>() {
+<a class="jxr_linenumber" name="L317" href="#L317">317</a>     <strong class="jxr_keyword">private</strong> <a href="../../../../../com/github/princesslana/eriscasper/gateway/ImmutableIdentify.html">Builder</a>() {
 <a class="jxr_linenumber" name="L318" href="#L318">318</a>     }
 <a class="jxr_linenumber" name="L319" href="#L319">319</a> 
 <a class="jxr_linenumber" name="L320" href="#L320">320</a>     <em class="jxr_javadoccomment">/**</em>
@@ -333,7 +333,7 @@
 <a class="jxr_linenumber" name="L325" href="#L325">325</a> <em class="jxr_javadoccomment">     * @return {@code this} builder for use in a chained invocation</em>
 <a class="jxr_linenumber" name="L326" href="#L326">326</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L327" href="#L327">327</a>     @CanIgnoreReturnValue 
-<a class="jxr_linenumber" name="L328" href="#L328">328</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../com/github/princesslana/eriscasper/event/ImmutableMessageCreate.html">Builder</a> from(<a href="../../../../../com/github/princesslana/eriscasper/gateway/Payload.html">Payload</a> instance) {
+<a class="jxr_linenumber" name="L328" href="#L328">328</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../com/github/princesslana/eriscasper/gateway/ImmutableIdentify.html">Builder</a> from(<a href="../../../../../com/github/princesslana/eriscasper/gateway/Payload.html">Payload</a> instance) {
 <a class="jxr_linenumber" name="L329" href="#L329">329</a>       Objects.requireNonNull(instance, <span class="jxr_string">"instance"</span>);
 <a class="jxr_linenumber" name="L330" href="#L330">330</a>       op(instance.op());
 <a class="jxr_linenumber" name="L331" href="#L331">331</a>       Optional&lt;JsonNode&gt; dOptional = instance.d();
@@ -358,7 +358,7 @@
 <a class="jxr_linenumber" name="L350" href="#L350">350</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L351" href="#L351">351</a>     @CanIgnoreReturnValue 
 <a class="jxr_linenumber" name="L352" href="#L352">352</a>     @JsonProperty(<span class="jxr_string">"op"</span>)
-<a class="jxr_linenumber" name="L353" href="#L353">353</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../com/github/princesslana/eriscasper/event/ImmutableMessageCreate.html">Builder</a> op(<a href="../../../../../com/github/princesslana/eriscasper/gateway/OpCode.html">OpCode</a> op) {
+<a class="jxr_linenumber" name="L353" href="#L353">353</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../com/github/princesslana/eriscasper/gateway/ImmutableIdentify.html">Builder</a> op(<a href="../../../../../com/github/princesslana/eriscasper/gateway/OpCode.html">OpCode</a> op) {
 <a class="jxr_linenumber" name="L354" href="#L354">354</a>       <strong class="jxr_keyword">this</strong>.op = Objects.requireNonNull(op, <span class="jxr_string">"op"</span>);
 <a class="jxr_linenumber" name="L355" href="#L355">355</a>       initBits &amp;= ~INIT_BIT_OP;
 <a class="jxr_linenumber" name="L356" href="#L356">356</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
@@ -370,7 +370,7 @@
 <a class="jxr_linenumber" name="L362" href="#L362">362</a> <em class="jxr_javadoccomment">     * @return {@code this} builder for chained invocation</em>
 <a class="jxr_linenumber" name="L363" href="#L363">363</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L364" href="#L364">364</a>     @CanIgnoreReturnValue 
-<a class="jxr_linenumber" name="L365" href="#L365">365</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../com/github/princesslana/eriscasper/event/ImmutableMessageCreate.html">Builder</a> d(JsonNode d) {
+<a class="jxr_linenumber" name="L365" href="#L365">365</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../com/github/princesslana/eriscasper/gateway/ImmutableIdentify.html">Builder</a> d(JsonNode d) {
 <a class="jxr_linenumber" name="L366" href="#L366">366</a>       <strong class="jxr_keyword">this</strong>.d = Objects.requireNonNull(d, <span class="jxr_string">"d"</span>);
 <a class="jxr_linenumber" name="L367" href="#L367">367</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
 <a class="jxr_linenumber" name="L368" href="#L368">368</a>     }
@@ -382,7 +382,7 @@
 <a class="jxr_linenumber" name="L374" href="#L374">374</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L375" href="#L375">375</a>     @CanIgnoreReturnValue 
 <a class="jxr_linenumber" name="L376" href="#L376">376</a>     @JsonProperty(<span class="jxr_string">"d"</span>)
-<a class="jxr_linenumber" name="L377" href="#L377">377</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../com/github/princesslana/eriscasper/event/ImmutableMessageCreate.html">Builder</a> d(Optional&lt;? <strong class="jxr_keyword">extends</strong> JsonNode&gt; d) {
+<a class="jxr_linenumber" name="L377" href="#L377">377</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../com/github/princesslana/eriscasper/gateway/ImmutableIdentify.html">Builder</a> d(Optional&lt;? <strong class="jxr_keyword">extends</strong> JsonNode&gt; d) {
 <a class="jxr_linenumber" name="L378" href="#L378">378</a>       <strong class="jxr_keyword">this</strong>.d = d.orElse(<strong class="jxr_keyword">null</strong>);
 <a class="jxr_linenumber" name="L379" href="#L379">379</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
 <a class="jxr_linenumber" name="L380" href="#L380">380</a>     }
@@ -393,7 +393,7 @@
 <a class="jxr_linenumber" name="L385" href="#L385">385</a> <em class="jxr_javadoccomment">     * @return {@code this} builder for chained invocation</em>
 <a class="jxr_linenumber" name="L386" href="#L386">386</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L387" href="#L387">387</a>     @CanIgnoreReturnValue 
-<a class="jxr_linenumber" name="L388" href="#L388">388</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../com/github/princesslana/eriscasper/event/ImmutableMessageCreate.html">Builder</a> s(<a href="../../../../../com/github/princesslana/eriscasper/gateway/SequenceNumber.html">SequenceNumber</a> s) {
+<a class="jxr_linenumber" name="L388" href="#L388">388</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../com/github/princesslana/eriscasper/gateway/ImmutableIdentify.html">Builder</a> s(<a href="../../../../../com/github/princesslana/eriscasper/gateway/SequenceNumber.html">SequenceNumber</a> s) {
 <a class="jxr_linenumber" name="L389" href="#L389">389</a>       <strong class="jxr_keyword">this</strong>.s = Objects.requireNonNull(s, <span class="jxr_string">"s"</span>);
 <a class="jxr_linenumber" name="L390" href="#L390">390</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
 <a class="jxr_linenumber" name="L391" href="#L391">391</a>     }
@@ -405,7 +405,7 @@
 <a class="jxr_linenumber" name="L397" href="#L397">397</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L398" href="#L398">398</a>     @CanIgnoreReturnValue 
 <a class="jxr_linenumber" name="L399" href="#L399">399</a>     @JsonProperty(<span class="jxr_string">"s"</span>)
-<a class="jxr_linenumber" name="L400" href="#L400">400</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../com/github/princesslana/eriscasper/event/ImmutableMessageCreate.html">Builder</a> s(Optional&lt;? <strong class="jxr_keyword">extends</strong> SequenceNumber&gt; s) {
+<a class="jxr_linenumber" name="L400" href="#L400">400</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../com/github/princesslana/eriscasper/gateway/ImmutableIdentify.html">Builder</a> s(Optional&lt;? <strong class="jxr_keyword">extends</strong> SequenceNumber&gt; s) {
 <a class="jxr_linenumber" name="L401" href="#L401">401</a>       <strong class="jxr_keyword">this</strong>.s = s.orElse(<strong class="jxr_keyword">null</strong>);
 <a class="jxr_linenumber" name="L402" href="#L402">402</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
 <a class="jxr_linenumber" name="L403" href="#L403">403</a>     }
@@ -416,7 +416,7 @@
 <a class="jxr_linenumber" name="L408" href="#L408">408</a> <em class="jxr_javadoccomment">     * @return {@code this} builder for chained invocation</em>
 <a class="jxr_linenumber" name="L409" href="#L409">409</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L410" href="#L410">410</a>     @CanIgnoreReturnValue 
-<a class="jxr_linenumber" name="L411" href="#L411">411</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../com/github/princesslana/eriscasper/event/ImmutableMessageCreate.html">Builder</a> t(<a href="../../../../../com/github/princesslana/eriscasper/event/EventType.html">EventType</a> t) {
+<a class="jxr_linenumber" name="L411" href="#L411">411</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../com/github/princesslana/eriscasper/gateway/ImmutableIdentify.html">Builder</a> t(<a href="../../../../../com/github/princesslana/eriscasper/event/EventType.html">EventType</a> t) {
 <a class="jxr_linenumber" name="L412" href="#L412">412</a>       <strong class="jxr_keyword">this</strong>.t = Objects.requireNonNull(t, <span class="jxr_string">"t"</span>);
 <a class="jxr_linenumber" name="L413" href="#L413">413</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
 <a class="jxr_linenumber" name="L414" href="#L414">414</a>     }
@@ -428,7 +428,7 @@
 <a class="jxr_linenumber" name="L420" href="#L420">420</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L421" href="#L421">421</a>     @CanIgnoreReturnValue 
 <a class="jxr_linenumber" name="L422" href="#L422">422</a>     @JsonProperty(<span class="jxr_string">"t"</span>)
-<a class="jxr_linenumber" name="L423" href="#L423">423</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../com/github/princesslana/eriscasper/event/ImmutableMessageCreate.html">Builder</a> t(Optional&lt;? <strong class="jxr_keyword">extends</strong> EventType&gt; t) {
+<a class="jxr_linenumber" name="L423" href="#L423">423</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../com/github/princesslana/eriscasper/gateway/ImmutableIdentify.html">Builder</a> t(Optional&lt;? <strong class="jxr_keyword">extends</strong> EventType&gt; t) {
 <a class="jxr_linenumber" name="L424" href="#L424">424</a>       <strong class="jxr_keyword">this</strong>.t = t.orElse(<strong class="jxr_keyword">null</strong>);
 <a class="jxr_linenumber" name="L425" href="#L425">425</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
 <a class="jxr_linenumber" name="L426" href="#L426">426</a>     }

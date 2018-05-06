@@ -3,54 +3,54 @@
 import org.immutables.value.Value;
 
 @Value.Immutable
-<span class="nc" id="L6">public abstract class Route&lt;Rq, Rs&gt; {</span>
+<span class="fc" id="L6">public abstract class Route&lt;Rq, Rs&gt; {</span>
 
   private static final String VERSION = &quot;v6&quot;;
-<span class="nc" id="L9">  private static final String URL = String.format(&quot;https://discordapp.com/api/%s&quot;, VERSION);</span>
+<span class="fc" id="L9">  private static final String URL = String.format(&quot;https://discordapp.com/api/%s&quot;, VERSION);</span>
 
-<span class="nc" id="L11">  protected static enum HttpMethod {</span>
-<span class="nc" id="L12">    GET(&quot;GET&quot;),</span>
-<span class="nc" id="L13">    POST(&quot;POST&quot;);</span>
+<span class="fc" id="L11">  protected static enum HttpMethod {</span>
+<span class="fc" id="L12">    GET(&quot;GET&quot;),</span>
+<span class="fc" id="L13">    POST(&quot;POST&quot;);</span>
 
     private final String method;
 
-<span class="nc" id="L17">    private HttpMethod(String method) {</span>
-<span class="nc" id="L18">      this.method = method;</span>
-<span class="nc" id="L19">    }</span>
+<span class="fc" id="L17">    private HttpMethod(String method) {</span>
+<span class="fc" id="L18">      this.method = method;</span>
+<span class="fc" id="L19">    }</span>
 
     public String get() {
-<span class="nc" id="L22">      return method;</span>
+<span class="fc" id="L22">      return method;</span>
     }
   }
 
   protected abstract HttpMethod getMethod();
 
-  protected abstract String getPath();
+  public abstract String getPath();
 
   protected abstract Class&lt;Rq&gt; getRequestClass();
 
   protected abstract Class&lt;Rs&gt; getResponseClass();
 
   public String getUrl() {
-<span class="nc" id="L35">    return String.format(&quot;%s%s&quot;, URL, getPath());</span>
+<span class="fc" id="L35">    return String.format(&quot;%s%s&quot;, URL, getPath());</span>
   }
 
   public static &lt;Rs&gt; Route&lt;Void, Rs&gt; get(String path, Class&lt;Rs&gt; rsClass) {
-<span class="nc" id="L39">    return ImmutableRoute.&lt;Void, Rs&gt;builder()</span>
-<span class="nc" id="L40">        .method(HttpMethod.GET)</span>
-<span class="nc" id="L41">        .path(path)</span>
-<span class="nc" id="L42">        .requestClass(Void.class)</span>
-<span class="nc" id="L43">        .responseClass(rsClass)</span>
-<span class="nc" id="L44">        .build();</span>
+<span class="fc" id="L39">    return ImmutableRoute.&lt;Void, Rs&gt;builder()</span>
+<span class="fc" id="L40">        .method(HttpMethod.GET)</span>
+<span class="fc" id="L41">        .path(path)</span>
+<span class="fc" id="L42">        .requestClass(Void.class)</span>
+<span class="fc" id="L43">        .responseClass(rsClass)</span>
+<span class="fc" id="L44">        .build();</span>
   }
 
   public static &lt;Rq, Rs&gt; Route&lt;Rq, Rs&gt; post(String path, Class&lt;Rq&gt; rqClass, Class&lt;Rs&gt; rsClass) {
-<span class="nc" id="L48">    return ImmutableRoute.&lt;Rq, Rs&gt;builder()</span>
-<span class="nc" id="L49">        .method(HttpMethod.POST)</span>
-<span class="nc" id="L50">        .path(path)</span>
-<span class="nc" id="L51">        .requestClass(rqClass)</span>
-<span class="nc" id="L52">        .responseClass(rsClass)</span>
-<span class="nc" id="L53">        .build();</span>
+<span class="fc" id="L48">    return ImmutableRoute.&lt;Rq, Rs&gt;builder()</span>
+<span class="fc" id="L49">        .method(HttpMethod.POST)</span>
+<span class="fc" id="L50">        .path(path)</span>
+<span class="fc" id="L51">        .requestClass(rqClass)</span>
+<span class="fc" id="L52">        .responseClass(rsClass)</span>
+<span class="fc" id="L53">        .build();</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

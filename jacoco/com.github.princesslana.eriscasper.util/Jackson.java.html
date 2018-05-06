@@ -2,16 +2,20 @@
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 public class Jackson {
   private Jackson() {}
 
   public static ObjectMapper newObjectMapper() {
-<span class="fc" id="L11">    ObjectMapper jackson = new ObjectMapper();</span>
-<span class="fc" id="L12">    jackson.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);</span>
-<span class="fc" id="L13">    jackson.registerModule(new Jdk8Module());</span>
-<span class="fc" id="L14">    return jackson;</span>
+<span class="fc" id="L13">    ObjectMapper jackson = new ObjectMapper();</span>
+<span class="fc" id="L14">    jackson.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);</span>
+<span class="fc" id="L15">    jackson.registerModule(new GuavaModule());</span>
+<span class="fc" id="L16">    jackson.registerModule(new Jdk8Module());</span>
+<span class="fc" id="L17">    jackson.registerModule(new JavaTimeModule());</span>
+<span class="fc" id="L18">    return jackson;</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

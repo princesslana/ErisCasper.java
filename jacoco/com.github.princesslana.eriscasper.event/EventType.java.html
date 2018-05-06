@@ -2,8 +2,13 @@
 
 import com.github.princesslana.eriscasper.data.GuildCreateData;
 import com.github.princesslana.eriscasper.data.Message;
-import com.github.princesslana.eriscasper.data.ReadyData;
-import com.github.princesslana.eriscasper.data.TypingStartData;
+import com.github.princesslana.eriscasper.data.event.Event;
+import com.github.princesslana.eriscasper.data.event.ReadyEvent;
+import com.github.princesslana.eriscasper.data.event.ReadyEventData;
+import com.github.princesslana.eriscasper.data.event.ResumedEvent;
+import com.github.princesslana.eriscasper.data.event.ResumedEventData;
+import com.github.princesslana.eriscasper.data.event.TypingStartEvent;
+import com.github.princesslana.eriscasper.data.event.TypingStartEventData;
 import java.util.function.Function;
 
 /**
@@ -19,24 +24,29 @@ import java.util.function.Function;
  *     href=&quot;https://discordapp.com/developers/docs/topics/gateway#commands-and-events-gateway-events&quot;&gt;
  *     https://discordapp.com/developers/docs/topics/gateway#commands-and-events-gateway-events&lt;/a&gt;
  */
-<span class="nc" id="L22">public enum EventType {</span>
-<span class="nc" id="L23">  GUILD_CREATE(GuildCreateData.class, ImmutableGuildCreate::of),</span>
-<span class="nc" id="L24">  MESSAGE_CREATE(Message.class, ImmutableMessageCreate::of),</span>
-<span class="nc" id="L25">  READY(ReadyData.class, ImmutableReady::of),</span>
-<span class="nc" id="L26">  TYPING_START(TypingStartData.class, ImmutableTypingStart::of);</span>
+<span class="fc" id="L27">public enum EventType {</span>
+<span class="fc" id="L28">  GUILD_CREATE(GuildCreateData.class, GuildCreate::of),</span>
+<span class="fc" id="L29">  MESSAGE_CREATE(Message.class, MessageCreate::of),</span>
+<span class="fc" id="L30">  READY(ReadyEventData.class, ReadyEvent::of),</span>
+<span class="fc" id="L31">  RESUMED(ResumedEventData.class, ResumedEvent::of),</span>
+<span class="fc" id="L32">  TYPING_START(TypingStartEventData.class, TypingStartEvent::of);</span>
 
   private final EventFactory&lt;?&gt; factory;
 
-<span class="nc" id="L30">  private EventType(EventFactory&lt;?&gt; factory) {</span>
-<span class="nc" id="L31">    this.factory = factory;</span>
-<span class="nc" id="L32">  }</span>
+<span class="fc" id="L36">  private EventType(EventFactory&lt;?&gt; factory) {</span>
+<span class="fc" id="L37">    this.factory = factory;</span>
+<span class="fc" id="L38">  }</span>
 
-  private &lt;T&gt; EventType(Class&lt;T&gt; dataClass, Function&lt;T, Event&lt;T&gt;&gt; factory) {
-<span class="nc" id="L35">    this(EventFactoryTuple.of(dataClass, factory));</span>
-<span class="nc" id="L36">  }</span>
+  private &lt;T&gt; EventType(Class&lt;T&gt; dataClass, Function&lt;T, Event&gt; factory) {
+<span class="fc" id="L41">    this(EventFactoryTuple.of(dataClass, factory));</span>
+<span class="fc" id="L42">  }</span>
 
-  public EventFactory&lt;?&gt; getFactory() {
-<span class="nc" id="L39">    return factory;</span>
+  public Class&lt;?&gt; getDataClass() {
+<span class="fc" id="L45">    return factory.getDataClass();</span>
+  }
+
+  public Event newEvent(Object data) {
+<span class="fc" id="L49">    return factory.apply(data);</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

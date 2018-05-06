@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RxWebSocket.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">com.github.princesslana.eriscasper.rx.websocket</a> &gt; <span class="el_source">RxWebSocket.java</span></div><h1>RxWebSocket.java</h1><pre class="source lang-java linenums">package com.github.princesslana.eriscasper.rx.websocket;
 
-import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;
-import io.reactivex.Flowable;
-import io.reactivex.FlowableEmitter;
-import java.io.Closeable;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import java.util.Optional;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -13,79 +12,71 @@ import okhttp3.WebSocketListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RxWebSocket implements Closeable {
+public class RxWebSocket {
 
-<span class="fc" id="L18">  private static final Logger LOG = LoggerFactory.getLogger(RxWebSocket.class);</span>
+<span class="fc" id="L17">  private static final Logger LOG = LoggerFactory.getLogger(RxWebSocket.class);</span>
 
   private final OkHttpClient http;
 
   private WebSocket ws;
 
-<span class="fc" id="L24">  public RxWebSocket(OkHttpClient http) {</span>
-<span class="fc" id="L25">    this.http = http;</span>
-<span class="fc" id="L26">  }</span>
+<span class="fc" id="L23">  public RxWebSocket(OkHttpClient http) {</span>
+<span class="fc" id="L24">    this.http = http;</span>
+<span class="fc" id="L25">  }</span>
 
-  public Flowable&lt;RxWebSocketEvent&gt; connect(String url) {
-<span class="fc" id="L29">    return Flowable.&lt;RxWebSocketEvent&gt;create(</span>
+  public Observable&lt;RxWebSocketEvent&gt; connect(String url) {
+<span class="fc" id="L28">    return Observable.&lt;RxWebSocketEvent&gt;create(</span>
             em -&gt; {
-<span class="fc" id="L31">              Request rq = new Request.Builder().url(url).build();</span>
+<span class="fc" id="L30">              Request rq = new Request.Builder().url(url).build();</span>
 
-<span class="fc" id="L33">              ws = http.newWebSocket(rq, new Listener(em));</span>
-<span class="fc" id="L34">            },</span>
-            BackpressureStrategy.BUFFER)
-<span class="fc" id="L36">        .doOnNext(e -&gt; LOG.debug(&quot;Received: {}.&quot;, e))</span>
-<span class="pc" id="L37">        .doOnError(e -&gt; LOG.warn(&quot;Error: {}.&quot;, e));</span>
+<span class="fc" id="L32">              ws = http.newWebSocket(rq, new Listener(em));</span>
+<span class="fc" id="L33">            })</span>
+<span class="fc" id="L34">        .doOnNext(e -&gt; LOG.trace(&quot;Received: {}.&quot;, e))</span>
+<span class="fc" id="L35">        .doOnError(e -&gt; LOG.warn(&quot;Error: {}.&quot;, e));</span>
   }
 
   public Completable send(String text) {
-<span class="nc" id="L41">    return Completable.fromAction(() -&gt; ws.send(text))</span>
-<span class="nc" id="L42">        .doOnComplete(() -&gt; LOG.debug(&quot;Sent: {}.&quot;, text));</span>
+<span class="fc" id="L39">    return Completable.fromAction(() -&gt; ws.send(text))</span>
+<span class="fc" id="L40">        .doOnComplete(() -&gt; LOG.trace(&quot;Sent: {}.&quot;, text));</span>
   }
 
-  @Override
-  public void close() {
-<span class="fc bfc" id="L47" title="All 2 branches covered.">    if (ws != null) {</span>
-<span class="fc" id="L48">      ws.close(1000, &quot;Bye.&quot;);</span>
-    }
-<span class="fc" id="L50">  }</span>
-
   private static class Listener extends WebSocketListener {
-    private final FlowableEmitter&lt;RxWebSocketEvent&gt; em;
+    private final ObservableEmitter&lt;RxWebSocketEvent&gt; em;
 
-<span class="fc" id="L55">    public Listener(FlowableEmitter&lt;RxWebSocketEvent&gt; em) {</span>
-<span class="fc" id="L56">      this.em = em;</span>
-<span class="fc" id="L57">    }</span>
+<span class="fc" id="L46">    public Listener(ObservableEmitter&lt;RxWebSocketEvent&gt; em) {</span>
+<span class="fc" id="L47">      this.em = em;</span>
+<span class="fc" id="L48">    }</span>
 
     @Override
     public void onClosed(WebSocket ws, int code, String reason) {
-<span class="nc" id="L61">      em.onNext(ClosedTuple.of(ws, code, reason));</span>
-<span class="nc" id="L62">    }</span>
+<span class="fc" id="L52">      em.onNext(ClosedTuple.of(ws, code, reason));</span>
+<span class="fc" id="L53">    }</span>
 
     @Override
     public void onClosing(WebSocket ws, int code, String reason) {
-<span class="nc" id="L66">      em.onNext(ClosingTuple.of(ws, code, reason));</span>
-<span class="nc" id="L67">    }</span>
+<span class="fc" id="L57">      em.onNext(ClosingTuple.of(ws, code, reason));</span>
+<span class="fc" id="L58">    }</span>
 
     @Override
     public void onFailure(WebSocket ws, Throwable t, Response response) {
-<span class="nc" id="L71">      em.onNext(FailureTuple.of(ws, t, response));</span>
-<span class="nc" id="L72">      em.onError(t);</span>
-<span class="nc" id="L73">    }</span>
+<span class="fc" id="L62">      em.onNext(FailureTuple.of(ws, t, Optional.ofNullable(response)));</span>
+<span class="fc" id="L63">      em.onError(t);</span>
+<span class="fc" id="L64">    }</span>
 
     @Override
     public void onMessage(WebSocket ws, okio.ByteString bytes) {
-<span class="nc" id="L77">      em.onNext(ByteStringMessageTuple.of(ws, bytes));</span>
-<span class="nc" id="L78">    }</span>
+<span class="fc" id="L68">      em.onNext(ByteStringMessageTuple.of(ws, bytes));</span>
+<span class="fc" id="L69">    }</span>
 
     @Override
     public void onMessage(WebSocket ws, String text) {
-<span class="fc" id="L82">      em.onNext(StringMessageTuple.of(ws, text));</span>
-<span class="fc" id="L83">    }</span>
+<span class="fc" id="L73">      em.onNext(StringMessageTuple.of(ws, text));</span>
+<span class="fc" id="L74">    }</span>
 
     @Override
     public void onOpen(WebSocket ws, Response response) {
-<span class="nc" id="L87">      em.onNext(OpenTuple.of(ws, response));</span>
-<span class="nc" id="L88">    }</span>
+<span class="fc" id="L78">      em.onNext(OpenTuple.of(ws, response));</span>
+<span class="fc" id="L79">    }</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

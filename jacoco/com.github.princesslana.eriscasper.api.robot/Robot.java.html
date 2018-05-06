@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Robot.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">com.github.princesslana.eriscasper.api.robot</a> &gt; <span class="el_source">Robot.java</span></div><h1>Robot.java</h1><pre class="source lang-java linenums">package com.github.princesslana.eriscasper.api.robot;
+
+import com.github.princesslana.eriscasper.Bot;
+import com.github.princesslana.eriscasper.BotContext;
+import com.github.princesslana.eriscasper.Bots;
+import com.github.princesslana.eriscasper.ErisCasper;
+import com.github.princesslana.eriscasper.data.Message;
+import com.github.princesslana.eriscasper.data.Users;
+import com.github.princesslana.eriscasper.data.resource.User;
+import com.github.princesslana.eriscasper.event.MessageCreate;
+import com.github.princesslana.eriscasper.repository.RepositoryDefinition;
+import io.reactivex.Completable;
+import io.reactivex.Maybe;
+import io.reactivex.Observable;
+import io.reactivex.Single;
+import io.reactivex.functions.BiFunction;
+import io.reactivex.functions.Function;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
+import org.apache.commons.lang3.StringUtils;
+
+/**
+ * Robot presents an API that allows execution of callbacks when messages matching regexes are
+ * received.
+ */
+<span class="fc" id="L27">public class Robot implements Bot {</span>
+
+<span class="fc" id="L29">  private List&lt;Bot&gt; bots = new ArrayList&lt;&gt;();</span>
+
+  @Override
+  public Completable apply(BotContext bctx) {
+<span class="fc" id="L33">    return Bots.merge(bots).apply(bctx);</span>
+  }
+
+  /**
+   * See {@link hear(Pattern, Function)}.
+   *
+   * @param regex regex to match
+   * @param f function to execute when matched
+   */
+  public void hear(String regex, Function&lt;RobotContext, Completable&gt; f) {
+<span class="fc" id="L43">    hear(Pattern.compile(regex), f);</span>
+<span class="fc" id="L44">  }</span>
+
+  /**
+   * Checks all messages sent against the provided regex. Executes the provided function when there
+   * is a match.
+   *
+   * @param regex regex to match
+   * @param f function to execute when matched
+   */
+  public void hear(Pattern regex, Function&lt;RobotContext, Completable&gt; f) {
+<span class="fc" id="L54">    respond(regex, f, &quot;&quot;);</span>
+<span class="fc" id="L55">  }</span>
+
+  /**
+   * See {@link respond(Pattern, Function)}.
+   *
+   * @param regex regex to match
+   * @param f function to execute when matched
+   */
+  public void respond(String regex, Function&lt;RobotContext, Completable&gt; f) {
+<span class="fc" id="L64">    respond(Pattern.compile(regex), f);</span>
+<span class="fc" id="L65">  }</span>
+
+  /**
+   * Checks all messages sent directly to the Robot against the provided regex. Executes the
+   * provided function when there is a match.
+   *
+   * &lt;p&gt;Messages are considered to be directed at the Robot if they begin with &quot;+&quot;, the username of
+   * the bot account, or a mention of the bot account.
+   *
+   * @param regex regex to match
+   * @param f function to execute when matched
+   */
+  public void respond(Pattern regex, Function&lt;RobotContext, Completable&gt; f) {
+<span class="fc" id="L78">    respond(regex, f, &quot;+&quot;);</span>
+<span class="fc" id="L79">    respond(regex, f, bctx -&gt; getSelf(bctx).map(s -&gt; s.getUsername() + &quot; &quot;));</span>
+<span class="fc" id="L80">    respond(regex, f, bctx -&gt; getSelf(bctx).map(s -&gt; Users.mention(s) + &quot; &quot;));</span>
+<span class="fc" id="L81">  }</span>
+
+  private void respond(Pattern regex, Function&lt;RobotContext, Completable&gt; f, String prefix) {
+<span class="fc" id="L84">    respond(regex, f, __ -&gt; Single.just(prefix));</span>
+<span class="fc" id="L85">  }</span>
+
+  private void respond(
+      Pattern regex,
+      Function&lt;RobotContext, Completable&gt; f,
+      Function&lt;BotContext, Single&lt;String&gt;&gt; prefix) {
+
+<span class="fc" id="L92">    BiFunction&lt;BotContext, Message, Maybe&lt;Message&gt;&gt; startsWithPrefix =</span>
+        (btx, m) -&gt;
+            prefix
+<span class="fc" id="L95">                .apply(btx)</span>
+<span class="fc bfc" id="L96" title="All 2 branches covered.">                .flatMapMaybe(p -&gt; m.getContent().startsWith(p) ? Maybe.just(m) : Maybe.empty());</span>
+
+<span class="fc" id="L98">    BiFunction&lt;BotContext, Message, Single&lt;RobotContext&gt;&gt; toRobotContext =</span>
+        (bctx, m) -&gt;
+            prefix
+<span class="fc" id="L101">                .apply(bctx)</span>
+<span class="fc" id="L102">                .map(p -&gt; StringUtils.removeStart(m.getContent(), p))</span>
+<span class="fc" id="L103">                .map(c -&gt; new RobotContext(bctx, regex.matcher(c), m));</span>
+
+<span class="fc" id="L105">    bots.add(</span>
+        bctx -&gt;
+<span class="fc" id="L107">            messages(bctx)</span>
+<span class="fc" id="L108">                .flatMapMaybe(m -&gt; startsWithPrefix.apply(bctx, m))</span>
+<span class="fc" id="L109">                .flatMapSingle(msg -&gt; toRobotContext.apply(bctx, msg))</span>
+<span class="fc" id="L110">                .filter(RobotContext::matches)</span>
+<span class="fc" id="L111">                .flatMapCompletable(f));</span>
+<span class="fc" id="L112">  }</span>
+
+  /** Run this Robot on a newly created ErisCasper instance. */
+  public void run() {
+<span class="nc" id="L116">    run(ErisCasper.create());</span>
+<span class="nc" id="L117">  }</span>
+
+  /**
+   * Run this Robot on the provided ErisCasper instance.
+   *
+   * @param ec an ErisCasper instance to run on
+   */
+  public void run(ErisCasper ec) {
+<span class="nc" id="L125">    ec.run(this);</span>
+<span class="nc" id="L126">  }</span>
+
+  private static Observable&lt;Message&gt; messages(BotContext bctx) {
+<span class="fc" id="L129">    return bctx.getEvents()</span>
+<span class="fc" id="L130">        .ofType(MessageCreate.class)</span>
+<span class="fc" id="L131">        .map(MessageCreate::unwrap)</span>
+<span class="fc bfc" id="L132" title="All 2 branches covered.">        .filter(m -&gt; !m.getAuthor().isBot().orElse(false));</span>
+  }
+
+  private static Single&lt;User&gt; getSelf(BotContext bctx) {
+<span class="fc" id="L136">    return bctx.getRepository(RepositoryDefinition.USER).getSelf();</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

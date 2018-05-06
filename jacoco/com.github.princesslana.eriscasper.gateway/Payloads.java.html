@@ -4,68 +4,62 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.github.princesslana.eriscasper.BotToken;
-import com.github.princesslana.eriscasper.event.Event;
-import com.github.princesslana.eriscasper.event.EventType;
+import com.github.princesslana.eriscasper.data.event.Event;
+import com.github.princesslana.eriscasper.data.immutable.Wrapped;
+import com.github.princesslana.eriscasper.data.immutable.Wrapper;
 import com.github.princesslana.eriscasper.rx.Maybes;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-import java.util.Collection;
+import java.util.Optional;
 import org.immutables.value.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Payloads {
 
-<span class="fc" id="L19">  private static final Logger LOG = LoggerFactory.getLogger(Payloads.class);</span>
+<span class="fc" id="L20">  private static final Logger LOG = LoggerFactory.getLogger(Payloads.class);</span>
 
   private ObjectMapper jackson;
 
-<span class="fc" id="L23">  public Payloads(ObjectMapper jackson) {</span>
-<span class="fc" id="L24">    this.jackson = jackson;</span>
-<span class="fc" id="L25">  }</span>
+<span class="fc" id="L24">  public Payloads(ObjectMapper jackson) {</span>
+<span class="fc" id="L25">    this.jackson = jackson;</span>
+<span class="fc" id="L26">  }</span>
 
   public &lt;T&gt; Single&lt;T&gt; dataAs(Payload p, Class&lt;T&gt; clazz) {
-<span class="nc" id="L28">    return Single.fromCallable(() -&gt; jackson.readerFor(clazz).readValue(p.d().get()));</span>
+<span class="fc" id="L29">    return Single.fromCallable(() -&gt; jackson.readerFor(clazz).readValue(p.d().get()));</span>
   }
 
-  public Payload heartbeat(SequenceNumber s) {
-<span class="nc" id="L32">    return ImmutablePayload.builder().op(OpCode.HEARTBEAT).s(s).build();</span>
+  public Payload heartbeat(Optional&lt;SequenceNumber&gt; s) {
+<span class="nc" id="L33">    return ImmutablePayload.builder().op(OpCode.HEARTBEAT).s(s.orElse(null)).build();</span>
   }
 
   public Payload identify(BotToken token) {
-<span class="fc" id="L36">    return identify(ImmutableIdentify.builder().token(token).build());</span>
+<span class="fc" id="L37">    return identify(ImmutableIdentify.builder().token(token).build());</span>
   }
 
   public Payload identify(Identify id) {
-<span class="fc" id="L40">    return ImmutablePayload.builder().op(OpCode.IDENTIFY).d(jackson.valueToTree(id)).build();</span>
+<span class="fc" id="L41">    return ImmutablePayload.builder().op(OpCode.IDENTIFY).d(jackson.valueToTree(id)).build();</span>
   }
 
   public Single&lt;Payload&gt; read(String text) {
-<span class="nc" id="L44">    return Single.fromCallable(() -&gt; jackson.readValue(text, Payload.class));</span>
+<span class="fc" id="L45">    return Single.fromCallable(() -&gt; jackson.readValue(text, Payload.class));</span>
   }
 
-  public Maybe&lt;Event&lt;?&gt;&gt; toEvent(Payload payload) {
-<span class="nc" id="L48">    return Single.just(payload)</span>
-<span class="nc" id="L49">        .filter(Payload.isOp(OpCode.DISPATCH))</span>
-<span class="nc" id="L50">        .flatMap(p -&gt; Maybes.fromOptional(p.t()))</span>
-<span class="nc" id="L51">        .map(EventType::getFactory)</span>
-<span class="nc" id="L52">        .flatMap(f -&gt; dataAs(payload, f.getDataClass()).map(f::apply).toMaybe())</span>
-<span class="nc" id="L53">        .doOnError(t -&gt; LOG.warn(&quot;Unable to convert payload to event: {}&quot;, payload, t))</span>
-<span class="nc" id="L54">        .onErrorComplete();</span>
+  public Payload resume(Resume r) {
+<span class="nc" id="L49">    return ImmutablePayload.builder().op(OpCode.RESUME).d(jackson.valueToTree(r)).build();</span>
+  }
+
+  public Maybe&lt;Event&gt; toEvent(Payload payload) {
+<span class="fc" id="L53">    return Single.just(payload)</span>
+<span class="fc" id="L54">        .filter(Payload.isOp(OpCode.DISPATCH))</span>
+<span class="fc" id="L55">        .flatMap(p -&gt; Maybes.fromOptional(p.t()))</span>
+<span class="fc" id="L56">        .flatMap(et -&gt; dataAs(payload, et.getDataClass()).map(et::newEvent).toMaybe())</span>
+<span class="fc" id="L57">        .doOnError(t -&gt; LOG.warn(&quot;Unable to convert payload to event: {}&quot;, payload, t))</span>
+<span class="fc" id="L58">        .onErrorComplete();</span>
   }
 
   public Single&lt;String&gt; writeToString(Payload p) {
-<span class="nc" id="L58">    return Single.fromCallable(() -&gt; jackson.writeValueAsString(p));</span>
-  }
-
-  @Value.Immutable
-  @JsonDeserialize(as = ImmutableHeartbeat.class)
-  public static interface Heartbeat {
-    @JsonProperty(&quot;heartbeat_interval&quot;)
-    Long getHeartbeatInterval();
-
-    @JsonProperty(&quot;_trace&quot;)
-    Collection&lt;String&gt; getTrace();
+<span class="fc" id="L62">    return Single.fromCallable(() -&gt; jackson.writeValueAsString(p));</span>
   }
 
   /**
@@ -74,11 +68,12 @@ public class Payloads {
    */
   // TODO: This structure is not complete
   @Value.Immutable
+  @JsonDeserialize(as = ImmutableIdentify.class)
   public static interface Identify {
     BotToken getToken();
 
     default ConnectionProperties getProperties() {
-<span class="fc" id="L81">      return ConnectionProperties.ofDefault();</span>
+<span class="fc" id="L76">      return ConnectionProperties.ofDefault();</span>
     }
   }
 
@@ -99,12 +94,30 @@ public class Payloads {
     String getDevice();
 
     public static ConnectionProperties ofDefault() {
-<span class="fc" id="L102">      return ImmutableConnectionProperties.builder()</span>
-<span class="fc" id="L103">          .os(System.getProperty(&quot;os.name&quot;))</span>
-<span class="fc" id="L104">          .browser(&quot;ErisCasper.java&quot;)</span>
-<span class="fc" id="L105">          .device(&quot;ErisCasper.java&quot;)</span>
-<span class="fc" id="L106">          .build();</span>
+<span class="fc" id="L97">      return ImmutableConnectionProperties.builder()</span>
+<span class="fc" id="L98">          .os(System.getProperty(&quot;os.name&quot;))</span>
+<span class="fc" id="L99">          .browser(&quot;ErisCasper.java&quot;)</span>
+<span class="fc" id="L100">          .device(&quot;ErisCasper.java&quot;)</span>
+<span class="fc" id="L101">          .build();</span>
     }
   }
+
+  /**
+   * @see &lt;a href=&quot;https://discordapp.com/developers/docs/topics/gateway#resume&quot;&gt;
+   *     https://discordapp.com/developers/docs/topics/gateway#resume&lt;/a&gt;
+   */
+  @Value.Immutable
+  public static interface Resume {
+    BotToken getToken();
+
+    @JsonProperty(&quot;session_id&quot;)
+    SessionId getSessionId();
+
+    SequenceNumber getSeq();
+  }
+
+  @Value.Immutable
+  @Wrapped
+  public static interface SessionIdWrapper extends Wrapper&lt;String&gt; {}
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

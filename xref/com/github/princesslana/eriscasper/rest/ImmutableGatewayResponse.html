@@ -165,13 +165,13 @@
 <a class="jxr_linenumber" name="L157" href="#L157">157</a> <em class="jxr_javadoccomment">   * but instead used immediately to create instances.&lt;/em&gt;</em>
 <a class="jxr_linenumber" name="L158" href="#L158">158</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L159" href="#L159">159</a>   @NotThreadSafe
-<a class="jxr_linenumber" name="L160" href="#L160">160</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../com/github/princesslana/eriscasper/rest/ImmutableSendMessageRequest.html">Builder</a> {
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../com/github/princesslana/eriscasper/rest/ImmutableRoute.html">Builder</a> {
 <a class="jxr_linenumber" name="L161" href="#L161">161</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> INIT_BIT_URL = 0x1L;
 <a class="jxr_linenumber" name="L162" href="#L162">162</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> initBits = 0x1L;
 <a class="jxr_linenumber" name="L163" href="#L163">163</a> 
 <a class="jxr_linenumber" name="L164" href="#L164">164</a>     <strong class="jxr_keyword">private</strong> @Nullable String url;
 <a class="jxr_linenumber" name="L165" href="#L165">165</a> 
-<a class="jxr_linenumber" name="L166" href="#L166">166</a>     <strong class="jxr_keyword">private</strong> <a href="../../../../../com/github/princesslana/eriscasper/rest/ImmutableSendMessageRequest.html">Builder</a>() {
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>     <strong class="jxr_keyword">private</strong> <a href="../../../../../com/github/princesslana/eriscasper/rest/ImmutableRoute.html">Builder</a>() {
 <a class="jxr_linenumber" name="L167" href="#L167">167</a>     }
 <a class="jxr_linenumber" name="L168" href="#L168">168</a> 
 <a class="jxr_linenumber" name="L169" href="#L169">169</a>     <em class="jxr_javadoccomment">/**</em>
@@ -182,7 +182,7 @@
 <a class="jxr_linenumber" name="L174" href="#L174">174</a> <em class="jxr_javadoccomment">     * @return {@code this} builder for use in a chained invocation</em>
 <a class="jxr_linenumber" name="L175" href="#L175">175</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L176" href="#L176">176</a>     @CanIgnoreReturnValue 
-<a class="jxr_linenumber" name="L177" href="#L177">177</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../com/github/princesslana/eriscasper/rest/ImmutableSendMessageRequest.html">Builder</a> from(<a href="../../../../../com/github/princesslana/eriscasper/rest/GatewayResponse.html">GatewayResponse</a> instance) {
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../com/github/princesslana/eriscasper/rest/ImmutableRoute.html">Builder</a> from(<a href="../../../../../com/github/princesslana/eriscasper/rest/GatewayResponse.html">GatewayResponse</a> instance) {
 <a class="jxr_linenumber" name="L178" href="#L178">178</a>       Objects.requireNonNull(instance, <span class="jxr_string">"instance"</span>);
 <a class="jxr_linenumber" name="L179" href="#L179">179</a>       url(instance.getUrl());
 <a class="jxr_linenumber" name="L180" href="#L180">180</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
@@ -195,7 +195,7 @@
 <a class="jxr_linenumber" name="L187" href="#L187">187</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L188" href="#L188">188</a>     @CanIgnoreReturnValue 
 <a class="jxr_linenumber" name="L189" href="#L189">189</a>     @JsonProperty(<span class="jxr_string">"url"</span>)
-<a class="jxr_linenumber" name="L190" href="#L190">190</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../com/github/princesslana/eriscasper/rest/ImmutableSendMessageRequest.html">Builder</a> url(String url) {
+<a class="jxr_linenumber" name="L190" href="#L190">190</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../com/github/princesslana/eriscasper/rest/ImmutableRoute.html">Builder</a> url(String url) {
 <a class="jxr_linenumber" name="L191" href="#L191">191</a>       <strong class="jxr_keyword">this</strong>.url = Objects.requireNonNull(url, <span class="jxr_string">"url"</span>);
 <a class="jxr_linenumber" name="L192" href="#L192">192</a>       initBits &amp;= ~INIT_BIT_URL;
 <a class="jxr_linenumber" name="L193" href="#L193">193</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;

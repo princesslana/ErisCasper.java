@@ -9,20 +9,23 @@
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <strong class="jxr_keyword">package</strong> com.github.princesslana.eriscasper.<strong class="jxr_keyword">rest</strong>;
 <a class="jxr_linenumber" name="L2" href="#L2">2</a>   
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <strong class="jxr_keyword">import</strong> com.github.princesslana.eriscasper.data.Message;
-<a class="jxr_linenumber" name="L4" href="#L4">4</a>   
-<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../com/github/princesslana/eriscasper/rest/RouteCatalog.html">RouteCatalog</a> {
-<a class="jxr_linenumber" name="L6" href="#L6">6</a>   
-<a class="jxr_linenumber" name="L7" href="#L7">7</a>     <strong class="jxr_keyword">private</strong> <a href="../../../../../com/github/princesslana/eriscasper/rest/RouteCatalog.html">RouteCatalog</a>() {}
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   
-<a class="jxr_linenumber" name="L9" href="#L9">9</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> Route&lt;Void, GatewayResponse&gt; getGateway() {
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>      <strong class="jxr_keyword">return</strong> Route.get(<span class="jxr_string">"/gateway"</span>, GatewayResponse.<strong class="jxr_keyword">class</strong>);
-<a class="jxr_linenumber" name="L11" href="#L11">11</a>    }
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> Route&lt;SendMessageRequest, Message&gt; createMessage(String channelId) {
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>      <strong class="jxr_keyword">return</strong> Route.post(
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>          String.format(<span class="jxr_string">"/channels/%s/messages"</span>, channelId), SendMessageRequest.<strong class="jxr_keyword">class</strong>, Message.<strong class="jxr_keyword">class</strong>);
-<a class="jxr_linenumber" name="L16" href="#L16">16</a>    }
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  }
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <strong class="jxr_keyword">import</strong> com.github.princesslana.eriscasper.data.Snowflake;
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   
+<a class="jxr_linenumber" name="L6" href="#L6">6</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../com/github/princesslana/eriscasper/rest/RouteCatalog.html">RouteCatalog</a> {
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>     <strong class="jxr_keyword">private</strong> <a href="../../../../../com/github/princesslana/eriscasper/rest/RouteCatalog.html">RouteCatalog</a>() {}
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> Route&lt;Void, GatewayResponse&gt; getGateway() {
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>      <strong class="jxr_keyword">return</strong> Route.get(<span class="jxr_string">"/gateway"</span>, GatewayResponse.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>    }
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> Route&lt;SendMessageRequest, Message&gt; createMessage(Snowflake channelId) {
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>      <strong class="jxr_keyword">return</strong> Route.post(
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>          String.format(<span class="jxr_string">"/channels/%s/messages"</span>, channelId.unwrap()),
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>          SendMessageRequest.<strong class="jxr_keyword">class</strong>,
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>          Message.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>    }
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2018. All rights reserved.</div>

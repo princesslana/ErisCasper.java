@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WhoAreYouBot.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">com.github.princesslana.eriscasper.examples</a> &gt; <span class="el_source">WhoAreYouBot.java</span></div><h1>WhoAreYouBot.java</h1><pre class="source lang-java linenums">package com.github.princesslana.eriscasper.examples;
+
+import com.github.princesslana.eriscasper.Bot;
+import com.github.princesslana.eriscasper.BotContext;
+import com.github.princesslana.eriscasper.ErisCasper;
+import com.github.princesslana.eriscasper.action.Actions;
+import com.github.princesslana.eriscasper.event.MessageCreate;
+import com.github.princesslana.eriscasper.repository.RepositoryDefinition;
+import io.reactivex.Completable;
+
+<span class="nc" id="L11">public class WhoAreYouBot implements Bot {</span>
+
+  @Override
+  public Completable apply(BotContext ctx) {
+<span class="nc" id="L15">    return ctx.on(</span>
+        MessageCreate.class,
+        recv -&gt; {
+<span class="nc bnc" id="L18" title="All 2 branches missed.">          if (recv.getContent().equals(&quot;+whoareyou&quot;)) {</span>
+<span class="nc" id="L19">            return ctx.getRepository(RepositoryDefinition.USER)</span>
+<span class="nc" id="L20">                .getSelf()</span>
+<span class="nc" id="L21">                .map(</span>
+                    s -&gt;
+<span class="nc" id="L23">                        Actions.sendMessage(</span>
+<span class="nc" id="L24">                            recv.getChannelId(),</span>
+<span class="nc" id="L25">                            &quot;I'm &quot; + s.getUsername() + &quot;. Who the hell are you?&quot;))</span>
+<span class="nc" id="L26">                .flatMapCompletable(ctx::execute);</span>
+          }
+
+<span class="nc" id="L29">          return ctx.doNothing();</span>
+        });
+  }
+
+  public static void main(String[] args) {
+<span class="nc" id="L34">    ErisCasper.create().run(new WhoAreYouBot());</span>
+<span class="nc" id="L35">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

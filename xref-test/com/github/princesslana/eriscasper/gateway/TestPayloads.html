@@ -10,7 +10,7 @@
 <a class="jxr_linenumber" name="L2" href="#L2">2</a>   
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <strong class="jxr_keyword">import</strong> com.fasterxml.jackson.databind.ObjectMapper;
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <strong class="jxr_keyword">import</strong> com.github.princesslana.eriscasper.BotToken;
-<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">import</strong> com.github.princesslana.eriscasper.gateway.Payloads.Heartbeat;
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">import</strong> com.github.princesslana.eriscasper.data.event.HelloEventData;
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <strong class="jxr_keyword">import</strong> com.github.princesslana.eriscasper.util.Jackson;
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> java.io.IOException;
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> org.assertj.core.api.Assertions;
@@ -41,7 +41,7 @@
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> heartbeat_whenValidPayload_shouldDeserialize() <strong class="jxr_keyword">throws</strong> IOException {
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>      String payload = <span class="jxr_string">"{\&quot;heartbeat_interval\&quot;:41250,\&quot;_trace\&quot;:[\&quot;gateway-prd-main-wv81\&quot;]}}"</span>;
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>      Heartbeat hb = jackson.readValue(payload, Heartbeat.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>      HelloEventData hb = jackson.readValue(payload, HelloEventData.<strong class="jxr_keyword">class</strong>);
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>  
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>      Assertions.assertThat(hb.getHeartbeatInterval()).isEqualTo(41250);
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>      Assertions.assertThat(hb.getTrace()).containsOnly(<span class="jxr_string">"gateway-prd-main-wv81"</span>);

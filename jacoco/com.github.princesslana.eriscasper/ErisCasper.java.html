@@ -1,59 +1,67 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ErisCasper.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">com.github.princesslana.eriscasper</a> &gt; <span class="el_source">ErisCasper.java</span></div><h1>ErisCasper.java</h1><pre class="source lang-java linenums">package com.github.princesslana.eriscasper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.princesslana.eriscasper.event.Event;
+import com.github.princesslana.eriscasper.data.event.Event;
 import com.github.princesslana.eriscasper.gateway.Gateway;
 import com.github.princesslana.eriscasper.gateway.Payloads;
+import com.github.princesslana.eriscasper.repository.RepositoryManager;
 import com.github.princesslana.eriscasper.rest.RouteCatalog;
 import com.github.princesslana.eriscasper.rest.Routes;
 import com.github.princesslana.eriscasper.util.Jackson;
-import io.reactivex.Flowable;
-import java.io.IOException;
+import com.github.princesslana.eriscasper.util.OkHttp;
+import io.reactivex.Observable;
+import io.reactivex.Single;
+import io.reactivex.schedulers.Schedulers;
 import okhttp3.OkHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ErisCasper {
 
-<span class="nc" id="L18">  private static final Logger LOG = LoggerFactory.getLogger(ErisCasper.class);</span>
+<span class="nc" id="L21">  private static final Logger LOG = LoggerFactory.getLogger(ErisCasper.class);</span>
 
   private final BotToken token;
 
-<span class="nc" id="L22">  private final OkHttpClient httpClient = new OkHttpClient();</span>
-<span class="nc" id="L23">  private final ObjectMapper jackson = Jackson.newObjectMapper();</span>
-<span class="nc" id="L24">  private final Payloads payloads = new Payloads(jackson);</span>
+<span class="nc" id="L25">  private final OkHttpClient httpClient = OkHttp.newHttpClient();</span>
+<span class="nc" id="L26">  private final ObjectMapper jackson = Jackson.newObjectMapper();</span>
+<span class="nc" id="L27">  private final Payloads payloads = new Payloads(jackson);</span>
+
   private final Routes routes;
 
-<span class="nc" id="L27">  private ErisCasper(BotToken token) {</span>
-<span class="nc" id="L28">    this.token = token;</span>
+<span class="nc" id="L31">  private ErisCasper(BotToken token) {</span>
+<span class="nc" id="L32">    this.token = token;</span>
 
-<span class="nc" id="L30">    routes = new Routes(token, httpClient, jackson);</span>
-<span class="nc" id="L31">  }</span>
+<span class="nc" id="L34">    routes = new Routes(token, httpClient, jackson);</span>
+<span class="nc" id="L35">  }</span>
 
-  private Flowable&lt;Event&lt;?&gt;&gt; getEvents() {
-<span class="nc" id="L34">    try (Gateway gateway = new Gateway(httpClient, payloads)) {</span>
-<span class="nc" id="L35">      return routes</span>
-<span class="nc" id="L36">          .execute(RouteCatalog.getGateway())</span>
-<span class="nc" id="L37">          .toFlowable()</span>
-<span class="nc" id="L38">          .flatMap(gr -&gt; gateway.connect(gr.getUrl(), token))</span>
-<span class="nc" id="L39">          .flatMapMaybe(payloads::toEvent)</span>
-<span class="nc" id="L40">          .onBackpressureBuffer()</span>
-<span class="nc" id="L41">          .share();</span>
-<span class="nc" id="L42">    } catch (IOException e) {</span>
-<span class="nc" id="L43">      return Flowable.error(e);</span>
-    }
+  private Observable&lt;Event&gt; getEvents() {
+<span class="nc" id="L38">    Gateway gateway = Gateway.create(httpClient, payloads);</span>
+
+<span class="nc" id="L40">    return Single.just(RouteCatalog.getGateway())</span>
+<span class="nc" id="L41">        .observeOn(Schedulers.io())</span>
+<span class="nc" id="L42">        .flatMap(routes::execute)</span>
+<span class="nc" id="L43">        .toObservable()</span>
+<span class="nc" id="L44">        .flatMap(gr -&gt; gateway.connect(gr.getUrl(), token))</span>
+<span class="nc" id="L45">        .observeOn(Schedulers.computation())</span>
+<span class="nc" id="L46">        .share();</span>
   }
 
   public void run(Bot bot) {
-<span class="nc" id="L48">    bot.apply(new BotContext(getEvents(), routes)).subscribe();</span>
-<span class="nc" id="L49">  }</span>
+<span class="nc" id="L50">    Observable&lt;Event&gt; events = getEvents();</span>
+
+<span class="nc" id="L52">    RepositoryManager rm = RepositoryManager.create(events);</span>
+
+<span class="nc" id="L54">    bot.apply(new BotContext(events, routes, rm))</span>
+<span class="nc" id="L55">        .doOnError(t -&gt; LOG.warn(&quot;Exception thrown by Bot&quot;, t))</span>
+<span class="nc" id="L56">        .blockingAwait();</span>
+<span class="nc" id="L57">  }</span>
 
   public static ErisCasper create() {
-<span class="nc" id="L52">    return create(System.getenv(&quot;EC_TOKEN&quot;));</span>
+<span class="nc" id="L60">    return create(System.getenv(&quot;EC_TOKEN&quot;));</span>
   }
 
   public static ErisCasper create(String token) {
-<span class="nc" id="L56">    return new ErisCasper(BotToken.of(token));</span>
+<span class="nc" id="L64">    return new ErisCasper(BotToken.of(token));</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

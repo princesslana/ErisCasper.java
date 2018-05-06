@@ -1,34 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PingBot.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ErisCasper.java</a> &gt; <a href="index.source.html" class="el_package">com.github.princesslana.eriscasper.examples</a> &gt; <span class="el_source">PingBot.java</span></div><h1>PingBot.java</h1><pre class="source lang-java linenums">package com.github.princesslana.eriscasper.examples;
 
+import com.github.princesslana.eriscasper.Bot;
+import com.github.princesslana.eriscasper.BotContext;
 import com.github.princesslana.eriscasper.ErisCasper;
-import com.github.princesslana.eriscasper.event.Event;
-import com.github.princesslana.eriscasper.event.Events;
-import com.github.princesslana.eriscasper.rest.ImmutableSendMessageRequest;
-import com.github.princesslana.eriscasper.rest.RouteCatalog;
+import com.github.princesslana.eriscasper.action.Actions;
+import com.github.princesslana.eriscasper.event.MessageCreate;
+import io.reactivex.Completable;
 
-<span class="nc" id="L9">public class PingBot {</span>
+<span class="nc" id="L10">public class PingBot implements Bot {</span>
+
+  @Override
+  public Completable apply(BotContext ctx) {
+<span class="nc" id="L14">    return ctx.on(</span>
+        MessageCreate.class,
+        recv -&gt; {
+<span class="nc bnc" id="L17" title="All 2 branches missed.">          if (recv.getContent().equals(&quot;+ping&quot;)) {</span>
+<span class="nc" id="L18">            return ctx.execute(Actions.sendMessage(recv.getChannelId(), &quot;pong&quot;));</span>
+          }
+
+<span class="nc" id="L21">          return ctx.doNothing();</span>
+        });
+  }
 
   public static void main(String[] args) {
-<span class="nc" id="L12">    ErisCasper.create()</span>
-<span class="nc" id="L13">        .run(</span>
-            ctx -&gt;
-<span class="nc" id="L15">                ctx.getEvents()</span>
-
-                    // only message create events
-<span class="nc" id="L18">                    .ofType(Events.MessageCreate.class)</span>
-<span class="nc" id="L19">                    .map(Event::getData)</span>
-
-                    // only with content &quot;+ping&quot;
-<span class="nc" id="L22">                    .filter(d -&gt; d.getContent().equals(&quot;+ping&quot;))</span>
-
-                    // send create message request
-<span class="nc" id="L25">                    .map(d -&gt; RouteCatalog.createMessage(d.getChannelId()))</span>
-<span class="nc" id="L26">                    .flatMapCompletable(</span>
-                        r -&gt;
-<span class="nc" id="L28">                            ctx.execute(</span>
-                                    r,
-<span class="nc" id="L30">                                    ImmutableSendMessageRequest.builder().content(&quot;pong&quot;).build())</span>
-<span class="nc" id="L31">                                .toCompletable()));</span>
-<span class="nc" id="L32">  }</span>
+<span class="nc" id="L26">    ErisCasper.create().run(new PingBot());</span>
+<span class="nc" id="L27">  }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

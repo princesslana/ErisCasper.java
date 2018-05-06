@@ -6,8 +6,12 @@ import java.util.Optional;
 public class Maybes {
   private Maybes() {}
 
+  public static &lt;T&gt; Maybe&lt;T&gt; fromNullable(T v) {
+<span class="pc bpc" id="L10" title="1 of 2 branches missed.">    return v == null ? Maybe.empty() : Maybe.just(v);</span>
+  }
+
   public static &lt;T&gt; Maybe&lt;T&gt; fromOptional(Optional&lt;T&gt; op) {
-<span class="nc" id="L10">    return op.map(Maybe::just).orElse(Maybe.empty());</span>
+<span class="fc" id="L14">    return op.map(Maybe::just).orElse(Maybe.empty());</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

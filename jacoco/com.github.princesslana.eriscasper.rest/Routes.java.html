@@ -2,7 +2,19 @@
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.princesslana.eriscasper.BotToken;
+import com.github.princesslana.eriscasper.rx.Maybes;
+import io.github.resilience4j.ratelimiter.RateLimiter;
+import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
+import io.github.resilience4j.ratelimiter.operator.RateLimiterOperator;
+import io.reactivex.Observable;
 import io.reactivex.Single;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Optional;
+import java.util.concurrent.Callable;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -13,57 +25,105 @@ import org.slf4j.LoggerFactory;
 
 public class Routes {
 
-<span class="nc" id="L16">  private static final Logger LOG = LoggerFactory.getLogger(Routes.class);</span>
+<span class="fc" id="L28">  private static final Logger LOG = LoggerFactory.getLogger(Routes.class);</span>
+
+<span class="fc" id="L30">  private static final MediaType MEDIA_TYPE_JSON = MediaType.parse(&quot;application/json&quot;);</span>
+
+<span class="fc" id="L32">  private final RateLimiterRegistry rateLimiterRegistry = RateLimiterRegistry.ofDefaults();</span>
 
   private final BotToken token;
 
   private final OkHttpClient client;
   private final ObjectMapper jackson;
 
-<span class="nc" id="L23">  public Routes(BotToken token, OkHttpClient client, ObjectMapper jackson) {</span>
-<span class="nc" id="L24">    this.token = token;</span>
-<span class="nc" id="L25">    this.client = client;</span>
-<span class="nc" id="L26">    this.jackson = jackson;</span>
-<span class="nc" id="L27">  }</span>
+<span class="fc" id="L39">  public Routes(BotToken token, OkHttpClient client, ObjectMapper jackson) {</span>
+<span class="fc" id="L40">    this.token = token;</span>
+<span class="fc" id="L41">    this.client = client;</span>
+<span class="fc" id="L42">    this.jackson = jackson;</span>
+<span class="fc" id="L43">  }</span>
 
-  public &lt;Rs&gt; Single&lt;Rs&gt; execute(Route&lt;Void, Rs&gt; route) {
-<span class="nc" id="L30">    return execute(route, null);</span>
+  public &lt;O&gt; Single&lt;O&gt; execute(Route&lt;Void, O&gt; route) {
+<span class="fc" id="L46">    return execute(route, null);</span>
   }
 
-  public &lt;Rq, Rs&gt; Single&lt;Rs&gt; execute(Route&lt;Rq, Rs&gt; route, Rq data) {
-<span class="nc" id="L34">    return Single.fromCallable(</span>
-            () -&gt; {
-<span class="nc" id="L36">              LOG.debug(&quot;Executing: {}...&quot;, route);</span>
+  public &lt;I, O&gt; Single&lt;O&gt; execute(Route&lt;I, O&gt; route, I data) {
+<span class="fc" id="L50">    Function&lt;Optional&lt;RequestBody&gt;, Request&gt; buildRequest =</span>
+        body -&gt;
+<span class="fc" id="L52">            new Request.Builder()</span>
+<span class="fc" id="L53">                .method(route.getMethod().get(), body.orElse(null))</span>
+<span class="fc" id="L54">                .url(route.getUrl())</span>
+<span class="fc" id="L55">                .header(&quot;Authorization&quot;, &quot;Bot &quot; + token.unwrap())</span>
+<span class="fc" id="L56">                .build();</span>
 
-<span class="nc bnc" id="L38" title="All 2 branches missed.">              RequestBody body =</span>
-                  data == null
-                      ? null
-<span class="nc" id="L41">                      : RequestBody.create(</span>
-<span class="nc" id="L42">                          MediaType.parse(&quot;application/json&quot;), jackson.writeValueAsString(data));</span>
+<span class="fc" id="L58">    return Maybes.fromNullable(data)</span>
+<span class="pc" id="L59">        .map(d -&gt; RequestBody.create(MEDIA_TYPE_JSON, jackson.writeValueAsString(data)))</span>
+<span class="fc" id="L60">        .map(Optional::of)</span>
+<span class="fc" id="L61">        .toSingle(Optional.empty())</span>
+<span class="fc" id="L62">        .map(buildRequest)</span>
+<span class="fc" id="L63">        .flatMap(rq -&gt; executeRequest(route, rq))</span>
+<span class="fc" id="L64">        .lift(RateLimiterOperator.of(getRateLimiter(route)));</span>
+  }
 
-<span class="nc" id="L44">              Request rq =</span>
-                  new Request.Builder()
-<span class="nc" id="L46">                      .method(route.getMethod().get(), body)</span>
-<span class="nc" id="L47">                      .url(route.getUrl())</span>
-<span class="nc" id="L48">                      .header(&quot;Authorization&quot;, &quot;Bot &quot; + token.unwrap())</span>
-<span class="nc" id="L49">                      .build();</span>
+  private &lt;O&gt; Single&lt;O&gt; executeRequest(Route&lt;?, O&gt; route, Request rq) {
+<span class="fc" id="L68">    Callable&lt;Response&gt; execute =</span>
+        () -&gt; {
+<span class="fc" id="L70">          LOG.debug(&quot;Executing: {}...&quot;, route);</span>
+<span class="fc" id="L71">          return client.newCall(rq).execute();</span>
+        };
 
-<span class="nc" id="L51">              try (Response rs = client.newCall(rq).execute()) {</span>
-<span class="nc" id="L52">                String rsBody = rs.body().string();</span>
+<span class="fc" id="L74">    Consumer&lt;Response&gt; close =</span>
+        r -&gt; {
+<span class="fc" id="L76">          r.close();</span>
+<span class="fc" id="L77">          LOG.debug(&quot;Closed: {}.&quot;, r);</span>
+<span class="fc" id="L78">        };</span>
 
-<span class="nc" id="L54">                LOG.debug(&quot;Response: {}&quot;, rs);</span>
-<span class="nc" id="L55">                LOG.debug(&quot;Headers: {}&quot;, rs.headers());</span>
-<span class="nc" id="L56">                LOG.debug(&quot;Body: {}&quot;, rsBody);</span>
+<span class="fc" id="L80">    Consumer&lt;Response&gt; updateRateLimit =</span>
+        r -&gt; {
+<span class="fc" id="L82">          String remainingHeader = r.header(&quot;X-RateLimit-Remaining&quot;);</span>
+<span class="fc" id="L83">          String resetHeader = r.header(&quot;X-RateLimit-Reset&quot;);</span>
 
-<span class="nc bnc" id="L58" title="All 2 branches missed.">                if (!rs.isSuccessful()) {</span>
-<span class="nc" id="L59">                  throw new IllegalStateException(String.format(&quot;Request failed: %s&quot;, rs));</span>
-                }
+          try {
+<span class="nc" id="L86">            int remaining = Integer.parseInt(remainingHeader, 10);</span>
+<span class="nc" id="L87">            Instant until = Instant.ofEpochSecond(Long.parseLong(resetHeader));</span>
 
-<span class="nc" id="L62">                return jackson.readValue(rsBody, route.getResponseClass());</span>
-              }
-            })
-<span class="nc" id="L65">        .doOnSuccess(r -&gt; LOG.debug(&quot;Done: {} -&gt; {}.&quot;, route, r))</span>
-<span class="nc" id="L66">        .doOnError(e -&gt; LOG.warn(&quot;Error: {} - {}.&quot;, route, e));</span>
+<span class="nc" id="L89">            RateLimiter rl = getRateLimiter(route);</span>
+
+<span class="nc" id="L91">            rl.changeLimitForPeriod(remaining);</span>
+<span class="nc" id="L92">            rl.changeTimeoutDuration(Duration.between(Instant.now(), until));</span>
+<span class="fc" id="L93">          } catch (IllegalArgumentException e) {</span>
+            // we use a little EAFP here (https://docs.python.org/3/glossary.html#term-eafp)
+            // If the headers are absent or not numeric or the values passed into the rate limiter
+            // are invalid we may end up here
+<span class="fc" id="L97">            LOG.debug(</span>
+                &quot;Could not update rate limit to {}/{} ({})&quot;,
+                remainingHeader,
+                resetHeader,
+<span class="fc" id="L101">                e.getMessage());</span>
+<span class="nc" id="L102">          }</span>
+<span class="fc" id="L103">        };</span>
+
+    // Single#using does not work here, as it performs the close operation immediately upon emitting
+    // the response, because once it's received the response it knows it can receive no more.
+    //
+    // Observable#using closes the response at a more appropriate time. My feeling is that this is
+    // wrong - we're tricking rxjava into thinking there is something coming next so as to delay the
+    // close.
+<span class="fc" id="L111">    return Observable.using(execute, Observable::just, close)</span>
+<span class="fc" id="L112">        .subscribeOn(Schedulers.io())</span>
+<span class="fc" id="L113">        .doOnNext(r -&gt; LOG.debug(&quot;Done: {} -&gt; {}.&quot;, route, r))</span>
+<span class="fc" id="L114">        .doOnNext(updateRateLimit)</span>
+<span class="fc" id="L115">        .flatMapSingle(</span>
+            r -&gt;
+<span class="pc bpc" id="L117" title="1 of 2 branches missed.">                r.isSuccessful()</span>
+<span class="pc" id="L118">                    ? Single.just(r)</span>
+<span class="nc" id="L119">                    : Single.error(new IllegalStateException(&quot;Unexpected response: &quot;)))</span>
+<span class="fc" id="L120">        .doOnError(e -&gt; LOG.warn(&quot;Error: {} - {}.&quot;, route, e))</span>
+<span class="fc" id="L121">        .map(rs -&gt; jackson.readValue(rs.body().byteStream(), route.getResponseClass()))</span>
+<span class="fc" id="L122">        .firstOrError();</span>
+  }
+
+  private RateLimiter getRateLimiter(Route&lt;?, ?&gt; r) {
+<span class="fc" id="L126">    return rateLimiterRegistry.rateLimiter(r.getUrl());</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

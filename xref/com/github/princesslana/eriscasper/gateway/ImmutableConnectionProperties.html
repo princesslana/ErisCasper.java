@@ -179,7 +179,7 @@
 <a class="jxr_linenumber" name="L171" href="#L171">171</a> <em class="jxr_javadoccomment">   * but instead used immediately to create instances.&lt;/em&gt;</em>
 <a class="jxr_linenumber" name="L172" href="#L172">172</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L173" href="#L173">173</a>   @NotThreadSafe
-<a class="jxr_linenumber" name="L174" href="#L174">174</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../com/github/princesslana/eriscasper/gateway/ImmutableConnectionProperties.html">Builder</a> {
+<a class="jxr_linenumber" name="L174" href="#L174">174</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../com/github/princesslana/eriscasper/gateway/ImmutableIdentify.html">Builder</a> {
 <a class="jxr_linenumber" name="L175" href="#L175">175</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> INIT_BIT_OS = 0x1L;
 <a class="jxr_linenumber" name="L176" href="#L176">176</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> INIT_BIT_BROWSER = 0x2L;
 <a class="jxr_linenumber" name="L177" href="#L177">177</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> INIT_BIT_DEVICE = 0x4L;
@@ -189,7 +189,7 @@
 <a class="jxr_linenumber" name="L181" href="#L181">181</a>     <strong class="jxr_keyword">private</strong> @Nullable String browser;
 <a class="jxr_linenumber" name="L182" href="#L182">182</a>     <strong class="jxr_keyword">private</strong> @Nullable String device;
 <a class="jxr_linenumber" name="L183" href="#L183">183</a> 
-<a class="jxr_linenumber" name="L184" href="#L184">184</a>     <strong class="jxr_keyword">private</strong> <a href="../../../../../com/github/princesslana/eriscasper/gateway/ImmutableConnectionProperties.html">Builder</a>() {
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>     <strong class="jxr_keyword">private</strong> <a href="../../../../../com/github/princesslana/eriscasper/gateway/ImmutableIdentify.html">Builder</a>() {
 <a class="jxr_linenumber" name="L185" href="#L185">185</a>     }
 <a class="jxr_linenumber" name="L186" href="#L186">186</a> 
 <a class="jxr_linenumber" name="L187" href="#L187">187</a>     <em class="jxr_javadoccomment">/**</em>
@@ -200,7 +200,7 @@
 <a class="jxr_linenumber" name="L192" href="#L192">192</a> <em class="jxr_javadoccomment">     * @return {@code this} builder for use in a chained invocation</em>
 <a class="jxr_linenumber" name="L193" href="#L193">193</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L194" href="#L194">194</a>     @CanIgnoreReturnValue 
-<a class="jxr_linenumber" name="L195" href="#L195">195</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../com/github/princesslana/eriscasper/gateway/ImmutableConnectionProperties.html">Builder</a> from(Payloads.ConnectionProperties instance) {
+<a class="jxr_linenumber" name="L195" href="#L195">195</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../com/github/princesslana/eriscasper/gateway/ImmutableIdentify.html">Builder</a> from(Payloads.ConnectionProperties instance) {
 <a class="jxr_linenumber" name="L196" href="#L196">196</a>       Objects.requireNonNull(instance, <span class="jxr_string">"instance"</span>);
 <a class="jxr_linenumber" name="L197" href="#L197">197</a>       os(instance.getOs());
 <a class="jxr_linenumber" name="L198" href="#L198">198</a>       browser(instance.getBrowser());
@@ -214,7 +214,7 @@
 <a class="jxr_linenumber" name="L206" href="#L206">206</a> <em class="jxr_javadoccomment">     * @return {@code this} builder for use in a chained invocation</em>
 <a class="jxr_linenumber" name="L207" href="#L207">207</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L208" href="#L208">208</a>     @CanIgnoreReturnValue 
-<a class="jxr_linenumber" name="L209" href="#L209">209</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../com/github/princesslana/eriscasper/gateway/ImmutableConnectionProperties.html">Builder</a> os(String os) {
+<a class="jxr_linenumber" name="L209" href="#L209">209</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../com/github/princesslana/eriscasper/gateway/ImmutableIdentify.html">Builder</a> os(String os) {
 <a class="jxr_linenumber" name="L210" href="#L210">210</a>       <strong class="jxr_keyword">this</strong>.os = Objects.requireNonNull(os, <span class="jxr_string">"os"</span>);
 <a class="jxr_linenumber" name="L211" href="#L211">211</a>       initBits &amp;= ~INIT_BIT_OS;
 <a class="jxr_linenumber" name="L212" href="#L212">212</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
@@ -226,7 +226,7 @@
 <a class="jxr_linenumber" name="L218" href="#L218">218</a> <em class="jxr_javadoccomment">     * @return {@code this} builder for use in a chained invocation</em>
 <a class="jxr_linenumber" name="L219" href="#L219">219</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L220" href="#L220">220</a>     @CanIgnoreReturnValue 
-<a class="jxr_linenumber" name="L221" href="#L221">221</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../com/github/princesslana/eriscasper/gateway/ImmutableConnectionProperties.html">Builder</a> browser(String browser) {
+<a class="jxr_linenumber" name="L221" href="#L221">221</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../com/github/princesslana/eriscasper/gateway/ImmutableIdentify.html">Builder</a> browser(String browser) {
 <a class="jxr_linenumber" name="L222" href="#L222">222</a>       <strong class="jxr_keyword">this</strong>.browser = Objects.requireNonNull(browser, <span class="jxr_string">"browser"</span>);
 <a class="jxr_linenumber" name="L223" href="#L223">223</a>       initBits &amp;= ~INIT_BIT_BROWSER;
 <a class="jxr_linenumber" name="L224" href="#L224">224</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
@@ -238,7 +238,7 @@
 <a class="jxr_linenumber" name="L230" href="#L230">230</a> <em class="jxr_javadoccomment">     * @return {@code this} builder for use in a chained invocation</em>
 <a class="jxr_linenumber" name="L231" href="#L231">231</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L232" href="#L232">232</a>     @CanIgnoreReturnValue 
-<a class="jxr_linenumber" name="L233" href="#L233">233</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../com/github/princesslana/eriscasper/gateway/ImmutableConnectionProperties.html">Builder</a> device(String device) {
+<a class="jxr_linenumber" name="L233" href="#L233">233</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../com/github/princesslana/eriscasper/gateway/ImmutableIdentify.html">Builder</a> device(String device) {
 <a class="jxr_linenumber" name="L234" href="#L234">234</a>       <strong class="jxr_keyword">this</strong>.device = Objects.requireNonNull(device, <span class="jxr_string">"device"</span>);
 <a class="jxr_linenumber" name="L235" href="#L235">235</a>       initBits &amp;= ~INIT_BIT_DEVICE;
 <a class="jxr_linenumber" name="L236" href="#L236">236</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;

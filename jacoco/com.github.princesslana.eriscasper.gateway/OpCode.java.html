@@ -30,15 +30,15 @@ import java.util.Arrays;
 
   @JsonValue
   public int getCode() {
-<span class="nc" id="L33">    return code;</span>
+<span class="fc" id="L33">    return code;</span>
   }
 
   @JsonCreator
   public static OpCode fromCode(int code) {
-<span class="nc" id="L38">    return Arrays.stream(OpCode.values())</span>
-<span class="nc bnc" id="L39" title="All 2 branches missed.">        .filter(o -&gt; o.code == code)</span>
-<span class="nc" id="L40">        .findFirst()</span>
-<span class="nc" id="L41">        .orElseThrow(() -&gt; new IllegalStateException(&quot;Unknown opcode: &quot; + code));</span>
+<span class="fc" id="L38">    return Arrays.stream(OpCode.values())</span>
+<span class="fc bfc" id="L39" title="All 2 branches covered.">        .filter(o -&gt; o.code == code)</span>
+<span class="fc" id="L40">        .findFirst()</span>
+<span class="pc" id="L41">        .orElseThrow(() -&gt; new IllegalStateException(&quot;Unknown opcode: &quot; + code));</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>

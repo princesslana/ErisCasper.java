@@ -1,3 +1,11 @@
 com.github.princesslana.eriscasper
+com.github.princesslana.eriscasper.api.robot
+com.github.princesslana.eriscasper.data
+com.github.princesslana.eriscasper.data.event
+com.github.princesslana.eriscasper.data.resource
+com.github.princesslana.eriscasper.examples.robot
+com.github.princesslana.eriscasper.faker
 com.github.princesslana.eriscasper.gateway
+com.github.princesslana.eriscasper.repository.event
+com.github.princesslana.eriscasper.rest
 com.github.princesslana.eriscasper.rx.websocket

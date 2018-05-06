@@ -9,61 +9,69 @@
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <strong class="jxr_keyword">package</strong> com.github.princesslana.eriscasper;
 <a class="jxr_linenumber" name="L2" href="#L2">2</a>   
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <strong class="jxr_keyword">import</strong> com.fasterxml.jackson.databind.ObjectMapper;
-<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <strong class="jxr_keyword">import</strong> com.github.princesslana.eriscasper.event.Event;
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <strong class="jxr_keyword">import</strong> com.github.princesslana.eriscasper.data.event.Event;
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">import</strong> com.github.princesslana.eriscasper.gateway.Gateway;
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <strong class="jxr_keyword">import</strong> com.github.princesslana.eriscasper.gateway.Payloads;
-<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> com.github.princesslana.eriscasper.<strong class="jxr_keyword">rest</strong>.RouteCatalog;
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> com.github.princesslana.eriscasper.<strong class="jxr_keyword">rest</strong>.Routes;
-<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> com.github.princesslana.eriscasper.util.Jackson;
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> io.reactivex.Flowable;
-<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> java.io.IOException;
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> okhttp3.OkHttpClient;
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> org.slf4j.Logger;
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> org.slf4j.LoggerFactory;
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>  
-<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../com/github/princesslana/eriscasper/ErisCasper.html">ErisCasper</a> {
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger LOG = LoggerFactory.getLogger(ErisCasper.<strong class="jxr_keyword">class</strong>);
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>  
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> BotToken token;
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>  
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> OkHttpClient httpClient = <strong class="jxr_keyword">new</strong> OkHttpClient();
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> ObjectMapper jackson = Jackson.newObjectMapper();
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../com/github/princesslana/eriscasper/gateway/Payloads.html">Payloads</a> payloads = <strong class="jxr_keyword">new</strong> <a href="../../../../com/github/princesslana/eriscasper/gateway/Payloads.html">Payloads</a>(jackson);
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../com/github/princesslana/eriscasper/rest/Routes.html">Routes</a> routes;
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>  
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>    <strong class="jxr_keyword">private</strong> <a href="../../../../com/github/princesslana/eriscasper/ErisCasper.html">ErisCasper</a>(BotToken token) {
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>      <strong class="jxr_keyword">this</strong>.token = token;
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>  
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>      routes = <strong class="jxr_keyword">new</strong> <a href="../../../../com/github/princesslana/eriscasper/rest/Routes.html">Routes</a>(token, httpClient, jackson);
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>    }
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>    <strong class="jxr_keyword">private</strong> Flowable&lt;Event&lt;?&gt;&gt; getEvents() {
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>      <strong class="jxr_keyword">try</strong> (Gateway gateway = <strong class="jxr_keyword">new</strong> Gateway(httpClient, payloads)) {
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>        <strong class="jxr_keyword">return</strong> routes
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>            .execute(RouteCatalog.getGateway())
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>            .toFlowable()
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>            .flatMap(gr -&gt; gateway.connect(gr.getUrl(), token))
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>            .flatMapMaybe(payloads::toEvent)
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>            .onBackpressureBuffer()
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>            .share();
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>      } <strong class="jxr_keyword">catch</strong> (IOException e) {
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>        <strong class="jxr_keyword">return</strong> Flowable.error(e);
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>      }
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>    }
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>  
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> run(<a href="../../../../com/github/princesslana/eriscasper/Bot.html">Bot</a> bot) {
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>      bot.apply(<strong class="jxr_keyword">new</strong> <a href="../../../../com/github/princesslana/eriscasper/BotContext.html">BotContext</a>(getEvents(), routes)).subscribe();
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>    }
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>  
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../com/github/princesslana/eriscasper/ErisCasper.html">ErisCasper</a> create() {
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>      <strong class="jxr_keyword">return</strong> create(System.getenv(<span class="jxr_string">"EC_TOKEN"</span>));
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>    }
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>  
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../com/github/princesslana/eriscasper/ErisCasper.html">ErisCasper</a> create(String token) {
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>      <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../com/github/princesslana/eriscasper/ErisCasper.html">ErisCasper</a>(BotToken.of(token));
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> com.github.princesslana.eriscasper.repository.RepositoryManager;
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> com.github.princesslana.eriscasper.<strong class="jxr_keyword">rest</strong>.RouteCatalog;
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> com.github.princesslana.eriscasper.<strong class="jxr_keyword">rest</strong>.Routes;
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> com.github.princesslana.eriscasper.util.Jackson;
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> com.github.princesslana.eriscasper.util.OkHttp;
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> io.reactivex.Observable;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> io.reactivex.Single;
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> io.reactivex.schedulers.Schedulers;
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> okhttp3.OkHttpClient;
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> org.slf4j.Logger;
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> org.slf4j.LoggerFactory;
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../com/github/princesslana/eriscasper/ErisCasper.html">ErisCasper</a> {
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger LOG = LoggerFactory.getLogger(ErisCasper.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> BotToken token;
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> OkHttpClient httpClient = OkHttp.newHttpClient();
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> ObjectMapper jackson = Jackson.newObjectMapper();
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../com/github/princesslana/eriscasper/gateway/Payloads.html">Payloads</a> payloads = <strong class="jxr_keyword">new</strong> <a href="../../../../com/github/princesslana/eriscasper/gateway/Payloads.html">Payloads</a>(jackson);
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../com/github/princesslana/eriscasper/rest/Routes.html">Routes</a> routes;
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>    <strong class="jxr_keyword">private</strong> <a href="../../../../com/github/princesslana/eriscasper/ErisCasper.html">ErisCasper</a>(BotToken token) {
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>      <strong class="jxr_keyword">this</strong>.token = token;
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>      routes = <strong class="jxr_keyword">new</strong> <a href="../../../../com/github/princesslana/eriscasper/rest/Routes.html">Routes</a>(token, httpClient, jackson);
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>    }
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>    <strong class="jxr_keyword">private</strong> Observable&lt;Event&gt; getEvents() {
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>      <a href="../../../../com/github/princesslana/eriscasper/gateway/Gateway.html">Gateway</a> gateway = Gateway.create(httpClient, payloads);
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>      <strong class="jxr_keyword">return</strong> Single.just(RouteCatalog.getGateway())
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>          .observeOn(Schedulers.io())
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>          .flatMap(routes::execute)
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>          .toObservable()
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>          .flatMap(gr -&gt; gateway.connect(gr.getUrl(), token))
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>          .observeOn(Schedulers.computation())
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>          .share();
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>    }
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> run(<a href="../../../../com/github/princesslana/eriscasper/Bot.html">Bot</a> bot) {
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>      Observable&lt;Event&gt; events = getEvents();
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>  
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>      <a href="../../../../com/github/princesslana/eriscasper/repository/RepositoryManager.html">RepositoryManager</a> rm = RepositoryManager.create(events);
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>  
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>      bot.apply(<strong class="jxr_keyword">new</strong> <a href="../../../../com/github/princesslana/eriscasper/BotContext.html">BotContext</a>(events, routes, rm))
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>          .doOnError(t -&gt; LOG.warn(<span class="jxr_string">"Exception thrown by Bot"</span>, t))
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>          .blockingAwait();
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>    }
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>  }
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>  
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../com/github/princesslana/eriscasper/ErisCasper.html">ErisCasper</a> create() {
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>      <strong class="jxr_keyword">return</strong> create(System.getenv(<span class="jxr_string">"EC_TOKEN"</span>));
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>    }
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>  
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../../../com/github/princesslana/eriscasper/ErisCasper.html">ErisCasper</a> create(String token) {
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>      <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../com/github/princesslana/eriscasper/ErisCasper.html">ErisCasper</a>(BotToken.of(token));
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>    }
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2018. All rights reserved.</div>

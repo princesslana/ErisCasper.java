@@ -10,16 +10,26 @@
 <a class="jxr_linenumber" name="L2" href="#L2">2</a>   
 <a class="jxr_linenumber" name="L3" href="#L3">3</a>   <strong class="jxr_keyword">import</strong> com.fasterxml.jackson.annotation.JsonProperty;
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <strong class="jxr_keyword">import</strong> com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">import</strong> org.immutables.value.Value;
-<a class="jxr_linenumber" name="L6" href="#L6">6</a>   
-<a class="jxr_linenumber" name="L7" href="#L7">7</a>   @Value.Immutable
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   @JsonDeserialize(as = ImmutableMessage.<strong class="jxr_keyword">class</strong>)
-<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">interface</strong> <a href="../../../../../com/github/princesslana/eriscasper/data/Message.html">Message</a> {
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>    @JsonProperty(<span class="jxr_string">"channel_id"</span>)
-<a class="jxr_linenumber" name="L11" href="#L11">11</a>    String getChannelId();
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>    String getContent();
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>  }
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">import</strong> com.github.princesslana.eriscasper.data.resource.User;
+<a class="jxr_linenumber" name="L6" href="#L6">6</a>   <strong class="jxr_keyword">import</strong> org.immutables.value.Value;
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> * @see &lt;a href="https://discordapp.com/developers/docs/resources/channel#message-object"&gt;</em>
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> *     https://discordapp.com/developers/docs/resources/channel#message-object&lt;/a&gt;</em>
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  @Value.Immutable
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  @JsonDeserialize(as = ImmutableMessage.<strong class="jxr_keyword">class</strong>)
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">interface</strong> <a href="../../../../../com/github/princesslana/eriscasper/data/Message.html">Message</a> {
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>    Snowflake getId();
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>    User getAuthor();
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>    @JsonProperty(<span class="jxr_string">"channel_id"</span>)
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>    Snowflake getChannelId();
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>    String getContent();
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2018. All rights reserved.</div>
