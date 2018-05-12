@@ -18,9 +18,9 @@ import com.github.princesslana.eriscasper.faker.DiscordFaker;
 import com.github.princesslana.eriscasper.repository.RepositoryDefinition;
 import com.github.princesslana.eriscasper.repository.RepositoryManager;
 import com.github.princesslana.eriscasper.repository.UserRepository;
+import com.github.princesslana.eriscasper.rest.CreateMessageRequest;
 import com.github.princesslana.eriscasper.rest.RouteCatalog;
 import com.github.princesslana.eriscasper.rest.Routes;
-import com.github.princesslana.eriscasper.rest.SendMessageRequest;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subjects.PublishSubject;
@@ -149,6 +149,6 @@ public class TestRobot {
   private void thenShouldSend(Snowflake channelId, String msg) {
     then(routes)
         .should()
-        .execute(RouteCatalog.createMessage(channelId), SendMessageRequest.ofText(msg));
+        .execute(RouteCatalog.createMessage(channelId), CreateMessageRequest.ofText(msg));
   }
 }
