@@ -11,10 +11,10 @@ public final class RouteCatalog {
     return Route.get("/gateway", GatewayResponse.class);
   }
 
-  public static Route<SendMessageRequest, Message> createMessage(Snowflake channelId) {
+  public static Route<CreateMessageRequest, Message> createMessage(Snowflake channelId) {
     return Route.post(
         String.format("/channels/%s/messages", channelId.unwrap()),
-        SendMessageRequest.class,
+        CreateMessageRequest.class,
         Message.class);
   }
 }

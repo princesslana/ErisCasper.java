@@ -11,7 +11,7 @@ public class TestRouteCatalog {
   public void createMessage_shouldIncludeChannelId() {
     Snowflake channelId = Snowflake.of("0123456789");
 
-    Route<SendMessageRequest, Message> subject = RouteCatalog.createMessage(channelId);
+    Route<CreateMessageRequest, Message> subject = RouteCatalog.createMessage(channelId);
 
     Assertions.assertThat(subject.getPath()).isEqualTo("/channels/0123456789/messages");
   }

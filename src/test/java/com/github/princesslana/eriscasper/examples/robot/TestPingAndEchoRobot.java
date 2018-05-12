@@ -12,9 +12,9 @@ import com.github.princesslana.eriscasper.data.resource.ImmutableMessage;
 import com.github.princesslana.eriscasper.data.resource.User;
 import com.github.princesslana.eriscasper.faker.DataFaker;
 import com.github.princesslana.eriscasper.faker.DiscordFaker;
+import com.github.princesslana.eriscasper.rest.CreateMessageRequest;
 import com.github.princesslana.eriscasper.rest.RouteCatalog;
 import com.github.princesslana.eriscasper.rest.Routes;
-import com.github.princesslana.eriscasper.rest.SendMessageRequest;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subjects.PublishSubject;
 import org.mockito.Mock;
@@ -57,7 +57,7 @@ public class TestPingAndEchoRobot {
     then(routes)
         .should()
         .execute(
-            RouteCatalog.createMessage(channelId), SendMessageRequest.ofText(expectedResponse));
+            RouteCatalog.createMessage(channelId), CreateMessageRequest.ofText(expectedResponse));
 
     subscriber.assertNotComplete();
   }

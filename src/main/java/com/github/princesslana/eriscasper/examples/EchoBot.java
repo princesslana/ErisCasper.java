@@ -2,7 +2,7 @@ package com.github.princesslana.eriscasper.examples;
 
 import com.github.princesslana.eriscasper.ErisCasper;
 import com.github.princesslana.eriscasper.data.event.MessageCreateEvent;
-import com.github.princesslana.eriscasper.rest.ImmutableSendMessageRequest;
+import com.github.princesslana.eriscasper.rest.CreateMessageRequest;
 import com.github.princesslana.eriscasper.rest.RouteCatalog;
 
 public class EchoBot {
@@ -30,9 +30,7 @@ public class EchoBot {
 
                           return ctx.execute(
                                   RouteCatalog.createMessage(d.getChannelId()),
-                                  ImmutableSendMessageRequest.builder()
-                                      .content(replyMessage)
-                                      .build())
+                                  CreateMessageRequest.ofText(replyMessage))
                               .toCompletable();
                         }));
   }
