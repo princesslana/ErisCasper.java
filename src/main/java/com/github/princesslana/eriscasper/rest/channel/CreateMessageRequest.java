@@ -1,4 +1,4 @@
-package com.github.princesslana.eriscasper.rest;
+package com.github.princesslana.eriscasper.rest.channel;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.princesslana.eriscasper.data.Snowflake;

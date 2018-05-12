@@ -2,8 +2,8 @@ package com.github.princesslana.eriscasper.action;
 
 import com.github.princesslana.eriscasper.data.Snowflake;
 import com.github.princesslana.eriscasper.data.resource.Message;
-import com.github.princesslana.eriscasper.rest.CreateMessageRequest;
 import com.github.princesslana.eriscasper.rest.RouteCatalog;
+import com.github.princesslana.eriscasper.rest.channel.CreateMessageRequest;
 
 public class Actions {
   private Actions() {}
