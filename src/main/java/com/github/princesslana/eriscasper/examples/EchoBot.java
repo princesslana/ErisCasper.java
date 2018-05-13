@@ -23,9 +23,11 @@ public class EchoBot {
                         d -> {
                           String replyMessage = d.getContent().replaceFirst("\\+echo", "");
 
-                          // Empty Arguments
+                          // Empty and Invalid Arguments
                           if (replyMessage.trim().isEmpty()) {
                             replyMessage = "This command requires 1 argument";
+                          } else if (replyMessage.charAt(0) != ' ') {
+                            replyMessage = "Invalid Command";
                           }
 
                           return ctx.execute(
