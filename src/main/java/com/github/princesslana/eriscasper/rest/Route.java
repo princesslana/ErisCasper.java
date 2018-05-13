@@ -10,7 +10,8 @@ public abstract class Route<Rq, Rs> {
 
   protected static enum HttpMethod {
     GET("GET"),
-    POST("POST");
+    POST("POST"),
+    PUT("PUT");
 
     private final String method;
 
@@ -47,6 +48,15 @@ public abstract class Route<Rq, Rs> {
   public static <Rq, Rs> Route<Rq, Rs> post(String path, Class<Rq> rqClass, Class<Rs> rsClass) {
     return ImmutableRoute.<Rq, Rs>builder()
         .method(HttpMethod.POST)
+        .path(path)
+        .requestClass(rqClass)
+        .responseClass(rsClass)
+        .build();
+  }
+
+  public static <Rq, Rs> Route<Rq, Rs> put(String path, Class<Rq> rqClass, Class<Rs> rsClass) {
+    return ImmutableRoute.<Rq, Rs>builder()
+        .method(HttpMethod.PUT)
         .path(path)
         .requestClass(rqClass)
         .responseClass(rsClass)

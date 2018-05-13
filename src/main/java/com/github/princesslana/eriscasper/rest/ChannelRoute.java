@@ -2,6 +2,7 @@ package com.github.princesslana.eriscasper.rest;
 
 import com.github.princesslana.eriscasper.data.Snowflake;
 import com.github.princesslana.eriscasper.data.resource.Channel;
+import com.github.princesslana.eriscasper.rest.channel.ModifyChannelRequest;
 
 public class ChannelRoute {
 
@@ -11,8 +12,12 @@ public class ChannelRoute {
     this.id = id;
   }
 
-  public Route<Void, Channel> get() {
+  public Route<Void, Channel> getChannel() {
     return Route.get(path("/"), Channel.class);
+  }
+
+  public Route<ModifyChannelRequest, Channel> modifyChannel() {
+    return Route.put(path("/"), ModifyChannelRequest.class, Channel.class);
   }
 
   private String path(String path) {
