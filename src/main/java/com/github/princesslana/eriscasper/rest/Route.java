@@ -9,6 +9,7 @@ public abstract class Route<Rq, Rs> {
   private static final String URL = String.format("https://discordapp.com/api/%s", VERSION);
 
   protected static enum HttpMethod {
+    DELETE("DELETE"),
     GET("GET"),
     POST("POST"),
     PUT("PUT");
@@ -34,6 +35,15 @@ public abstract class Route<Rq, Rs> {
 
   public String getUrl() {
     return String.format("%s%s", URL, getPath());
+  }
+
+  public static <Rs> Route<Void, Rs> delete(String path, Class<Rs> rsClass) {
+    return ImmutableRoute.<Void, Rs>builder()
+        .method(HttpMethod.DELETE)
+        .path(path)
+        .requestClass(Void.class)
+        .responseClass(rsClass)
+        .build();
   }
 
   public static <Rs> Route<Void, Rs> get(String path, Class<Rs> rsClass) {

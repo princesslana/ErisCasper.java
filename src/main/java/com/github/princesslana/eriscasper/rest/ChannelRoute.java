@@ -20,6 +20,10 @@ public class ChannelRoute {
     return Route.put(path("/"), ModifyChannelRequest.class, Channel.class);
   }
 
+  public Route<Void, Channel> deleteChannel() {
+    return Route.delete(path("/"), Channel.class);
+  }
+
   private String path(String path) {
     return "/channels/" + id.unwrap() + path;
   }
