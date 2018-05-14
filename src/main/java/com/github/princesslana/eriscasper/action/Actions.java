@@ -11,4 +11,9 @@ public class Actions {
   public static Action<CreateMessageRequest, Message> sendMessage(Snowflake chan, String msg) {
     return ActionTuple.of(RouteCatalog.createMessage(chan), CreateMessageRequest.ofText(msg));
   }
+
+  public static Action<CreateMessageRequest, Message> sendMessage(
+      Snowflake chan, CreateMessageRequest msg) {
+    return ActionTuple.of(RouteCatalog.createMessage(chan), msg);
+  }
 }

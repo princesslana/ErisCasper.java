@@ -4,6 +4,7 @@ import com.github.princesslana.eriscasper.BotContext;
 import com.github.princesslana.eriscasper.action.Actions;
 import com.github.princesslana.eriscasper.data.Users;
 import com.github.princesslana.eriscasper.data.resource.Message;
+import com.github.princesslana.eriscasper.rx.Maybes;
 import io.reactivex.Completable;
 import java.util.regex.Matcher;
 
@@ -63,7 +64,8 @@ public class RobotContext {
    * @param msg the message to send
    */
   public Completable reply(String msg) {
-    return send(Users.mentionByNickname(message.getAuthor()) + " " + msg);
+    return Maybes.fromOptional(message.getAuthor())
+        .flatMapCompletable(a -> send(Users.mentionByNickname(a) + " " + msg));
   }
 
   /**

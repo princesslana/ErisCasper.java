@@ -12,7 +12,7 @@ import org.immutables.value.Value;
  */
 @Value.Immutable
 public interface CreateMessageRequest {
-  String getContent();
+  Optional<String> getContent();
 
   Optional<Snowflake> getNonce();
 
@@ -23,5 +23,9 @@ public interface CreateMessageRequest {
 
   static CreateMessageRequest ofText(String message) {
     return ImmutableCreateMessageRequest.builder().content(message).build();
+  }
+
+  static CreateMessageRequest ofEmbed(Embed embed) {
+    return ImmutableCreateMessageRequest.builder().embed(embed).build();
   }
 }
