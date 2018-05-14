@@ -6,6 +6,7 @@ import com.github.princesslana.eriscasper.ErisCasper;
 import com.github.princesslana.eriscasper.action.Actions;
 import com.github.princesslana.eriscasper.data.event.MessageCreateEvent;
 import io.reactivex.Completable;
+import java.util.Optional;
 
 public class PingBot implements Bot {
 
@@ -14,7 +15,7 @@ public class PingBot implements Bot {
     return ctx.on(
         MessageCreateEvent.class,
         recv -> {
-          if (recv.getContent().equals("+ping")) {
+          if (recv.getContent().equals(Optional.of("+ping"))) {
             return ctx.execute(Actions.sendMessage(recv.getChannelId(), "pong"));
           }
 

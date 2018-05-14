@@ -1,6 +1,7 @@
 package com.github.princesslana.eriscasper.examples;
 
 import com.github.princesslana.eriscasper.ErisCasper;
+import com.github.princesslana.eriscasper.data.Users;
 import com.github.princesslana.eriscasper.data.event.MessageCreateEvent;
 import com.github.princesslana.eriscasper.rest.RouteCatalog;
 import com.github.princesslana.eriscasper.rest.channel.CreateMessageRequest;
@@ -17,11 +18,12 @@ public class EchoBot {
                     .map(MessageCreateEvent::unwrap)
 
                     // Need to check for bot's own message
-                    .filter(d -> !d.getAuthor().isBot().orElse(false))
-                    .filter(d -> d.getContent().startsWith("+echo"))
+                    .filter(d -> !Users.isBot(d.getAuthor()))
+                    .filter(d -> d.getContent().map(c -> c.startsWith("+echo")).orElse(false))
                     .flatMapCompletable(
                         d -> {
-                          String replyMessage = d.getContent().replaceFirst("\\+echo", "");
+                          String replyMessage =
+                              d.getContent().map(c -> c.replaceFirst("\\+echo", "")).orElse("");
 
                           // Empty Arguments
                           if (replyMessage.trim().isEmpty()) {

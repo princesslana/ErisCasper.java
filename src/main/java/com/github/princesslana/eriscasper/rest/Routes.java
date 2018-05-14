@@ -116,7 +116,7 @@ public class Routes {
             r ->
                 r.isSuccessful()
                     ? Single.just(r)
-                    : Single.error(new IllegalStateException("Unexpected response: ")))
+                    : Single.error(new IllegalStateException("Unexpected response: " + r)))
         .doOnError(e -> LOG.warn("Error: {} - {}.", route, e))
         .map(rs -> jackson.readValue(rs.body().byteStream(), route.getResponseClass()))
         .firstOrError();

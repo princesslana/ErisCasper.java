@@ -93,13 +93,17 @@ public class Robot implements Bot {
         (btx, m) ->
             prefix
                 .apply(btx)
-                .flatMapMaybe(p -> m.getContent().startsWith(p) ? Maybe.just(m) : Maybe.empty());
+                .flatMapMaybe(
+                    p ->
+                        m.getContent().map(c -> c.startsWith(p)).orElse(false)
+                            ? Maybe.just(m)
+                            : Maybe.empty());
 
     BiFunction<BotContext, Message, Single<RobotContext>> toRobotContext =
         (bctx, m) ->
             prefix
                 .apply(bctx)
-                .map(p -> StringUtils.removeStart(m.getContent(), p))
+                .map(p -> StringUtils.removeStart(m.getContent().orElse(""), p))
                 .map(c -> new RobotContext(bctx, regex.matcher(c), m));
 
     bots.add(
@@ -129,7 +133,7 @@ public class Robot implements Bot {
     return bctx.getEvents()
         .ofType(MessageCreateEvent.class)
         .map(MessageCreateEvent::unwrap)
-        .filter(m -> !m.getAuthor().isBot().orElse(false));
+        .filter(m -> !Users.isBot(m.getAuthor()));
   }
 
   private static Single<User> getSelf(BotContext bctx) {
