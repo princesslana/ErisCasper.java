@@ -4,8 +4,8 @@ import static org.mockito.BDDMockito.given;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.princesslana.eriscasper.BotToken;
+import com.github.princesslana.eriscasper.data.util.Jackson;
 import com.github.princesslana.eriscasper.faker.DiscordFaker;
-import com.github.princesslana.eriscasper.util.Jackson;
 import com.google.common.io.Closer;
 import io.reactivex.observers.TestObserver;
 import java.io.IOException;

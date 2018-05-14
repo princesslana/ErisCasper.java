@@ -3,7 +3,7 @@ package com.github.princesslana.eriscasper.gateway;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.princesslana.eriscasper.BotToken;
 import com.github.princesslana.eriscasper.data.event.HelloEventData;
-import com.github.princesslana.eriscasper.util.Jackson;
+import com.github.princesslana.eriscasper.data.util.Jackson;
 import java.io.IOException;
 import org.assertj.core.api.Assertions;
 import org.testng.annotations.BeforeMethod;
