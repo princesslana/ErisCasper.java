@@ -119,6 +119,6 @@ public class Routes {
   }
 
   private RateLimiter getRateLimiter(Route<?, ?> r) {
-    return rateLimiterRegistry.rateLimiter(r.getUrl());
+    return rateLimiterRegistry.rateLimiter(r.getPath());
   }
 }

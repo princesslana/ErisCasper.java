@@ -3,7 +3,6 @@ package com.github.princesslana.eriscasper.rest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.princesslana.eriscasper.data.Data;
 import com.github.princesslana.eriscasper.data.util.Jackson;
-import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Function;
 import java.util.Objects;
 import okhttp3.MediaType;
@@ -20,32 +19,44 @@ public class Route<Rq, Rs> {
 
   private static final ObjectMapper JACKSON = Jackson.newObjectMapper();
 
+  private static enum Content {
+    BODY,
+    QUERY_STRING
+  }
+
   protected static enum HttpMethod {
-    DELETE("DELETE"),
-    GET("GET"),
-    POST("POST"),
-    PUT("PUT");
+    DELETE("DELETE", Content.QUERY_STRING),
+    GET("GET", Content.QUERY_STRING),
+    POST("POST", Content.BODY),
+    PUT("PUT", Content.BODY);
 
     private final String method;
 
-    private HttpMethod(String method) {
+    private final Content content;
+
+    private HttpMethod(String method, Content content) {
       this.method = method;
+      this.content = content;
     }
 
     public String get() {
       return method;
     }
+
+    public boolean isContent(Content rhs) {
+      return content == rhs;
+    }
   }
 
   private HttpMethod method;
   private String path;
-  private BiFunction<Rq, HttpMethod, Request.Builder> requestHandler;
+  private Function<Rq, String> requestHandler;
   private Function<Response, Rs> responseHandler;
 
   public Route(
       HttpMethod method,
       String path,
-      BiFunction<Rq, HttpMethod, Request.Builder> requestHandler,
+      Function<Rq, String> requestHandler,
       Function<Response, Rs> responseHandler) {
     this.method = method;
     this.path = path;
@@ -62,15 +73,21 @@ public class Route<Rq, Rs> {
   }
 
   public Request.Builder newRequestBuilder(Rq rq) throws Exception {
-    return requestHandler.apply(rq, method).url(getUrl());
+    RequestBody body =
+        method.isContent(Content.BODY)
+            ? RequestBody.create(MEDIA_TYPE_JSON, requestHandler.apply(rq))
+            : null;
+
+    String queryString =
+        method.isContent(Content.QUERY_STRING) ? "?" + requestHandler.apply(rq) : "";
+
+    String url = String.format("%s%s%s", URL, getPath(), queryString);
+
+    return new Request.Builder().method(method.get(), body).url(url);
   }
 
   public Function<Response, Rs> getResponseHandler() {
     return responseHandler;
-  }
-
-  public String getUrl() {
-    return String.format("%s%s", URL, getPath());
   }
 
   @Override
@@ -100,14 +117,12 @@ public class Route<Rq, Rs> {
     return Objects.hash(path, method);
   }
 
-  private static BiFunction<Void, HttpMethod, Request.Builder> noContent() {
-    return (rq, m) -> new Request.Builder().method(m.get(), null);
+  private static Function<Void, String> noContent() {
+    return r -> "";
   }
 
-  private static <Rq> BiFunction<Rq, HttpMethod, Request.Builder> jsonRequestBody() {
-    return (rq, m) ->
-        new Request.Builder()
-            .method(m.get(), RequestBody.create(MEDIA_TYPE_JSON, JACKSON.writeValueAsString(rq)));
+  private static <Rq> Function<Rq, String> jsonRequestBody() {
+    return rq -> JACKSON.writeValueAsString(rq);
   }
 
   private static <Rs> Function<Response, Rs> jsonResponse(Class<Rs> rs) {
@@ -122,8 +137,9 @@ public class Route<Rq, Rs> {
     return new Route<Void, Rs>(HttpMethod.GET, path, noContent(), jsonResponse(rsClass));
   }
 
-  public static <Rs> Route<Void, Rs> get(String path, Function<Response, Rs> rsHandler) {
-    return new Route<Void, Rs>(HttpMethod.GET, path, noContent(), rsHandler);
+  public static <Rq, Rs> Route<Rq, Rs> get(
+      String path, Function<Rq, String> rqHandler, Function<Response, Rs> rsHandler) {
+    return new Route<Rq, Rs>(HttpMethod.GET, path, rqHandler, rsHandler);
   }
 
   public static <Rq, Rs> Route<Rq, Rs> post(String path, Class<Rq> rqClass, Class<Rs> rsClass) {
