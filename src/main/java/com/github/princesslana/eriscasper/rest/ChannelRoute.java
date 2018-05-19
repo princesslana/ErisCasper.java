@@ -56,6 +56,10 @@ public class ChannelRoute {
     return Route.get(path("/messages/" + messageId.unwrap()), Message.class);
   }
 
+  /**
+   * @see <a href="https://discordapp.com/developers/docs/resources/channel#create-message">
+   *     https://discordapp.com/developers/docs/resources/channel#create-message</a>
+   */
   public Route<CreateMessageRequest, Message> createMessage() {
     return Route.post(path("/messages"), CreateMessageRequest.class, Message.class);
   }
