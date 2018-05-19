@@ -3,7 +3,7 @@ package com.github.princesslana.eriscasper.examples;
 import com.github.princesslana.eriscasper.ErisCasper;
 import com.github.princesslana.eriscasper.data.Users;
 import com.github.princesslana.eriscasper.data.event.MessageCreateEvent;
-import com.github.princesslana.eriscasper.rest.RouteCatalog;
+import com.github.princesslana.eriscasper.rest.ChannelRoute;
 import com.github.princesslana.eriscasper.rest.channel.CreateMessageRequest;
 
 public class EchoBot {
@@ -33,7 +33,7 @@ public class EchoBot {
                           }
 
                           return ctx.execute(
-                                  RouteCatalog.createMessage(d.getChannelId()),
+                                  ChannelRoute.on(d.getChannelId()).createMessage(),
                                   CreateMessageRequest.ofText(replyMessage))
                               .toCompletable();
                         }));

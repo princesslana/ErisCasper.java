@@ -2,6 +2,8 @@ package com.github.princesslana.eriscasper.rest;
 
 import com.github.princesslana.eriscasper.data.Snowflake;
 import com.github.princesslana.eriscasper.data.resource.Channel;
+import com.github.princesslana.eriscasper.data.resource.Message;
+import com.github.princesslana.eriscasper.rest.channel.CreateMessageRequest;
 import com.github.princesslana.eriscasper.rest.channel.GetChannelMessagesRequest;
 import com.github.princesslana.eriscasper.rest.channel.ModifyChannelRequest;
 import com.google.common.collect.ImmutableList;
@@ -44,6 +46,22 @@ public class ChannelRoute {
    */
   public Route<GetChannelMessagesRequest, ImmutableList<Channel>> getChannelMessages() {
     return Route.get(path("/"), rq -> rq.toQueryString(), Route.jsonArrayResponse(Channel.class));
+  }
+
+  /**
+   * @see <a href="https://discordapp.com/developers/docs/resources/channel#get-channel-message">
+   *     https://discordapp.com/developers/docs/resources/channel#get-channel-message</a>
+   */
+  public Route<Void, Message> getChannelMessage(Snowflake messageId) {
+    return Route.get(path("/messages/" + messageId.unwrap()), Message.class);
+  }
+
+  /**
+   * @see <a href="https://discordapp.com/developers/docs/resources/channel#create-message">
+   *     https://discordapp.com/developers/docs/resources/channel#create-message</a>
+   */
+  public Route<CreateMessageRequest, Message> createMessage() {
+    return Route.post(path("/messages"), CreateMessageRequest.class, Message.class);
   }
 
   private String path(String path) {
