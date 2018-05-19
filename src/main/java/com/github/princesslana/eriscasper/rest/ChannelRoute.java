@@ -4,11 +4,11 @@ import com.github.princesslana.eriscasper.data.Snowflake;
 import com.github.princesslana.eriscasper.data.resource.Channel;
 import com.github.princesslana.eriscasper.rest.channel.GetChannelMessagesRequest;
 import com.github.princesslana.eriscasper.rest.channel.ModifyChannelRequest;
-import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ChannelRoute {
 
@@ -54,14 +54,15 @@ public class ChannelRoute {
 
     return Route.get(
         path("/"),
-        rq -> {
-          List<String> params = new ArrayList<>();
-          rq.getAround().map(encodeSnowflake.apply("around")).ifPresent(params::add);
-          rq.getBefore().map(encodeSnowflake.apply("before")).ifPresent(params::add);
-          rq.getAfter().map(encodeSnowflake.apply("after")).ifPresent(params::add);
-          rq.getLimit().map(l -> l.toString()).map(encode.apply("limit")).ifPresent(params::add);
-          return Joiner.on("&").join(params);
-        },
+        rq ->
+            Stream.of(
+                    rq.getAround().map(encodeSnowflake.apply("around")),
+                    rq.getBefore().map(encodeSnowflake.apply("before")),
+                    rq.getAfter().map(encodeSnowflake.apply("after")),
+                    rq.getLimit().map(l -> l.toString()).map(encode.apply("limit")))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.joining("&")),
         Route.jsonArrayResponse(Channel.class));
   }
 
