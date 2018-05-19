@@ -1,8 +1,10 @@
 package com.github.princesslana.eriscasper.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.github.princesslana.eriscasper.data.Data;
 import com.github.princesslana.eriscasper.data.util.Jackson;
+import com.google.common.collect.ImmutableList;
 import io.reactivex.functions.Function;
 import java.util.Objects;
 import okhttp3.MediaType;
@@ -127,6 +129,15 @@ public class Route<Rq, Rs> {
 
   private static <Rs> Function<Response, Rs> jsonResponse(Class<Rs> rs) {
     return r -> Data.fromJson(r.body().string(), rs);
+  }
+
+  @SuppressWarnings("unchecked")
+  public static <Rs> Function<Response, ImmutableList<Rs>> jsonArrayResponse(Class<Rs> rs) {
+    return r ->
+        (ImmutableList<Rs>)
+            JACKSON.readValue(
+                r.body().string(),
+                TypeFactory.defaultInstance().constructCollectionType(ImmutableList.class, rs));
   }
 
   public static <Rs> Route<Void, Rs> delete(String path, Class<Rs> rsClass) {

@@ -1,10 +1,7 @@
 package com.github.princesslana.eriscasper.rest;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.github.princesslana.eriscasper.data.Snowflake;
 import com.github.princesslana.eriscasper.data.resource.Channel;
-import com.github.princesslana.eriscasper.data.util.Jackson;
 import com.github.princesslana.eriscasper.rest.channel.GetChannelMessagesRequest;
 import com.github.princesslana.eriscasper.rest.channel.ModifyChannelRequest;
 import com.google.common.base.Joiner;
@@ -16,8 +13,6 @@ import java.util.function.Function;
 public class ChannelRoute {
 
   private final Snowflake id;
-
-  private static final ObjectMapper JACKSON = Jackson.newObjectMapper();
 
   private ChannelRoute(Snowflake id) {
     this.id = id;
@@ -51,27 +46,23 @@ public class ChannelRoute {
    * @see <a href="https://discordapp.com/developers/docs/resources/channel#get-channel-messages">
    *     https://discordapp.com/developers/docs/resources/channel#get-channel-messages</a>
    */
-  @SuppressWarnings("unchecked")
   public Route<GetChannelMessagesRequest, ImmutableList<Channel>> getChannelMessages() {
     // We can ignore url encoding since this is only used internally with snowflake ids and longs
     Function<String, Function<String, String>> encode = k -> v -> String.format("%s=%s", k, v);
+    Function<String, Function<Snowflake, String>> encodeSnowflake =
+        k -> v -> encode.apply(k).apply(v.unwrap());
 
     return Route.get(
         path("/"),
         rq -> {
           List<String> params = new ArrayList<>();
-          rq.getAround().map(Snowflake::unwrap).map(encode.apply("around")).ifPresent(params::add);
-          rq.getBefore().map(Snowflake::unwrap).map(encode.apply("before")).ifPresent(params::add);
-          rq.getAfter().map(Snowflake::unwrap).map(encode.apply("after")).ifPresent(params::add);
+          rq.getAround().map(encodeSnowflake.apply("around")).ifPresent(params::add);
+          rq.getBefore().map(encodeSnowflake.apply("before")).ifPresent(params::add);
+          rq.getAfter().map(encodeSnowflake.apply("after")).ifPresent(params::add);
           rq.getLimit().map(l -> l.toString()).map(encode.apply("limit")).ifPresent(params::add);
           return Joiner.on("&").join(params);
         },
-        rs ->
-            (ImmutableList<Channel>)
-                JACKSON.readValue(
-                    rs.body().string(),
-                    TypeFactory.defaultInstance()
-                        .constructCollectionType(ImmutableList.class, Channel.class)));
+        Route.jsonArrayResponse(Channel.class));
   }
 
   private String path(String path) {
