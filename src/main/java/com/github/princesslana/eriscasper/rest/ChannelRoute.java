@@ -2,7 +2,9 @@ package com.github.princesslana.eriscasper.rest;
 
 import com.github.princesslana.eriscasper.data.Snowflake;
 import com.github.princesslana.eriscasper.data.resource.Channel;
+import com.github.princesslana.eriscasper.rest.channel.GetChannelMessagesRequest;
 import com.github.princesslana.eriscasper.rest.channel.ModifyChannelRequest;
+import com.google.common.collect.ImmutableList;
 
 public class ChannelRoute {
 
@@ -12,16 +14,36 @@ public class ChannelRoute {
     this.id = id;
   }
 
+  /**
+   * @see <a href="https://discordapp.com/developers/docs/resources/channel#get-channel">
+   *     https://discordapp.com/developers/docs/resources/channel#get-channel</a>
+   */
   public Route<Void, Channel> getChannel() {
     return Route.get(path("/"), Channel.class);
   }
 
+  /**
+   * @see <a href="https://discordapp.com/developers/docs/resources/channel#modify-channel">
+   *     https://discordapp.com/developers/docs/resources/channel#modify-channel</a>
+   */
   public Route<ModifyChannelRequest, Channel> modifyChannel() {
     return Route.put(path("/"), ModifyChannelRequest.class, Channel.class);
   }
 
+  /**
+   * @see <a href="https://discordapp.com/developers/docs/resources/channel#deleteclose-channel">
+   *     https://discordapp.com/developers/docs/resources/channel#deleteclose-channel</a>
+   */
   public Route<Void, Channel> deleteChannel() {
     return Route.delete(path("/"), Channel.class);
+  }
+
+  /**
+   * @see <a href="https://discordapp.com/developers/docs/resources/channel#get-channel-messages">
+   *     https://discordapp.com/developers/docs/resources/channel#get-channel-messages</a>
+   */
+  public Route<GetChannelMessagesRequest, ImmutableList<Channel>> getChannelMessages() {
+    return Route.get(path("/"), rq -> rq.toQueryString(), Route.jsonArrayResponse(Channel.class));
   }
 
   private String path(String path) {

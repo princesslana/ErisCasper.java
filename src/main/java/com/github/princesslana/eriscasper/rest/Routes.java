@@ -49,11 +49,7 @@ public class Routes {
   public <I, O> Single<O> execute(Route<I, O> route, I data) {
     Function<Optional<RequestBody>, Request> buildRequest =
         body ->
-            new Request.Builder()
-                .method(route.getMethod().get(), body.orElse(null))
-                .url(route.getUrl())
-                .header("Authorization", "Bot " + token.unwrap())
-                .build();
+            route.newRequestBuilder(data).header("Authorization", "Bot " + token.unwrap()).build();
 
     return Maybes.fromNullable(data)
         .map(d -> RequestBody.create(MEDIA_TYPE_JSON, jackson.writeValueAsString(data)))
@@ -118,11 +114,11 @@ public class Routes {
                     ? Single.just(r)
                     : Single.error(new IllegalStateException("Unexpected response: " + r)))
         .doOnError(e -> LOG.warn("Error: {} - {}.", route, e))
-        .map(rs -> jackson.readValue(rs.body().byteStream(), route.getResponseClass()))
+        .map(route.getResponseHandler())
         .firstOrError();
   }
 
   private RateLimiter getRateLimiter(Route<?, ?> r) {
-    return rateLimiterRegistry.rateLimiter(r.getUrl());
+    return rateLimiterRegistry.rateLimiter(r.getPath());
   }
 }
