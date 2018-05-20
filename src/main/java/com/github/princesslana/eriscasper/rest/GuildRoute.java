@@ -11,11 +11,19 @@ public class GuildRoute {
     this.id = id;
   }
 
+  /**
+   * @see <a href="https://discordapp.com/developers/docs/resources/guild#add-guild-member-role">
+   *     https://discordapp.com/developers/docs/resources/guild#add-guild-member-role</a>
+   */
   public Route<Void, Void> addGuildMemberRole(Snowflake userId, Snowflake guildId) {
     return Route.put(
         path("/members/%s/roles/%s", userId.unwrap(), guildId.unwrap()), Void.class, Void.class);
   }
 
+  /**
+   * @see <a href="https://discordapp.com/developers/docs/resources/guild#remove-guild-member-role">
+   *     https://discordapp.com/developers/docs/resources/guild#remove-guild-member-role</a>
+   */
   public Route<Void, Void> removeGuildMemberRole(Snowflake userId, Snowflake guildId) {
     return Route.delete(
         path("/members/%s/roles/%s", userId.unwrap(), guildId.unwrap()), Void.class);
