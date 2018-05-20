@@ -7,13 +7,11 @@ import org.immutables.value.Value;
 
 /**
  * @see <a
- *     href="https://discordapp.com/developers/docs/resources/channel#get-channel-messages-query-string-params">
- *     https://discordapp.com/developers/docs/resources/channel#get-channel-messages-query-string-params</a>
+ *     href="https://discordapp.com/developers/docs/resources/channel#get-reactions-query-string-params">
+ *     https://discordapp.com/developers/docs/resources/channel#get-reactions-query-string-params</a>
  */
 @Value.Immutable
-public interface GetChannelMessagesRequest {
-  Optional<Snowflake> getAround();
-
+public interface GetReactionsRequest {
   Optional<Snowflake> getBefore();
 
   Optional<Snowflake> getAfter();
@@ -22,7 +20,6 @@ public interface GetChannelMessagesRequest {
 
   default String toQueryString() {
     return new QueryStringBuilder()
-        .addSnowflake("around", getAround())
         .addSnowflake("before", getBefore())
         .addSnowflake("after", getAfter())
         .addLong("limit", getLimit())
