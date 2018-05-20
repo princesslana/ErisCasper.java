@@ -31,7 +31,7 @@ public class Payloads {
   }
 
   public Payload heartbeat(Optional<SequenceNumber> s) {
-    return ImmutablePayload.builder().op(OpCode.HEARTBEAT).s(s.orElse(null)).build();
+    return ImmutablePayload.builder().op(OpCode.HEARTBEAT).d(s.map(jackson::valueToTree)).build();
   }
 
   public Payload identify(BotToken token) {
