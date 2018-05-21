@@ -1,5 +1,9 @@
+.idea/
 .token
 codesigning.asc
+docs/.bundle
+docs/_site
+docs/Gemfile.lock
+docs/vendor
 target
 ErisCasper.java.iml
-.idea/
