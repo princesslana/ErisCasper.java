@@ -1,9 +1,6 @@
 package com.github.princesslana.eriscasper.repository.event;
 
-import com.github.princesslana.eriscasper.data.event.ChannelCreateEvent;
-import com.github.princesslana.eriscasper.data.event.ChannelDeleteEvent;
-import com.github.princesslana.eriscasper.data.event.Event;
-import com.github.princesslana.eriscasper.data.event.GuildCreateEvent;
+import com.github.princesslana.eriscasper.data.event.*;
 import com.github.princesslana.eriscasper.data.resource.Channel;
 import com.github.princesslana.eriscasper.data.resource.Guild;
 import com.github.princesslana.eriscasper.faker.DataFaker;
@@ -33,6 +30,9 @@ public class TestGuildsFromEvents {
     possibleGuild.test().assertValue(guild);
     subject.getChannel(channel.getId()).test().assertValue(channel);
     subject.getGuildFromChannel(channel.getId()).test().assertValue(guild);
+    events.onNext(GuildDeleteEvent.of(DataFaker.unavailableGuildFromGuild(guild.getId())));
+    Assert.assertNull(subject.getGuild(guild.getId()).blockingGet());
+    Assert.assertNull(subject.getChannel(channel.getId()).blockingGet());
   }
 
   @Test

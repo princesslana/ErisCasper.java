@@ -1,10 +1,7 @@
 package com.github.princesslana.eriscasper.repository.event;
 
 import com.github.princesslana.eriscasper.data.Snowflake;
-import com.github.princesslana.eriscasper.data.event.ChannelCreateEvent;
-import com.github.princesslana.eriscasper.data.event.ChannelDeleteEvent;
-import com.github.princesslana.eriscasper.data.event.Event;
-import com.github.princesslana.eriscasper.data.event.GuildCreateEvent;
+import com.github.princesslana.eriscasper.data.event.*;
 import com.github.princesslana.eriscasper.data.resource.Channel;
 import com.github.princesslana.eriscasper.data.resource.Guild;
 import com.github.princesslana.eriscasper.repository.GuildRepository;
@@ -12,6 +9,7 @@ import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Stack;
 
 public class GuildsFromEvents implements GuildRepository {
 
@@ -30,6 +28,23 @@ public class GuildsFromEvents implements GuildRepository {
               guild
                   .getChannels()
                   .forEach(channel -> channelCache.putIfAbsent(channel.getId(), channel));
+            });
+    eventObservable
+        .ofType(GuildDeleteEvent.class)
+        .map(GuildDeleteEvent::unwrap)
+        .subscribe(
+            guild -> {
+              Snowflake id = guild.getId();
+              guildCache.remove(id);
+              Stack<Snowflake> removingChannelStack = new Stack<>();
+              channelCache
+                  .entrySet()
+                  .stream()
+                  .filter(entry -> id.equals(entry.getValue().getGuildId().orElse(null)))
+                  .forEach(entry -> removingChannelStack.push(entry.getKey()));
+              while (!removingChannelStack.isEmpty()) {
+                channelCache.remove(removingChannelStack.pop());
+              }
             });
     eventObservable
         .ofType(ChannelCreateEvent.class)

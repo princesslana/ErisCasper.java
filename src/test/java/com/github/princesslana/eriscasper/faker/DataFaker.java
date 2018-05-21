@@ -73,6 +73,10 @@ public class DataFaker {
         .build();
   }
 
+  public static UnavailableGuild unavailableGuildFromGuild(Snowflake predeterminedId) {
+    return ImmutableUnavailableGuild.builder().id(predeterminedId).build();
+  }
+
   public static String username() {
     return Faker.instance().name().name();
   }
