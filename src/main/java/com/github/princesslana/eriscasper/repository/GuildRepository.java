@@ -11,4 +11,6 @@ public interface GuildRepository {
   Maybe<Channel> getChannel(Snowflake id);
 
   Maybe<Guild> getGuildFromChannel(Snowflake channelId);
+
+  Maybe<Snowflake> getGuildIdFromChannelId(Snowflake channelId);
 }

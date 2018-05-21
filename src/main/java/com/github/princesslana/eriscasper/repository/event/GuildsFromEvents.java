@@ -79,6 +79,7 @@ public class GuildsFromEvents implements GuildRepository {
 
   @Override
   public Maybe<Snowflake> getGuildIdFromChannelId(Snowflake channelId) {
-    return getChannel(channelId).map(channel -> channel.getGuildId().orElse(null));
+    return getChannel(channelId)
+        .flatMap(channel -> channel.getGuildId().map(Maybe::just).orElse(Maybe.empty()));
   }
 }
