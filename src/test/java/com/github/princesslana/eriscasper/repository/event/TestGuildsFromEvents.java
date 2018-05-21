@@ -11,20 +11,20 @@ import org.testng.annotations.Test;
 
 public class TestGuildsFromEvents {
 
-	private PublishSubject<Event> events = PublishSubject.create();
+  private PublishSubject<Event> events = PublishSubject.create();
 
-	private GuildsFromEvents subject;
+  private GuildsFromEvents subject;
 
-	@BeforeMethod
-	public void subject() {
-		subject = new GuildsFromEvents(events);
-	}
+  @BeforeMethod
+  public void subject() {
+    subject = new GuildsFromEvents(events);
+  }
 
-	@Test
-	public void getGuild_whenAfterGuildEvent_shouldCacheGuild() {
-		Guild guild = DataFaker.guild();
-		events.onNext(GuildCreateEvent.of(guild));
-		Maybe<Guild> possibleGuild = subject.getGuild(guild.getId());
-		possibleGuild.test().assertValue(guild);
-	}
+  @Test
+  public void getGuild_whenAfterGuildEvent_shouldCacheGuild() {
+    Guild guild = DataFaker.guild();
+    events.onNext(GuildCreateEvent.of(guild));
+    Maybe<Guild> possibleGuild = subject.getGuild(guild.getId());
+    possibleGuild.test().assertValue(guild);
+  }
 }
