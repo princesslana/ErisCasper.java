@@ -30,4 +30,9 @@ public class UsersFromEvents implements UserRepository {
   public Single<User> getSelf() {
     return self.firstOrError();
   }
+
+  public Map<Snowflake, Guild> getGuildCache() {
+    return guildCache;
+  }
+
 }
