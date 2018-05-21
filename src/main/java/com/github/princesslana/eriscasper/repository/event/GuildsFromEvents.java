@@ -76,4 +76,9 @@ public class GuildsFromEvents implements GuildRepository {
     Channel channel = getChannel(channelId).blockingGet();
     return channel == null ? Maybe.empty() : getGuild(channel.getGuildId().orElse(null));
   }
+
+  @Override
+  public Maybe<Snowflake> getGuildIdFromChannelId(Snowflake channelId) {
+    return getChannel(channelId).map(channel -> channel.getGuildId().orElse(null));
+  }
 }
