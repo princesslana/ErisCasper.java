@@ -1,6 +1,7 @@
 package com.github.princesslana.eriscasper.faker;
 
 import com.github.javafaker.Faker;
+import com.github.princesslana.eriscasper.data.Snowflake;
 import com.github.princesslana.eriscasper.data.event.ImmutableReadyEventData;
 import com.github.princesslana.eriscasper.data.event.ReadyEventData;
 import com.github.princesslana.eriscasper.data.resource.*;
@@ -45,8 +46,9 @@ public class DataFaker {
   }
 
   public static Guild guild() {
+    Snowflake id = DiscordFaker.snowflake();
     return ImmutableGuild.builder()
-        .id(DiscordFaker.snowflake())
+        .id(id)
         .name("FakeGuild")
         .ownerId(DiscordFaker.snowflake())
         .region("FakeRegion")
@@ -55,6 +57,19 @@ public class DataFaker {
         .defaultMessageNotifications(0L)
         .explicitContentFilter(0L)
         .mfaLevel(0L)
+        .addChannels(guildChannel(id))
+        .build();
+  }
+
+  public static Channel channel() {
+    return ImmutableChannel.builder().id(DiscordFaker.snowflake()).type(0L).build();
+  }
+
+  public static Channel guildChannel(Snowflake guildId) {
+    return ImmutableChannel.builder()
+        .id(DiscordFaker.snowflake())
+        .type(0L)
+        .guildId(guildId)
         .build();
   }
 
