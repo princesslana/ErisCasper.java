@@ -4,6 +4,7 @@ import com.github.princesslana.eriscasper.data.Snowflake;
 import com.github.princesslana.eriscasper.data.event.*;
 import com.github.princesslana.eriscasper.data.resource.Channel;
 import com.github.princesslana.eriscasper.data.resource.Guild;
+import com.github.princesslana.eriscasper.data.resource.ImmutableChannel;
 import com.github.princesslana.eriscasper.repository.GuildRepository;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
@@ -27,7 +28,14 @@ public class GuildsFromEvents implements GuildRepository {
               guildCache.putIfAbsent(guild.getId(), guild);
               guild
                   .getChannels()
-                  .forEach(channel -> channelCache.putIfAbsent(channel.getId(), channel));
+                  .forEach(
+                      channel ->
+                          channelCache.putIfAbsent(
+                              channel.getId(),
+                              ImmutableChannel.builder()
+                                  .from(channel)
+                                  .guildId(guild.getId())
+                                  .build()));
             });
     eventObservable
         .ofType(GuildDeleteEvent.class)
