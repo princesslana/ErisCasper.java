@@ -3,10 +3,8 @@ package com.github.princesslana.eriscasper.faker;
 import com.github.javafaker.Faker;
 import com.github.princesslana.eriscasper.data.event.ImmutableReadyEventData;
 import com.github.princesslana.eriscasper.data.event.ReadyEventData;
-import com.github.princesslana.eriscasper.data.resource.ImmutableMessage;
-import com.github.princesslana.eriscasper.data.resource.ImmutableUser;
-import com.github.princesslana.eriscasper.data.resource.Message;
-import com.github.princesslana.eriscasper.data.resource.User;
+import com.github.princesslana.eriscasper.data.resource.*;
+
 import java.time.OffsetDateTime;
 import org.apache.commons.lang3.RandomStringUtils;
 
@@ -45,6 +43,20 @@ public class DataFaker {
         .username(username())
         .discriminator(discriminator())
         .build();
+  }
+
+  public static Guild guild() {
+    return ImmutableGuild.builder()
+            .id(DiscordFaker.snowflake())
+            .name("FakeGuild")
+            .ownerId(DiscordFaker.snowflake())
+            .region("FakeRegion")
+            .afkTimeout(0L)
+            .verificationLevel(0L)
+            .defaultMessageNotifications(0L)
+            .explicitContentFilter(0L)
+            .mfaLevel(0L)
+            .build();
   }
 
   public static String username() {
