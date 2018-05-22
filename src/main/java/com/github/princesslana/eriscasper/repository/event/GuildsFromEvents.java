@@ -68,10 +68,9 @@ public class GuildsFromEvents implements GuildRepository {
                                   .collect(Collectors.toList()))
                           .build();
                   channelsAddSubject.onNext(newList);
-                  return ImmutableMap.<Snowflake, Guild>builder()
-                      .putAll(map)
-                      .put(guild.getId(), guild)
-                      .build();
+                  Map<Snowflake, Guild> mutableMap = new HashMap<>(map);
+                  mutableMap.put(guild.getId(), guild);
+                  return ImmutableMap.copyOf(mutableMap);
                 });
     Observable<ImmutableMap<Snowflake, Guild>> guildDeleteListener =
         eventObservable
@@ -99,7 +98,7 @@ public class GuildsFromEvents implements GuildRepository {
                             channelsRemoveSubject.onNext(channelList.build());
                           })
                       .dispose();
-                  return ImmutableMap.<Snowflake, Guild>builder().putAll(mutableMap).build();
+                  return ImmutableMap.copyOf(mutableMap);
                 });
 
     return guildCreateListener.mergeWith(guildDeleteListener).replay(1);
@@ -112,10 +111,9 @@ public class GuildsFromEvents implements GuildRepository {
         channelsAddSubject.scan(
             emptyChannelMap,
             (map, newChannelList) -> {
-              ImmutableMap.Builder<Snowflake, Channel> newMapBuilder =
-                  ImmutableMap.<Snowflake, Channel>builder().putAll(map);
-              newChannelList.forEach(channel -> newMapBuilder.put(channel.getId(), channel));
-              return newMapBuilder.build();
+              Map<Snowflake, Channel> mutableMap = new HashMap<>(map);
+              newChannelList.forEach(channel -> mutableMap.put(channel.getId(), channel));
+              return ImmutableMap.copyOf(mutableMap);
             });
     Observable<ImmutableMap<Snowflake, Channel>> removeableChannelCache =
         channelsRemoveSubject.scan(
@@ -131,10 +129,11 @@ public class GuildsFromEvents implements GuildRepository {
             .map(ChannelCreateEvent::unwrap)
             .scan(
                 emptyChannelMap,
-                (map, channel) ->
-                    ImmutableMap.<Snowflake, Channel>builder()
-                        .put(channel.getId(), channel)
-                        .build());
+                (map, channel) -> {
+                  Map<Snowflake, Channel> mutableMap = new HashMap<>(map);
+                  mutableMap.put(channel.getId(), channel);
+                  return ImmutableMap.copyOf(mutableMap);
+                });
     Observable<ImmutableMap<Snowflake, Channel>> channelDeleteListener =
         eventObservable
             .ofType(ChannelDeleteEvent.class)
@@ -156,15 +155,14 @@ public class GuildsFromEvents implements GuildRepository {
 
   @Override
   public Maybe<Guild> getGuild(@NonNull Snowflake id) {
-    return guildWatcher
-        .firstOrError()
-        .flatMapMaybe(guildMap -> Maybes.fromNullable(guildMap.get(id)));
+    return guildWatcher.cache().firstElement().flatMap(map -> Maybes.fromNullable(map.get(id)));
   }
 
   @Override
   public Maybe<Channel> getChannel(@NonNull Snowflake id) {
     return channelWatcher
-        .firstOrError()
-        .flatMapMaybe(channelMap -> Maybes.fromNullable(channelMap.get(id)));
+        .cache()
+        .firstElement()
+        .flatMap(channelMap -> Maybes.fromNullable(channelMap.get(id)));
   }
 }

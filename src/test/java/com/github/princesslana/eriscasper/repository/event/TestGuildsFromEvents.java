@@ -8,7 +8,6 @@ import com.github.princesslana.eriscasper.data.event.GuildDeleteEvent;
 import com.github.princesslana.eriscasper.data.resource.Channel;
 import com.github.princesslana.eriscasper.data.resource.Guild;
 import com.github.princesslana.eriscasper.faker.DataFaker;
-import io.reactivex.Maybe;
 import io.reactivex.subjects.PublishSubject;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
@@ -30,8 +29,12 @@ public class TestGuildsFromEvents {
     Guild guild = DataFaker.guild();
     Channel channel = guild.getChannels().get(0);
     events.onNext(GuildCreateEvent.of(guild));
-    Maybe<Guild> possibleGuild = subject.getGuild(guild.getId());
-    possibleGuild.test().assertValue(guild);
+    Guild n = DataFaker.guild();
+    events.onNext(GuildCreateEvent.of(n));
+    subject.getGuild(n.getId()).test().assertValue(n);
+    subject.getGuild(guild.getId()).test().assertValue(guild);
+    subject.getGuild(guild.getId()).test().assertValue(guild);
+    subject.getGuild(guild.getId()).test().assertValue(guild);
     events.onNext(GuildCreateEvent.of(DataFaker.guild()));
     subject.getChannel(channel.getId()).test().assertValue(channel);
     events.onNext(GuildDeleteEvent.of(DataFaker.unavailableGuildFromGuild(guild.getId())));
@@ -41,8 +44,12 @@ public class TestGuildsFromEvents {
   @Test
   public void getChannel_ShouldMaintainCacheOnCompletionAndDeletion() {
     Channel channel = DataFaker.channel();
+    Channel n = DataFaker.channel();
     events.onNext(ChannelCreateEvent.of(channel));
     subject.getChannel(channel.getId()).test().assertValue(channel);
+    subject.getChannel(channel.getId()).test().assertValue(channel);
+    events.onNext(ChannelCreateEvent.of(n));
+    subject.getChannel(n.getId()).test().assertValue(n);
     events.onNext(ChannelDeleteEvent.of(channel));
     Assert.assertNull(subject.getChannel(channel.getId()).blockingGet());
   }
