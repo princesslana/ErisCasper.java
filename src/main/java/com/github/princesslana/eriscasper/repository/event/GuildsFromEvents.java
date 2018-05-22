@@ -18,7 +18,6 @@ import io.reactivex.Observable;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.observables.ConnectableObservable;
 import io.reactivex.subjects.PublishSubject;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -29,10 +28,9 @@ public class GuildsFromEvents implements GuildRepository {
   private final ConnectableObservable<ImmutableMap<Snowflake, Guild>> guildCache;
   private final ConnectableObservable<ImmutableMap<Snowflake, Channel>> channelCache;
 
-  public GuildsFromEvents(Observable<Event> eventObservable) {
-    ImmutableMap<Snowflake, Channel> emptyChannelMap =
-        ImmutableMap.<Snowflake, Channel>builder().build();
-    ImmutableMap<Snowflake, Guild> emptyGuildMap = ImmutableMap.<Snowflake, Guild>builder().build();
+  public GuildsFromEvents(Observable<Event> events) {
+    ImmutableMap<Snowflake, Channel> emptyChannelMap = ImmutableMap.of();
+    ImmutableMap<Snowflake, Guild> emptyGuildMap = ImmutableMap.of();
 
     PublishSubject<ImmutableList<Channel>> channelsAddSubject = PublishSubject.create();
     PublishSubject<ImmutableList<Snowflake>> channelsRemoveSubject = PublishSubject.create();
@@ -55,7 +53,7 @@ public class GuildsFromEvents implements GuildRepository {
               return ImmutableMap.<Snowflake, Channel>builder().putAll(mutableMap).build();
             });
     Observable<ImmutableMap<Snowflake, Channel>> channelCreateListener =
-        eventObservable
+        events
             .ofType(ChannelCreateEvent.class)
             .map(ChannelCreateEvent::unwrap)
             .scan(
@@ -65,7 +63,7 @@ public class GuildsFromEvents implements GuildRepository {
                         .put(channel.getId(), channel)
                         .build());
     Observable<ImmutableMap<Snowflake, Channel>> channelDeleteListener =
-        eventObservable
+        events
             .ofType(ChannelDeleteEvent.class)
             .map(ChannelDeleteEvent::unwrap)
             .scan(
@@ -85,7 +83,7 @@ public class GuildsFromEvents implements GuildRepository {
     channelCache.connect();
 
     Observable<ImmutableMap<Snowflake, Guild>> guildCreateListener =
-        eventObservable
+        events
             .ofType(GuildCreateEvent.class)
             .flatMap(event -> Observable.just(event.unwrap()))
             .scan(
@@ -112,7 +110,7 @@ public class GuildsFromEvents implements GuildRepository {
                       .build();
                 });
     Observable<ImmutableMap<Snowflake, Guild>> guildDeleteListener =
-        eventObservable
+        events
             .ofType(GuildDeleteEvent.class)
             .flatMap(event -> Observable.just(event.unwrap()))
             .scan(

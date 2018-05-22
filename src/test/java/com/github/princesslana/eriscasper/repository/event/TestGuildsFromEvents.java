@@ -10,11 +10,10 @@ import com.github.princesslana.eriscasper.data.resource.Guild;
 import com.github.princesslana.eriscasper.faker.DataFaker;
 import io.reactivex.Maybe;
 import io.reactivex.subjects.PublishSubject;
+import java.util.Optional;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-
-import java.util.Optional;
 
 public class TestGuildsFromEvents {
 

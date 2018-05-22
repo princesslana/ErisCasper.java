@@ -14,9 +14,8 @@ import com.github.princesslana.eriscasper.data.resource.ImmutableUser;
 import com.github.princesslana.eriscasper.data.resource.Message;
 import com.github.princesslana.eriscasper.data.resource.UnavailableGuild;
 import com.github.princesslana.eriscasper.data.resource.User;
-import org.apache.commons.lang3.RandomStringUtils;
-
 import java.time.OffsetDateTime;
+import org.apache.commons.lang3.RandomStringUtils;
 
 public class DataFaker {
   private DataFaker() {}
