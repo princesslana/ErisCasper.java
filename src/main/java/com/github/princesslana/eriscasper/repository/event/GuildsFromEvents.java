@@ -20,70 +20,34 @@ import io.reactivex.observables.ConnectableObservable;
 import io.reactivex.subjects.PublishSubject;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class GuildsFromEvents implements GuildRepository {
 
-  private final ConnectableObservable<ImmutableMap<Snowflake, Guild>> guildCache;
-  private final ConnectableObservable<ImmutableMap<Snowflake, Channel>> channelCache;
+  private final Observable<Event> eventObservable;
+  private final ConnectableObservable<ImmutableMap<Snowflake, Guild>> guildWatcher;
+  private final ConnectableObservable<ImmutableMap<Snowflake, Channel>> channelWatcher;
+  private final PublishSubject<ImmutableList<Channel>> channelsAddSubject;
+  private final PublishSubject<ImmutableList<Snowflake>> channelsRemoveSubject;
 
-  public GuildsFromEvents(Observable<Event> events) {
-    ImmutableMap<Snowflake, Channel> emptyChannelMap = ImmutableMap.of();
+  public GuildsFromEvents(Observable<Event> eventObservable) {
+    this.eventObservable = eventObservable;
+
+    this.channelsAddSubject = PublishSubject.create();
+    this.channelsRemoveSubject = PublishSubject.create();
+
+    this.channelWatcher = initChannelWatcher();
+    this.channelWatcher.connect();
+
+    this.guildWatcher = initGuildWatcher();
+    this.guildWatcher.connect();
+  }
+
+  private ConnectableObservable<ImmutableMap<Snowflake, Guild>> initGuildWatcher() {
     ImmutableMap<Snowflake, Guild> emptyGuildMap = ImmutableMap.of();
 
-    PublishSubject<ImmutableList<Channel>> channelsAddSubject = PublishSubject.create();
-    PublishSubject<ImmutableList<Snowflake>> channelsRemoveSubject = PublishSubject.create();
-
-    Observable<ImmutableMap<Snowflake, Channel>> addableChannelCache =
-        channelsAddSubject.scan(
-            emptyChannelMap,
-            (map, newChannelList) -> {
-              ImmutableMap.Builder<Snowflake, Channel> newMapBuilder =
-                  ImmutableMap.<Snowflake, Channel>builder().putAll(map);
-              newChannelList.forEach(channel -> newMapBuilder.put(channel.getId(), channel));
-              return newMapBuilder.build();
-            });
-    Observable<ImmutableMap<Snowflake, Channel>> removeableChannelCache =
-        channelsRemoveSubject.scan(
-            emptyChannelMap,
-            (map, newChannelList) -> {
-              Map<Snowflake, Channel> mutableMap = new HashMap<>(map);
-              newChannelList.forEach(mutableMap::remove);
-              return ImmutableMap.<Snowflake, Channel>builder().putAll(mutableMap).build();
-            });
-    Observable<ImmutableMap<Snowflake, Channel>> channelCreateListener =
-        events
-            .ofType(ChannelCreateEvent.class)
-            .map(ChannelCreateEvent::unwrap)
-            .scan(
-                emptyChannelMap,
-                (map, channel) ->
-                    ImmutableMap.<Snowflake, Channel>builder()
-                        .put(channel.getId(), channel)
-                        .build());
-    Observable<ImmutableMap<Snowflake, Channel>> channelDeleteListener =
-        events
-            .ofType(ChannelDeleteEvent.class)
-            .map(ChannelDeleteEvent::unwrap)
-            .scan(
-                emptyChannelMap,
-                (map, channel) -> {
-                  Map<Snowflake, Channel> mutableMap = new HashMap<>(map);
-                  mutableMap.remove(channel.getId());
-                  return ImmutableMap.<Snowflake, Channel>builder().putAll(mutableMap).build();
-                });
-
-    channelCache =
-        addableChannelCache
-            .mergeWith(removeableChannelCache)
-            .mergeWith(channelCreateListener)
-            .mergeWith(channelDeleteListener)
-            .replay(1);
-    channelCache.connect();
-
     Observable<ImmutableMap<Snowflake, Guild>> guildCreateListener =
-        events
+        eventObservable
             .ofType(GuildCreateEvent.class)
             .flatMap(event -> Observable.just(event.unwrap()))
             .scan(
@@ -110,7 +74,7 @@ public class GuildsFromEvents implements GuildRepository {
                       .build();
                 });
     Observable<ImmutableMap<Snowflake, Guild>> guildDeleteListener =
-        events
+        eventObservable
             .ofType(GuildDeleteEvent.class)
             .flatMap(event -> Observable.just(event.unwrap()))
             .scan(
@@ -118,7 +82,7 @@ public class GuildsFromEvents implements GuildRepository {
                 (map, guild) -> {
                   Map<Snowflake, Guild> mutableMap = new HashMap<>(map);
                   mutableMap.remove(guild.getId());
-                  channelCache
+                  channelWatcher
                       .firstOrError()
                       .subscribe(
                           channelMap -> {
@@ -138,23 +102,68 @@ public class GuildsFromEvents implements GuildRepository {
                   return ImmutableMap.<Snowflake, Guild>builder().putAll(mutableMap).build();
                 });
 
-    guildCache = guildCreateListener.mergeWith(guildDeleteListener).replay(1);
-    guildCache.connect();
+    return guildCreateListener.mergeWith(guildDeleteListener).replay(1);
+  }
+
+  private ConnectableObservable<ImmutableMap<Snowflake, Channel>> initChannelWatcher() {
+    ImmutableMap<Snowflake, Channel> emptyChannelMap = ImmutableMap.of();
+
+    Observable<ImmutableMap<Snowflake, Channel>> addableChannelCache =
+        channelsAddSubject.scan(
+            emptyChannelMap,
+            (map, newChannelList) -> {
+              ImmutableMap.Builder<Snowflake, Channel> newMapBuilder =
+                  ImmutableMap.<Snowflake, Channel>builder().putAll(map);
+              newChannelList.forEach(channel -> newMapBuilder.put(channel.getId(), channel));
+              return newMapBuilder.build();
+            });
+    Observable<ImmutableMap<Snowflake, Channel>> removeableChannelCache =
+        channelsRemoveSubject.scan(
+            emptyChannelMap,
+            (map, newChannelList) -> {
+              Map<Snowflake, Channel> mutableMap = new HashMap<>(map);
+              newChannelList.forEach(mutableMap::remove);
+              return ImmutableMap.<Snowflake, Channel>builder().putAll(mutableMap).build();
+            });
+    Observable<ImmutableMap<Snowflake, Channel>> channelCreateListener =
+        eventObservable
+            .ofType(ChannelCreateEvent.class)
+            .map(ChannelCreateEvent::unwrap)
+            .scan(
+                emptyChannelMap,
+                (map, channel) ->
+                    ImmutableMap.<Snowflake, Channel>builder()
+                        .put(channel.getId(), channel)
+                        .build());
+    Observable<ImmutableMap<Snowflake, Channel>> channelDeleteListener =
+        eventObservable
+            .ofType(ChannelDeleteEvent.class)
+            .map(ChannelDeleteEvent::unwrap)
+            .scan(
+                emptyChannelMap,
+                (map, channel) -> {
+                  Map<Snowflake, Channel> mutableMap = new HashMap<>(map);
+                  mutableMap.remove(channel.getId());
+                  return ImmutableMap.<Snowflake, Channel>builder().putAll(mutableMap).build();
+                });
+
+    return addableChannelCache
+        .mergeWith(removeableChannelCache)
+        .mergeWith(channelCreateListener)
+        .mergeWith(channelDeleteListener)
+        .replay(1);
   }
 
   @Override
-  public Maybe<Guild> getGuild(Optional<Snowflake> id) {
-    return Maybes.fromOptional(id)
-        .flatMap(
-            snowflake ->
-                guildCache
-                    .firstOrError()
-                    .flatMapMaybe(guildMap -> Maybes.fromNullable(guildMap.get(snowflake))));
+  public Maybe<Guild> getGuild(@NonNull Snowflake id) {
+    return guildWatcher
+        .firstOrError()
+        .flatMapMaybe(guildMap -> Maybes.fromNullable(guildMap.get(id)));
   }
 
   @Override
   public Maybe<Channel> getChannel(@NonNull Snowflake id) {
-    return channelCache
+    return channelWatcher
         .firstOrError()
         .flatMapMaybe(channelMap -> Maybes.fromNullable(channelMap.get(id)));
   }

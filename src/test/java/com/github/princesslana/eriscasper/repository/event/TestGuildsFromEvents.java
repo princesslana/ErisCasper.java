@@ -10,7 +10,6 @@ import com.github.princesslana.eriscasper.data.resource.Guild;
 import com.github.princesslana.eriscasper.faker.DataFaker;
 import io.reactivex.Maybe;
 import io.reactivex.subjects.PublishSubject;
-import java.util.Optional;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -31,7 +30,7 @@ public class TestGuildsFromEvents {
     Guild guild = DataFaker.guild();
     Channel channel = guild.getChannels().get(0);
     events.onNext(GuildCreateEvent.of(guild));
-    Maybe<Guild> possibleGuild = subject.getGuild(Optional.of(guild.getId()));
+    Maybe<Guild> possibleGuild = subject.getGuild(guild.getId());
     possibleGuild.test().assertValue(guild);
     events.onNext(GuildCreateEvent.of(DataFaker.guild()));
     subject.getChannel(channel.getId()).test().assertValue(channel);
