@@ -22,11 +22,11 @@ public interface Action<I, O> {
    */
   Optional<I> getData();
 
-  public static <O> Action<Void, O> of(Route<Void, O> route) {
+  static <O> Action<Void, O> of(Route<Void, O> route) {
     return ImmutableAction.<Void, O>builder().route(route).build();
   }
 
-  public static <I, O> Action<I, O> of(Route<I, O> route, I data) {
+  static <I, O> Action<I, O> of(Route<I, O> route, I data) {
     return ImmutableAction.<I, O>builder().route(route).data(data).build();
   }
 }
