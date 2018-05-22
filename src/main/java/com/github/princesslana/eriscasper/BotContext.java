@@ -11,6 +11,7 @@ import com.google.common.base.Function;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,6 +60,10 @@ public class BotContext {
 
   public <Rq, Rs> Single<Rs> execute(Route<Rq, Rs> route, Rq request) {
     return routes.execute(route, request);
+  }
+
+  private <Rq, Rs> Single<Rs> execute(Route<Rq, Rs> route, Optional<Rq> request) {
+    return routes.execute(route, request.orElse(null));
   }
 
   public <R> R getRepository(RepositoryDefinition<R> def) {

@@ -9,11 +9,11 @@ public class Actions {
   private Actions() {}
 
   public static Action<CreateMessageRequest, Message> sendMessage(Snowflake chan, String msg) {
-    return ActionTuple.of(ChannelRoute.on(chan).createMessage(), CreateMessageRequest.ofText(msg));
+    return Action.of(ChannelRoute.on(chan).createMessage(), CreateMessageRequest.ofText(msg));
   }
 
   public static Action<CreateMessageRequest, Message> sendMessage(
       Snowflake chan, CreateMessageRequest msg) {
-    return ActionTuple.of(ChannelRoute.on(chan).createMessage(), msg);
+    return Action.of(ChannelRoute.on(chan).createMessage(), msg);
   }
 }

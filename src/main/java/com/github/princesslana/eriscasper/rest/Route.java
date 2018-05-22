@@ -29,6 +29,7 @@ public class Route<Rq, Rs> {
   protected static enum HttpMethod {
     DELETE("DELETE", Content.QUERY_STRING),
     GET("GET", Content.QUERY_STRING),
+    PATCH("PATCH", Content.BODY),
     POST("POST", Content.BODY),
     PUT("PUT", Content.BODY);
 
@@ -151,6 +152,10 @@ public class Route<Rq, Rs> {
   public static <Rq, Rs> Route<Rq, Rs> get(
       String path, Function<Rq, String> rqHandler, Function<Response, Rs> rsHandler) {
     return new Route<Rq, Rs>(HttpMethod.GET, path, rqHandler, rsHandler);
+  }
+
+  public static <Rq, Rs> Route<Rq, Rs> patch(String path, Class<Rq> rqClass, Class<Rs> rsClass) {
+    return new Route<Rq, Rs>(HttpMethod.PATCH, path, jsonRequestBody(), jsonResponse(rsClass));
   }
 
   public static <Rq, Rs> Route<Rq, Rs> post(String path, Class<Rq> rqClass, Class<Rs> rsClass) {
