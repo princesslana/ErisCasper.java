@@ -4,9 +4,19 @@ import com.github.javafaker.Faker;
 import com.github.princesslana.eriscasper.data.Snowflake;
 import com.github.princesslana.eriscasper.data.event.ImmutableReadyEventData;
 import com.github.princesslana.eriscasper.data.event.ReadyEventData;
-import com.github.princesslana.eriscasper.data.resource.*;
-import java.time.OffsetDateTime;
+import com.github.princesslana.eriscasper.data.resource.Channel;
+import com.github.princesslana.eriscasper.data.resource.Guild;
+import com.github.princesslana.eriscasper.data.resource.ImmutableChannel;
+import com.github.princesslana.eriscasper.data.resource.ImmutableGuild;
+import com.github.princesslana.eriscasper.data.resource.ImmutableMessage;
+import com.github.princesslana.eriscasper.data.resource.ImmutableUnavailableGuild;
+import com.github.princesslana.eriscasper.data.resource.ImmutableUser;
+import com.github.princesslana.eriscasper.data.resource.Message;
+import com.github.princesslana.eriscasper.data.resource.UnavailableGuild;
+import com.github.princesslana.eriscasper.data.resource.User;
 import org.apache.commons.lang3.RandomStringUtils;
+
+import java.time.OffsetDateTime;
 
 public class DataFaker {
   private DataFaker() {}
@@ -49,9 +59,9 @@ public class DataFaker {
     Snowflake id = DiscordFaker.snowflake();
     return ImmutableGuild.builder()
         .id(id)
-        .name("FakeGuild")
+        .name(Faker.instance().name().name())
         .ownerId(DiscordFaker.snowflake())
-        .region("FakeRegion")
+        .region(Faker.instance().address().country())
         .afkTimeout(0L)
         .verificationLevel(0L)
         .defaultMessageNotifications(0L)
