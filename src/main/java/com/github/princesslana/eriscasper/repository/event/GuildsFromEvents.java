@@ -83,7 +83,10 @@ public class GuildsFromEvents implements GuildRepository {
                           channel ->
                               mutableMap.put(
                                   channel.getId(),
-                                  ImmutableChannel.builder().guildId(guildId).build()));
+                                  ImmutableChannel.builder()
+                                      .from(channel)
+                                      .guildId(guildId)
+                                      .build()));
                   return ImmutableMap.copyOf(mutableMap);
                 });
     Observable<ImmutableMap<Snowflake, Channel>> guildDeleteWithChannelsListener =
@@ -135,13 +138,12 @@ public class GuildsFromEvents implements GuildRepository {
 
   @Override
   public Maybe<Guild> getGuild(@NonNull Snowflake id) {
-    return guildWatcher.cache().firstElement().flatMap(map -> Maybes.fromNullable(map.get(id)));
+    return guildWatcher.firstElement().flatMap(map -> Maybes.fromNullable(map.get(id)));
   }
 
   @Override
   public Maybe<Channel> getChannel(@NonNull Snowflake id) {
     return channelWatcher
-        .cache()
         .firstElement()
         .flatMap(channelMap -> Maybes.fromNullable(channelMap.get(id)));
   }
