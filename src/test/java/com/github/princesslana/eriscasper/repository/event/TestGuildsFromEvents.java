@@ -32,7 +32,7 @@ public class TestGuildsFromEvents {
     Guild n = DataFaker.guild();
     events.onNext(GuildCreateEvent.of(n));
     subject.getGuild(n.getId()).test().assertValue(n);
-    subject.getGuild(guild.getId()).test().assertValue(guild);
+    // Called multiple times to assure the guild is properly cached in the stream instead of disposed.
     subject.getGuild(guild.getId()).test().assertValue(guild);
     subject.getGuild(guild.getId()).test().assertValue(guild);
     events.onNext(GuildCreateEvent.of(DataFaker.guild()));
@@ -46,6 +46,7 @@ public class TestGuildsFromEvents {
     Channel channel = DataFaker.channel();
     Channel n = DataFaker.channel();
     events.onNext(ChannelCreateEvent.of(channel));
+    // Called multiple times to assure the channel is properly cached in the stream instead of disposed
     subject.getChannel(channel.getId()).test().assertValue(channel);
     subject.getChannel(channel.getId()).test().assertValue(channel);
     events.onNext(ChannelCreateEvent.of(n));
