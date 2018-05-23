@@ -66,20 +66,12 @@ public class DataFaker {
         .defaultMessageNotifications(0L)
         .explicitContentFilter(0L)
         .mfaLevel(0L)
-        .addChannels(guildChannel(id))
+        .addChannels(channel())
         .build();
   }
 
   public static Channel channel() {
     return ImmutableChannel.builder().id(DiscordFaker.snowflake()).type(0L).build();
-  }
-
-  public static Channel guildChannel(Snowflake guildId) {
-    return ImmutableChannel.builder()
-        .id(DiscordFaker.snowflake())
-        .type(0L)
-        .guildId(guildId)
-        .build();
   }
 
   public static UnavailableGuild unavailableGuildFromGuild(Snowflake predeterminedId) {

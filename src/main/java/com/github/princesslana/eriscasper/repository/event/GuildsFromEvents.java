@@ -8,6 +8,7 @@ import com.github.princesslana.eriscasper.data.event.GuildCreateEvent;
 import com.github.princesslana.eriscasper.data.event.GuildDeleteEvent;
 import com.github.princesslana.eriscasper.data.resource.Channel;
 import com.github.princesslana.eriscasper.data.resource.Guild;
+import com.github.princesslana.eriscasper.data.resource.ImmutableChannel;
 import com.github.princesslana.eriscasper.repository.GuildRepository;
 import com.github.princesslana.eriscasper.rx.Maybes;
 import com.google.common.collect.ImmutableMap;
@@ -75,7 +76,14 @@ public class GuildsFromEvents implements GuildRepository {
                 (map, guild) -> {
                   if (guild.getChannels().isEmpty()) return map;
                   Map<Snowflake, Channel> mutableMap = new HashMap<>(map);
-                  guild.getChannels().forEach(channel -> mutableMap.put(channel.getId(), channel));
+                  Snowflake guildId = guild.getId();
+                  guild
+                      .getChannels()
+                      .forEach(
+                          channel ->
+                              mutableMap.put(
+                                  channel.getId(),
+                                  ImmutableChannel.builder().guildId(guildId).build()));
                   return ImmutableMap.copyOf(mutableMap);
                 });
     Observable<ImmutableMap<Snowflake, Channel>> guildDeleteWithChannelsListener =
