@@ -1,6 +1,7 @@
 package com.github.princesslana.eriscasper.repository;
 
 import com.github.princesslana.eriscasper.data.event.Event;
+import com.github.princesslana.eriscasper.repository.event.GuildsFromEvents;
 import com.github.princesslana.eriscasper.repository.event.UsersFromEvents;
 import com.google.common.base.Preconditions;
 import io.reactivex.Observable;
@@ -32,6 +33,7 @@ public class RepositoryManager {
   public static RepositoryManager create(Observable<Event> events) {
     RepositoryManager rm = new RepositoryManager();
     rm.put(RepositoryDefinition.USER, new UsersFromEvents(events));
+    rm.put(RepositoryDefinition.GUILD, new GuildsFromEvents(events));
     return rm;
   }
 }

@@ -8,6 +8,7 @@ import org.immutables.value.Value;
 public interface RepositoryDefinition<R> {
 
   RepositoryDefinition<UserRepository> USER = RepositoryDefinitionTuple.of("user");
+  RepositoryDefinition<GuildRepository> GUILD = RepositoryDefinitionTuple.of("guild");
 
   String getName();
 }
