@@ -7,6 +7,7 @@ import com.github.princesslana.eriscasper.action.Actions;
 import com.github.princesslana.eriscasper.data.event.MessageCreateEvent;
 import com.github.princesslana.eriscasper.repository.RepositoryDefinition;
 import io.reactivex.Completable;
+import java.util.Optional;
 
 public class WhoAreYouBot implements Bot {
 
@@ -15,7 +16,7 @@ public class WhoAreYouBot implements Bot {
     return ctx.on(
         MessageCreateEvent.class,
         recv -> {
-          if (recv.getContent().equals("+whoareyou")) {
+          if (recv.getContent().equals(Optional.of("+whoareyou"))) {
             return ctx.getRepository(RepositoryDefinition.USER)
                 .getSelf()
                 .map(
