@@ -39,7 +39,9 @@ public class TestGuildsFromEvents {
     events.onNext(GuildCreateEvent.of(DataFaker.guild()));
     subject.getChannel(channel.getId()).map(Channel::getId).test().assertValue(channel.getId());
     events.onNext(GuildDeleteEvent.of(DataFaker.unavailableGuildFromGuild(guild.getId())));
+    Assert.assertNull(subject.getGuild(guild.getId()).blockingGet());
     Assert.assertNull(subject.getChannel(channel.getId()).blockingGet());
+    subject.getGuild(n.getId()).test().assertValue(n);
   }
 
   @Test
@@ -55,5 +57,6 @@ public class TestGuildsFromEvents {
     subject.getChannel(n.getId()).test().assertValue(n);
     events.onNext(ChannelDeleteEvent.of(channel));
     Assert.assertNull(subject.getChannel(channel.getId()).blockingGet());
+    subject.getChannel(n.getId()).test().assertValue(n);
   }
 }
