@@ -31,7 +31,9 @@ public class Route<Rq, Rs> {
     GET("GET", Content.QUERY_STRING),
     PATCH("PATCH", Content.BODY),
     POST("POST", Content.BODY),
-    PUT("PUT", Content.BODY);
+    QUERY_POST("POST", Content.QUERY_STRING),
+    PUT("PUT", Content.BODY),
+    PUT_QUERY("PUT", Content.QUERY_STRING);
 
     private final String method;
 
@@ -125,7 +127,7 @@ public class Route<Rq, Rs> {
   }
 
   private static <Rq> Function<Rq, String> jsonRequestBody() {
-    return rq -> JACKSON.writeValueAsString(rq);
+    return JACKSON::writeValueAsString;
   }
 
   public static <Rq> Function<ImmutableList<Rq>, String> jsonArrayRequstBody() {
@@ -158,12 +160,35 @@ public class Route<Rq, Rs> {
   }
 
   public static <Rq, Rs> Route<Rq, Rs> get(
+      String path, Class<Rq> rqClass, Function<Response, Rs> rsFunction) {
+    return get(path, jsonRequestBody(), rsFunction);
+  }
+
+  public static <Rq, Rs> Route<Rq, Rs> get(String path, Class<Rq> rqClass, Class<Rs> rsClass) {
+    return get(path, jsonRequestBody(), jsonResponse(rsClass));
+  }
+
+  public static <Rq, Rs> Route<Rq, Rs> get(
+      String path, Function<Rq, String> rqHandler, Class<Rs> rsClass) {
+    return get(path, rqHandler, jsonResponse(rsClass));
+  }
+
+  public static <Rs> Route<Void, Rs> get(String path, Function<Response, Rs> rsHandler) {
+    return get(path, noContent(), rsHandler);
+  }
+
+  public static <Rq, Rs> Route<Rq, Rs> get(
       String path, Function<Rq, String> rqHandler, Function<Response, Rs> rsHandler) {
     return new Route<Rq, Rs>(HttpMethod.GET, path, rqHandler, rsHandler);
   }
 
   public static <Rq, Rs> Route<Rq, Rs> patch(String path, Class<Rq> rqClass, Class<Rs> rsClass) {
-    return new Route<Rq, Rs>(HttpMethod.PATCH, path, jsonRequestBody(), jsonResponse(rsClass));
+    return patch(path, rqClass, jsonResponse(rsClass));
+  }
+
+  public static <Rq, Rs> Route<Rq, Rs> patch(
+      String path, Class<Rq> rqClass, Function<Response, Rs> rsHandler) {
+    return new Route<>(HttpMethod.PATCH, path, jsonRequestBody(), rsHandler);
   }
 
   public static <Rq, Rs> Route<Rq, Rs> post(String path, Class<Rq> rqClass, Class<Rs> rsClass) {
@@ -175,7 +200,17 @@ public class Route<Rq, Rs> {
     return new Route<Rq, Rs>(HttpMethod.POST, path, rqHandler, rsHandler);
   }
 
+  public static <Rq, Rs> Route<Rq, Rs> postQuery(
+      String path, Function<Rq, String> rqHandler, Class<Rs> rsClass) {
+    return new Route<>(HttpMethod.QUERY_POST, path, rqHandler, jsonResponse(rsClass));
+  }
+
   public static <Rq, Rs> Route<Rq, Rs> put(String path, Class<Rq> rqClass, Class<Rs> rsClass) {
     return new Route<Rq, Rs>(HttpMethod.PUT, path, jsonRequestBody(), jsonResponse(rsClass));
+  }
+
+  public static <Rq, Rs> Route<Rq, Rs> putQuery(
+      String path, Function<Rq, String> rqHandler, Class<Rs> rsClass) {
+    return new Route<Rq, Rs>(HttpMethod.PUT_QUERY, path, rqHandler, jsonResponse(rsClass));
   }
 }
