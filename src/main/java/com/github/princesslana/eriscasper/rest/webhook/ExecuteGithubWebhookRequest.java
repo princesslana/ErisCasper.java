@@ -14,6 +14,6 @@ public interface ExecuteGithubWebhookRequest {
   Optional<Boolean> isWait();
 
   default String toQueryString() {
-    return new QueryStringBuilder().addBool("wait", isWait()).build();
+    return new QueryStringBuilder().addBoolean("wait", isWait()).build();
   }
 }
