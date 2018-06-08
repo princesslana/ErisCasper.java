@@ -83,7 +83,7 @@ public class WebhookRoute {
    */
   public Route<ExecuteSlackWebhookRequest, Void> executeSlackWebhook(String token) {
     return Route.postQuery(
-        path("/%s/slack", token), ExecuteSlackWebhookRequest::toQueryString, Void.class);
+        path("/%s/slack", token), ExecuteSlackWebhookRequest::toQueryString, Route.noResponse());
   }
 
   /**
@@ -93,7 +93,7 @@ public class WebhookRoute {
    */
   public Route<ExecuteGithubWebhookRequest, Void> executeGithubWebhook(String token) {
     return Route.postQuery(
-        path("/%s/github", token), ExecuteGithubWebhookRequest::toQueryString, Void.class);
+        path("/%s/github", token), ExecuteGithubWebhookRequest::toQueryString, Route.noResponse());
   }
 
   private String path(String fmt, String... args) {
