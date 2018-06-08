@@ -51,7 +51,7 @@ public class ChannelRoute {
   public Route<GetChannelMessagesRequest, ImmutableList<Message>> getChannelMessages() {
     return Route.get(
         path("/"),
-        GetChannelMessagesRequest::toQueryString,
+        (rq) -> FormTuple.of(rq.toQueryString(), ""),
         Route.jsonArrayResponse(Message.class));
   }
 
@@ -107,7 +107,7 @@ public class ChannelRoute {
       Snowflake messageId, String emoji) {
     return Route.get(
         path("/messages/%s/reactions/%s", messageId.unwrap(), emoji),
-        GetReactionsRequest::toQueryString,
+        (rq) -> FormTuple.of(rq.toQueryString(), ""),
         Route.jsonArrayResponse(User.class));
   }
 
