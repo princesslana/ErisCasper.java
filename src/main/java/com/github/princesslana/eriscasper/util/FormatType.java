@@ -26,7 +26,7 @@ public enum FormatType {
     try {
       ImageIO.write(image, type, stream);
     } catch (IOException e) {
-      throw new ErisCasperFatalException("Failed to process image of type `" + type + "`.");
+      throw new ErisCasperFatalException("Failed to process image of type `" + type + "`.", e);
     }
   }
 }
