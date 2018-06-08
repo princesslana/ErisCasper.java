@@ -10,7 +10,7 @@ import org.immutables.value.Value;
  *     https://discordapp.com/developers/docs/resources/webhook#execute-githubcompatible-webhook-querystring-params</a>
  */
 @Value.Immutable
-public interface ExecuteGithubWebhookRequest {
+public interface ExecuteGithubWebhookRequest { // TODO unfinished see WebhookRoute
   Optional<Boolean> isWait();
 
   default String toQueryString() {

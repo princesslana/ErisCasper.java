@@ -3,13 +3,11 @@ package com.github.princesslana.eriscasper.rest;
 import com.github.princesslana.eriscasper.data.Snowflake;
 import com.github.princesslana.eriscasper.data.resource.Webhook;
 import com.github.princesslana.eriscasper.rest.webhook.CreateWebhookRequest;
-import com.github.princesslana.eriscasper.rest.webhook.ExecuteGithubWebhookRequest;
-import com.github.princesslana.eriscasper.rest.webhook.ExecuteSlackWebhookRequest;
-import com.github.princesslana.eriscasper.rest.webhook.ExecuteWebhookRequest;
 import com.github.princesslana.eriscasper.rest.webhook.ModifyWebhookRequest;
 import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
 
+// TODO execute webhooks unfinished (needs multi-part params)
 public class WebhookRoute {
 
   private final Snowflake id;
@@ -72,29 +70,34 @@ public class WebhookRoute {
    * @see <a href="https://discordapp.com/developers/docs/resources/webhook#execute-webhook">
    *     https://discordapp.com/developers/docs/resources/webhook#execute-webhook</a>
    */
-  public Route<ExecuteWebhookRequest, Void> executeWebhook(String token) {
-    return Route.post(path("/%s", token), ExecuteWebhookRequest.class, Void.class);
-  }
+  // TODO
+  //  public Route<ExecuteWebhookRequest, Void> executeWebhook(String token) {
+  //    return Route.post(path("/%s", token), ExecuteWebhookRequest.class, Void.class);
+  //  }
 
   /**
    * @see <a
    *     href="https://discordapp.com/developers/docs/resources/webhook#execute-slackcompatible-webhook">
    *     https://discordapp.com/developers/docs/resources/webhook#execute-slackcompatible-webhook</a>
    */
-  public Route<ExecuteSlackWebhookRequest, Void> executeSlackWebhook(String token) {
-    return Route.postQuery(
-        path("/%s/slack", token), ExecuteSlackWebhookRequest::toQueryString, Route.noResponse());
-  }
+  // TODO
+  //  public Route<ExecuteSlackWebhookRequest, Void> executeSlackWebhook(String token) {
+  //    return Route.postQuery(
+  //        path("/%s/slack", token), ExecuteSlackWebhookRequest::toQueryString,
+  // Route.noResponse());
+  //  }
 
   /**
    * @see <a
    *     href="https://discordapp.com/developers/docs/resources/webhook#execute-githubcompatible-webhook">
    *     https://discordapp.com/developers/docs/resources/webhook#execute-githubcompatible-webhook</a>
    */
-  public Route<ExecuteGithubWebhookRequest, Void> executeGithubWebhook(String token) {
-    return Route.postQuery(
-        path("/%s/github", token), ExecuteGithubWebhookRequest::toQueryString, Route.noResponse());
-  }
+  // TODO
+  //  public Route<ExecuteGithubWebhookRequest, Void> executeGithubWebhook(String token) {
+  //    return Route.postQuery(
+  //        path("/%s/github", token), ExecuteGithubWebhookRequest::toQueryString,
+  // Route.noResponse());
+  //  }
 
   private String path(String fmt, String... args) {
     return "/webhooks/" + id.unwrap() + String.format(fmt, Arrays.asList(args).toArray());

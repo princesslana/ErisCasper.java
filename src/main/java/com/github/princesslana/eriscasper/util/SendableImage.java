@@ -4,13 +4,11 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.util.Base64;
 
-public interface SendableImage {
+public final class SendableImage {
 
-  static String imageToBase64(BufferedImage image) {
-    return imageToBase64(image, FormatType.JPG);
-  }
+  private SendableImage() {}
 
-  static String imageToBase64(BufferedImage image, FormatType type) {
+  public static String imageToBase64(BufferedImage image, FormatType type) {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     type.write(image, baos);
     byte[] bytes = baos.toByteArray();

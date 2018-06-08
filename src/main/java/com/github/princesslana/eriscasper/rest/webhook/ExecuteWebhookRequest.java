@@ -12,7 +12,7 @@ import org.immutables.value.Value;
  *     https://discordapp.com/developers/docs/resources/webhook#execute-webhook-jsonform-params</a>
  */
 @Value.Immutable
-public interface ExecuteWebhookRequest {
+public interface ExecuteWebhookRequest { // TODO unfinished see WebhookRoute
   Optional<String> getContent();
 
   Optional<String> getUsername();

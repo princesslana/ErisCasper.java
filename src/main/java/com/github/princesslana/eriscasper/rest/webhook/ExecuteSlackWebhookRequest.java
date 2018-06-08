@@ -10,7 +10,7 @@ import org.immutables.value.Value;
  *     https://discordapp.com/developers/docs/resources/webhook#execute-slackcompatible-webhook-querystring-params</a>
  */
 @Value.Immutable
-public interface ExecuteSlackWebhookRequest {
+public interface ExecuteSlackWebhookRequest { // TODO unfinished see WebhookRoute
   Optional<Boolean> isWait();
 
   default String toQueryString() {
