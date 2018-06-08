@@ -2,23 +2,17 @@ package com.github.princesslana.eriscasper.util;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.Base64;
-import javax.imageio.ImageIO;
 
-public abstract class SendableImage {
+public interface SendableImage {
 
-  BufferedImage image;
+  static String imageToBase64(BufferedImage image) {
+    return imageToBase64(image, FormatType.JPG);
+  }
 
-  @Override
-  public String toString() {
+  static String imageToBase64(BufferedImage image, FormatType type) {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    try {
-      ImageIO.write(image, "jpg", baos);
-    } catch (IOException e) {
-      e.printStackTrace();
-      return "";
-    }
+    type.write(image, baos);
     byte[] bytes = baos.toByteArray();
     return new String(Base64.getEncoder().encode(bytes));
   }

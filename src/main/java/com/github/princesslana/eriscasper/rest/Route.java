@@ -77,7 +77,7 @@ public class Route<Rq, Rs> {
     return path;
   }
 
-  Request.Builder newRequestBuilder(Rq rq) throws Exception {
+  public Request.Builder newRequestBuilder(Rq rq) throws Exception {
     RequestBody body =
         method.isContent(Content.BODY)
             ? RequestBody.create(MEDIA_TYPE_JSON, requestHandler.apply(rq))
@@ -91,7 +91,7 @@ public class Route<Rq, Rs> {
     return new Request.Builder().method(method.get(), body).url(url);
   }
 
-  Function<Response, Rs> getResponseHandler() {
+  public Function<Response, Rs> getResponseHandler() {
     return responseHandler;
   }
 
@@ -126,24 +126,24 @@ public class Route<Rq, Rs> {
     return r -> "";
   }
 
-  static <Rq> Function<Rq, String> jsonRequestBody() {
+  public static <Rq> Function<Rq, String> jsonRequestBody() {
     return JACKSON::writeValueAsString;
   }
 
-  static <Rq> Function<ImmutableList<Rq>, String> jsonArrayRequstBody() {
+  public static <Rq> Function<ImmutableList<Rq>, String> jsonArrayRequstBody() {
     return jsonRequestBody();
   }
 
-  static Function<Response, Void> noResponse() {
+  public static Function<Response, Void> noResponse() {
     return rs -> null;
   }
 
-  static <Rs> Function<Response, Rs> jsonResponse(Class<Rs> rs) {
+  public static <Rs> Function<Response, Rs> jsonResponse(Class<Rs> rs) {
     return r -> Data.fromJson(r.body().string(), rs);
   }
 
   @SuppressWarnings("unchecked")
-  static <Rs> Function<Response, ImmutableList<Rs>> jsonArrayResponse(Class<Rs> rs) {
+  public static <Rs> Function<Response, ImmutableList<Rs>> jsonArrayResponse(Class<Rs> rs) {
     return r ->
         (ImmutableList<Rs>)
             JACKSON.readValue(
