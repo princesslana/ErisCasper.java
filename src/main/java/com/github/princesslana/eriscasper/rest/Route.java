@@ -21,45 +21,15 @@ public class Route<Rq, Rs> {
 
   private static final ObjectMapper JACKSON = Jackson.newObjectMapper();
 
-  private static enum Content {
-    BODY,
-    QUERY_STRING
-  }
-
-  protected static enum HttpMethod {
-    DELETE("DELETE", Content.QUERY_STRING),
-    GET("GET", Content.QUERY_STRING),
-    PATCH("PATCH", Content.BODY),
-    POST("POST", Content.BODY),
-    PUT("PUT", Content.BODY);
-
-    private final String method;
-
-    private final Content content;
-
-    private HttpMethod(String method, Content content) {
-      this.method = method;
-      this.content = content;
-    }
-
-    public String get() {
-      return method;
-    }
-
-    public boolean isContent(Content rhs) {
-      return content == rhs;
-    }
-  }
-
   private HttpMethod method;
   private String path;
-  private Function<Rq, String> requestHandler;
+  private Function<Rq, RequestContent> requestHandler;
   private Function<Response, Rs> responseHandler;
 
   public Route(
       HttpMethod method,
       String path,
-      Function<Rq, String> requestHandler,
+      Function<Rq, RequestContent> requestHandler,
       Function<Response, Rs> responseHandler) {
     this.method = method;
     this.path = path;
@@ -76,13 +46,12 @@ public class Route<Rq, Rs> {
   }
 
   public Request.Builder newRequestBuilder(Rq rq) throws Exception {
-    RequestBody body =
-        method.isContent(Content.BODY)
-            ? RequestBody.create(MEDIA_TYPE_JSON, requestHandler.apply(rq))
-            : null;
+    RequestContent content = requestHandler.apply(rq);
 
-    String queryString =
-        method.isContent(Content.QUERY_STRING) ? "?" + requestHandler.apply(rq) : "";
+    RequestBody body =
+        content.getBody().map(b -> RequestBody.create(MEDIA_TYPE_JSON, b)).orElse(null);
+
+    String queryString = content.getQueryString().map(q -> "?" + q).orElse("");
 
     String url = String.format("%s%s%s", URL, getPath(), queryString);
 
@@ -120,15 +89,19 @@ public class Route<Rq, Rs> {
     return Objects.hash(path, method);
   }
 
-  private static Function<Void, String> noContent() {
-    return r -> "";
+  private static Function<Void, RequestContent> noContent() {
+    return r -> ImmutableRequestContent.builder().build();
   }
 
-  private static <Rq> Function<Rq, String> jsonRequestBody() {
-    return rq -> JACKSON.writeValueAsString(rq);
+  public static <Rq> Function<Rq, RequestContent> queryString(Function<Rq, String> f) {
+    return rq -> ImmutableRequestContent.builder().queryString(f.apply(rq)).build();
   }
 
-  public static <Rq> Function<ImmutableList<Rq>, String> jsonArrayRequstBody() {
+  private static <Rq> Function<Rq, RequestContent> jsonRequestBody() {
+    return rq -> ImmutableRequestContent.builder().body(JACKSON.writeValueAsString(rq)).build();
+  }
+
+  public static <Rq> Function<ImmutableList<Rq>, RequestContent> jsonArrayRequstBody() {
     return jsonRequestBody();
   }
 
@@ -158,7 +131,7 @@ public class Route<Rq, Rs> {
   }
 
   public static <Rq, Rs> Route<Rq, Rs> get(
-      String path, Function<Rq, String> rqHandler, Function<Response, Rs> rsHandler) {
+      String path, Function<Rq, RequestContent> rqHandler, Function<Response, Rs> rsHandler) {
     return new Route<Rq, Rs>(HttpMethod.GET, path, rqHandler, rsHandler);
   }
 
@@ -171,7 +144,7 @@ public class Route<Rq, Rs> {
   }
 
   public static <Rq, Rs> Route<Rq, Rs> post(
-      String path, Function<Rq, String> rqHandler, Function<Response, Rs> rsHandler) {
+      String path, Function<Rq, RequestContent> rqHandler, Function<Response, Rs> rsHandler) {
     return new Route<Rq, Rs>(HttpMethod.POST, path, rqHandler, rsHandler);
   }
 
