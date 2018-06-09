@@ -142,7 +142,7 @@ public class ChannelRoute {
    */
   public Route<ImmutableList<Snowflake>, Void> bulkDeleteMessages() {
     return Route.post(
-        path("/messages/bulk-delete"), Route.<Snowflake>jsonArrayRequstBody(), Route.noResponse());
+        path("/messages/bulk-delete"), Route.<Snowflake>jsonArrayRequestBody(), Route.noResponse());
   }
 
   private String path(String fmt, String... args) {
