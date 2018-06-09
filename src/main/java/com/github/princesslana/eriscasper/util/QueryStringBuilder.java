@@ -26,6 +26,10 @@ public class QueryStringBuilder {
     return snowflake.map(s -> add(name, s.unwrap())).orElse(this);
   }
 
+  public QueryStringBuilder addBoolean(String name, Optional<Boolean> value) {
+    return value.map(v -> add(name, v.toString())).orElse(this);
+  }
+
   public QueryStringBuilder addLong(String name, Optional<Long> value) {
     return value.map(v -> add(name, v.toString())).orElse(this);
   }
