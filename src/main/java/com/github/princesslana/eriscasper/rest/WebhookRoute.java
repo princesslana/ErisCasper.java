@@ -70,11 +70,11 @@ public class WebhookRoute {
     return "/webhooks/" + id.unwrap() + String.format(fmt, Arrays.asList(args).toArray());
   }
 
-  public WebhookRoute on(Snowflake webhookId) {
+  public static WebhookRoute on(Snowflake webhookId) {
     return new WebhookRoute(webhookId);
   }
 
-  public WebhookRoute on(Webhook webhook) {
+  public static WebhookRoute on(Webhook webhook) {
     return on(webhook.getId());
   }
 
