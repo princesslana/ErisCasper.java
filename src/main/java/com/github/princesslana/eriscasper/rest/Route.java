@@ -127,7 +127,11 @@ public class Route<Rq, Rs> {
   }
 
   public static <Rs> Route<Void, Rs> get(String path, Class<Rs> rsClass) {
-    return get(path, noContent(), jsonResponse(rsClass));
+    return get(path, jsonResponse(rsClass));
+  }
+
+  public static <Rs> Route<Void, Rs> get(String path, Function<Response, Rs> rsHandler) {
+    return get(path, noContent(), rsHandler);
   }
 
   public static <Rq, Rs> Route<Rq, Rs> get(
