@@ -89,7 +89,7 @@ public class Route<Rq, Rs> {
     return Objects.hash(path, method);
   }
 
-  private static Function<Void, RequestContent> noContent() {
+  public static Function<Void, RequestContent> noContent() {
     return r -> ImmutableRequestContent.builder().build();
   }
 
@@ -97,11 +97,11 @@ public class Route<Rq, Rs> {
     return rq -> ImmutableRequestContent.builder().queryString(f.apply(rq)).build();
   }
 
-  private static <Rq> Function<Rq, RequestContent> jsonRequestBody() {
+  public static <Rq> Function<Rq, RequestContent> jsonRequestBody() {
     return rq -> ImmutableRequestContent.builder().body(JACKSON.writeValueAsString(rq)).build();
   }
 
-  public static <Rq> Function<ImmutableList<Rq>, RequestContent> jsonArrayRequstBody() {
+  public static <Rq> Function<ImmutableList<Rq>, RequestContent> jsonArrayRequestBody() {
     return jsonRequestBody();
   }
 
@@ -109,7 +109,7 @@ public class Route<Rq, Rs> {
     return rs -> null;
   }
 
-  private static <Rs> Function<Response, Rs> jsonResponse(Class<Rs> rs) {
+  public static <Rs> Function<Response, Rs> jsonResponse(Class<Rs> rs) {
     return r -> Data.fromJson(r.body().string(), rs);
   }
 
