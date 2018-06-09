@@ -94,11 +94,11 @@ public class Route<Rq, Rs> {
   }
 
   public static <Rq> Function<Rq, RequestContent> queryString(Function<Rq, String> f) {
-    return rq -> ImmutableRequestContent.builder().queryString(f.apply(rq)).build();
+  	return rq -> ImmutableRequestContent.builder().queryString(f.apply(rq)).build();
   }
 
   private static <Rq> Function<Rq, RequestContent> jsonRequestBody() {
-    return rq -> ImmutableRequestContent.builder().body(JACKSON.writeValueAsString(rq)).build();
+  	return rq -> ImmutableRequestContent.builder().body(JACKSON.writeValueAsString(rq)).build();
   }
 
   public static <Rq> Function<ImmutableList<Rq>, RequestContent> jsonArrayRequstBody() {
