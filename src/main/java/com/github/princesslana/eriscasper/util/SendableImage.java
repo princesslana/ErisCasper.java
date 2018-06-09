@@ -1,10 +1,10 @@
 package com.github.princesslana.eriscasper.util;
 
+import com.google.common.io.Files;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Base64;
 
 public final class SendableImage {
@@ -12,10 +12,7 @@ public final class SendableImage {
   private SendableImage() {}
 
   public static String imageToBase64(File file) throws IOException {
-    InputStream stream = file.toURI().toURL().openConnection().getInputStream();
-    byte[] bytes = new byte[stream.available()];
-    stream.read(bytes);
-    return translateBase64(bytes);
+    return translateBase64(Files.asByteSource(file).read());
   }
 
   public static String imageToBase64(BufferedImage image, FormatType type) throws IOException {
