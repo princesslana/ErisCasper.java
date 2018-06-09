@@ -1,6 +1,5 @@
 package com.github.princesslana.eriscasper.util;
 
-import com.github.princesslana.eriscasper.ErisCasperFatalException;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -22,11 +21,7 @@ public enum FormatType {
     return type;
   }
 
-  public void write(BufferedImage image, OutputStream stream) {
-    try {
-      ImageIO.write(image, type, stream);
-    } catch (IOException e) {
-      throw new ErisCasperFatalException("Failed to process image of type `" + type + "`.", e);
-    }
+  public void write(BufferedImage image, OutputStream stream) throws IOException {
+    ImageIO.write(image, type, stream);
   }
 }

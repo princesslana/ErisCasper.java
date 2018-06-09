@@ -1,6 +1,5 @@
 package com.github.princesslana.eriscasper.util;
 
-import com.github.princesslana.eriscasper.ErisCasperFatalException;
 import java.util.Optional;
 
 public enum AuditLogEventType {
@@ -51,11 +50,12 @@ public enum AuditLogEventType {
   }
 
   public static AuditLogEventType of(int code) {
-    if (code > 72 || code < 0) {
-      throw new ErisCasperFatalException(
+    AuditLogEventType type;
+    if (code > 72 || code < 1 || (type = types[code - 1]) == null) {
+      throw new IllegalArgumentException(
           "Illegal code `" + code + "` found. Please refer to a code from 0-" + types.length + ".");
     }
-    return types[code - 1];
+    return type;
   }
 
   public static Optional<AuditLogEventType> getType(int code) {
