@@ -6,7 +6,6 @@ import com.github.princesslana.eriscasper.data.resource.Guild;
 import com.github.princesslana.eriscasper.rest.auditlog.GetGuildAuditLogRequest;
 
 public class AuditLogRoute {
-  // https://discordapp.com/developers/docs/resources/audit-log#get-guild-audit-log
 
   private final Snowflake id;
 
