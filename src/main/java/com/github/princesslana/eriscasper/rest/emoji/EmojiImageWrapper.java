@@ -5,6 +5,9 @@ import com.github.princesslana.eriscasper.data.immutable.Wrapper;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+
+import com.github.princesslana.eriscasper.util.FormatType;
+import com.github.princesslana.eriscasper.util.SendableImage;
 import org.immutables.value.Value;
 
 @Wrapped
