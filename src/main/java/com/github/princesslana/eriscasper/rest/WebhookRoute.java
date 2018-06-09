@@ -66,48 +66,15 @@ public class WebhookRoute {
     return Route.delete(path("/%s", token), Void.class);
   }
 
-  /**
-   * @see <a href="https://discordapp.com/developers/docs/resources/webhook#execute-webhook">
-   *     https://discordapp.com/developers/docs/resources/webhook#execute-webhook</a>
-   */
-  // TODO
-  //  public Route<ExecuteWebhookRequest, Void> executeWebhook(String token) {
-  //    return Route.post(path("/%s", token), ExecuteWebhookRequest.class, Void.class);
-  //  }
-
-  /**
-   * @see <a
-   *     href="https://discordapp.com/developers/docs/resources/webhook#execute-slackcompatible-webhook">
-   *     https://discordapp.com/developers/docs/resources/webhook#execute-slackcompatible-webhook</a>
-   */
-  // TODO
-  //  public Route<ExecuteSlackWebhookRequest, Void> executeSlackWebhook(String token) {
-  //    return Route.postQuery(
-  //        path("/%s/slack", token), ExecuteSlackWebhookRequest::toQueryString,
-  // Route.noResponse());
-  //  }
-
-  /**
-   * @see <a
-   *     href="https://discordapp.com/developers/docs/resources/webhook#execute-githubcompatible-webhook">
-   *     https://discordapp.com/developers/docs/resources/webhook#execute-githubcompatible-webhook</a>
-   */
-  // TODO
-  //  public Route<ExecuteGithubWebhookRequest, Void> executeGithubWebhook(String token) {
-  //    return Route.postQuery(
-  //        path("/%s/github", token), ExecuteGithubWebhookRequest::toQueryString,
-  // Route.noResponse());
-  //  }
-
   private String path(String fmt, String... args) {
     return "/webhooks/" + id.unwrap() + String.format(fmt, Arrays.asList(args).toArray());
   }
 
-  public WebhookRoute on(Snowflake webhookId) {
+  public static WebhookRoute on(Snowflake webhookId) {
     return new WebhookRoute(webhookId);
   }
 
-  public WebhookRoute on(Webhook webhook) {
+  public static WebhookRoute on(Webhook webhook) {
     return on(webhook.getId());
   }
 

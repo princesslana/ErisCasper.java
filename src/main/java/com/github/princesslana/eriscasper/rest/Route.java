@@ -4,16 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.github.princesslana.eriscasper.data.Data;
 import com.github.princesslana.eriscasper.data.util.Jackson;
-import com.github.princesslana.eriscasper.immutable.Tuple;
 import com.google.common.collect.ImmutableList;
-import io.reactivex.annotations.Nullable;
 import io.reactivex.functions.Function;
 import java.util.Objects;
 import okhttp3.MediaType;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import org.immutables.value.Value;
 
 public class Route<Rq, Rs> {
 
@@ -24,54 +21,17 @@ public class Route<Rq, Rs> {
 
   private static final ObjectMapper JACKSON = Jackson.newObjectMapper();
 
-  public static enum Content {
-    BODY,
-    QUERY_STRING,
-    BOTH
-  }
-
-  protected static enum HttpMethod {
-    DELETE("DELETE"),
-    GET("GET"),
-    PATCH("PATCH"),
-    POST("POST"),
-    PUT("PUT");
-
-    private final String method;
-
-    HttpMethod(String method) {
-      this.method = method;
-    }
-
-    public String get() {
-      return method;
-    }
-  }
-
-  @Tuple
-  @Value.Immutable
-  public static interface Form {
-    @Nullable
-    String getQuery();
-
-    @Nullable
-    String getForm();
-  }
-
   private HttpMethod method;
-  private Content content;
   private String path;
-  private Function<Rq, Form> requestHandler;
+  private Function<Rq, RequestContent> requestHandler;
   private Function<Response, Rs> responseHandler;
 
   public Route(
       HttpMethod method,
-      Content content,
       String path,
-      Function<Rq, Form> requestHandler,
+      Function<Rq, RequestContent> requestHandler,
       Function<Response, Rs> responseHandler) {
     this.method = method;
-    this.content = content;
     this.path = path;
     this.requestHandler = requestHandler;
     this.responseHandler = responseHandler;
@@ -86,13 +46,12 @@ public class Route<Rq, Rs> {
   }
 
   public Request.Builder newRequestBuilder(Rq rq) throws Exception {
-    Form tuple = requestHandler.apply(rq);
-    RequestBody body =
-        content != Content.QUERY_STRING
-            ? RequestBody.create(MEDIA_TYPE_JSON, tuple.getForm())
-            : null;
+    RequestContent content = requestHandler.apply(rq);
 
-    String queryString = content != Content.BODY ? "?" + tuple.getQuery() : "";
+    RequestBody body =
+        content.getBody().map(b -> RequestBody.create(MEDIA_TYPE_JSON, b)).orElse(null);
+
+    String queryString = content.getQueryString().map(q -> "?" + q).orElse("");
 
     String url = String.format("%s%s%s", URL, getPath(), queryString);
 
@@ -130,15 +89,19 @@ public class Route<Rq, Rs> {
     return Objects.hash(path, method);
   }
 
-  private static Function<Void, Form> noContent() {
-    return r -> FormTuple.of("", "");
+  private static Function<Void, RequestContent> noContent() {
+    return r -> ImmutableRequestContent.builder().build();
   }
 
-  public static <Rq> Function<Rq, Form> jsonRequestBody() {
-    return rq -> FormTuple.of("", JACKSON.writeValueAsString(rq));
+  public static <Rq> Function<Rq, RequestContent> queryString(Function<Rq, String> f) {
+    return rq -> ImmutableRequestContent.builder().queryString(f.apply(rq)).build();
   }
 
-  public static <Rq> Function<ImmutableList<Rq>, Form> jsonArrayRequstBody() {
+  private static <Rq> Function<Rq, RequestContent> jsonRequestBody() {
+    return rq -> ImmutableRequestContent.builder().body(JACKSON.writeValueAsString(rq)).build();
+  }
+
+  public static <Rq> Function<ImmutableList<Rq>, RequestContent> jsonArrayRequstBody() {
     return jsonRequestBody();
   }
 
@@ -146,7 +109,7 @@ public class Route<Rq, Rs> {
     return rs -> null;
   }
 
-  public static <Rs> Function<Response, Rs> jsonResponse(Class<Rs> rs) {
+  private static <Rs> Function<Response, Rs> jsonResponse(Class<Rs> rs) {
     return r -> Data.fromJson(r.body().string(), rs);
   }
 
@@ -160,16 +123,11 @@ public class Route<Rq, Rs> {
   }
 
   public static <Rs> Route<Void, Rs> delete(String path, Class<Rs> rsClass) {
-    return new Route<>(
-        HttpMethod.DELETE, Content.QUERY_STRING, path, noContent(), jsonResponse(rsClass));
+    return new Route<Void, Rs>(HttpMethod.DELETE, path, noContent(), jsonResponse(rsClass));
   }
 
   public static <Rs> Route<Void, Rs> get(String path, Class<Rs> rsClass) {
-    return get(path, noContent(), jsonResponse(rsClass));
-  }
-
-  public static <Rq, Rs> Route<Rq, Rs> get(String path, Class<Rq> rqClass, Class<Rs> rsClass) {
-    return get(path, jsonRequestBody(), jsonResponse(rsClass));
+    return get(path, jsonResponse(rsClass));
   }
 
   public static <Rs> Route<Void, Rs> get(String path, Function<Response, Rs> rsHandler) {
@@ -177,17 +135,12 @@ public class Route<Rq, Rs> {
   }
 
   public static <Rq, Rs> Route<Rq, Rs> get(
-      String path, Function<Rq, Form> rqHandler, Function<Response, Rs> rsHandler) {
-    return new Route<>(HttpMethod.GET, Content.QUERY_STRING, path, rqHandler, rsHandler);
+      String path, Function<Rq, RequestContent> rqHandler, Function<Response, Rs> rsHandler) {
+    return new Route<Rq, Rs>(HttpMethod.GET, path, rqHandler, rsHandler);
   }
 
   public static <Rq, Rs> Route<Rq, Rs> patch(String path, Class<Rq> rqClass, Class<Rs> rsClass) {
-    return patch(path, jsonRequestBody(), jsonResponse(rsClass));
-  }
-
-  public static <Rq, Rs> Route<Rq, Rs> patch(
-      String path, Function<Rq, Form> rqHandler, Function<Response, Rs> rsHandler) {
-    return new Route<>(HttpMethod.PATCH, Content.BODY, path, rqHandler, rsHandler);
+    return new Route<Rq, Rs>(HttpMethod.PATCH, path, jsonRequestBody(), jsonResponse(rsClass));
   }
 
   public static <Rq, Rs> Route<Rq, Rs> post(String path, Class<Rq> rqClass, Class<Rs> rsClass) {
@@ -195,27 +148,11 @@ public class Route<Rq, Rs> {
   }
 
   public static <Rq, Rs> Route<Rq, Rs> post(
-      String path, Function<Rq, Form> rqHandler, Function<Response, Rs> rsHandler) {
-    return post(path, rqHandler, rsHandler, Content.BODY);
-  }
-
-  public static <Rq, Rs> Route<Rq, Rs> post(
-      String path,
-      Function<Rq, Form> rqHandler,
-      Function<Response, Rs> rsHandler,
-      Content content) {
-    return new Route<>(HttpMethod.POST, content, path, rqHandler, rsHandler);
+      String path, Function<Rq, RequestContent> rqHandler, Function<Response, Rs> rsHandler) {
+    return new Route<Rq, Rs>(HttpMethod.POST, path, rqHandler, rsHandler);
   }
 
   public static <Rq, Rs> Route<Rq, Rs> put(String path, Class<Rq> rqClass, Class<Rs> rsClass) {
-    return put(path, jsonRequestBody(), jsonResponse(rsClass), Content.BODY);
-  }
-
-  public static <Rq, Rs> Route<Rq, Rs> put(
-      String path,
-      Function<Rq, Form> rqHandler,
-      Function<Response, Rs> rsHandler,
-      Content content) {
-    return new Route<>(HttpMethod.PUT, content, path, rqHandler, rsHandler);
+    return new Route<Rq, Rs>(HttpMethod.PUT, path, jsonRequestBody(), jsonResponse(rsClass));
   }
 }
