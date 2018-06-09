@@ -101,7 +101,7 @@ public class Route<Rq, Rs> {
     return rq -> ImmutableRequestContent.builder().body(JACKSON.writeValueAsString(rq)).build();
   }
 
-  public static <Rq> Function<ImmutableList<Rq>, RequestContent> jsonArrayRequestBody() {
+  public static <Rq> Function<ImmutableList<Rq>, RequestContent> jsonArrayRequstBody() {
     return jsonRequestBody();
   }
 
