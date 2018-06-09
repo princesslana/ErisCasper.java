@@ -15,7 +15,7 @@ import org.immutables.value.Value;
  *     https://discordapp.com/developers/docs/resources/emoji#create-guild-emoji-json-params</a>
  */
 @Value.Immutable
-public interface CreateEmojiRequest {
+public interface CreateGuildEmojiRequest {
   String getName();
 
   String getImage();

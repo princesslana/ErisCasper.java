@@ -10,7 +10,7 @@ import org.immutables.value.Value;
  *     https://discordapp.com/developers/docs/resources/emoji#modify-guild-emoji-json-params</a>
  */
 @Value.Immutable
-public interface ModifyEmojisRequest {
+public interface ModifyGuildEmojiRequest {
   String getName();
 
   ImmutableList<Snowflake> getRoles();

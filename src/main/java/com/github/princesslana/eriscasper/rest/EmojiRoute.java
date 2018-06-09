@@ -3,8 +3,8 @@ package com.github.princesslana.eriscasper.rest;
 import com.github.princesslana.eriscasper.data.Snowflake;
 import com.github.princesslana.eriscasper.data.resource.Emoji;
 import com.github.princesslana.eriscasper.data.resource.Guild;
-import com.github.princesslana.eriscasper.rest.emoji.CreateEmojiRequest;
-import com.github.princesslana.eriscasper.rest.emoji.ModifyEmojisRequest;
+import com.github.princesslana.eriscasper.rest.emoji.CreateGuildEmojiRequest;
+import com.github.princesslana.eriscasper.rest.emoji.ModifyGuildEmojiRequest;
 import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
 
@@ -20,7 +20,7 @@ public class EmojiRoute {
    * @see <a href="https://discordapp.com/developers/docs/resources/emoji#list-guild-emojis">
    *     https://discordapp.com/developers/docs/resources/emoji#list-guild-emojis</a>
    */
-  public Route<Void, ImmutableList<Emoji>> getEmojis() {
+  public Route<Void, ImmutableList<Emoji>> listGuildEmojis() {
     return Route.get(path(""), Route.jsonArrayResponse(Emoji.class));
   }
 
@@ -28,7 +28,7 @@ public class EmojiRoute {
    * @see <a href="https://discordapp.com/developers/docs/resources/emoji#get-guild-emoji">
    *     https://discordapp.com/developers/docs/resources/emoji#get-guild-emoji</a>
    */
-  public Route<Void, Emoji> getEmoji(Snowflake emojiId) {
+  public Route<Void, Emoji> getGuildEmoji(Snowflake emojiId) {
     return Route.get(path("/%s", emojiId.unwrap()), Emoji.class);
   }
 
@@ -37,23 +37,23 @@ public class EmojiRoute {
    *     https://discordapp.com/developers/docs/resources/emoji#create-guild-emoji</a>
    */
   // TODO support animated emojis
-  public Route<CreateEmojiRequest, Emoji> createEmoji() {
-    return Route.post(path(""), CreateEmojiRequest.class, Emoji.class);
+  public Route<CreateGuildEmojiRequest, Emoji> createGuildEmoji() {
+    return Route.post(path(""), CreateGuildEmojiRequest.class, Emoji.class);
   }
 
   /**
    * @see <a href="https://discordapp.com/developers/docs/resources/emoji#modify-guild-emoji">
    *     https://discordapp.com/developers/docs/resources/emoji#modify-guild-emoji</a>
    */
-  public Route<ModifyEmojisRequest, Emoji> modifyEmoji(Snowflake emojiId) {
-    return Route.patch(path("/%s", emojiId.unwrap()), ModifyEmojisRequest.class, Emoji.class);
+  public Route<ModifyGuildEmojiRequest, Emoji> modifyGuildEmoji(Snowflake emojiId) {
+    return Route.patch(path("/%s", emojiId.unwrap()), ModifyGuildEmojiRequest.class, Emoji.class);
   }
 
   /**
    * @see <a href="https://discordapp.com/developers/docs/resources/emoji#delete-guild-emoji">
    *     https://discordapp.com/developers/docs/resources/emoji#delete-guild-emoji</a>
    */
-  public Route<Void, Void> deleteEmoji(Snowflake emojiId) {
+  public Route<Void, Void> deleteGuildEmoji(Snowflake emojiId) {
     return Route.delete(path("/%s", emojiId.unwrap()), Void.class);
   }
 
