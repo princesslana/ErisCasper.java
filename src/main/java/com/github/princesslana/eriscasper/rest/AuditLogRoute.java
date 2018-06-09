@@ -3,7 +3,7 @@ package com.github.princesslana.eriscasper.rest;
 import com.github.princesslana.eriscasper.data.Snowflake;
 import com.github.princesslana.eriscasper.data.resource.AuditLogObject;
 import com.github.princesslana.eriscasper.data.resource.Guild;
-import com.github.princesslana.eriscasper.rest.auditlog.GetGuildAuditLog;
+import com.github.princesslana.eriscasper.rest.auditlog.GetGuildAuditLogRequest;
 
 public class AuditLogRoute {
   // https://discordapp.com/developers/docs/resources/audit-log#get-guild-audit-log
@@ -20,10 +20,10 @@ public class AuditLogRoute {
    * @see <a href="https://discordapp.com/developers/docs/resources/audit-log#get-guild-audit-log">
    *     https://discordapp.com/developers/docs/resources/audit-log#get-guild-audit-log</a>
    */
-  public Route<GetGuildAuditLog, AuditLogObject> getLogs() {
+  public Route<GetGuildAuditLogRequest, AuditLogObject> getLogs() {
     return Route.get(
         "/guilds/" + id.unwrap() + "/audit-logs",
-        Route.queryString(GetGuildAuditLog::toQueryString),
+        Route.queryString(GetGuildAuditLogRequest::toQueryString),
         Route.jsonResponse(AuditLogObject.class));
   }
 
