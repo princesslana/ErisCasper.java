@@ -7,7 +7,6 @@ import javax.imageio.ImageIO;
 
 public enum FormatType {
   GIF("gif"),
-  JPG("jpg"),
   JPEG("jpeg"),
   PNG("png");
 
