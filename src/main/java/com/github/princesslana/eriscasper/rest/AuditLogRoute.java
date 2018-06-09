@@ -4,7 +4,6 @@ import com.github.princesslana.eriscasper.data.Snowflake;
 import com.github.princesslana.eriscasper.data.resource.AuditLogObject;
 import com.github.princesslana.eriscasper.data.resource.Guild;
 import com.github.princesslana.eriscasper.rest.auditlog.GetGuildAuditLog;
-import java.util.Arrays;
 
 public class AuditLogRoute {
   // https://discordapp.com/developers/docs/resources/audit-log#get-guild-audit-log
@@ -24,16 +23,9 @@ public class AuditLogRoute {
    */
   public Route<GetGuildAuditLog, AuditLogObject> getLogs() {
     return Route.get(
-        path(""),
+        "/guilds/" + id.unwrap() + "/audit-logs",
         Route.queryString(GetGuildAuditLog::toQueryString),
         Route.jsonResponse(AuditLogObject.class));
-  }
-
-  private String path(String fmt, String... args) {
-    return "/guilds/"
-        + id.unwrap()
-        + "/audit-logs"
-        + String.format(fmt, Arrays.asList(args).toArray());
   }
 
   public static AuditLogRoute on(Snowflake id) {

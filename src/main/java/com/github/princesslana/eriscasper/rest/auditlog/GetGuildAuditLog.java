@@ -12,12 +12,6 @@ import org.immutables.value.Value;
  */
 @Value.Immutable
 public interface GetGuildAuditLog {
-  /*
-  	user_id	snowflake	filter the log for a user id
-  action_type	int	the type of audit log event
-  before	snowflake	filter the log before a certain entry id
-  limit	integer	how many entries are returned (default 50, minimum 1, maximum 100)
-  	 */
   Optional<Snowflake> getUserId();
 
   Optional<Long> getType();
