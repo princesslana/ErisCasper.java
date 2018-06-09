@@ -56,7 +56,7 @@ public enum AuditLogEventType {
     }
     AuditLogEventType type;
     type = types[code - 1];
-    if(type == null) {
+    if (type == null) {
       throw new IllegalArgumentException("Unsupported code `" + code + "` found.");
     }
     return type;
