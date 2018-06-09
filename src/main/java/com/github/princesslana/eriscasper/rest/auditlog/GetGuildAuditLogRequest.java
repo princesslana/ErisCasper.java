@@ -11,7 +11,7 @@ import org.immutables.value.Value;
  *     https://discordapp.com/developers/docs/resources/audit-log#get-guild-audit-log-query-string-parameters</a>
  */
 @Value.Immutable
-public interface GetGuildAuditLog {
+public interface GetGuildAuditLogRequest {
   Optional<Snowflake> getUserId();
 
   Optional<Long> getType();
