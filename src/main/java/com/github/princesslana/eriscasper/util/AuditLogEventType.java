@@ -54,8 +54,7 @@ public enum AuditLogEventType {
       throw new IllegalArgumentException(
           "Illegal code `" + code + "` found. Please refer to a code from 1-" + types.length + ".");
     }
-    AuditLogEventType type;
-    type = types[code - 1];
+    AuditLogEventType type = types[code - 1];
     if (type == null) {
       throw new IllegalArgumentException("Unsupported code `" + code + "` found.");
     }
