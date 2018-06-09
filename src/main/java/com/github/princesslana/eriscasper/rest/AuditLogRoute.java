@@ -15,7 +15,7 @@ public class AuditLogRoute {
   }
 
   /**
-   * These routes are not documented well in the Discord API documentation.
+   * This route is not documented well in the Discord API documentation.
    *
    * @see <a href="https://discordapp.com/developers/docs/resources/audit-log#get-guild-audit-log">
    *     https://discordapp.com/developers/docs/resources/audit-log#get-guild-audit-log</a>
