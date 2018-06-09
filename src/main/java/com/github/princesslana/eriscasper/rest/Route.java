@@ -27,10 +27,10 @@ public class Route<Rq, Rs> {
   private Function<Response, Rs> responseHandler;
 
   public Route(
-      HttpMethod method,
-      String path,
-      Function<Rq, RequestContent> requestHandler,
-      Function<Response, Rs> responseHandler) {
+          HttpMethod method,
+          String path,
+          Function<Rq, RequestContent> requestHandler,
+          Function<Response, Rs> responseHandler) {
     this.method = method;
     this.path = path;
     this.requestHandler = requestHandler;
@@ -49,7 +49,7 @@ public class Route<Rq, Rs> {
     RequestContent content = requestHandler.apply(rq);
 
     RequestBody body =
-        content.getBody().map(b -> RequestBody.create(MEDIA_TYPE_JSON, b)).orElse(null);
+            content.getBody().map(b -> RequestBody.create(MEDIA_TYPE_JSON, b)).orElse(null);
 
     String queryString = content.getQueryString().map(q -> "?" + q).orElse("");
 
@@ -81,7 +81,7 @@ public class Route<Rq, Rs> {
 
   public String toString() {
     return String.format(
-        "Route{path=%s, method=%s}", Objects.toString(path), Objects.toString(method));
+            "Route{path=%s, method=%s}", Objects.toString(path), Objects.toString(method));
   }
 
   @Override
@@ -89,7 +89,7 @@ public class Route<Rq, Rs> {
     return Objects.hash(path, method);
   }
 
-  private static Function<Void, RequestContent> noContent() {
+  public static Function<Void, RequestContent> noContent() {
     return r -> ImmutableRequestContent.builder().build();
   }
 
@@ -97,11 +97,11 @@ public class Route<Rq, Rs> {
     return rq -> ImmutableRequestContent.builder().queryString(f.apply(rq)).build();
   }
 
-  private static <Rq> Function<Rq, RequestContent> jsonRequestBody() {
+  public static <Rq> Function<Rq, RequestContent> jsonRequestBody() {
     return rq -> ImmutableRequestContent.builder().body(JACKSON.writeValueAsString(rq)).build();
   }
 
-  public static <Rq> Function<ImmutableList<Rq>, RequestContent> jsonArrayRequstBody() {
+  public static <Rq> Function<ImmutableList<Rq>, RequestContent> jsonArrayRequestBody() {
     return jsonRequestBody();
   }
 
@@ -109,17 +109,17 @@ public class Route<Rq, Rs> {
     return rs -> null;
   }
 
-  private static <Rs> Function<Response, Rs> jsonResponse(Class<Rs> rs) {
+  public static <Rs> Function<Response, Rs> jsonResponse(Class<Rs> rs) {
     return r -> Data.fromJson(r.body().string(), rs);
   }
 
   @SuppressWarnings("unchecked")
   public static <Rs> Function<Response, ImmutableList<Rs>> jsonArrayResponse(Class<Rs> rs) {
     return r ->
-        (ImmutableList<Rs>)
-            JACKSON.readValue(
-                r.body().string(),
-                TypeFactory.defaultInstance().constructCollectionType(ImmutableList.class, rs));
+            (ImmutableList<Rs>)
+                    JACKSON.readValue(
+                            r.body().string(),
+                            TypeFactory.defaultInstance().constructCollectionType(ImmutableList.class, rs));
   }
 
   public static <Rs> Route<Void, Rs> delete(String path, Class<Rs> rsClass) {
@@ -135,7 +135,7 @@ public class Route<Rq, Rs> {
   }
 
   public static <Rq, Rs> Route<Rq, Rs> get(
-      String path, Function<Rq, RequestContent> rqHandler, Function<Response, Rs> rsHandler) {
+          String path, Function<Rq, RequestContent> rqHandler, Function<Response, Rs> rsHandler) {
     return new Route<Rq, Rs>(HttpMethod.GET, path, rqHandler, rsHandler);
   }
 
@@ -148,7 +148,7 @@ public class Route<Rq, Rs> {
   }
 
   public static <Rq, Rs> Route<Rq, Rs> post(
-      String path, Function<Rq, RequestContent> rqHandler, Function<Response, Rs> rsHandler) {
+          String path, Function<Rq, RequestContent> rqHandler, Function<Response, Rs> rsHandler) {
     return new Route<Rq, Rs>(HttpMethod.POST, path, rqHandler, rsHandler);
   }
 
