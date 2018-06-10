@@ -16,7 +16,7 @@ public interface BeginGuildPruneRequest {
     return new QueryStringBuilder().addLong("days", getDays()).build();
   }
 
-  static BeginGuildPruneRequest of(int days) {
+  static BeginGuildPruneRequest of(long days) {
     return ImmutableBeginGuildPruneRequest.builder().days(days).build();
   }
 }
