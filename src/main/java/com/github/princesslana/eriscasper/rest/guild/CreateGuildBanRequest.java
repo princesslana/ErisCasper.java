@@ -10,14 +10,14 @@ import org.immutables.value.Value;
  */
 @Value.Immutable
 public interface CreateGuildBanRequest {
-  Integer getDeleteMessageDays();
+  Long getDeleteMessageDays();
 
   String getReason();
 
   default String toQueryString() {
     return new QueryStringBuilder()
         .add("reason", getReason())
-        .add("delete_message_days", getDeleteMessageDays().toString())
+        .addLong("delete_message_days", getDeleteMessageDays())
         .build();
   }
 }

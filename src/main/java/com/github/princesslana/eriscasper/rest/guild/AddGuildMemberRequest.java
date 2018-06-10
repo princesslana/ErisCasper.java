@@ -2,6 +2,7 @@ package com.github.princesslana.eriscasper.rest.guild;
 
 import com.github.princesslana.eriscasper.data.Snowflake;
 import com.google.common.collect.ImmutableList;
+import java.util.Optional;
 import org.immutables.value.Value;
 
 /**
@@ -13,11 +14,11 @@ import org.immutables.value.Value;
 public interface AddGuildMemberRequest {
   String getAccessToken();
 
-  String getNick();
+  Optional<String> getNick();
 
   ImmutableList<Snowflake> getRoles();
 
-  Boolean isMute();
+  Optional<Boolean> isMute();
 
-  Boolean isDeaf();
+  Optional<Boolean> isDeaf();
 }

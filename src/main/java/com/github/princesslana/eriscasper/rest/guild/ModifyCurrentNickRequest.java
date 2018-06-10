@@ -11,7 +11,7 @@ import org.immutables.value.Value;
 public interface ModifyCurrentNickRequest {
   String getNick();
 
-  static ModifyCurrentNickRequest withNick(String nick) {
+  static ModifyCurrentNickRequest ofNick(String nick) {
     return ImmutableModifyCurrentNickRequest.builder().nick(nick).build();
   }
 }

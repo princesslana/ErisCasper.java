@@ -3,8 +3,6 @@ package com.github.princesslana.eriscasper.rest.guild;
 import com.github.princesslana.eriscasper.data.Snowflake;
 import com.github.princesslana.eriscasper.util.QueryStringBuilder;
 import java.util.Optional;
-
-import io.reactivex.annotations.Nullable;
 import org.immutables.value.Value;
 
 /**
@@ -22,21 +20,6 @@ public interface ListGuildMemberRequest {
     return new QueryStringBuilder()
         .addSnowflake("after", getAfter())
         .addLong("limit", getLimit())
-        .build();
-  }
-
-  static ListGuildMemberRequest withLimit(Long limit) {
-    return withLimitAfter(limit, null);
-  }
-
-  static ListGuildMemberRequest after(Snowflake id) {
-    return withLimitAfter(null, id);
-  }
-
-  static ListGuildMemberRequest withLimitAfter(@Nullable Long limit, @Nullable Snowflake after) {
-    return ImmutableListGuildMemberRequest.builder()
-        .limit(Optional.ofNullable(limit))
-        .after(Optional.ofNullable(after))
         .build();
   }
 }

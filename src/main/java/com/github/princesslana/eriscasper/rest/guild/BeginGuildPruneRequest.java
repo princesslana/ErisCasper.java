@@ -10,13 +10,13 @@ import org.immutables.value.Value;
  */
 @Value.Immutable
 public interface BeginGuildPruneRequest {
-  Integer getDays();
+  Long getDays();
 
   default String toQueryString() {
-    return new QueryStringBuilder().add("days", getDays().toString()).build();
+    return new QueryStringBuilder().addLong("days", getDays()).build();
   }
 
-  static BeginGuildPruneRequest from(int days) {
+  static BeginGuildPruneRequest of(int days) {
     return ImmutableBeginGuildPruneRequest.builder().days(days).build();
   }
 }

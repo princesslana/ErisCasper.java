@@ -176,13 +176,8 @@ public class GuildRoute {
    * @see <a href="https://discordapp.com/developers/docs/resources/guild#get-guild-ban">
    *     https://discordapp.com/developers/docs/resources/guild#get-guild-ban</a>
    */
-  public Route<Void, Optional<Ban>> getGuildBan(Snowflake userId) {
-    return Route.get(
-        path("/bans/%s" + userId.unwrap()),
-        (response) ->
-            response.code() == 404
-                ? Optional.empty()
-                : Optional.of(Data.fromJson(response.body().string(), Ban.class)));
+  public Route<Void, Ban> getGuildBan(Snowflake userId) {
+    return Route.get(path("/bans/%s" + userId.unwrap()), Ban.class);
   }
 
   /**
@@ -350,13 +345,8 @@ public class GuildRoute {
    * @see <a href="https://discordapp.com/developers/docs/resources/guild#get-guild-vanity-url">
    *     https://discordapp.com/developers/docs/resources/guild#get-guild-vanity-url</a>
    */
-  public Route<Void, Optional<PartialInvite>> getGuildVanityUrl() {
-    return Route.get(
-        path("/vanity-url"),
-        response ->
-            response.code() == 204
-                ? Optional.empty()
-                : Optional.of(Data.fromJson(response.body().string(), PartialInvite.class)));
+  public Route<Void, PartialInvite> getGuildVanityUrl() {
+    return Route.get(path("/vanity-url"), PartialInvite.class);
   }
 
   private String path(String fmt, String... args) {
@@ -375,7 +365,7 @@ public class GuildRoute {
    * @see <a href="https://discordapp.com/developers/docs/resources/guild#create-guild">
    *     https://discordapp.com/developers/docs/resources/guild#create-guild</a>
    */
-  public static Route<GuildCreateRequest, Guild> createNewGuild() {
+  public static Route<GuildCreateRequest, Guild> createGuild() {
     return Route.post("/guilds", GuildCreateRequest.class, Guild.class);
   }
 }
