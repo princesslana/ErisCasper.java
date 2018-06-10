@@ -3,7 +3,8 @@ package com.github.princesslana.eriscasper.rest.guild;
 import com.github.princesslana.eriscasper.data.Snowflake;
 import com.github.princesslana.eriscasper.util.QueryStringBuilder;
 import java.util.Optional;
-import jdk.internal.jline.internal.Nullable;
+
+import io.reactivex.annotations.Nullable;
 import org.immutables.value.Value;
 
 /**
