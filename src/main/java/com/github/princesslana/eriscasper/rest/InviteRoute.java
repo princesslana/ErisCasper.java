@@ -1,7 +1,6 @@
 package com.github.princesslana.eriscasper.rest;
 
 import com.github.princesslana.eriscasper.data.resource.Invite;
-import java.util.Optional;
 
 public class InviteRoute {
 
@@ -15,16 +14,19 @@ public class InviteRoute {
    * @see <a href="https://discordapp.com/developers/docs/resources/invite#get-invite">
    *     https://discordapp.com/developers/docs/resources/invite#get-invite</a>
    */
-  public Route<Void, Invite> get(Optional<Boolean> withCounts) {
-    return Route.get(
-        path + withCounts.map(bool -> ";with_counts=" + bool).orElse(""), Invite.class);
+  public Route<Void, Invite> getInvite() {
+    return getInvite(true);
+  }
+
+  public Route<Void, Invite> getInvite(boolean withCounts) {
+    return Route.get(path + ";with_counts=" + withCounts, Invite.class);
   }
 
   /**
    * @see <a href="https://discordapp.com/developers/docs/resources/invite#delete-invite">
    *     https://discordapp.com/developers/docs/resources/invite#delete-invite</a>
    */
-  public Route<Void, Invite> delete() {
+  public Route<Void, Invite> deleteInvite() {
     return Route.delete(path, Invite.class);
   }
 
