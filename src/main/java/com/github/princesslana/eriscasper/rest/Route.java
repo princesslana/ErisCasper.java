@@ -143,7 +143,8 @@ public class Route<Rq, Rs> {
     return patch(path, jsonRequestBody(), jsonResponse(rsClass));
   }
 
-  public static <Rq, Rs> Route<Rq, Rs> patch(String path, Function<Rq, RequestContent> rqHandler, Function<Response, Rs> rsHandler) {
+  public static <Rq, Rs> Route<Rq, Rs> patch(
+      String path, Function<Rq, RequestContent> rqHandler, Function<Response, Rs> rsHandler) {
     return new Route<>(HttpMethod.PATCH, path, rqHandler, rsHandler);
   }
 
@@ -160,7 +161,8 @@ public class Route<Rq, Rs> {
     return put(path, jsonRequestBody(), jsonResponse(rsClass));
   }
 
-  public static <Rq, Rs> Route<Rq, Rs> put(String path, Function<Rq, RequestContent> rqHandler, Function<Response, Rs> rsHandler) {
+  public static <Rq, Rs> Route<Rq, Rs> put(
+      String path, Function<Rq, RequestContent> rqHandler, Function<Response, Rs> rsHandler) {
     return new Route<>(HttpMethod.PUT, path, rqHandler, rsHandler);
   }
 }

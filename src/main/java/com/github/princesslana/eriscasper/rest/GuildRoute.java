@@ -21,8 +21,8 @@ import com.github.princesslana.eriscasper.rest.guild.GetGuildPruneCountRequest;
 import com.github.princesslana.eriscasper.rest.guild.GuildChannelCreateRequest;
 import com.github.princesslana.eriscasper.rest.guild.GuildCreateRequest;
 import com.github.princesslana.eriscasper.rest.guild.ListGuildMemberRequest;
-import com.github.princesslana.eriscasper.rest.guild.ModifyGuildChannelPositionsRequest;
 import com.github.princesslana.eriscasper.rest.guild.ModifyCurrentNickRequest;
+import com.github.princesslana.eriscasper.rest.guild.ModifyGuildChannelPositionsRequest;
 import com.github.princesslana.eriscasper.rest.guild.ModifyGuildIntegrationRequest;
 import com.github.princesslana.eriscasper.rest.guild.ModifyGuildMemberRequest;
 import com.github.princesslana.eriscasper.rest.guild.ModifyGuildRequest;
@@ -305,7 +305,8 @@ public class GuildRoute {
    * @see <a href="https://discordapp.com/developers/docs/resources/guild#modify-guild-integration">
    *     https://discordapp.com/developers/docs/resources/guild#modify-guild-integration</a>
    */
-  public Route<ModifyGuildIntegrationRequest, Void> modifyGuildIntegration(Snowflake integrationId) {
+  public Route<ModifyGuildIntegrationRequest, Void> modifyGuildIntegration(
+      Snowflake integrationId) {
     return Route.patch(
         path("/integrations/%s", integrationId.unwrap()),
         ModifyGuildIntegrationRequest.class,
