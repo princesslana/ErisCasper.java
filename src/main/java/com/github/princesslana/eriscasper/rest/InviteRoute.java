@@ -28,11 +28,11 @@ public class InviteRoute {
     return Route.delete(path, Invite.class);
   }
 
-  public static InviteRoute of(String code) {
+  public static InviteRoute on(String code) {
     return new InviteRoute(code);
   }
 
-  public static InviteRoute of(Invite invite) {
-    return of(invite.getCode());
+  public static InviteRoute on(Invite invite) {
+    return on(invite.getCode());
   }
 }
