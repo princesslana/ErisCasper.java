@@ -31,7 +31,11 @@ public class QueryStringBuilder {
   }
 
   public QueryStringBuilder addLong(String name, Optional<Long> value) {
-    return value.map(v -> add(name, v.toString())).orElse(this);
+    return value.map(v -> addLong(name, v)).orElse(this);
+  }
+
+  public QueryStringBuilder addLong(String name, Long value) {
+    return add(name, value.toString());
   }
 
   public String build() {

@@ -123,7 +123,7 @@ public class Route<Rq, Rs> {
   }
 
   public static <Rs> Route<Void, Rs> delete(String path, Class<Rs> rsClass) {
-    return new Route<Void, Rs>(HttpMethod.DELETE, path, noContent(), jsonResponse(rsClass));
+    return new Route<>(HttpMethod.DELETE, path, noContent(), jsonResponse(rsClass));
   }
 
   public static <Rs> Route<Void, Rs> get(String path, Class<Rs> rsClass) {
@@ -136,11 +136,16 @@ public class Route<Rq, Rs> {
 
   public static <Rq, Rs> Route<Rq, Rs> get(
       String path, Function<Rq, RequestContent> rqHandler, Function<Response, Rs> rsHandler) {
-    return new Route<Rq, Rs>(HttpMethod.GET, path, rqHandler, rsHandler);
+    return new Route<>(HttpMethod.GET, path, rqHandler, rsHandler);
   }
 
   public static <Rq, Rs> Route<Rq, Rs> patch(String path, Class<Rq> rqClass, Class<Rs> rsClass) {
-    return new Route<Rq, Rs>(HttpMethod.PATCH, path, jsonRequestBody(), jsonResponse(rsClass));
+    return patch(path, jsonRequestBody(), jsonResponse(rsClass));
+  }
+
+  public static <Rq, Rs> Route<Rq, Rs> patch(
+      String path, Function<Rq, RequestContent> rqHandler, Function<Response, Rs> rsHandler) {
+    return new Route<>(HttpMethod.PATCH, path, rqHandler, rsHandler);
   }
 
   public static <Rq, Rs> Route<Rq, Rs> post(String path, Class<Rq> rqClass, Class<Rs> rsClass) {
@@ -149,10 +154,15 @@ public class Route<Rq, Rs> {
 
   public static <Rq, Rs> Route<Rq, Rs> post(
       String path, Function<Rq, RequestContent> rqHandler, Function<Response, Rs> rsHandler) {
-    return new Route<Rq, Rs>(HttpMethod.POST, path, rqHandler, rsHandler);
+    return new Route<>(HttpMethod.POST, path, rqHandler, rsHandler);
   }
 
   public static <Rq, Rs> Route<Rq, Rs> put(String path, Class<Rq> rqClass, Class<Rs> rsClass) {
-    return new Route<Rq, Rs>(HttpMethod.PUT, path, jsonRequestBody(), jsonResponse(rsClass));
+    return put(path, jsonRequestBody(), jsonResponse(rsClass));
+  }
+
+  public static <Rq, Rs> Route<Rq, Rs> put(
+      String path, Function<Rq, RequestContent> rqHandler, Function<Response, Rs> rsHandler) {
+    return new Route<>(HttpMethod.PUT, path, rqHandler, rsHandler);
   }
 }
