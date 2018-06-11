@@ -12,7 +12,7 @@ public class DiscordFaker {
   /**
    * Generates a fake snowflake id.
    *
-   * <p>For now this is just a random Long, because we don't make use on the snowflake id structure.
+   * <p>For now this is just a random Long, because we don't make use of the snowflake id structure.
    */
   public static Snowflake snowflake() {
     return Snowflake.of(Long.toString(RandomUtils.nextLong()));
