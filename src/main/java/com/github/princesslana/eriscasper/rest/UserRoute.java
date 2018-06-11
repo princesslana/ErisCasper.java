@@ -63,7 +63,7 @@ public final class UserRoute {
    * @see <a href="https://discordapp.com/developers/docs/resources/user#get-user-dms">
    *     https://discordapp.com/developers/docs/resources/user#get-user-dms</a>
    */
-  public static Route<Void, ImmutableList<Channel>> getUserDMs() {
+  public static Route<Void, ImmutableList<Channel>> getUserDms() {
     return Route.get(myPath("/channels"), Route.jsonArrayResponse(Channel.class));
   }
 
@@ -71,7 +71,7 @@ public final class UserRoute {
    * @see <a href="https://discordapp.com/developers/docs/resources/user#create-dm">
    *     https://discordapp.com/developers/docs/resources/user#create-dm</a>
    */
-  public static Route<CreateDMRequest, Channel> createDM() {
+  public static Route<CreateDMRequest, Channel> createDm() {
     return Route.post(myPath("/channels"), CreateDMRequest.class, Channel.class);
   }
 
