@@ -16,7 +16,7 @@ public interface GetGuildPruneCountRequest {
     return new QueryStringBuilder().add("days", getDays().toString()).build();
   }
 
-  static GetGuildPruneCountRequest from(int days) {
+  static GetGuildPruneCountRequest ofDays(int days) {
     return ImmutableGetGuildPruneCountRequest.builder().days(days).build();
   }
 }

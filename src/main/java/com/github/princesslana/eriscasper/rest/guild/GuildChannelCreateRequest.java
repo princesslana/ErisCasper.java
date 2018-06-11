@@ -29,11 +29,11 @@ public interface GuildChannelCreateRequest {
 
   Optional<Boolean> isNsfw();
 
-  static GuildChannelCreateRequest of(String name) {
+  static GuildChannelCreateRequest ofName(String name) {
     return ImmutableGuildChannelCreateRequest.builder().name(name).build();
   }
 
-  static GuildChannelCreateRequest of(String name, Snowflake category) {
+  static GuildChannelCreateRequest ofNameAndCategory(String name, Snowflake category) {
     return ImmutableGuildChannelCreateRequest.builder().name(name).parentId(category).build();
   }
 }

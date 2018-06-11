@@ -20,11 +20,7 @@ public interface CreateGuildRoleRequest {
 
   Optional<Boolean> isMentionable();
 
-  static CreateGuildRoleRequest newRole() {
-    return ImmutableCreateGuildRoleRequest.builder().build();
-  }
-
-  static CreateGuildRoleRequest of(String name) {
+  static CreateGuildRoleRequest ofName(String name) {
     return ImmutableCreateGuildRoleRequest.builder().name(name).build();
   }
 }
