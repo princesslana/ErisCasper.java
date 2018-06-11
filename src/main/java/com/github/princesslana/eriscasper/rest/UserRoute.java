@@ -20,7 +20,7 @@ public final class UserRoute {
    * @see <a href="https://discordapp.com/developers/docs/resources/user#get-current-user">
    *     https://discordapp.com/developers/docs/resources/user#get-current-user</a>
    */
-  public static Route<Void, User> getMe() {
+  public static Route<Void, User> getCurrentUser() {
     return Route.get(myPath(""), User.class);
   }
 
@@ -36,7 +36,7 @@ public final class UserRoute {
    * @see <a href="https://discordapp.com/developers/docs/resources/user#modify-current-user">
    *     https://discordapp.com/developers/docs/resources/user#modify-current-user</a>
    */
-  public static Route<ModifyUserRequest, User> modifyMe() {
+  public static Route<ModifyUserRequest, User> modifyCurrentUser() {
     return Route.patch(myPath(""), ModifyUserRequest.class, User.class);
   }
 
@@ -44,7 +44,7 @@ public final class UserRoute {
    * @see <a href="https://discordapp.com/developers/docs/resources/user#get-current-user-guilds">
    *     https://discordapp.com/developers/docs/resources/user#get-current-user-guilds</a>
    */
-  public static Route<GetUserGuildsRequest, ImmutableList<Guild>> getMyGuilds() {
+  public static Route<GetUserGuildsRequest, ImmutableList<Guild>> getCurrentUserGuilds() {
     return Route.get(
         myPath("/guilds"),
         Route.queryString(GetUserGuildsRequest::toQueryString),
@@ -63,7 +63,7 @@ public final class UserRoute {
    * @see <a href="https://discordapp.com/developers/docs/resources/user#get-user-dms">
    *     https://discordapp.com/developers/docs/resources/user#get-user-dms</a>
    */
-  public static Route<Void, ImmutableList<Channel>> getMyDMs() {
+  public static Route<Void, ImmutableList<Channel>> getUserDMs() {
     return Route.get(myPath("/channels"), Route.jsonArrayResponse(Channel.class));
   }
 
@@ -87,7 +87,7 @@ public final class UserRoute {
    * @see <a href="https://discordapp.com/developers/docs/resources/user#get-user-connections">
    *     https://discordapp.com/developers/docs/resources/user#get-user-connections</a>
    */
-  public static Route<Void, ImmutableList<Connection>> getMyConnections() {
+  public static Route<Void, ImmutableList<Connection>> getUserConnections() {
     return Route.get(myPath("/connections"), Route.jsonArrayResponse(Connection.class));
   }
 
