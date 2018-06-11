@@ -1,136 +1,254 @@
 package com.github.princesslana.eriscasper.repository.event;
 
 import com.github.princesslana.eriscasper.data.Snowflake;
-import com.github.princesslana.eriscasper.data.event.ChannelCreateEvent;
-import com.github.princesslana.eriscasper.data.event.ChannelDeleteEvent;
 import com.github.princesslana.eriscasper.data.event.Event;
 import com.github.princesslana.eriscasper.data.event.GuildCreateEvent;
 import com.github.princesslana.eriscasper.data.event.GuildDeleteEvent;
-import com.github.princesslana.eriscasper.data.resource.Channel;
+import com.github.princesslana.eriscasper.data.event.GuildEmojisUpdateEvent;
+import com.github.princesslana.eriscasper.data.event.GuildEmojisUpdateEventData;
+import com.github.princesslana.eriscasper.data.event.GuildMemberAddEvent;
+import com.github.princesslana.eriscasper.data.event.GuildMemberRemoveEvent;
+import com.github.princesslana.eriscasper.data.event.GuildMemberRemoveEventData;
+import com.github.princesslana.eriscasper.data.event.GuildMemberUpdateEvent;
+import com.github.princesslana.eriscasper.data.event.GuildMemberUpdateEventData;
+import com.github.princesslana.eriscasper.data.event.GuildMembersChunkEvent;
+import com.github.princesslana.eriscasper.data.event.GuildMembersChunkEventData;
+import com.github.princesslana.eriscasper.data.event.GuildRoleCreateEvent;
+import com.github.princesslana.eriscasper.data.event.GuildRoleCreateEventData;
+import com.github.princesslana.eriscasper.data.event.GuildRoleDeleteEvent;
+import com.github.princesslana.eriscasper.data.event.GuildRoleDeleteEventData;
+import com.github.princesslana.eriscasper.data.event.GuildRoleUpdateEvent;
+import com.github.princesslana.eriscasper.data.event.GuildRoleUpdateEventData;
+import com.github.princesslana.eriscasper.data.event.GuildUpdateEvent;
 import com.github.princesslana.eriscasper.data.resource.Guild;
-import com.github.princesslana.eriscasper.data.resource.ImmutableChannel;
+import com.github.princesslana.eriscasper.data.resource.GuildMember;
+import com.github.princesslana.eriscasper.data.resource.GuildMemberWithGuildId;
+import com.github.princesslana.eriscasper.data.resource.ImmutableGuild;
+import com.github.princesslana.eriscasper.data.resource.ImmutableGuildMember;
+import com.github.princesslana.eriscasper.data.resource.Role;
 import com.github.princesslana.eriscasper.data.resource.UnavailableGuild;
+import com.github.princesslana.eriscasper.data.resource.User;
+import com.github.princesslana.eriscasper.repository.FunctionData;
 import com.github.princesslana.eriscasper.repository.GuildRepository;
 import com.github.princesslana.eriscasper.rx.Maybes;
 import com.google.common.collect.ImmutableMap;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
+import io.reactivex.Single;
 import io.reactivex.annotations.NonNull;
-import io.reactivex.functions.Function;
 import io.reactivex.observables.ConnectableObservable;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
 public class GuildsFromEvents implements GuildRepository {
 
-  private static final FunctionData<Snowflake, Guild, Guild> ADD_GUILD_FUNCTION =
-      FunctionData.of(
+  private static final GuildFunctionData<Guild> ADD_GUILD_FUNCTION =
+      GuildFunctionData.of(
           (map, guild) -> {
             map.put(guild.getId(), guild);
             return ImmutableMap.copyOf(map);
           });
-  private static final FunctionData<Snowflake, Guild, UnavailableGuild> REMOVE_GUILD_FUNCTION =
-      FunctionData.of(
+  private static final GuildFunctionData<UnavailableGuild> REMOVE_GUILD_FUNCTION =
+      GuildFunctionData.of(
           (map, guild) -> {
             map.remove(guild.getId());
             return ImmutableMap.copyOf(map);
           });
-  private static final FunctionData<Snowflake, Channel, Guild> ADD_GUILD_CHANNELS_FUNCTION =
-      FunctionData.of(
-          (map, guild) -> {
-            if (guild.getChannels().isEmpty()) return ImmutableMap.copyOf(map);
-            Snowflake guildId = guild.getId();
-            guild
-                .getChannels()
-                .forEach(
-                    channel ->
-                        map.put(
-                            channel.getId(),
-                            ImmutableChannel.builder().from(channel).guildId(guildId).build()));
+  private static final GuildFunctionData<GuildEmojisUpdateEventData> EMOJIS_UPDATE_GUILD_FUNCTION =
+      GuildFunctionData.of(
+          (map, data) -> {
+            Guild guild = map.get(data.getGuildId());
+            map.replace(
+                guild.getId(),
+                ImmutableGuild.builder().from(guild).emojis(data.getEmojis()).build());
             return ImmutableMap.copyOf(map);
           });
-  private static final FunctionData<Snowflake, Channel, UnavailableGuild>
-      REMOVE_GUILD_CHANNELS_FUNCTION =
-          FunctionData.of(
-              (map, guild) -> {
-                Snowflake guildId = guild.getId();
-                // to avoid ConcurrentModificationException
-                Stack<Snowflake> toRemove = new Stack<>();
-                map.values()
+  private static final GuildFunctionData<GuildMemberWithGuildId> MEMBER_ADD_GUILD_FUNCTION =
+      GuildFunctionData.of(
+          (map, data) -> {
+            Guild guild = map.get(data.getGuildId());
+            map.replace(
+                guild.getId(),
+                ImmutableGuild.builder().from(guild).addMembers(data.getGuildMember()).build());
+            return ImmutableMap.copyOf(map);
+          });
+  private static final GuildFunctionData<GuildMemberRemoveEventData> MEMBER_REMOVE_GUILD_FUNCTION =
+      GuildFunctionData.of(
+          (map, data) -> {
+            Guild guild = map.get(data.getGuildId());
+            List<GuildMember> members = new ArrayList<>(guild.getMembers());
+            members
+                .stream()
+                .filter(member -> member.getUser().getId().equals(data.getUser().getId()))
+                .findAny()
+                .ifPresent(members::remove);
+            map.replace(
+                guild.getId(), ImmutableGuild.builder().from(guild).members(members).build());
+            return ImmutableMap.copyOf(map);
+          });
+  private static final GuildFunctionData<GuildMembersChunkEventData> MEMBERS_CHUNK_GUILD_FUNCTION =
+      GuildFunctionData.of(
+          (map, data) -> {
+            Guild guild = map.get(data.getGuildId());
+            Stack<GuildMember> toRemove = new Stack<>();
+            List<GuildMember> members = new ArrayList<>(guild.getMembers());
+            Set<Snowflake> container =
+                data.getMembers()
                     .stream()
-                    .filter(channel -> guildId.equals(channel.getGuildId().orElse(null)))
-                    .map(Channel::getId)
-                    .forEach(toRemove::push);
-                while (!toRemove.isEmpty()) {
-                  map.remove(toRemove.pop());
-                }
-                return ImmutableMap.copyOf(map);
-              });
-  private static final FunctionData<Snowflake, Channel, Channel> ADD_CHANNEL_FUNCTION =
-      FunctionData.of(
-          (map, channel) -> {
-            map.put(channel.getId(), channel);
+                    .map(GuildMember::getUser)
+                    .map(User::getId)
+                    .collect(Collectors.toSet());
+            members
+                .stream()
+                .filter(member -> container.contains(member.getUser().getId()))
+                .forEach(toRemove::push);
+            toRemove.forEach(members::remove);
+            members.addAll(data.getMembers());
+            map.replace(
+                guild.getId(), ImmutableGuild.builder().from(guild).members(members).build());
             return ImmutableMap.copyOf(map);
           });
-  private static final FunctionData<Snowflake, Channel, Channel> REMOVE_CHANNEL_FUNCTION =
-      FunctionData.of(
-          (map, channel) -> {
-            map.remove(channel.getId());
-            return ImmutableMap.<Snowflake, Channel>builder().putAll(map).build();
+  private static final GuildFunctionData<GuildMemberUpdateEventData> MEMBER_UPDATE_GUILD_FUNCTION =
+      GuildFunctionData.of(
+          (map, data) -> {
+            Guild guild = map.get(data.getGuildId());
+            List<GuildMember> members = new ArrayList<>(guild.getMembers());
+            GuildMember initial =
+                members
+                    .stream()
+                    .filter(member -> member.getUser().getId().equals(data.getUser().getId()))
+                    .findFirst()
+                    .orElse(null);
+            if (initial == null) {
+              throw new RuntimeException("Data not found where it should be.");
+            }
+            members.remove(initial);
+            members.add(
+                ImmutableGuildMember.builder()
+                    .from(initial)
+                    .nick(data.getNick())
+                    .addAllRoles(data.getRoles())
+                    .user(data.getUser())
+                    .build());
+            map.replace(
+                guild.getId(), ImmutableGuild.builder().from(guild).members(members).build());
+            return ImmutableMap.copyOf(map);
+          });
+  private static final GuildFunctionData<GuildRoleCreateEventData> ROLE_CREATE_GUILD_FUNCTION =
+      GuildFunctionData.of(
+          (map, data) -> {
+            Guild guild = map.get(data.getGuildId());
+            map.replace(
+                guild.getId(),
+                ImmutableGuild.builder().from(guild).addRoles(data.getRole()).build());
+            return ImmutableMap.copyOf(map);
+          });
+  private static final GuildFunctionData<GuildRoleUpdateEventData> ROLE_UPDATE_GUILD_FUNCTION =
+      GuildFunctionData.of(
+          (map, data) -> {
+            Guild guild = map.get(data.getGuildId());
+            Snowflake id = data.getRole().getId();
+            List<Role> roles = new ArrayList<>(guild.getRoles());
+            Role initial =
+                roles.stream().filter(role -> role.getId().equals(id)).findAny().orElse(null);
+            if (initial == null) {
+              throw new RuntimeException("Data not found where it should be.");
+            }
+            roles.remove(initial);
+            roles.add(data.getRole());
+            map.replace(guild.getId(), ImmutableGuild.builder().from(guild).roles(roles).build());
+            return ImmutableMap.copyOf(map);
+          });
+  private static final GuildFunctionData<GuildRoleDeleteEventData> ROLE_DELETE_GUILD_FUNCTION =
+      GuildFunctionData.of(
+          (map, data) -> {
+            Guild guild = map.get(data.getGuildId());
+            Snowflake id = data.getRoleId();
+            List<Role> roles = new ArrayList<>(guild.getRoles());
+            Role initial =
+                roles.stream().filter(role -> role.getId().equals(id)).findAny().orElse(null);
+            if (initial == null) {
+              throw new RuntimeException("Data not found where it should be.");
+            }
+            roles.remove(initial);
+            map.replace(guild.getId(), ImmutableGuild.builder().from(guild).roles(roles).build());
+            return ImmutableMap.copyOf(map);
+          });
+  private static final GuildFunctionData<Guild> UPDATE_GUILD_FUNCTION =
+      GuildFunctionData.of(
+          (map, data) -> {
+            map.replace(data.getId(), data);
+            return ImmutableMap.copyOf(map);
           });
 
-  private final Observable<Event> eventObservable;
   private final ConnectableObservable<ImmutableMap<Snowflake, Guild>> guildWatcher;
-  private final ConnectableObservable<ImmutableMap<Snowflake, Channel>> channelWatcher;
 
-  public GuildsFromEvents(Observable<Event> eventObservable) {
-    this.eventObservable = eventObservable;
-
-    this.channelWatcher = initChannelWatcher();
-    this.channelWatcher.connect();
-
-    this.guildWatcher = initGuildWatcher();
+  public GuildsFromEvents(Observable<Event> events) {
+    // Merge all events which are meant to modify the guild by any means
+    this.guildWatcher =
+        events
+            .ofType(GuildCreateEvent.class)
+            .map(GuildCreateEvent::unwrap)
+            .map(ADD_GUILD_FUNCTION)
+            .mergeWith(
+                events
+                    .ofType(GuildDeleteEvent.class)
+                    .map(GuildDeleteEvent::unwrap)
+                    .map(REMOVE_GUILD_FUNCTION))
+            .mergeWith(
+                events
+                    .ofType(GuildEmojisUpdateEvent.class)
+                    .map(GuildEmojisUpdateEvent::unwrap)
+                    .map(EMOJIS_UPDATE_GUILD_FUNCTION))
+            .mergeWith(
+                events
+                    .ofType(GuildMemberAddEvent.class)
+                    .map(GuildMemberAddEvent::unwrap)
+                    .map(MEMBER_ADD_GUILD_FUNCTION))
+            .mergeWith(
+                events
+                    .ofType(GuildMemberRemoveEvent.class)
+                    .map(GuildMemberRemoveEvent::unwrap)
+                    .map(MEMBER_REMOVE_GUILD_FUNCTION))
+            .mergeWith(
+                events
+                    .ofType(GuildMembersChunkEvent.class)
+                    .map(GuildMembersChunkEvent::unwrap)
+                    .map(MEMBERS_CHUNK_GUILD_FUNCTION))
+            .mergeWith(
+                events
+                    .ofType(GuildMemberUpdateEvent.class)
+                    .map(GuildMemberUpdateEvent::unwrap)
+                    .map(MEMBER_UPDATE_GUILD_FUNCTION))
+            .mergeWith(
+                events
+                    .ofType(GuildRoleCreateEvent.class)
+                    .map(GuildRoleCreateEvent::unwrap)
+                    .map(ROLE_CREATE_GUILD_FUNCTION))
+            .mergeWith(
+                events
+                    .ofType(GuildRoleUpdateEvent.class)
+                    .map(GuildRoleUpdateEvent::unwrap)
+                    .map(ROLE_UPDATE_GUILD_FUNCTION))
+            .mergeWith(
+                events
+                    .ofType(GuildRoleDeleteEvent.class)
+                    .map(GuildRoleDeleteEvent::unwrap)
+                    .map(ROLE_DELETE_GUILD_FUNCTION))
+            .mergeWith(
+                events
+                    .ofType(GuildUpdateEvent.class)
+                    .map(GuildUpdateEvent::unwrap)
+                    .map(UPDATE_GUILD_FUNCTION))
+            .scan(ImmutableMap.<Snowflake, Guild>of(), (map, function) -> function.apply(map))
+            .doOnError(Throwable::printStackTrace)
+            .replay(1);
     this.guildWatcher.connect();
-  }
-
-  private ConnectableObservable<ImmutableMap<Snowflake, Guild>> initGuildWatcher() {
-    return generateGuildCreateListener()
-        .map(ADD_GUILD_FUNCTION)
-        .mergeWith(generateGuildDeleteListener().map(REMOVE_GUILD_FUNCTION))
-        .scan(ImmutableMap.<Snowflake, Guild>of(), (map, function) -> function.apply(map))
-        .doOnError(Throwable::printStackTrace)
-        .replay(1);
-  }
-
-  private ConnectableObservable<ImmutableMap<Snowflake, Channel>> initChannelWatcher() {
-    return generateGuildCreateListener()
-        .map(ADD_GUILD_CHANNELS_FUNCTION)
-        .mergeWith(generateGuildDeleteListener().map(REMOVE_GUILD_CHANNELS_FUNCTION))
-        .mergeWith(
-            eventObservable
-                .ofType(ChannelCreateEvent.class)
-                .map(ChannelCreateEvent::unwrap)
-                .map(ADD_CHANNEL_FUNCTION))
-        .mergeWith(
-            eventObservable
-                .ofType(ChannelDeleteEvent.class)
-                .map(ChannelDeleteEvent::unwrap)
-                .map(REMOVE_CHANNEL_FUNCTION))
-        .scan(ImmutableMap.<Snowflake, Channel>of(), (map, function) -> function.apply(map))
-        .doOnError(Throwable::printStackTrace)
-        .replay(1);
-  }
-
-  // Used due to avoiding redundant code
-  private Observable<Guild> generateGuildCreateListener() {
-    return eventObservable.ofType(GuildCreateEvent.class).map(GuildCreateEvent::unwrap);
-  }
-
-  // Used due to avoiding redundant code
-  private Observable<UnavailableGuild> generateGuildDeleteListener() {
-    return eventObservable.ofType(GuildDeleteEvent.class).map(GuildDeleteEvent::unwrap);
   }
 
   @Override
@@ -139,30 +257,19 @@ public class GuildsFromEvents implements GuildRepository {
   }
 
   @Override
-  public Maybe<Channel> getChannel(@NonNull Snowflake id) {
-    return channelWatcher
-        .firstElement()
-        .flatMap(channelMap -> Maybes.fromNullable(channelMap.get(id)));
+  public Single<ImmutableMap<Snowflake, Guild>> getGuilds() {
+    return guildWatcher.firstOrError();
   }
 
-  private static class FunctionData<X, Y, Z>
-      implements Function<Z, Function<Map<X, Y>, ImmutableMap<X, Y>>> {
-
-    private final BiFunction<Map<X, Y>, Z, ImmutableMap<X, Y>> mapBiFunction;
-
-    private FunctionData(BiFunction<Map<X, Y>, Z, ImmutableMap<X, Y>> mapBiFunction) {
-      this.mapBiFunction = mapBiFunction;
+  private static class GuildFunctionData<X> extends FunctionData<Snowflake, Guild, X> {
+    private GuildFunctionData(
+        BiFunction<Map<Snowflake, Guild>, X, ImmutableMap<Snowflake, Guild>> function) {
+      super(function);
     }
 
-    @Override
-    public Function<Map<X, Y>, ImmutableMap<X, Y>> apply(Z value) {
-      // pushes it into a new HashMap to reduce code redundancy just from the general pattern.
-      return (map) -> mapBiFunction.apply(new HashMap<>(map), value);
-    }
-
-    private static <X, Y, Z> FunctionData<X, Y, Z> of(
-        BiFunction<Map<X, Y>, Z, ImmutableMap<X, Y>> function) {
-      return new FunctionData<>(function);
+    private static <X> GuildFunctionData<X> of(
+        BiFunction<Map<Snowflake, Guild>, X, ImmutableMap<Snowflake, Guild>> function) {
+      return new GuildFunctionData<>(function);
     }
   }
 }

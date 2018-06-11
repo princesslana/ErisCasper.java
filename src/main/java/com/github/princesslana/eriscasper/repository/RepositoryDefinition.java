@@ -9,6 +9,7 @@ public interface RepositoryDefinition<R> {
 
   RepositoryDefinition<UserRepository> USER = RepositoryDefinitionTuple.of("user");
   RepositoryDefinition<GuildRepository> GUILD = RepositoryDefinitionTuple.of("guild");
+  RepositoryDefinition<ChannelRepository> CHANNEL = RepositoryDefinitionTuple.of("channel");
 
   String getName();
 }

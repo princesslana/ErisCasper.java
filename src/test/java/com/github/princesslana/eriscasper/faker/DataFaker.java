@@ -5,13 +5,19 @@ import com.github.princesslana.eriscasper.data.Snowflake;
 import com.github.princesslana.eriscasper.data.event.ImmutableReadyEventData;
 import com.github.princesslana.eriscasper.data.event.ReadyEventData;
 import com.github.princesslana.eriscasper.data.resource.Channel;
+import com.github.princesslana.eriscasper.data.resource.Emoji;
 import com.github.princesslana.eriscasper.data.resource.Guild;
+import com.github.princesslana.eriscasper.data.resource.GuildMember;
 import com.github.princesslana.eriscasper.data.resource.ImmutableChannel;
+import com.github.princesslana.eriscasper.data.resource.ImmutableEmoji;
 import com.github.princesslana.eriscasper.data.resource.ImmutableGuild;
+import com.github.princesslana.eriscasper.data.resource.ImmutableGuildMember;
 import com.github.princesslana.eriscasper.data.resource.ImmutableMessage;
+import com.github.princesslana.eriscasper.data.resource.ImmutableRole;
 import com.github.princesslana.eriscasper.data.resource.ImmutableUnavailableGuild;
 import com.github.princesslana.eriscasper.data.resource.ImmutableUser;
 import com.github.princesslana.eriscasper.data.resource.Message;
+import com.github.princesslana.eriscasper.data.resource.Role;
 import com.github.princesslana.eriscasper.data.resource.UnavailableGuild;
 import com.github.princesslana.eriscasper.data.resource.User;
 import java.time.OffsetDateTime;
@@ -76,6 +82,32 @@ public class DataFaker {
 
   public static UnavailableGuild unavailableGuildFromGuild(Snowflake predeterminedId) {
     return ImmutableUnavailableGuild.builder().id(predeterminedId).build();
+  }
+
+  public static Emoji emoji() {
+    return ImmutableEmoji.builder().addRoles(DiscordFaker.snowflake()).name(username()).build();
+  }
+
+  public static GuildMember guildMember() {
+    return ImmutableGuildMember.builder()
+        .user(user())
+        .joinedAt(OffsetDateTime.now())
+        .isDeaf(false)
+        .isMute(false)
+        .build();
+  }
+
+  public static Role role() {
+    return ImmutableRole.builder()
+        .color(0L)
+        .id(DiscordFaker.snowflake())
+        .isHoist(false)
+        .isManaged(false)
+        .isMentionable(false)
+        .name(username())
+        .permissions(0L)
+        .position(0L)
+        .build();
   }
 
   public static String username() {
