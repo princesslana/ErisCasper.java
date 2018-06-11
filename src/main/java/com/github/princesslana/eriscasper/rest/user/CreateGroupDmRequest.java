@@ -10,7 +10,7 @@ import org.immutables.value.Value;
  *     https://discordapp.com/developers/docs/resources/user#create-group-dm-json-params</a>
  */
 @Value.Immutable
-public interface CreateGroupDMRequest {
+public interface CreateGroupDmRequest {
   ImmutableList<String> getAccessTokens();
 
   ImmutableMap<Snowflake, String> getNicks();

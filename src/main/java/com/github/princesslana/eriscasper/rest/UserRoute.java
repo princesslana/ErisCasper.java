@@ -5,8 +5,8 @@ import com.github.princesslana.eriscasper.data.resource.Channel;
 import com.github.princesslana.eriscasper.data.resource.Connection;
 import com.github.princesslana.eriscasper.data.resource.Guild;
 import com.github.princesslana.eriscasper.data.resource.User;
-import com.github.princesslana.eriscasper.rest.user.CreateDMRequest;
-import com.github.princesslana.eriscasper.rest.user.CreateGroupDMRequest;
+import com.github.princesslana.eriscasper.rest.user.CreateDmRequest;
+import com.github.princesslana.eriscasper.rest.user.CreateGroupDmRequest;
 import com.github.princesslana.eriscasper.rest.user.GetUserGuildsRequest;
 import com.github.princesslana.eriscasper.rest.user.ModifyUserRequest;
 import com.google.common.collect.ImmutableList;
@@ -71,16 +71,16 @@ public final class UserRoute {
    * @see <a href="https://discordapp.com/developers/docs/resources/user#create-dm">
    *     https://discordapp.com/developers/docs/resources/user#create-dm</a>
    */
-  public static Route<CreateDMRequest, Channel> createDm() {
-    return Route.post(myPath("/channels"), CreateDMRequest.class, Channel.class);
+  public static Route<CreateDmRequest, Channel> createDm() {
+    return Route.post(myPath("/channels"), CreateDmRequest.class, Channel.class);
   }
 
   /**
    * @see <a href="https://discordapp.com/developers/docs/resources/user#create-group-dm">
    *     https://discordapp.com/developers/docs/resources/user#create-group-dm</a>
    */
-  public static Route<CreateGroupDMRequest, Channel> createGroupDm() {
-    return Route.post(myPath("/channels"), CreateGroupDMRequest.class, Channel.class);
+  public static Route<CreateGroupDmRequest, Channel> createGroupDm() {
+    return Route.post(myPath("/channels"), CreateGroupDmRequest.class, Channel.class);
   }
 
   /**
