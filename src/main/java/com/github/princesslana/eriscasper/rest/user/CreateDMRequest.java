@@ -11,7 +11,7 @@ import org.immutables.value.Value;
 public interface CreateDMRequest {
   Snowflake getRecipientId();
 
-  static CreateDMRequest with(Snowflake userId) {
+  static CreateDMRequest ofRecipientId(Snowflake userId) {
     return ImmutableCreateDMRequest.builder().recipientId(userId).build();
   }
 }
