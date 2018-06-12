@@ -22,13 +22,13 @@ import com.github.princesslana.eriscasper.data.resource.UnavailableGuild;
 import com.github.princesslana.eriscasper.data.resource.User;
 import java.time.OffsetDateTime;
 import java.util.SplittableRandom;
-
 import org.apache.commons.lang3.RandomStringUtils;
 
 public class DataFaker {
   private DataFaker() {}
 
-  public final static SplittableRandom random = new SplittableRandom(System.nanoTime());
+  public static final SplittableRandom random = new SplittableRandom(System.nanoTime());
+
   public static String discriminator() {
     return RandomStringUtils.randomNumeric(4);
   }
@@ -88,7 +88,10 @@ public class DataFaker {
   }
 
   public static Emoji emoji() {
-    return ImmutableEmoji.builder().addRoles(DiscordFaker.snowflake()).name(Faker.instance().slackEmoji().emoji()).build();
+    return ImmutableEmoji.builder()
+        .addRoles(DiscordFaker.snowflake())
+        .name(Faker.instance().slackEmoji().emoji())
+        .build();
   }
 
   public static GuildMember guildMember() {

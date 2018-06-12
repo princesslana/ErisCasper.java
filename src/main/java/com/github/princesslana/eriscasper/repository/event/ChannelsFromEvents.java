@@ -20,11 +20,7 @@ import com.github.princesslana.eriscasper.rx.Maybes;
 import com.google.common.collect.ImmutableMap;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
-import io.reactivex.Single;
-import io.reactivex.annotations.NonNull;
-import io.reactivex.annotations.Nullable;
 import io.reactivex.functions.Function;
-import io.reactivex.functions.Predicate;
 import io.reactivex.observables.ConnectableObservable;
 import java.util.Map;
 import java.util.Stack;
@@ -125,10 +121,12 @@ public class ChannelsFromEvents implements ChannelRepository {
     return channelWatcher.firstElement().flatMap(map -> Maybes.fromNullable(map.get(id)));
   }
 
-    @Override
-    public Observable<Channel> getChannels() {
-        return channelWatcher.firstElement().flatMapObservable(map -> Observable.fromIterable(map.values()));
-    }
+  @Override
+  public Observable<Channel> getChannels() {
+    return channelWatcher
+        .firstElement()
+        .flatMapObservable(map -> Observable.fromIterable(map.values()));
+  }
 
   private static class ChannelFunctionData<X> extends FunctionData<Snowflake, Channel, X> {
     private ChannelFunctionData(

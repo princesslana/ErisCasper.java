@@ -35,12 +35,8 @@ import com.github.princesslana.eriscasper.rx.Maybes;
 import com.google.common.collect.ImmutableMap;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
-import io.reactivex.Single;
-import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Function;
 import io.reactivex.observables.ConnectableObservable;
-import jdk.internal.module.IllegalAccessLogger;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -226,7 +222,9 @@ public class GuildsFromEvents implements GuildRepository {
 
   @Override
   public Observable<Guild> getGuilds() {
-    return guildWatcher.firstElement().flatMapObservable(map -> Observable.fromIterable(map.values()));
+    return guildWatcher
+        .firstElement()
+        .flatMapObservable(map -> Observable.fromIterable(map.values()));
   }
 
   private static class GuildFunctionData<X> extends FunctionData<Snowflake, Guild, X> {
