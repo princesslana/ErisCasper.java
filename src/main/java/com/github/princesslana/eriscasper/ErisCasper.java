@@ -128,7 +128,7 @@ public class ErisCasper {
   }
 
   private static void assertShard(int shardNum, int shardTotal) {
-    if (shardNum > shardTotal || shardTotal < 0 || shardNum < 0) {
+    if (shardNum > shardTotal || shardTotal < 1 || shardNum < 0) {
       throw new ErisCasperFatalException(
           "Could not apply sharding with [" + shardNum + ", " + shardTotal + "]");
     }
