@@ -1,6 +1,7 @@
 package com.github.princesslana.eriscasper.repository;
 
 import com.github.princesslana.eriscasper.data.event.Event;
+import com.github.princesslana.eriscasper.repository.event.ChannelsFromEvents;
 import com.github.princesslana.eriscasper.repository.event.GuildsFromEvents;
 import com.github.princesslana.eriscasper.repository.event.UsersFromEvents;
 import com.google.common.base.Preconditions;
@@ -34,6 +35,7 @@ public class RepositoryManager {
     RepositoryManager rm = new RepositoryManager();
     rm.put(RepositoryDefinition.USER, new UsersFromEvents(events));
     rm.put(RepositoryDefinition.GUILD, new GuildsFromEvents(events));
+    rm.put(RepositoryDefinition.CHANNEL, new ChannelsFromEvents(events));
     return rm;
   }
 }
