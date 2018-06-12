@@ -4,7 +4,6 @@ import com.github.princesslana.eriscasper.ErisCasperFatalException;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
-import io.reactivex.annotations.Nullable;
 import java.util.Optional;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -49,7 +48,7 @@ public class RxWebSocket {
     close(code, null);
   }
 
-  public void close(int code, @Nullable String reason) {
+  public void close(int code, String reason) {
     close0();
     ws.close(code, reason);
   }

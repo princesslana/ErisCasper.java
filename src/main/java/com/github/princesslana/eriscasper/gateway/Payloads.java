@@ -15,7 +15,6 @@ import com.github.princesslana.eriscasper.gateway.commands.UpdateVoiceState;
 import com.github.princesslana.eriscasper.rx.Maybes;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-import io.reactivex.annotations.Nullable;
 import java.util.Optional;
 import org.immutables.value.Value;
 import org.slf4j.Logger;
@@ -39,7 +38,7 @@ public class Payloads {
     return ImmutablePayload.builder().op(OpCode.HEARTBEAT).d(s.map(jackson::valueToTree)).build();
   }
 
-  public Payload identify(BotToken token, @Nullable Integer[] shard) {
+  public Payload identify(BotToken token, Integer[] shard) {
     return identify(
         ImmutableIdentify.builder().token(token).shard(Optional.ofNullable(shard)).build());
   }

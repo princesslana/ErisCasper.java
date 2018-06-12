@@ -14,7 +14,6 @@ import com.google.common.base.Function;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
-import io.reactivex.annotations.Nullable;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,7 +83,7 @@ public class BotContext {
     return routes.execute(route);
   }
 
-  public <Rq, Rs> Single<Rs> execute(Route<Rq, Rs> route, @Nullable Rq request) {
+  public <Rq, Rs> Single<Rs> execute(Route<Rq, Rs> route, Rq request) {
     return routes.execute(route, request);
   }
 

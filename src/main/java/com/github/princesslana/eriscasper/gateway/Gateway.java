@@ -19,7 +19,6 @@ import io.github.resilience4j.ratelimiter.operator.RateLimiterOperator;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
-import io.reactivex.annotations.Nullable;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -151,7 +150,7 @@ public class Gateway {
         .doOnComplete(() -> LOG.debug("Sent: {}.", payload));
   }
 
-  private Completable identify(RxWebSocket ws, BotToken token, @Nullable Integer[] shard) {
+  private Completable identify(RxWebSocket ws, BotToken token, Integer[] shard) {
     return send(
         Single.just(payloads.identify(token, shard)).lift(RateLimiterOperator.of(identifyLimit)));
   }

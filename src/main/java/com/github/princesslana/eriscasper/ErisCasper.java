@@ -15,7 +15,6 @@ import com.github.princesslana.eriscasper.util.OkHttp;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
-import io.reactivex.annotations.Nullable;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.OkHttpClient;
 import org.slf4j.Logger;
@@ -31,7 +30,7 @@ public class ErisCasper {
   private final ObjectMapper jackson = Jackson.newObjectMapper();
   private final Payloads payloads = new Payloads(jackson);
 
-  @Nullable private final Integer[] shard;
+  private final Integer[] shard;
 
   private final Routes routes;
 
