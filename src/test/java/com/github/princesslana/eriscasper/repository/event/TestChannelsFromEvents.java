@@ -33,14 +33,11 @@ public class TestChannelsFromEvents {
   public void getChannel_whenGuildCreated_shouldCacheChannel() {
     TestObserver<Channel> observer = new TestObserver<>();
 
-    // Create guild, define channel
     Guild guild = simpleCreateGuild();
     Channel channel = guild.getChannels().get(0);
 
-    // Retrieve channel
     subject.getChannel(channel.getId()).subscribe(observer);
 
-    // Assert state
     observer.assertComplete();
     observer.assertValue((ch) -> ch.getId().equals(channel.getId()));
     observer.assertValue((ch) -> guild.getId().equals(ch.getGuildId().orElse(null)));
@@ -50,17 +47,13 @@ public class TestChannelsFromEvents {
   public void getChannel_whenGuildDeleted_shouldRemoveCachedChannel() {
     TestObserver<Channel> observer = new TestObserver<>();
 
-    // Create guild, define channel
     Guild guild = simpleCreateGuild();
     Channel channel = guild.getChannels().get(0);
 
-    // Delete guild
     events.onNext(GuildDeleteEvent.of(DataFaker.unavailableGuildFromGuild(guild.getId())));
 
-    // Retrieve channel
     subject.getChannel(channel.getId()).subscribe(observer);
 
-    // Assert state
     assertObserver(observer);
   }
 
@@ -68,13 +61,10 @@ public class TestChannelsFromEvents {
   public void getChannel_whenCreated_shouldCache() {
     TestObserver<Channel> observer = new TestObserver<>();
 
-    // Create channel
     Channel channel = simpleCreateChannel();
 
-    // Retrieve channel
     subject.getChannel(channel.getId()).subscribe(observer);
 
-    // Assert state
     assertObserver(observer, channel);
   }
 
@@ -82,16 +72,12 @@ public class TestChannelsFromEvents {
   public void getChannel_whenDeleted_shouldRemoveCache() {
     TestObserver<Channel> observer = new TestObserver<>();
 
-    // Create channel
     Channel channel = simpleCreateChannel();
 
-    // Delete channel
     events.onNext(ChannelDeleteEvent.of(channel));
 
-    // Retrieve channel
     subject.getChannel(channel.getId()).subscribe(observer);
 
-    // Assert state
     assertObserver(observer);
   }
 
@@ -100,23 +86,17 @@ public class TestChannelsFromEvents {
     TestObserver<Channel> observer1 = new TestObserver<>();
     TestObserver<Channel> observer2 = new TestObserver<>();
 
-    // Create channels
     Channel channel1 = simpleCreateChannel();
     Channel channel2 = simpleCreateChannel();
 
-    // Delete channel1
     events.onNext(ChannelDeleteEvent.of(channel1));
 
-    // Retrieve channel1
     subject.getChannel(channel1.getId()).subscribe(observer1);
 
-    // Assert state on channel1
     assertObserver(observer1);
 
-    // Retrieve channel2
     subject.getChannel(channel2.getId()).subscribe(observer2);
 
-    // Assert state on channel2
     assertObserver(observer2, channel2);
   }
 
@@ -124,10 +104,8 @@ public class TestChannelsFromEvents {
   public void getChannel_whenPinsUpdate_shouldUpdateChannel() {
     TestObserver<OffsetDateTime> observer = new TestObserver<>();
 
-    // Create channel
     Channel channel = simpleCreateChannel();
 
-    // Update pins timestamp
     OffsetDateTime timestamp = OffsetDateTime.now();
     events.onNext(
         ChannelPinsUpdateEvent.of(
@@ -136,14 +114,12 @@ public class TestChannelsFromEvents {
                 .lastPinTimestamp(timestamp)
                 .build()));
 
-    // Retrieve stamp
     subject
         .getChannel(channel.getId())
         .map(Channel::getLastPinTimestamp)
         .map(Optional::get)
         .subscribe(observer);
 
-    // Assert state
     assertObserver(observer, timestamp);
   }
 

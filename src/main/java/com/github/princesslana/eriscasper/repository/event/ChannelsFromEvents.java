@@ -9,6 +9,7 @@ import com.github.princesslana.eriscasper.data.event.ChannelUpdateEvent;
 import com.github.princesslana.eriscasper.data.event.Event;
 import com.github.princesslana.eriscasper.data.event.GuildCreateEvent;
 import com.github.princesslana.eriscasper.data.event.GuildDeleteEvent;
+import com.github.princesslana.eriscasper.data.immutable.Wrapper;
 import com.github.princesslana.eriscasper.data.resource.Channel;
 import com.github.princesslana.eriscasper.data.resource.Guild;
 import com.github.princesslana.eriscasper.data.resource.ImmutableChannel;
@@ -22,6 +23,7 @@ import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.annotations.Nullable;
+import io.reactivex.functions.Function;
 import io.reactivex.functions.Predicate;
 import io.reactivex.observables.ConnectableObservable;
 import java.util.Map;
@@ -96,102 +98,37 @@ public class ChannelsFromEvents implements ChannelRepository {
 
   private final ConnectableObservable<ImmutableMap<Snowflake, Channel>> channelWatcher;
 
+  @SuppressWarnings("unchecked")
   public ChannelsFromEvents(Observable<Event> events) {
     // Merge all events which are meant to modify the channel by any means
     channelWatcher =
-        events
-            .ofType(GuildCreateEvent.class)
-            .map(GuildCreateEvent::unwrap)
-            .map(ADD_GUILD_CHANNELS_FUNCTION)
-            .mergeWith(
-                events
-                    .ofType(GuildDeleteEvent.class)
-                    .map(GuildDeleteEvent::unwrap)
-                    .map(REMOVE_GUILD_CHANNELS_FUNCTION))
-            .mergeWith(
-                events
-                    .ofType(ChannelCreateEvent.class)
-                    .map(ChannelCreateEvent::unwrap)
-                    .map(ADD_CHANNEL_FUNCTION))
-            .mergeWith(
-                events
-                    .ofType(ChannelDeleteEvent.class)
-                    .map(ChannelDeleteEvent::unwrap)
-                    .map(REMOVE_CHANNEL_FUNCTION))
-            .mergeWith(
-                events
-                    .ofType(ChannelPinsUpdateEvent.class)
-                    .map(ChannelPinsUpdateEvent::unwrap)
-                    .map(PINS_UPDATE_CHANNEL_FUNCTION))
-            .mergeWith(
-                events
-                    .ofType(ChannelUpdateEvent.class)
-                    .map(ChannelUpdateEvent::unwrap)
-                    .map(UPDATE_CHANNEL_FUNCTION))
+        Observable.mergeArray(
+                process(GuildCreateEvent.class, ADD_GUILD_CHANNELS_FUNCTION, events),
+                process(GuildDeleteEvent.class, REMOVE_GUILD_CHANNELS_FUNCTION, events),
+                process(ChannelCreateEvent.class, ADD_CHANNEL_FUNCTION, events),
+                process(ChannelDeleteEvent.class, REMOVE_CHANNEL_FUNCTION, events),
+                process(ChannelPinsUpdateEvent.class, PINS_UPDATE_CHANNEL_FUNCTION, events),
+                process(ChannelUpdateEvent.class, UPDATE_CHANNEL_FUNCTION, events))
             .scan(ImmutableMap.<Snowflake, Channel>of(), (map, function) -> function.apply(map))
-            .doOnError(Throwable::printStackTrace)
             .replay(1);
     channelWatcher.connect();
   }
 
+  private <X, Z extends Wrapper<X> & Event>
+      Observable<Function<Map<Snowflake, Channel>, ImmutableMap<Snowflake, Channel>>> process(
+          Class<Z> event, ChannelFunctionData<X> data, Observable<Event> eventObservable) {
+    return eventObservable.ofType(event).map(Wrapper::unwrap).map(data);
+  }
+
   @Override
-  public Maybe<Channel> getChannel(@NonNull Snowflake id) {
+  public Maybe<Channel> getChannel(Snowflake id) {
     return channelWatcher.firstElement().flatMap(map -> Maybes.fromNullable(map.get(id)));
   }
 
-  @Override
-  public Single<ImmutableMap<Snowflake, Channel>> getChannels() {
-    return channelWatcher.firstOrError();
-  }
-
-  @Override
-  public Maybe<Channel> getGuildCategoryFromName(Snowflake guildId, String name) {
-    return filterGuild(guildId, checkName(name))
-        .filter(channel -> channel.getType() == 4)
-        .firstElement();
-  }
-
-  @Override
-  public Maybe<Channel> getGuildChannelFromName(
-      Snowflake guildId, @Nullable Snowflake category, String name) {
-    return filterGuild(guildId, checkName(name))
-        .filter(checkCategory(category))
-        .filter(channel -> (channel.getType() == 0 || channel.getType() == 2))
-        .firstElement();
-  }
-
-  @Override
-  public Observable<Channel> getGuildCategories(Snowflake guildId) {
-    return filterGuild(guildId, channel -> channel.getType() == 4);
-  }
-
-  @Override
-  public Observable<Channel> getGuildChannelsInCategory(
-      Snowflake guildId, @Nullable Snowflake category) {
-    return filterGuild(guildId, checkCategory(category));
-  }
-
-  @Override
-  public Observable<Channel> filter(Predicate<Channel> channelPredicate) {
-    return channelWatcher
-        .firstElement()
-        .flatMapObservable(map -> Observable.fromIterable(map.values()))
-        .filter(channelPredicate);
-  }
-
-  @Override
-  public Observable<Channel> filterGuild(Snowflake guildId, Predicate<Channel> channelPredicate) {
-    return filter(channel -> guildId.equals(channel.getGuildId().orElse(null)))
-        .filter(channelPredicate);
-  }
-
-  private Predicate<Channel> checkCategory(@Nullable Snowflake category) {
-    return channel -> channel.getParentId().map(id -> id.equals(category)).orElse(category == null);
-  }
-
-  private Predicate<Channel> checkName(String name) {
-    return channel -> name.equalsIgnoreCase(channel.getName().orElse(null));
-  }
+    @Override
+    public Observable<Channel> getChannels() {
+        return channelWatcher.firstElement().flatMapObservable(map -> Observable.fromIterable(map.values()));
+    }
 
   private static class ChannelFunctionData<X> extends FunctionData<Snowflake, Channel, X> {
     private ChannelFunctionData(

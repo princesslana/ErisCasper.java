@@ -20,6 +20,7 @@ import com.github.princesslana.eriscasper.data.event.GuildRoleDeleteEventData;
 import com.github.princesslana.eriscasper.data.event.GuildRoleUpdateEvent;
 import com.github.princesslana.eriscasper.data.event.GuildRoleUpdateEventData;
 import com.github.princesslana.eriscasper.data.event.GuildUpdateEvent;
+import com.github.princesslana.eriscasper.data.immutable.Wrapper;
 import com.github.princesslana.eriscasper.data.resource.Guild;
 import com.github.princesslana.eriscasper.data.resource.GuildMember;
 import com.github.princesslana.eriscasper.data.resource.GuildMemberWithGuildId;
@@ -36,7 +37,10 @@ import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.annotations.NonNull;
+import io.reactivex.functions.Function;
 import io.reactivex.observables.ConnectableObservable;
+import jdk.internal.module.IllegalAccessLogger;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -125,7 +129,7 @@ public class GuildsFromEvents implements GuildRepository {
                     .findFirst()
                     .orElse(null);
             if (initial == null) {
-              throw new RuntimeException("Data not found where it should be.");
+              throw new IllegalStateException("Data not found where it should be.");
             }
             members.remove(initial);
             members.add(
@@ -157,7 +161,7 @@ public class GuildsFromEvents implements GuildRepository {
             Role initial =
                 roles.stream().filter(role -> role.getId().equals(id)).findAny().orElse(null);
             if (initial == null) {
-              throw new RuntimeException("Data not found where it should be.");
+              throw new IllegalStateException("Data not found where it should be.");
             }
             roles.remove(initial);
             roles.add(data.getRole());
@@ -173,7 +177,7 @@ public class GuildsFromEvents implements GuildRepository {
             Role initial =
                 roles.stream().filter(role -> role.getId().equals(id)).findAny().orElse(null);
             if (initial == null) {
-              throw new RuntimeException("Data not found where it should be.");
+              throw new IllegalStateException("Data not found where it should be.");
             }
             roles.remove(initial);
             map.replace(guild.getId(), ImmutableGuild.builder().from(guild).roles(roles).build());
@@ -188,77 +192,41 @@ public class GuildsFromEvents implements GuildRepository {
 
   private final ConnectableObservable<ImmutableMap<Snowflake, Guild>> guildWatcher;
 
+  @SuppressWarnings("unchecked")
   public GuildsFromEvents(Observable<Event> events) {
     // Merge all events which are meant to modify the guild by any means
     this.guildWatcher =
-        events
-            .ofType(GuildCreateEvent.class)
-            .map(GuildCreateEvent::unwrap)
-            .map(ADD_GUILD_FUNCTION)
-            .mergeWith(
-                events
-                    .ofType(GuildDeleteEvent.class)
-                    .map(GuildDeleteEvent::unwrap)
-                    .map(REMOVE_GUILD_FUNCTION))
-            .mergeWith(
-                events
-                    .ofType(GuildEmojisUpdateEvent.class)
-                    .map(GuildEmojisUpdateEvent::unwrap)
-                    .map(EMOJIS_UPDATE_GUILD_FUNCTION))
-            .mergeWith(
-                events
-                    .ofType(GuildMemberAddEvent.class)
-                    .map(GuildMemberAddEvent::unwrap)
-                    .map(MEMBER_ADD_GUILD_FUNCTION))
-            .mergeWith(
-                events
-                    .ofType(GuildMemberRemoveEvent.class)
-                    .map(GuildMemberRemoveEvent::unwrap)
-                    .map(MEMBER_REMOVE_GUILD_FUNCTION))
-            .mergeWith(
-                events
-                    .ofType(GuildMembersChunkEvent.class)
-                    .map(GuildMembersChunkEvent::unwrap)
-                    .map(MEMBERS_CHUNK_GUILD_FUNCTION))
-            .mergeWith(
-                events
-                    .ofType(GuildMemberUpdateEvent.class)
-                    .map(GuildMemberUpdateEvent::unwrap)
-                    .map(MEMBER_UPDATE_GUILD_FUNCTION))
-            .mergeWith(
-                events
-                    .ofType(GuildRoleCreateEvent.class)
-                    .map(GuildRoleCreateEvent::unwrap)
-                    .map(ROLE_CREATE_GUILD_FUNCTION))
-            .mergeWith(
-                events
-                    .ofType(GuildRoleUpdateEvent.class)
-                    .map(GuildRoleUpdateEvent::unwrap)
-                    .map(ROLE_UPDATE_GUILD_FUNCTION))
-            .mergeWith(
-                events
-                    .ofType(GuildRoleDeleteEvent.class)
-                    .map(GuildRoleDeleteEvent::unwrap)
-                    .map(ROLE_DELETE_GUILD_FUNCTION))
-            .mergeWith(
-                events
-                    .ofType(GuildUpdateEvent.class)
-                    .map(GuildUpdateEvent::unwrap)
-                    .map(UPDATE_GUILD_FUNCTION))
+        Observable.mergeArray(
+                process(GuildCreateEvent.class, ADD_GUILD_FUNCTION, events),
+                process(GuildDeleteEvent.class, REMOVE_GUILD_FUNCTION, events),
+                process(GuildEmojisUpdateEvent.class, EMOJIS_UPDATE_GUILD_FUNCTION, events),
+                process(GuildMemberAddEvent.class, MEMBER_ADD_GUILD_FUNCTION, events),
+                process(GuildMemberRemoveEvent.class, MEMBER_REMOVE_GUILD_FUNCTION, events),
+                process(GuildMembersChunkEvent.class, MEMBERS_CHUNK_GUILD_FUNCTION, events),
+                process(GuildMemberUpdateEvent.class, MEMBER_UPDATE_GUILD_FUNCTION, events),
+                process(GuildRoleCreateEvent.class, ROLE_CREATE_GUILD_FUNCTION, events),
+                process(GuildRoleUpdateEvent.class, ROLE_UPDATE_GUILD_FUNCTION, events),
+                process(GuildRoleDeleteEvent.class, ROLE_DELETE_GUILD_FUNCTION, events),
+                process(GuildUpdateEvent.class, UPDATE_GUILD_FUNCTION, events))
             .scan(ImmutableMap.<Snowflake, Guild>of(), (map, function) -> function.apply(map))
-            .doOnError(Throwable::printStackTrace)
             .replay(1);
     this.guildWatcher.connect();
   }
 
+  private <X, Z extends Wrapper<X> & Event>
+      Observable<Function<Map<Snowflake, Guild>, ImmutableMap<Snowflake, Guild>>> process(
+          Class<Z> event, GuildFunctionData<X> data, Observable<Event> eventObservable) {
+    return eventObservable.ofType(event).map(Wrapper::unwrap).map(data);
+  }
+
   @Override
-  public Maybe<Guild> getGuild(@NonNull Snowflake id) {
+  public Maybe<Guild> getGuild(Snowflake id) {
     return guildWatcher.firstElement().flatMap(map -> Maybes.fromNullable(map.get(id)));
   }
 
   @Override
-  public Single<ImmutableMap<Snowflake, Guild>> getGuilds() {
-    return guildWatcher.firstOrError();
+  public Observable<Guild> getGuilds() {
+    return guildWatcher.firstElement().flatMapObservable(map -> Observable.fromIterable(map.values()));
   }
 
   private static class GuildFunctionData<X> extends FunctionData<Snowflake, Guild, X> {

@@ -11,20 +11,7 @@ import io.reactivex.annotations.Nullable;
 import io.reactivex.functions.Predicate;
 
 public interface ChannelRepository {
-  Maybe<Channel> getChannel(@NonNull Snowflake id);
+  Maybe<Channel> getChannel(Snowflake id);
 
-  Single<ImmutableMap<Snowflake, Channel>> getChannels();
-
-  Maybe<Channel> getGuildCategoryFromName(Snowflake guildId, String name);
-
-  Maybe<Channel> getGuildChannelFromName(
-      Snowflake guildId, @Nullable Snowflake category, String name);
-
-  Observable<Channel> getGuildCategories(Snowflake guildId);
-
-  Observable<Channel> getGuildChannelsInCategory(Snowflake guildId, @Nullable Snowflake category);
-
-  Observable<Channel> filter(Predicate<Channel> channelPredicate);
-
-  Observable<Channel> filterGuild(Snowflake guildId, Predicate<Channel> channelPredicate);
+  Observable<Channel> getChannels();
 }

@@ -21,11 +21,14 @@ import com.github.princesslana.eriscasper.data.resource.Role;
 import com.github.princesslana.eriscasper.data.resource.UnavailableGuild;
 import com.github.princesslana.eriscasper.data.resource.User;
 import java.time.OffsetDateTime;
+import java.util.SplittableRandom;
+
 import org.apache.commons.lang3.RandomStringUtils;
 
 public class DataFaker {
   private DataFaker() {}
 
+  public final static SplittableRandom random = new SplittableRandom(System.nanoTime());
   public static String discriminator() {
     return RandomStringUtils.randomNumeric(4);
   }
@@ -67,11 +70,11 @@ public class DataFaker {
         .name(Faker.instance().name().name())
         .ownerId(DiscordFaker.snowflake())
         .region(Faker.instance().address().country())
-        .afkTimeout(0L)
-        .verificationLevel(0L)
-        .defaultMessageNotifications(0L)
-        .explicitContentFilter(0L)
-        .mfaLevel(0L)
+        .afkTimeout(random.nextLong())
+        .verificationLevel(random.nextLong())
+        .defaultMessageNotifications(random.nextLong())
+        .explicitContentFilter(random.nextLong())
+        .mfaLevel(random.nextLong())
         .addChannels(channel())
         .build();
   }
@@ -85,28 +88,28 @@ public class DataFaker {
   }
 
   public static Emoji emoji() {
-    return ImmutableEmoji.builder().addRoles(DiscordFaker.snowflake()).name(username()).build();
+    return ImmutableEmoji.builder().addRoles(DiscordFaker.snowflake()).name(Faker.instance().slackEmoji().emoji()).build();
   }
 
   public static GuildMember guildMember() {
     return ImmutableGuildMember.builder()
         .user(user())
         .joinedAt(OffsetDateTime.now())
-        .isDeaf(false)
-        .isMute(false)
+        .isDeaf(random.nextBoolean())
+        .isMute(random.nextBoolean())
         .build();
   }
 
   public static Role role() {
     return ImmutableRole.builder()
-        .color(0L)
+        .color(random.nextLong())
         .id(DiscordFaker.snowflake())
-        .isHoist(false)
-        .isManaged(false)
-        .isMentionable(false)
+        .isHoist(random.nextBoolean())
+        .isManaged(random.nextBoolean())
+        .isMentionable(random.nextBoolean())
         .name(username())
-        .permissions(0L)
-        .position(0L)
+        .permissions(random.nextLong())
+        .position(random.nextLong())
         .build();
   }
 

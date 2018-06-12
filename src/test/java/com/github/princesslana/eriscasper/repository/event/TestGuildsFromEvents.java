@@ -49,13 +49,10 @@ public class TestGuildsFromEvents {
   public void getGuild_whenCreated_shouldCache() {
     TestObserver<Guild> observer = new TestObserver<>();
 
-    // Create guild
     Guild guild = simpleCreateGuild();
 
-    // Retrieve guild
     subject.getGuild(guild.getId()).subscribe(observer);
 
-    // Assert state
     assertObserver(observer, guild);
   }
 
@@ -63,16 +60,12 @@ public class TestGuildsFromEvents {
   public void getGuild_whenDeleted_shouldRemoveCache() {
     TestObserver<Guild> observer = new TestObserver<>();
 
-    // Create guild
     Guild guild = simpleCreateGuild();
 
-    // Delete guild
     events.onNext(GuildDeleteEvent.of(DataFaker.unavailableGuildFromGuild(guild.getId())));
 
-    // Retrieve guild
     subject.getGuild(guild.getId()).subscribe(observer);
 
-    // Assert state
     assertObserver(observer);
   }
 
@@ -81,23 +74,17 @@ public class TestGuildsFromEvents {
     TestObserver<Guild> observer1 = new TestObserver<>();
     TestObserver<Guild> observer2 = new TestObserver<>();
 
-    // Create guilds
     Guild guild1 = simpleCreateGuild();
     Guild guild2 = simpleCreateGuild();
 
-    // Delete guild1
     events.onNext(GuildDeleteEvent.of(DataFaker.unavailableGuildFromGuild(guild1.getId())));
 
-    // Retrieve guild1
     subject.getGuild(guild1.getId()).subscribe(observer1);
 
-    // Assert state on guild1
     assertObserver(observer1);
 
-    // Retrieve guild2
     subject.getGuild(guild2.getId()).subscribe(observer2);
 
-    // Assert state on guild2
     assertObserver(observer2, guild2);
   }
 
@@ -105,10 +92,8 @@ public class TestGuildsFromEvents {
   public void getGuild_whenEmojisUpdate_shouldUpdateGuild() {
     TestObserver<Emoji> observer = new TestObserver<>();
 
-    // Create guild
     Guild guild = simpleCreateGuild();
 
-    // Add guild emojis / update them
     Emoji emoji = DataFaker.emoji();
     events.onNext(
         GuildEmojisUpdateEvent.of(
@@ -117,14 +102,12 @@ public class TestGuildsFromEvents {
                 .addEmojis(emoji)
                 .build()));
 
-    // Retrieve guild emojis
     subject
         .getGuild(guild.getId())
         .map(Guild::getEmojis)
         .map(list -> list.get(0))
         .subscribe(observer);
 
-    // Assert state
     assertObserver(observer, emoji);
   }
 
@@ -132,20 +115,16 @@ public class TestGuildsFromEvents {
   public void getGuild_whenMemberAdded_shouldAddToGuildMembers() {
     TestObserver<GuildMember> observer = new TestObserver<>();
 
-    // Create guild
     Guild guild = simpleCreateGuild();
 
-    // Add guild member
     GuildMember member = simpleCreateGuildMember(guild.getId());
 
-    // Retrieve member
     subject
         .getGuild(guild.getId())
         .map(Guild::getMembers)
         .map(list -> list.get(0))
         .subscribe(observer);
 
-    // Assert state
     assertObserver(observer, member);
   }
 
@@ -153,10 +132,8 @@ public class TestGuildsFromEvents {
   public void getGuild_whenMemberRemoved_shouldRemoveFromGuildMembers() {
     TestObserver<GuildMember> observer = new TestObserver<>();
 
-    // Create guild
     Guild guild = simpleCreateGuild();
 
-    // Add and remove guild member
     GuildMember member = simpleCreateGuildMember(guild.getId());
     events.onNext(
         GuildMemberRemoveEvent.of(
@@ -165,14 +142,12 @@ public class TestGuildsFromEvents {
                 .user(member.getUser())
                 .build()));
 
-    // Retrieve `should be null` member
     subject
         .getGuild(guild.getId())
         .map(Guild::getMembers)
         .flatMap(list -> Maybes.fromOptional(list.stream().findFirst()))
         .subscribe(observer);
 
-    // Assert state
     assertObserver(observer);
   }
 
@@ -180,10 +155,8 @@ public class TestGuildsFromEvents {
   public void getGuild_whenMemberUpdated_shouldUpdateInGuildMembers() {
     TestObserver<GuildMember> observer = new TestObserver<>();
 
-    // Create guild
     Guild guild = simpleCreateGuild();
 
-    // Add and remove guild member
     GuildMember member = simpleCreateGuildMember(guild.getId());
     member = ImmutableGuildMember.builder().from(member).nick(DataFaker.username()).build();
     events.onNext(
@@ -195,14 +168,12 @@ public class TestGuildsFromEvents {
                 .roles(member.getRoles())
                 .build()));
 
-    // Retrieve member
     subject
         .getGuild(guild.getId())
         .map(Guild::getMembers)
         .map(list -> list.get(0))
         .subscribe(observer);
 
-    // Assert state
     assertObserver(observer, member);
   }
 
@@ -210,20 +181,16 @@ public class TestGuildsFromEvents {
   public void getGuild_whenRoleCreated_shouldCreateInGuildRoles() {
     TestObserver<Role> observer = new TestObserver<>();
 
-    // Create guild
     Guild guild = simpleCreateGuild();
 
-    // Create role
     Role role = simpleCreateRole(guild.getId());
 
-    // Retrieve role
     subject
         .getGuild(guild.getId())
         .map(Guild::getRoles)
         .map(list -> list.get(0))
         .subscribe(observer);
 
-    // Assert state
     assertObserver(observer, role);
   }
 
@@ -231,24 +198,20 @@ public class TestGuildsFromEvents {
   public void getGuild_whenRoleUpdates_shouldUpdateInGuildRoles() {
     TestObserver<Role> observer = new TestObserver<>();
 
-    // Create guild
     Guild guild = simpleCreateGuild();
 
-    // Create and update role
     Role role = simpleCreateRole(guild.getId());
     role = ImmutableRole.builder().from(role).name(DataFaker.username()).build();
     events.onNext(
         GuildRoleUpdateEvent.of(
             ImmutableGuildRoleUpdateEventData.builder().guildId(guild.getId()).role(role).build()));
 
-    // Retrieve role
     subject
         .getGuild(guild.getId())
         .map(Guild::getRoles)
         .map(list -> list.get(0))
         .subscribe(observer);
 
-    // Assert state
     assertObserver(observer, role);
   }
 
@@ -256,10 +219,8 @@ public class TestGuildsFromEvents {
   public void getGuild_whenRoleDeletes_shouldDeleteInGuildRoles() {
     TestObserver<Role> observer = new TestObserver<>();
 
-    // Create guild
     Guild guild = simpleCreateGuild();
 
-    // Create and delete role
     Role role = simpleCreateRole(guild.getId());
     events.onNext(
         GuildRoleDeleteEvent.of(
@@ -268,14 +229,12 @@ public class TestGuildsFromEvents {
                 .roleId(role.getId())
                 .build()));
 
-    // Retrieve `should be null` role
     subject
         .getGuild(guild.getId())
         .map(Guild::getRoles)
         .flatMap(list -> Maybes.fromOptional(list.stream().findFirst()))
         .subscribe(observer);
 
-    // Assert state
     assertObserver(observer);
   }
 
@@ -283,15 +242,12 @@ public class TestGuildsFromEvents {
   public void getGuild_whenGuildUpdates_shouldUpdateGuild() {
     TestObserver<Guild> observer = new TestObserver<>();
 
-    // Create and update guild
     Guild guild = simpleCreateGuild();
     guild = ImmutableGuild.builder().from(DataFaker.guild()).id(guild.getId()).build();
     events.onNext(GuildUpdateEvent.of(guild));
 
-    // Retrieve guild
     subject.getGuild(guild.getId()).subscribe(observer);
 
-    // Assert state
     assertObserver(observer, guild);
   }
 
