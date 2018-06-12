@@ -18,7 +18,6 @@ public class RxWebSocket {
   private static final Logger LOG = LoggerFactory.getLogger(RxWebSocket.class);
 
   private volatile boolean closed = false;
-  private int exitCode = 0;
   private final OkHttpClient http;
 
   private WebSocket ws;
@@ -35,7 +34,6 @@ public class RxWebSocket {
               ws = http.newWebSocket(rq, new Listener(RxWebSocket.this, em));
             })
         .takeUntil(event -> closed)
-        .doOnTerminate(() -> System.exit(exitCode))
         .doOnNext(e -> LOG.trace("Received: {}.", e))
         .doOnError(e -> LOG.warn("Error: {}.", e));
   }
@@ -56,7 +54,6 @@ public class RxWebSocket {
   public Completable closeDueToInvalidSession() {
     return Completable.fromAction(
         () -> {
-          exitCode = 1;
           close(1002, "Invalid session.");
         });
   }
@@ -86,7 +83,6 @@ public class RxWebSocket {
       if (!socket.closed) {
         if (code == 4004) {
           socket.close(1002, "Invalid token.");
-          socket.exitCode = 1;
           new ErisCasperFatalException("Failed to authenticate with discord servers.")
               .fillInStackTrace()
               .printStackTrace();
@@ -98,10 +94,7 @@ public class RxWebSocket {
     @Override
     public void onFailure(WebSocket ws, Throwable t, Response response) {
       em.onNext(FailureTuple.of(ws, t, Optional.ofNullable(response)));
-      em.onError(
-          t instanceof ErisCasperFatalException
-              ? t
-              : new ErisCasperFatalException("Socket closed unexpectedly.", t));
+      em.onError(t);
     }
 
     @Override
