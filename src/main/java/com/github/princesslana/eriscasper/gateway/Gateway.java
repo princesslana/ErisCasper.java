@@ -1,9 +1,14 @@
 package com.github.princesslana.eriscasper.gateway;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.github.princesslana.eriscasper.BotToken;
 import com.github.princesslana.eriscasper.data.event.Event;
 import com.github.princesslana.eriscasper.data.event.HelloEventData;
 import com.github.princesslana.eriscasper.data.event.ReadyEvent;
+import com.github.princesslana.eriscasper.gateway.commands.ImmutableResume;
+import com.github.princesslana.eriscasper.gateway.commands.RequestGuildMembers;
+import com.github.princesslana.eriscasper.gateway.commands.UpdatePresence;
+import com.github.princesslana.eriscasper.gateway.commands.UpdateVoiceState;
 import com.github.princesslana.eriscasper.rx.Singles;
 import com.github.princesslana.eriscasper.rx.websocket.RxWebSocket;
 import com.github.princesslana.eriscasper.rx.websocket.RxWebSocketEvent;
@@ -14,6 +19,7 @@ import io.github.resilience4j.ratelimiter.operator.RateLimiterOperator;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
+import io.reactivex.annotations.Nullable;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -85,7 +91,7 @@ public class Gateway {
   }
 
   @SuppressWarnings("unchecked")
-  public Observable<Event> connect(String url, BotToken token) {
+  public Observable<Event> connect(String url, BotToken token, Integer[] shard) {
     Observable<Payload> ps =
         ws.connect(String.format("%s?v=%s&encoding=%s", url, VERSION, ENCODING))
             .ofType(RxWebSocketEvent.StringMessage.class)
@@ -93,6 +99,23 @@ public class Gateway {
             .flatMapMaybe(
                 Singles.toMaybeAnd(
                     payloads::read, (s, t) -> LOG.warn("Error reading payload: {}", s, t)))
+            .takeUntil(
+                payload -> {
+                  if (payload.op().getCode() == 9) {
+                    if (payload.d().map(JsonNode::asBoolean).orElse(false)) {
+                      resume(ws, token);
+                    } else {
+                      ws.closeDueToInvalidSession()
+                          .doOnComplete(
+                              () -> LOG.warn("Socket disconnected due to an invalid session."))
+                          // blocking since we shouldn't be doing anything if this happens
+                          // (this is an invalid session which can't be resumed.
+                          .blockingAwait();
+                      return true;
+                    }
+                  }
+                  return false;
+                })
             .doOnNext(p -> sequenceNumberSeen(p.s()))
             .share();
 
@@ -101,7 +124,8 @@ public class Gateway {
 
     Completable identify =
         ps.filter(Payload.isOp(OpCode.HELLO))
-            .flatMapCompletable(p -> isResumable() ? resume(ws, token) : identify(ws, token));
+            .flatMapCompletable(
+                p -> isResumable() ? resume(ws, token) : identify(ws, token, shard));
 
     Observable<Event> events = ps.flatMapMaybe(payloads::toEvent).share();
 
@@ -127,10 +151,9 @@ public class Gateway {
         .doOnComplete(() -> LOG.debug("Sent: {}.", payload));
   }
 
-  private Completable identify(RxWebSocket ws, BotToken token) {
-    return Single.just(payloads.identify(token))
-        .lift(RateLimiterOperator.of(identifyLimit))
-        .flatMapCompletable(p -> send(ws, p));
+  private Completable identify(RxWebSocket ws, BotToken token, @Nullable Integer[] shard) {
+    return send(
+        Single.just(payloads.identify(token, shard)).lift(RateLimiterOperator.of(identifyLimit)));
   }
 
   private Completable heartbeat(RxWebSocket ws, Payload hello) {
@@ -146,14 +169,34 @@ public class Gateway {
     Preconditions.checkState(
         lastSeenSequenceNumber.isPresent(), "Can not resume without a sequence number");
 
-    return Single.just(
-            ImmutableResume.builder()
-                .token(token)
-                .sessionId(sessionId.get())
-                .seq(lastSeenSequenceNumber.get())
-                .build())
-        .map(payloads::resume)
-        .flatMapCompletable(p -> send(ws, p));
+    return send(
+        Single.just(
+                ImmutableResume.builder()
+                    .token(token)
+                    .sessionId(sessionId.get())
+                    .seq(lastSeenSequenceNumber.get())
+                    .build())
+            .map(payloads::resume));
+  }
+
+  public Completable requestGuildMembers(RequestGuildMembers request) {
+    return send(Single.just(payloads.requestGuildMembers(request)));
+  }
+
+  public Completable updatePresence(UpdatePresence update) {
+    return send(Single.just(payloads.updatePresence(update)));
+  }
+
+  public Completable updateVoiceState(UpdateVoiceState update) {
+    return send(Single.just(payloads.updateVoiceState(update)));
+  }
+
+  public Completable send(Single<Payload> payload) {
+    return payload.flatMapCompletable(p -> send(ws, p));
+  }
+
+  public void shutdownGracefully() {
+    ws.close(1000, "Graceful shutdown.");
   }
 
   public static Gateway create(OkHttpClient client, Payloads payloads) {

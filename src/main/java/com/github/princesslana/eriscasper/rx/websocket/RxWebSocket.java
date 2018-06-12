@@ -1,8 +1,10 @@
 package com.github.princesslana.eriscasper.rx.websocket;
 
+import com.github.princesslana.eriscasper.ErisCasperFatalException;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
+import io.reactivex.annotations.Nullable;
 import java.util.Optional;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -16,6 +18,8 @@ public class RxWebSocket {
 
   private static final Logger LOG = LoggerFactory.getLogger(RxWebSocket.class);
 
+  private volatile boolean closed = false;
+  private int exitCode = 0;
   private final OkHttpClient http;
 
   private WebSocket ws;
@@ -29,10 +33,33 @@ public class RxWebSocket {
             em -> {
               Request rq = new Request.Builder().url(url).build();
 
-              ws = http.newWebSocket(rq, new Listener(em));
+              ws = http.newWebSocket(rq, new Listener(RxWebSocket.this, em));
             })
+        .takeUntil(event -> closed)
+        .doOnTerminate(() -> System.exit(exitCode))
         .doOnNext(e -> LOG.trace("Received: {}.", e))
         .doOnError(e -> LOG.warn("Error: {}.", e));
+  }
+
+  private void close0() {
+    closed = true;
+  }
+
+  public void close(int code) {
+    close(code, null);
+  }
+
+  public void close(int code, @Nullable String reason) {
+    close0();
+    ws.close(code, reason);
+  }
+
+  public Completable closeDueToInvalidSession() {
+    return Completable.fromAction(
+        () -> {
+          exitCode = 1;
+          close(1002, "Invalid session.");
+        });
   }
 
   public Completable send(String text) {
@@ -42,25 +69,40 @@ public class RxWebSocket {
 
   private static class Listener extends WebSocketListener {
     private final ObservableEmitter<RxWebSocketEvent> em;
+    private final RxWebSocket socket;
 
-    public Listener(ObservableEmitter<RxWebSocketEvent> em) {
+    private Listener(RxWebSocket socket, ObservableEmitter<RxWebSocketEvent> em) {
+      this.socket = socket;
       this.em = em;
     }
 
     @Override
     public void onClosed(WebSocket ws, int code, String reason) {
       em.onNext(ClosedTuple.of(ws, code, reason));
+      socket.close0();
     }
 
     @Override
     public void onClosing(WebSocket ws, int code, String reason) {
+      if (!socket.closed) {
+        if (code == 4004) {
+          socket.close(1002, "Invalid token.");
+          socket.exitCode = 1;
+          new ErisCasperFatalException("Failed to authenticate with discord servers.")
+              .fillInStackTrace()
+              .printStackTrace();
+        }
+      }
       em.onNext(ClosingTuple.of(ws, code, reason));
     }
 
     @Override
     public void onFailure(WebSocket ws, Throwable t, Response response) {
       em.onNext(FailureTuple.of(ws, t, Optional.ofNullable(response)));
-      em.onError(t);
+      em.onError(
+          t instanceof ErisCasperFatalException
+              ? t
+              : new ErisCasperFatalException("Socket closed unexpectedly.", t));
     }
 
     @Override
