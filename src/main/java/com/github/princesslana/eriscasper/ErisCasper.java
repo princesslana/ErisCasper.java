@@ -9,6 +9,10 @@ import com.github.princesslana.eriscasper.repository.RepositoryManager;
 import com.github.princesslana.eriscasper.rest.RouteCatalog;
 import com.github.princesslana.eriscasper.rest.Routes;
 import com.github.princesslana.eriscasper.util.OkHttp;
+import com.ufoscout.properlty.Properlty;
+import com.ufoscout.properlty.reader.EnvironmentVariablesReader;
+import com.ufoscout.properlty.reader.SystemPropertiesReader;
+import com.ufoscout.properlty.reader.decorator.ToLowerCaseAndDotKeyReader;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
@@ -19,6 +23,13 @@ import org.slf4j.LoggerFactory;
 public class ErisCasper {
 
   private static final Logger LOG = LoggerFactory.getLogger(ErisCasper.class);
+
+  // last wins
+  private static final Properlty CONFIG =
+      Properlty.builder()
+          .add(new SystemPropertiesReader())
+          .add(new ToLowerCaseAndDotKeyReader(new EnvironmentVariablesReader()))
+          .build();
 
   private final BotToken token;
 
@@ -57,7 +68,10 @@ public class ErisCasper {
   }
 
   public static ErisCasper create() {
-    return create(System.getenv("EC_TOKEN"));
+    return create(
+        CONFIG
+            .get("ec.token")
+            .orElseThrow(() -> new ErisCasperFatalException("ec.token not provided")));
   }
 
   public static ErisCasper create(String token) {
