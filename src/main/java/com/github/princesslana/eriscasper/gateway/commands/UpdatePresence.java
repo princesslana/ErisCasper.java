@@ -1,6 +1,5 @@
 package com.github.princesslana.eriscasper.gateway.commands;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.princesslana.eriscasper.data.resource.Activity;
 import com.github.princesslana.eriscasper.gateway.ImmutablePayload;
@@ -15,18 +14,14 @@ import org.immutables.value.Value;
  */
 @Value.Immutable
 public interface UpdatePresence extends GatewayCommand {
-  @JsonProperty("since")
   @Nullable
   Integer getSince();
 
-  @JsonProperty("game")
   @Nullable
   Activity getGame();
 
-  @JsonProperty("status")
   String getStatus();
 
-  @JsonProperty("afk")
   Boolean getAfk();
 
   @Override

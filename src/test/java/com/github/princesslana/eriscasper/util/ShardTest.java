@@ -14,7 +14,7 @@ public class ShardTest {
     Assertions.assertThat(
             Shard.fromConfig(
                 properlty(Properties.add("ec.shard.id", "2").add("ec.shard.total", "3"))))
-        .map(Shard::unwrap)
+        .map(Shard::toArray)
         .hasValue(new Integer[] {2, 3});
   }
 

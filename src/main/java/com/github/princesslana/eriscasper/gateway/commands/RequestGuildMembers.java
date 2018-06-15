@@ -17,10 +17,8 @@ public interface RequestGuildMembers extends GatewayCommand {
   @JsonProperty("guild_id")
   Snowflake getGuildId();
 
-  @JsonProperty("query")
   String getQuery();
 
-  @JsonProperty("limit")
   Integer getLimit();
 
   @Override

@@ -35,22 +35,4 @@ public interface UpdateVoiceState extends GatewayCommand {
         .d(jackson.valueToTree(this))
         .build();
   }
-
-  static UpdateVoiceState disconnect(Snowflake guildId) {
-    return connect(guildId, null);
-  }
-
-  static UpdateVoiceState connect(Snowflake guildId, Snowflake channelId) {
-    return connect(guildId, channelId, false, false);
-  }
-
-  static UpdateVoiceState connect(
-      Snowflake guildId, Snowflake channelId, boolean deaf, boolean mute) {
-    return ImmutableUpdateVoiceState.builder()
-        .guildId(guildId)
-        .channelId(channelId)
-        .isDeaf(deaf)
-        .isMuted(mute)
-        .build();
-  }
 }

@@ -1,11 +1,11 @@
 package com.github.princesslana.eriscasper.util;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.github.princesslana.eriscasper.ErisCasperFatalException;
-import com.github.princesslana.eriscasper.data.immutable.Wrapper;
 import com.ufoscout.properlty.Properlty;
 import java.util.Optional;
 
-public class Shard implements Wrapper<Integer[]> {
+public class Shard {
 
   private final int shardNumber;
   private final int shardTotal;
@@ -19,17 +19,9 @@ public class Shard implements Wrapper<Integer[]> {
     this.shardTotal = shardTotal;
   }
 
-  @Override
-  public Integer[] unwrap() {
-    return new Integer[] {getShardNumber(), getShardTotal()};
-  }
-
-  public int getShardNumber() {
-    return shardNumber;
-  }
-
-  public int getShardTotal() {
-    return shardTotal;
+  @JsonValue
+  public Integer[] toArray() {
+    return new Integer[] {shardNumber, shardTotal};
   }
 
   public static Optional<Shard> fromConfig(Properlty config) {

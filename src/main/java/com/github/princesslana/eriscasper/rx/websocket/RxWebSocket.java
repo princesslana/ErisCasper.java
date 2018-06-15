@@ -17,7 +17,6 @@ public class RxWebSocket {
 
   private static final Logger LOG = LoggerFactory.getLogger(RxWebSocket.class);
 
-  private volatile boolean closed = false;
   private final OkHttpClient http;
 
   private WebSocket ws;
@@ -38,16 +37,11 @@ public class RxWebSocket {
         .doOnError(e -> LOG.warn("Error: {}.", e));
   }
 
-  private void close0() {
-    closed = true;
-  }
-
   public void close(int code) {
     close(code, null);
   }
 
   public void close(int code, String reason) {
-    close0();
     ws.close(code, reason);
   }
 
@@ -75,17 +69,15 @@ public class RxWebSocket {
     @Override
     public void onClosed(WebSocket ws, int code, String reason) {
       em.onNext(ClosedTuple.of(ws, code, reason));
-      socket.close0();
     }
 
     @Override
     public void onClosing(WebSocket ws, int code, String reason) {
-      if (!socket.closed) {
-        if (code == 4004) {
-          socket.close(1002, "Invalid token.");
-          throw new ErisCasperFatalException(
-              "Failed to authenticate with discord servers: [" + reason + "]");
-        }
+      if (code == 4004) {
+        socket.close(1002, "Invalid token.");
+        em.onNext(ClosingTuple.of(ws, code, reason));
+        throw new ErisCasperFatalException(
+            "Failed to authenticate with discord servers: [" + reason + "]");
       }
       em.onNext(ClosingTuple.of(ws, code, reason));
     }
