@@ -23,7 +23,6 @@ import io.reactivex.observers.TestObserver;
 import io.reactivex.subjects.PublishSubject;
 import java.io.IOException;
 import java.util.Optional;
-
 import okhttp3.WebSocket;
 import org.assertj.core.api.Assertions;
 import org.mockito.ArgumentCaptor;

@@ -33,10 +33,17 @@ public class Shard implements Wrapper<Integer[]> {
   }
 
   public static Optional<Shard> fromConfig(Properlty config) {
-    return config
-        .getInt("ec.shard.id")
-        .map(
-            shard ->
-                config.getInt("ec.shard.total").map(total -> new Shard(shard, total)).orElse(null));
+    Optional<Integer> shard = config.getInt("ec.shard.id");
+    Optional<Integer> total = config.getInt("ec.shard.total");
+    if (shard.isPresent() || total.isPresent()) {
+      ErisCasperFatalException exception =
+          new ErisCasperFatalException(
+              "Failed to resolve both sharding values when only one was provided.");
+      return Optional.of(
+          shard
+              .map(s -> total.map(t -> new Shard(s, t)).orElseThrow(() -> exception))
+              .orElseThrow(() -> exception));
+    }
+    return Optional.empty();
   }
 }
