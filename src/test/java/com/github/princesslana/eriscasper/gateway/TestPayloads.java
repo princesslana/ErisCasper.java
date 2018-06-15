@@ -23,7 +23,7 @@ public class TestPayloads {
 
   @Test
   public void identify_whenBotToken_shouldHaveIdentifyOpCode() {
-    Payload p = subject.identify(BotToken.of("TEST_TOKEN"), null);
+    Payload p = subject.identify(BotToken.of("TEST_TOKEN"), Optional.empty());
 
     Assertions.assertThat(p.op()).isEqualTo(OpCode.IDENTIFY);
     Assertions.assertThat(p.d()).isPresent();
