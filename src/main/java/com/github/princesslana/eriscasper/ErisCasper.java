@@ -42,9 +42,9 @@ public class ErisCasper {
   private final Routes routes;
   private final Optional<Shard> shard;
 
-  private ErisCasper(BotToken token, Shard shard) {
+  private ErisCasper(BotToken token, Optional<Shard> shard) {
     this.token = token;
-    this.shard = Optional.ofNullable(shard);
+    this.shard = shard;
     routes = new Routes(token, httpClient, jackson);
   }
 
@@ -78,37 +78,11 @@ public class ErisCasper {
   }
 
   public static ErisCasper create(String token) {
-    return CONFIG
-        .get(
-            "ec.shard.id",
-            (shard) -> {
-              if (shard.matches("\\d+")) {
-                int shardNumber = Integer.parseInt(shard);
-                return create(
-                    token,
-                    shardNumber,
-                    CONFIG
-                        .get(
-                            "ec.shard.total",
-                            (total) -> {
-                              if (total.matches("\\d+")) {
-                                return Integer.parseInt(total);
-                              }
-                              throw new IllegalArgumentException(
-                                  "Failed to read " + total + " as a valid shard total.");
-                            })
-                        .orElseThrow(
-                            () ->
-                                new ErisCasperFatalException(
-                                    "ec.shard.total not provided with ec.shard.id")));
-              }
-              throw new IllegalArgumentException("Failed to read " + shard + " as a valid shard.");
-            })
-        .orElse(new ErisCasper(BotToken.of(token), null));
+    return new ErisCasper(BotToken.of(token), Shard.fromConfig(CONFIG));
   }
 
   public static ErisCasper create(String token, int shardNumber, int shardTotal) {
     Shard shard = new Shard(shardNumber, shardTotal);
-    return new ErisCasper(BotToken.of(token), shard);
+    return new ErisCasper(BotToken.of(token), Optional.of(shard));
   }
 }

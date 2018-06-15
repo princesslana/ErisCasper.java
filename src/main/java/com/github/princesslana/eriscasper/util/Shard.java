@@ -2,6 +2,8 @@ package com.github.princesslana.eriscasper.util;
 
 import com.github.princesslana.eriscasper.ErisCasperFatalException;
 import com.github.princesslana.eriscasper.data.immutable.Wrapper;
+import com.ufoscout.properlty.Properlty;
+import java.util.Optional;
 
 public class Shard implements Wrapper<Integer[]> {
 
@@ -28,5 +30,13 @@ public class Shard implements Wrapper<Integer[]> {
 
   public int getShardTotal() {
     return shardTotal;
+  }
+
+  public static Optional<Shard> fromConfig(Properlty config) {
+    return config
+        .getInt("ec.shard.id")
+        .map(
+            shard ->
+                config.getInt("ec.shard.total").map(total -> new Shard(shard, total)).orElse(null));
   }
 }
