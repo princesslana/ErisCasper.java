@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * Robot presents an API that allows execution of callbacks when messages matching regexes are
+ * Robot presents an API that allows execution on callbacks when messages matching regexes are
  * received.
  */
 public class Robot implements Bot {
@@ -34,7 +34,7 @@ public class Robot implements Bot {
   }
 
   /**
-   * See {@link hear(Pattern, Function)}.
+   * See {@link #hear(Pattern, Function)}.
    *
    * @param regex regex to match
    * @param f function to execute when matched
@@ -55,7 +55,7 @@ public class Robot implements Bot {
   }
 
   /**
-   * See {@link respond(Pattern, Function)}.
+   * See {@link #respond(Pattern, Function)}.
    *
    * @param regex regex to match
    * @param f function to execute when matched
@@ -68,8 +68,8 @@ public class Robot implements Bot {
    * Checks all messages sent directly to the Robot against the provided regex. Executes the
    * provided function when there is a match.
    *
-   * <p>Messages are considered to be directed at the Robot if they begin with "+", the username of
-   * the bot account, or a mention of the bot account.
+   * <p>Messages are considered to be directed at the Robot if they begin with "+", the username on
+   * the bot account, or a mention on the bot account.
    *
    * @param regex regex to match
    * @param f function to execute when matched

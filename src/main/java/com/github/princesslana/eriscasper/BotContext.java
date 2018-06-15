@@ -3,9 +3,7 @@ package com.github.princesslana.eriscasper;
 import com.github.princesslana.eriscasper.action.Action;
 import com.github.princesslana.eriscasper.data.event.Event;
 import com.github.princesslana.eriscasper.data.immutable.Wrapper;
-import com.github.princesslana.eriscasper.gateway.commands.RequestGuildMembers;
-import com.github.princesslana.eriscasper.gateway.commands.UpdatePresence;
-import com.github.princesslana.eriscasper.gateway.commands.UpdateVoiceState;
+import com.github.princesslana.eriscasper.gateway.commands.GatewayCommand;
 import com.github.princesslana.eriscasper.repository.RepositoryDefinition;
 import com.github.princesslana.eriscasper.repository.RepositoryManager;
 import com.github.princesslana.eriscasper.rest.Route;
@@ -22,19 +20,13 @@ public class BotContext {
 
   private static final Logger LOG = LoggerFactory.getLogger(BotContext.class);
 
-  private final ErisCasper erisCasperInstance;
   private final Observable<Event> events;
 
   private Routes routes;
 
   private RepositoryManager repositories;
 
-  public BotContext(
-      ErisCasper erisCasperInstance,
-      Observable<Event> events,
-      Routes routes,
-      RepositoryManager repositories) {
-    this.erisCasperInstance = erisCasperInstance;
+  public BotContext(Observable<Event> events, Routes routes, RepositoryManager repositories) {
     this.events = events;
     this.routes = routes;
     this.repositories = repositories;
@@ -49,24 +41,12 @@ public class BotContext {
     return events.ofType(evt).map(E::unwrap).flatMapCompletable(f::apply);
   }
 
-  public Completable shutdownGracefully() {
-    return Completable.fromAction(erisCasperInstance::shutdownGracefully);
-  }
-
-  public Completable requestGuildMembers(RequestGuildMembers request) {
-    return erisCasperInstance.requestGuildMembers(request);
-  }
-
-  public Completable updatePresence(UpdatePresence update) {
-    return erisCasperInstance.updatePresence(update);
-  }
-
-  public Completable updateVoiceState(UpdateVoiceState update) {
-    return erisCasperInstance.updateVoiceState(update);
-  }
-
   public Completable doNothing() {
     return Completable.complete();
+  }
+
+  public Completable sendGatewayCommand(GatewayCommand command) {
+    return routes.sendGatewayCommand(command);
   }
 
   /**

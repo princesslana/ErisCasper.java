@@ -15,7 +15,6 @@ import com.github.princesslana.eriscasper.data.util.Jackson;
 import com.github.princesslana.eriscasper.faker.DataFaker;
 import com.github.princesslana.eriscasper.faker.DiscordFaker;
 import com.github.princesslana.eriscasper.gateway.commands.Identify;
-import com.github.princesslana.eriscasper.gateway.commands.util.ConnectionProperties;
 import com.github.princesslana.eriscasper.rx.websocket.RxWebSocket;
 import com.github.princesslana.eriscasper.rx.websocket.RxWebSocketEvent;
 import com.github.princesslana.eriscasper.rx.websocket.StringMessageTuple;
@@ -101,7 +100,7 @@ public class TestGateway {
 
     Assertions.assertThat(identify)
         .hasFieldOrPropertyWithValue("token", token)
-        .hasFieldOrPropertyWithValue("properties", ConnectionProperties.ofDefault());
+        .hasFieldOrPropertyWithValue("properties", Identify.ConnectionProperties.ofDefault());
   }
 
   @Test

@@ -1,7 +1,11 @@
 package com.github.princesslana.eriscasper.gateway.commands;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.princesslana.eriscasper.data.Snowflake;
+import com.github.princesslana.eriscasper.gateway.ImmutablePayload;
+import com.github.princesslana.eriscasper.gateway.OpCode;
+import com.github.princesslana.eriscasper.gateway.Payload;
 import io.reactivex.annotations.Nullable;
 import org.immutables.value.Value;
 
@@ -10,7 +14,7 @@ import org.immutables.value.Value;
  *     https://discordapp.com/developers/docs/topics/gateway#update-voice-state</a>
  */
 @Value.Immutable
-public interface UpdateVoiceState {
+public interface UpdateVoiceState extends GatewayCommand {
   @JsonProperty("guild_id")
   Snowflake getGuildId();
 
@@ -23,6 +27,14 @@ public interface UpdateVoiceState {
 
   @JsonProperty("self_deaf")
   Boolean isDeaf();
+
+  @Override
+  default Payload toPayload(ObjectMapper jackson) {
+    return ImmutablePayload.builder()
+        .op(OpCode.VOICE_STATE_UPDATE)
+        .d(jackson.valueToTree(this))
+        .build();
+  }
 
   static UpdateVoiceState disconnect(Snowflake guildId) {
     return connect(guildId, null);

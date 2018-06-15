@@ -33,7 +33,7 @@ public class RxWebSocket {
 
               ws = http.newWebSocket(rq, new Listener(RxWebSocket.this, em));
             })
-        .takeUntil(event -> closed)
+        .takeUntil(e -> e instanceof RxWebSocketEvent.Closed)
         .doOnNext(e -> LOG.trace("Received: {}.", e))
         .doOnError(e -> LOG.warn("Error: {}.", e));
   }
@@ -83,9 +83,8 @@ public class RxWebSocket {
       if (!socket.closed) {
         if (code == 4004) {
           socket.close(1002, "Invalid token.");
-          new ErisCasperFatalException("Failed to authenticate with discord servers.")
-              .fillInStackTrace()
-              .printStackTrace();
+          throw new ErisCasperFatalException(
+              "Failed to authenticate with discord servers: [" + reason + "]");
         }
       }
       em.onNext(ClosingTuple.of(ws, code, reason));

@@ -6,12 +6,10 @@ import com.github.princesslana.eriscasper.data.event.Event;
 import com.github.princesslana.eriscasper.data.event.HelloEventData;
 import com.github.princesslana.eriscasper.data.event.ReadyEvent;
 import com.github.princesslana.eriscasper.gateway.commands.ImmutableResume;
-import com.github.princesslana.eriscasper.gateway.commands.RequestGuildMembers;
-import com.github.princesslana.eriscasper.gateway.commands.UpdatePresence;
-import com.github.princesslana.eriscasper.gateway.commands.UpdateVoiceState;
 import com.github.princesslana.eriscasper.rx.Singles;
 import com.github.princesslana.eriscasper.rx.websocket.RxWebSocket;
 import com.github.princesslana.eriscasper.rx.websocket.RxWebSocketEvent;
+import com.github.princesslana.eriscasper.util.Shard;
 import com.google.common.base.Preconditions;
 import io.github.resilience4j.ratelimiter.RateLimiter;
 import io.github.resilience4j.ratelimiter.RateLimiterConfig;
@@ -90,7 +88,7 @@ public class Gateway {
   }
 
   @SuppressWarnings("unchecked")
-  public Observable<Event> connect(String url, BotToken token, Integer[] shard) {
+  public Observable<Event> connect(String url, BotToken token, Optional<Shard> shard) {
     Observable<Payload> ps =
         ws.connect(String.format("%s?v=%s&encoding=%s", url, VERSION, ENCODING))
             .ofType(RxWebSocketEvent.StringMessage.class)
@@ -150,7 +148,7 @@ public class Gateway {
         .doOnComplete(() -> LOG.debug("Sent: {}.", payload));
   }
 
-  private Completable identify(RxWebSocket ws, BotToken token, Integer[] shard) {
+  private Completable identify(RxWebSocket ws, BotToken token, Optional<Shard> shard) {
     return send(
         Single.just(payloads.identify(token, shard)).lift(RateLimiterOperator.of(identifyLimit)));
   }
@@ -176,18 +174,6 @@ public class Gateway {
                     .seq(lastSeenSequenceNumber.get())
                     .build())
             .map(payloads::resume));
-  }
-
-  public Completable requestGuildMembers(RequestGuildMembers request) {
-    return send(Single.just(payloads.requestGuildMembers(request)));
-  }
-
-  public Completable updatePresence(UpdatePresence update) {
-    return send(Single.just(payloads.updatePresence(update)));
-  }
-
-  public Completable updateVoiceState(UpdateVoiceState update) {
-    return send(Single.just(payloads.updateVoiceState(update)));
   }
 
   public Completable send(Single<Payload> payload) {

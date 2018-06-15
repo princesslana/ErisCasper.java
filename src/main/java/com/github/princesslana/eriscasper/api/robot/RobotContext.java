@@ -31,7 +31,7 @@ public class RobotContext {
   /**
    * Whether the received message was matched by the matcher.
    *
-   * @returns the result of the matcher
+   * @returns the result on the matcher
    */
   public boolean matches() {
     return matcher.matches();
@@ -40,7 +40,7 @@ public class RobotContext {
   /**
    * Gets the value captured by the indexed group as matched in the message.
    *
-   * @param group index of the capturing group
+   * @param group index on the capturing group
    * @return the value captured by the group
    */
   public String match(int group) {
@@ -50,7 +50,7 @@ public class RobotContext {
   /**
    * Gets the value captured by the named group as matched in the message.
    *
-   * @param name name of the capturing group
+   * @param name name on the capturing group
    * @return the value captured by the group
    */
   public String match(String name) {
@@ -69,7 +69,7 @@ public class RobotContext {
   }
 
   /**
-   * Sends a message to the room of the message the triggered the callback.
+   * Sends a message to the room on the message the triggered the callback.
    *
    * @param msg the message to send
    */

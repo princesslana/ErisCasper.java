@@ -8,11 +8,9 @@ import com.github.princesslana.eriscasper.data.immutable.Wrapped;
 import com.github.princesslana.eriscasper.data.immutable.Wrapper;
 import com.github.princesslana.eriscasper.gateway.commands.Identify;
 import com.github.princesslana.eriscasper.gateway.commands.ImmutableIdentify;
-import com.github.princesslana.eriscasper.gateway.commands.RequestGuildMembers;
 import com.github.princesslana.eriscasper.gateway.commands.Resume;
-import com.github.princesslana.eriscasper.gateway.commands.UpdatePresence;
-import com.github.princesslana.eriscasper.gateway.commands.UpdateVoiceState;
 import com.github.princesslana.eriscasper.rx.Maybes;
+import com.github.princesslana.eriscasper.util.Shard;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import java.util.Optional;
@@ -38,13 +36,12 @@ public class Payloads {
     return ImmutablePayload.builder().op(OpCode.HEARTBEAT).d(s.map(jackson::valueToTree)).build();
   }
 
-  public Payload identify(BotToken token, Integer[] shard) {
-    return identify(
-        ImmutableIdentify.builder().token(token).shard(Optional.ofNullable(shard)).build());
+  public Payload identify(BotToken token, Optional<Shard> shard) {
+    return identify(ImmutableIdentify.builder().token(token).shard(shard).build());
   }
 
   public Payload identify(Identify id) {
-    return ImmutablePayload.builder().op(OpCode.IDENTIFY).d(jackson.valueToTree(id)).build();
+    return id.toPayload(jackson);
   }
 
   public Single<Payload> read(String text) {
@@ -52,28 +49,7 @@ public class Payloads {
   }
 
   public Payload resume(Resume r) {
-    return ImmutablePayload.builder().op(OpCode.RESUME).d(jackson.valueToTree(r)).build();
-  }
-
-  public Payload requestGuildMembers(RequestGuildMembers request) {
-    return ImmutablePayload.builder()
-        .op(OpCode.REQUEST_GUILD_MEMBERS)
-        .d(jackson.valueToTree(request))
-        .build();
-  }
-
-  public Payload updatePresence(UpdatePresence update) {
-    return ImmutablePayload.builder()
-        .op(OpCode.STATUS_UPDATE)
-        .d(jackson.valueToTree(update))
-        .build();
-  }
-
-  public Payload updateVoiceState(UpdateVoiceState update) {
-    return ImmutablePayload.builder()
-        .op(OpCode.VOICE_STATE_UPDATE)
-        .d(jackson.valueToTree(update))
-        .build();
+    return r.toPayload(jackson);
   }
 
   public Maybe<Event> toEvent(Payload payload) {
