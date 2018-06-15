@@ -11,7 +11,7 @@ public class Shard implements Wrapper<Integer[]> {
   private final int shardTotal;
 
   public Shard(int shardNumber, int shardTotal) {
-    if (shardNumber > shardTotal || shardTotal < 1 || shardNumber < 0) {
+    if (shardNumber >= shardTotal || shardTotal < 1 || shardNumber < 0) {
       throw new ErisCasperFatalException(
           "Could not create sharding with [" + shardNumber + ", " + shardTotal + "]");
     }
