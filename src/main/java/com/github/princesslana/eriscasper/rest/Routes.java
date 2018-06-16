@@ -73,7 +73,7 @@ public class Routes {
     if (gateway == null) {
       throw new IllegalStateException("These routes have not been bound to a gateway yet.");
     }
-    return gateway.send(Single.just(command.toPayload(jackson)));
+    return gateway.completePayload(Single.just(command.toPayload(jackson)));
   }
 
   private <O> Single<O> executeRequest(Route<?, O> route, Request rq) {

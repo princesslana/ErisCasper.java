@@ -98,15 +98,15 @@ public class Gateway {
                     payloads::read, (s, t) -> LOG.warn("Error reading payload: {}", s, t)))
             .takeUntil(
                 payload -> {
-                  if (payload.op().getCode() == 9) {
+                  if (payload.op() == OpCode.INVALID_SESSION) {
                     if (payload.d().map(JsonNode::asBoolean).orElse(false)) {
                       resume(ws, token);
                     } else {
-                      ws.closeDueToInvalidSession()
+                      // blocking since we shouldn't be doing anything if this happens
+                      // (this is an invalid session which can't be resumed.
+                      Completable.fromAction(() -> ws.close(1002, "Invalid session."))
                           .doOnComplete(
                               () -> LOG.warn("Socket disconnected due to an invalid session."))
-                          // blocking since we shouldn't be doing anything if this happens
-                          // (this is an invalid session which can't be resumed.
                           .blockingAwait();
                       return true;
                     }
@@ -149,7 +149,7 @@ public class Gateway {
   }
 
   private Completable identify(RxWebSocket ws, BotToken token, Optional<Shard> shard) {
-    return send(
+    return completePayload(
         Single.just(payloads.identify(token, shard)).lift(RateLimiterOperator.of(identifyLimit)));
   }
 
@@ -166,7 +166,7 @@ public class Gateway {
     Preconditions.checkState(
         lastSeenSequenceNumber.isPresent(), "Can not resume without a sequence number");
 
-    return send(
+    return completePayload(
         Single.just(
                 ImmutableResume.builder()
                     .token(token)
@@ -176,12 +176,8 @@ public class Gateway {
             .map(payloads::resume));
   }
 
-  public Completable send(Single<Payload> payload) {
+  public Completable completePayload(Single<Payload> payload) {
     return payload.flatMapCompletable(p -> send(ws, p));
-  }
-
-  public void shutdownGracefully() {
-    ws.close(1000, "Graceful shutdown.");
   }
 
   public static Gateway create(OkHttpClient client, Payloads payloads) {

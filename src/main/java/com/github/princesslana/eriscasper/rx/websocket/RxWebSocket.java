@@ -45,13 +45,6 @@ public class RxWebSocket {
     ws.close(code, reason);
   }
 
-  public Completable closeDueToInvalidSession() {
-    return Completable.fromAction(
-        () -> {
-          close(1002, "Invalid session.");
-        });
-  }
-
   public Completable send(String text) {
     return Completable.fromAction(() -> ws.send(text))
         .doOnComplete(() -> LOG.trace("Sent: {}.", text));

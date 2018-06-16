@@ -2,6 +2,7 @@ package com.github.princesslana.eriscasper.util;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.github.princesslana.eriscasper.ErisCasperFatalException;
+import com.google.common.base.Preconditions;
 import com.ufoscout.properlty.Properlty;
 import java.util.Optional;
 
@@ -11,10 +12,11 @@ public class Shard {
   private final int shardTotal;
 
   public Shard(int shardNumber, int shardTotal) {
-    if (shardNumber >= shardTotal || shardTotal < 1 || shardNumber < 0) {
-      throw new ErisCasperFatalException(
-          "Could not create sharding with [" + shardNumber + ", " + shardTotal + "]");
-    }
+    Preconditions.checkArgument(
+        shardNumber >= 0, "Shard number must be greater than or equal to 0.");
+    Preconditions.checkArgument(shardTotal >= 1, "Shard total must be greater than or equal to 1.");
+    Preconditions.checkState(
+        shardNumber < shardTotal, "Shard number must be less than the shard total.");
     this.shardNumber = shardNumber;
     this.shardTotal = shardTotal;
   }
