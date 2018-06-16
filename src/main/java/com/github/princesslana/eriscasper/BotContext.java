@@ -1,8 +1,10 @@
 package com.github.princesslana.eriscasper;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.princesslana.eriscasper.action.Action;
 import com.github.princesslana.eriscasper.data.event.Event;
 import com.github.princesslana.eriscasper.data.immutable.Wrapper;
+import com.github.princesslana.eriscasper.gateway.Gateway;
 import com.github.princesslana.eriscasper.gateway.commands.GatewayCommand;
 import com.github.princesslana.eriscasper.repository.RepositoryDefinition;
 import com.github.princesslana.eriscasper.repository.RepositoryManager;
@@ -20,14 +22,24 @@ public class BotContext {
 
   private static final Logger LOG = LoggerFactory.getLogger(BotContext.class);
 
+  private final ObjectMapper jackson;
   private final Observable<Event> events;
+
+  private final Gateway gateway;
 
   private Routes routes;
 
   private RepositoryManager repositories;
 
-  public BotContext(Observable<Event> events, Routes routes, RepositoryManager repositories) {
+  public BotContext(
+      Gateway gateway,
+      ObjectMapper jackson,
+      Observable<Event> events,
+      Routes routes,
+      RepositoryManager repositories) {
     this.events = events;
+    this.jackson = jackson;
+    this.gateway = gateway;
     this.routes = routes;
     this.repositories = repositories;
   }
@@ -45,8 +57,8 @@ public class BotContext {
     return Completable.complete();
   }
 
-  public Completable sendGatewayCommand(GatewayCommand command) {
-    return routes.sendGatewayCommand(command);
+  public Completable execute(GatewayCommand command) {
+    return gateway.completePayload(Single.just(command.toPayload(jackson)));
   }
 
   /**

@@ -42,6 +42,8 @@ public class ErisCasper {
   private final Routes routes;
   private final Optional<Shard> shard;
 
+  private Gateway gateway;
+
   private ErisCasper(BotToken token, Optional<Shard> shard) {
     this.token = token;
     this.shard = shard;
@@ -49,8 +51,7 @@ public class ErisCasper {
   }
 
   private Observable<Event> getEvents() {
-    Gateway gateway = Gateway.create(httpClient, payloads);
-    routes.useGateway(gateway);
+    gateway = Gateway.create(httpClient, payloads);
     return Single.just(RouteCatalog.getGateway())
         .observeOn(Schedulers.io())
         .flatMap(routes::execute)
@@ -65,7 +66,7 @@ public class ErisCasper {
 
     RepositoryManager rm = RepositoryManager.create(events);
 
-    bot.apply(new BotContext(events, routes, rm))
+    bot.apply(new BotContext(gateway, jackson, events, routes, rm))
         .doOnError(t -> LOG.warn("Exception thrown by Bot", t))
         .blockingAwait();
   }

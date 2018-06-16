@@ -2,13 +2,10 @@ package com.github.princesslana.eriscasper.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.princesslana.eriscasper.BotToken;
-import com.github.princesslana.eriscasper.gateway.Gateway;
-import com.github.princesslana.eriscasper.gateway.commands.GatewayCommand;
 import com.github.princesslana.eriscasper.rx.Maybes;
 import io.github.resilience4j.ratelimiter.RateLimiter;
 import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
 import io.github.resilience4j.ratelimiter.operator.RateLimiterOperator;
-import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.functions.Consumer;
@@ -39,8 +36,6 @@ public class Routes {
   private final OkHttpClient client;
   private final ObjectMapper jackson;
 
-  private Gateway gateway;
-
   public Routes(BotToken token, OkHttpClient client, ObjectMapper jackson) {
     this.token = token;
     this.client = client;
@@ -63,17 +58,6 @@ public class Routes {
         .map(buildRequest)
         .flatMap(rq -> executeRequest(route, rq))
         .lift(RateLimiterOperator.of(getRateLimiter(route)));
-  }
-
-  public void useGateway(Gateway gateway) {
-    this.gateway = gateway;
-  }
-
-  public Completable sendGatewayCommand(GatewayCommand command) {
-    if (gateway == null) {
-      throw new IllegalStateException("These routes have not been bound to a gateway yet.");
-    }
-    return gateway.completePayload(Single.just(command.toPayload(jackson)));
   }
 
   private <O> Single<O> executeRequest(Route<?, O> route, Request rq) {
