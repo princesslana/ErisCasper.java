@@ -33,7 +33,7 @@ public class ChannelRoute {
    *     https://discordapp.com/developers/docs/resources/channel#modify-channel</a>
    */
   public Route<ModifyChannelRequest, Channel> modifyChannel() {
-    return Route.put(path("/"), ModifyChannelRequest.class, Channel.class);
+    return Route.put(path("/"), Channel.class);
   }
 
   /**
@@ -68,7 +68,7 @@ public class ChannelRoute {
    *     https://discordapp.com/developers/docs/resources/channel#create-message</a>
    */
   public Route<CreateMessageRequest, Message> createMessage() {
-    return Route.post(path("/messages"), CreateMessageRequest.class, Message.class);
+    return Route.post(path("/messages"), Message.class);
   }
 
   /**
@@ -76,8 +76,7 @@ public class ChannelRoute {
    *     https://discordapp.com/developers/docs/resources/channel#create-reaction</a>
    */
   public Route<Void, Void> createReaction(Snowflake messageId, String emoji) {
-    return Route.put(
-        path("/messages/%s/reactions/%s/@me", messageId.unwrap(), emoji), Void.class, Void.class);
+    return Route.put(path("/messages/%s/reactions/%s/@me", messageId.unwrap(), emoji), Void.class);
   }
 
   /**
@@ -124,8 +123,7 @@ public class ChannelRoute {
    *     https://discordapp.com/developers/docs/resources/channel#edit-message</a>
    */
   public Route<EditMessageRequest, Message> editMessage(Snowflake messageId) {
-    return Route.patch(
-        path("/messages/%s", messageId.unwrap()), EditMessageRequest.class, Message.class);
+    return Route.patch(path("/messages/%s", messageId.unwrap()), Message.class);
   }
 
   /**
