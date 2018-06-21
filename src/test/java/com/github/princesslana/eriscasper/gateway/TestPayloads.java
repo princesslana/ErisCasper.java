@@ -47,7 +47,7 @@ public class TestPayloads {
     Payload p = subject.heartbeat(Optional.of(sn));
 
     Assertions.assertThat(p.op()).isEqualTo(OpCode.HEARTBEAT);
-    Assertions.assertThat(p.d().isPresent());
+    Assertions.assertThat(p.d()).isPresent();
     Assertions.assertThat(p.d().get().asInt()).isEqualTo(123);
   }
 
