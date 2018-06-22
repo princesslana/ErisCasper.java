@@ -53,7 +53,7 @@ public class GuildRoute {
    *     https://discordapp.com/developers/docs/resources/guild#modify-guild</a>
    */
   public Route<ModifyGuildRequest, Guild> modifyGuild() {
-    return Route.patch(path(""), ModifyGuildRequest.class, Guild.class);
+    return Route.patch(path(""), Guild.class);
   }
 
   /**
@@ -77,7 +77,7 @@ public class GuildRoute {
    *     https://discordapp.com/developers/docs/resources/guild#create-guild-channel</a>
    */
   public Route<GuildChannelCreateRequest, Channel> createGuildChannel() {
-    return Route.post(path("/channels"), GuildChannelCreateRequest.class, Channel.class);
+    return Route.post(path("/channels"), Channel.class);
   }
 
   /**
@@ -86,7 +86,7 @@ public class GuildRoute {
    *     https://discordapp.com/developers/docs/resources/guild#modify-guild-channel-positions</a>
    */
   public Route<ModifyGuildChannelPositionsRequest, Void> modifyGuildChannelPositions() {
-    return Route.patch(path("/channels"), ModifyGuildChannelPositionsRequest.class, Void.class);
+    return Route.patch(path("/channels"), Void.class);
   }
 
   /**
@@ -127,8 +127,7 @@ public class GuildRoute {
    *     https://discordapp.com/developers/docs/resources/guild#modify-guild-member</a>
    */
   public Route<ModifyGuildMemberRequest, Void> modifyGuildMember(Snowflake userId) {
-    return Route.patch(
-        path("/members/%s", userId.unwrap()), ModifyGuildMemberRequest.class, Void.class);
+    return Route.patch(path("/members/%s", userId.unwrap()), Void.class);
   }
 
   /**
@@ -136,7 +135,7 @@ public class GuildRoute {
    *     https://discordapp.com/developers/docs/resources/guild#modify-current-user-nick</a>
    */
   public Route<ModifyCurrentNickRequest, String> modifyCurrentUserNick() {
-    return Route.patch(path("/members/@me/nick"), ModifyCurrentNickRequest.class, String.class);
+    return Route.patch(path("/members/@me/nick"), String.class);
   }
 
   /**
@@ -144,8 +143,7 @@ public class GuildRoute {
    *     https://discordapp.com/developers/docs/resources/guild#add-guild-member-role</a>
    */
   public Route<Void, Void> addGuildMemberRole(Snowflake userId, Snowflake roleId) {
-    return Route.put(
-        path("/members/%s/roles/%s", userId.unwrap(), roleId.unwrap()), Void.class, Void.class);
+    return Route.put(path("/members/%s/roles/%s", userId.unwrap(), roleId.unwrap()), Void.class);
   }
 
   /**
@@ -212,7 +210,7 @@ public class GuildRoute {
    *     https://discordapp.com/developers/docs/resources/guild#create-guild-role</a>
    */
   public Route<CreateGuildRoleRequest, Role> createGuildRole() {
-    return Route.post(path("/roles"), CreateGuildRoleRequest.class, Role.class);
+    return Route.post(path("/roles"), Role.class);
   }
 
   /**
@@ -230,8 +228,7 @@ public class GuildRoute {
    *     https://discordapp.com/developers/docs/resources/guild#modify-guild-role</a>
    */
   public Route<ModifyGuildRoleRequest, Role> modifyRole(Snowflake roleId) {
-    return Route.patch(
-        path("/roles/%s", roleId.unwrap()), ModifyGuildRoleRequest.class, Role.class);
+    return Route.patch(path("/roles/%s", roleId.unwrap()), Role.class);
   }
 
   /**
@@ -293,7 +290,7 @@ public class GuildRoute {
    *     https://discordapp.com/developers/docs/resources/guild#create-guild-integration</a>
    */
   public Route<CreateGuildIntegrationRequest, Void> createGuildIntegration() {
-    return Route.post(path("/integrations"), CreateGuildIntegrationRequest.class, Void.class);
+    return Route.post(path("/integrations"), Void.class);
   }
 
   /**
@@ -302,10 +299,7 @@ public class GuildRoute {
    */
   public Route<ModifyGuildIntegrationRequest, Void> modifyGuildIntegration(
       Snowflake integrationId) {
-    return Route.patch(
-        path("/integrations/%s", integrationId.unwrap()),
-        ModifyGuildIntegrationRequest.class,
-        Void.class);
+    return Route.patch(path("/integrations/%s", integrationId.unwrap()), Void.class);
   }
 
   /**
@@ -321,8 +315,7 @@ public class GuildRoute {
    *     https://discordapp.com/developers/docs/resources/guild#sync-guild-integration</a>
    */
   public Route<Void, Void> syncGuildIntegration(Snowflake integrationId) {
-    return Route.post(
-        path("/integrations/%s/sync", integrationId.unwrap()), Void.class, Void.class);
+    return Route.post(path("/integrations/%s/sync", integrationId.unwrap()), Void.class);
   }
 
   /**
@@ -338,7 +331,7 @@ public class GuildRoute {
    *     https://discordapp.com/developers/docs/resources/guild#modify-guild-embed</a>
    */
   public Route<GuildEmbed, GuildEmbed> modifyGuildEmbed() {
-    return Route.patch(path("/embed"), GuildEmbed.class, GuildEmbed.class);
+    return Route.patch(path("/embed"), GuildEmbed.class);
   }
 
   /**
@@ -366,6 +359,6 @@ public class GuildRoute {
    *     https://discordapp.com/developers/docs/resources/guild#create-guild</a>
    */
   public static Route<GuildCreateRequest, Guild> createGuild() {
-    return Route.post("/guilds", GuildCreateRequest.class, Guild.class);
+    return Route.post("/guilds", Guild.class);
   }
 }

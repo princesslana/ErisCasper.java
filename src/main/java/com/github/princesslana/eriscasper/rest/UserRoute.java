@@ -37,7 +37,7 @@ public final class UserRoute {
    *     https://discordapp.com/developers/docs/resources/user#modify-current-user</a>
    */
   public static Route<ModifyUserRequest, User> modifyCurrentUser() {
-    return Route.patch(myPath(""), ModifyUserRequest.class, User.class);
+    return Route.patch(myPath(""), User.class);
   }
 
   /**
@@ -72,7 +72,7 @@ public final class UserRoute {
    *     https://discordapp.com/developers/docs/resources/user#create-dm</a>
    */
   public static Route<CreateDmRequest, Channel> createDm() {
-    return Route.post(myPath("/channels"), CreateDmRequest.class, Channel.class);
+    return Route.post(myPath("/channels"), Channel.class);
   }
 
   /**
@@ -80,7 +80,7 @@ public final class UserRoute {
    *     https://discordapp.com/developers/docs/resources/user#create-group-dm</a>
    */
   public static Route<CreateGroupDmRequest, Channel> createGroupDm() {
-    return Route.post(myPath("/channels"), CreateGroupDmRequest.class, Channel.class);
+    return Route.post(myPath("/channels"), Channel.class);
   }
 
   /**
