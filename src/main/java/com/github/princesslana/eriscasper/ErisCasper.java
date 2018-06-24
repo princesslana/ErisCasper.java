@@ -66,7 +66,7 @@ public class ErisCasper {
 
     RepositoryManager rm = RepositoryManager.create(events);
 
-    bot.apply(new BotContext(gateway, jackson, events, routes, rm))
+    bot.apply(new BotContext(events, routes, rm))
         .doOnError(t -> LOG.warn("Exception thrown by Bot", t))
         .blockingAwait();
   }

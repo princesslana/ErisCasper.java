@@ -46,7 +46,7 @@ public class TestRobot {
     MockitoAnnotations.initMocks(this);
     subject = new Robot();
 
-    bctx = new BotContext(null, null, events, routes, repositoryManager);
+    bctx = new BotContext(events, routes, repositoryManager);
 
     given(repositoryManager.get(RepositoryDefinition.USER)).willReturn(userRepository);
     given(userRepository.getSelf()).willReturn(Single.just(DataFaker.user()));

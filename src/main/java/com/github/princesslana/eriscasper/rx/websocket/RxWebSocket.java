@@ -1,6 +1,5 @@
 package com.github.princesslana.eriscasper.rx.websocket;
 
-import com.github.princesslana.eriscasper.ErisCasperFatalException;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -66,12 +65,6 @@ public class RxWebSocket {
 
     @Override
     public void onClosing(WebSocket ws, int code, String reason) {
-      if (code == 4004) {
-        socket.close(1002, "Invalid token.");
-        em.onNext(ClosingTuple.of(ws, code, reason));
-        throw new ErisCasperFatalException(
-            "Failed to authenticate with discord servers: [" + reason + "]");
-      }
       em.onNext(ClosingTuple.of(ws, code, reason));
     }
 

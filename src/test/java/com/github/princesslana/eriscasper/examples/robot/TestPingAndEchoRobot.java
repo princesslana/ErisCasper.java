@@ -38,7 +38,7 @@ public class TestPingAndEchoRobot {
   public void apply_whenPing_shouldPong() {
     PublishSubject<Event> events = PublishSubject.create();
 
-    BotContext ctx = new BotContext(null, null, events, routes, null);
+    BotContext ctx = new BotContext(events, routes, null);
 
     TestObserver<Void> subscriber = subject.apply(ctx).test();
 
