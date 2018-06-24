@@ -89,13 +89,18 @@ public class Gateway {
 
   @SuppressWarnings("unchecked")
   public Observable<Event> connect(String url, BotToken token, Optional<Shard> shard) {
-    Observable<RxWebSocketEvent> websocketEvents = ws.connect(String.format("%s?v=%s&encoding=%s", url, VERSION, ENCODING));
-    websocketEvents.ofType(RxWebSocketEvent.Closing.class).doOnNext(e -> {
-      if(e.getCode() == 4004) {
-        e.getWebSocket().close(1002, "Invalid token.");
-        throw new ErisCasperFatalException("Failed to authenticate with discord servers.");
-      }
-    }).share();
+    Observable<RxWebSocketEvent> websocketEvents =
+        ws.connect(String.format("%s?v=%s&encoding=%s", url, VERSION, ENCODING));
+    websocketEvents
+        .ofType(RxWebSocketEvent.Closing.class)
+        .doOnNext(
+            e -> {
+              if (e.getCode() == 4004) {
+                e.getWebSocket().close(1002, "Invalid token.");
+                throw new ErisCasperFatalException("Failed to authenticate with discord servers.");
+              }
+            })
+        .share();
     Observable<Payload> ps =
         websocketEvents
             .ofType(RxWebSocketEvent.StringMessage.class)
