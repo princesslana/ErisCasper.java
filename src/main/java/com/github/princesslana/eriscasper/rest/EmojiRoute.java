@@ -38,7 +38,7 @@ public class EmojiRoute {
    */
   // TODO support animated emojis
   public Route<CreateGuildEmojiRequest, Emoji> createGuildEmoji() {
-    return Route.post(path(""), CreateGuildEmojiRequest.class, Emoji.class);
+    return Route.post(path(""), Emoji.class);
   }
 
   /**
@@ -46,7 +46,7 @@ public class EmojiRoute {
    *     https://discordapp.com/developers/docs/resources/emoji#modify-guild-emoji</a>
    */
   public Route<ModifyGuildEmojiRequest, Emoji> modifyGuildEmoji(Snowflake emojiId) {
-    return Route.patch(path("/%s", emojiId.unwrap()), ModifyGuildEmojiRequest.class, Emoji.class);
+    return Route.patch(path("/%s", emojiId.unwrap()), Emoji.class);
   }
 
   /**

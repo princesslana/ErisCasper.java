@@ -37,7 +37,7 @@ public class WebhookRoute {
    *     https://discordapp.com/developers/docs/resources/webhook#modify-webhook</a>
    */
   public Route<ModifyWebhookRequest, Webhook> modifyWebhook() {
-    return Route.patch(path(""), ModifyWebhookRequest.class, Webhook.class);
+    return Route.patch(path(""), Webhook.class);
   }
 
   /**
@@ -46,7 +46,7 @@ public class WebhookRoute {
    *     https://discordapp.com/developers/docs/resources/webhook#modify-webhook-with-token</a>
    */
   public Route<ModifyWebhookRequest, Webhook> modifyWebhookWithToken(String token) {
-    return Route.patch(path("/%s", token), ModifyWebhookRequest.class, Webhook.class);
+    return Route.patch(path("/%s", token), Webhook.class);
   }
 
   /**
@@ -83,7 +83,7 @@ public class WebhookRoute {
    *     https://discordapp.com/developers/docs/resources/webhook#create-webhook</a>
    */
   public static Route<CreateWebhookRequest, Webhook> createWebhook(Snowflake channelId) {
-    return Route.post(cpath(channelId), CreateWebhookRequest.class, Webhook.class);
+    return Route.post(cpath(channelId), Webhook.class);
   }
 
   /**

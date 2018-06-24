@@ -139,7 +139,7 @@ public class Route<Rq, Rs> {
     return new Route<>(HttpMethod.GET, path, rqHandler, rsHandler);
   }
 
-  public static <Rq, Rs> Route<Rq, Rs> patch(String path, Class<Rq> rqClass, Class<Rs> rsClass) {
+  public static <Rq, Rs> Route<Rq, Rs> patch(String path, Class<Rs> rsClass) {
     return patch(path, jsonRequestBody(), jsonResponse(rsClass));
   }
 
@@ -148,7 +148,7 @@ public class Route<Rq, Rs> {
     return new Route<>(HttpMethod.PATCH, path, rqHandler, rsHandler);
   }
 
-  public static <Rq, Rs> Route<Rq, Rs> post(String path, Class<Rq> rqClass, Class<Rs> rsClass) {
+  public static <Rq, Rs> Route<Rq, Rs> post(String path, Class<Rs> rsClass) {
     return post(path, jsonRequestBody(), jsonResponse(rsClass));
   }
 
@@ -157,7 +157,7 @@ public class Route<Rq, Rs> {
     return new Route<>(HttpMethod.POST, path, rqHandler, rsHandler);
   }
 
-  public static <Rq, Rs> Route<Rq, Rs> put(String path, Class<Rq> rqClass, Class<Rs> rsClass) {
+  public static <Rq, Rs> Route<Rq, Rs> put(String path, Class<Rs> rsClass) {
     return put(path, jsonRequestBody(), jsonResponse(rsClass));
   }
 
