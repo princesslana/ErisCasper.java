@@ -2,7 +2,7 @@
 
 The core API of ErisCasper.java is designed to be minimal and powerful.
 
-It exposes the concepts of `Bot`s, `Action`s, and `Repository`s as
+It exposes the concepts of `Bot`s, the event stream (`Observable<Event>`), `Action`s, and `Repository`s as
 described below.
 
 There also exists the concept `Gateway` and `Routes`.
@@ -16,13 +16,21 @@ developers if required.
 
 A `Bot` is a `Function` run with access to a `BotContext` and produces a `Completable`.
 
-The incoming event stream, `Repository`s, and ability to create `Action`s are 
+The event stream, `Repository`s, and ability to create `Action`s are 
 accessible via the `BotContext`.
 
 The return type is a `Completable` as defined by RxJava.
 This Completable will be subscribed to by ErisCasper.java.
 
 `Bot`s can be composed. Multiple implementations of `Bot` may be merged into a single `Bot`.
+
+
+## Event Stream
+
+The event stream is the events sent from Discord.
+This includes events such as message sends, new guild members, etc.
+
+The event stream uses the `Observable` type from RxJava to make the events available to bot developers.
 
 
 ## Actions
