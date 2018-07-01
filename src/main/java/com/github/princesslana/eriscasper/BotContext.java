@@ -37,7 +37,7 @@ public class BotContext {
 
   public <D, E extends Event & Wrapper<D>> Completable on(
       Class<E> evt, Function<D, Completable> f) {
-    return events.ofType(evt).map(E::unwrap).flatMapCompletable(f::apply);
+    return events.ofType(evt).map(Wrapper::unwrap).flatMapCompletable(f::apply);
   }
 
   public Completable doNothing() {
@@ -54,15 +54,15 @@ public class BotContext {
     return execute(action.getRoute(), action.getData()).toCompletable();
   }
 
-  public <Rs> Single<Rs> execute(Route<Void, Rs> route) {
+  public <O> Single<O> execute(Route<Void, O> route) {
     return routes.execute(route);
   }
 
-  public <Rq, Rs> Single<Rs> execute(Route<Rq, Rs> route, Rq request) {
+  public <I, O> Single<O> execute(Route<I, O> route, I request) {
     return routes.execute(route, request);
   }
 
-  private <Rq, Rs> Single<Rs> execute(Route<Rq, Rs> route, Optional<Rq> request) {
+  private <I, O> Single<O> execute(Route<I, O> route, Optional<I> request) {
     return routes.execute(route, request.orElse(null));
   }
 
