@@ -29,19 +29,11 @@ public class RxWebSocket {
             em -> {
               Request rq = new Request.Builder().url(url).build();
 
-              ws = http.newWebSocket(rq, new Listener(RxWebSocket.this, em));
+              ws = http.newWebSocket(rq, new Listener(em));
             })
         .takeUntil(e -> e instanceof RxWebSocketEvent.Closed)
         .doOnNext(e -> LOG.trace("Received: {}.", e))
         .doOnError(e -> LOG.warn("Error: {}.", e));
-  }
-
-  public void close(int code) {
-    close(code, null);
-  }
-
-  public void close(int code, String reason) {
-    ws.close(code, reason);
   }
 
   public Completable send(String text) {
@@ -51,10 +43,8 @@ public class RxWebSocket {
 
   private static class Listener extends WebSocketListener {
     private final ObservableEmitter<RxWebSocketEvent> em;
-    private final RxWebSocket socket;
 
-    private Listener(RxWebSocket socket, ObservableEmitter<RxWebSocketEvent> em) {
-      this.socket = socket;
+    private Listener(ObservableEmitter<RxWebSocketEvent> em) {
       this.em = em;
     }
 

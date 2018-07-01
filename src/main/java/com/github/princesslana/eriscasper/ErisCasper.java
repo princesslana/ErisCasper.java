@@ -42,8 +42,6 @@ public class ErisCasper {
   private final Routes routes;
   private final Optional<Shard> shard;
 
-  private Gateway gateway;
-
   private ErisCasper(BotToken token, Optional<Shard> shard) {
     this.token = token;
     this.shard = shard;
@@ -51,7 +49,7 @@ public class ErisCasper {
   }
 
   private Observable<Event> getEvents() {
-    gateway = Gateway.create(httpClient, payloads);
+    Gateway gateway = Gateway.create(httpClient, payloads);
     return Single.just(RouteCatalog.getGateway())
         .observeOn(Schedulers.io())
         .flatMap(routes::execute)
