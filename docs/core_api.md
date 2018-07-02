@@ -5,7 +5,7 @@ The core API of ErisCasper.java is designed to be minimal and powerful.
 It exposes the concepts of `Bot`s, the event stream (`Observable<Event>`), `Action`s, and `Repository`s as
 described below.
 
-At a lower level are `Gateway`s and `Routes`.
+At a lower level is the `Gateway` and `Routes`.
 These are wrappers around the Discord API and considered internal
 to ErisCasper.java.
 This means their use is heavily discouraged, but they are available to bot
