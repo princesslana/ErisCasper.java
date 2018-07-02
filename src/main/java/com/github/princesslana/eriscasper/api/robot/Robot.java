@@ -34,7 +34,7 @@ public class Robot implements Bot {
   }
 
   /**
-   * See {@link hear(Pattern, Function)}.
+   * See {@link #hear(Pattern, Function)}.
    *
    * @param regex regex to match
    * @param f function to execute when matched
@@ -55,7 +55,7 @@ public class Robot implements Bot {
   }
 
   /**
-   * See {@link respond(Pattern, Function)}.
+   * See {@link #respond(Pattern, Function)}.
    *
    * @param regex regex to match
    * @param f function to execute when matched

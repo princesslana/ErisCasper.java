@@ -9,6 +9,7 @@ import com.github.princesslana.eriscasper.repository.RepositoryManager;
 import com.github.princesslana.eriscasper.rest.RouteCatalog;
 import com.github.princesslana.eriscasper.rest.Routes;
 import com.github.princesslana.eriscasper.util.OkHttp;
+import com.github.princesslana.eriscasper.util.Shard;
 import com.ufoscout.properlty.Properlty;
 import com.ufoscout.properlty.reader.EnvironmentVariablesReader;
 import com.ufoscout.properlty.reader.SystemPropertiesReader;
@@ -16,6 +17,7 @@ import com.ufoscout.properlty.reader.decorator.ToLowerCaseAndDotKeyReader;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
+import java.util.Optional;
 import okhttp3.OkHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,21 +40,21 @@ public class ErisCasper {
   private final Payloads payloads = new Payloads(jackson);
 
   private final Routes routes;
+  private final Optional<Shard> shard;
 
-  private ErisCasper(BotToken token) {
+  private ErisCasper(BotToken token, Optional<Shard> shard) {
     this.token = token;
-
+    this.shard = shard;
     routes = new Routes(token, httpClient, jackson);
   }
 
   private Observable<Event> getEvents() {
     Gateway gateway = Gateway.create(httpClient, payloads);
-
     return Single.just(RouteCatalog.getGateway())
         .observeOn(Schedulers.io())
         .flatMap(routes::execute)
         .toObservable()
-        .flatMap(gr -> gateway.connect(gr.getUrl(), token))
+        .flatMap(gr -> gateway.connect(gr.getUrl(), token, shard))
         .observeOn(Schedulers.computation())
         .share();
   }
@@ -75,6 +77,11 @@ public class ErisCasper {
   }
 
   public static ErisCasper create(String token) {
-    return new ErisCasper(BotToken.of(token));
+    return new ErisCasper(BotToken.of(token), Shard.fromConfig(CONFIG));
+  }
+
+  public static ErisCasper create(String token, int shardNumber, int shardTotal) {
+    Shard shard = new Shard(shardNumber, shardTotal);
+    return new ErisCasper(BotToken.of(token), Optional.of(shard));
   }
 }

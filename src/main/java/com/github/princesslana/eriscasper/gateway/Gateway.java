@@ -1,12 +1,15 @@
 package com.github.princesslana.eriscasper.gateway;
 
 import com.github.princesslana.eriscasper.BotToken;
+import com.github.princesslana.eriscasper.ErisCasperFatalException;
 import com.github.princesslana.eriscasper.data.event.Event;
 import com.github.princesslana.eriscasper.data.event.HelloEventData;
 import com.github.princesslana.eriscasper.data.event.ReadyEvent;
+import com.github.princesslana.eriscasper.gateway.commands.ImmutableResume;
 import com.github.princesslana.eriscasper.rx.Singles;
 import com.github.princesslana.eriscasper.rx.websocket.RxWebSocket;
 import com.github.princesslana.eriscasper.rx.websocket.RxWebSocketEvent;
+import com.github.princesslana.eriscasper.util.Shard;
 import com.google.common.base.Preconditions;
 import io.github.resilience4j.ratelimiter.RateLimiter;
 import io.github.resilience4j.ratelimiter.RateLimiterConfig;
@@ -85,9 +88,21 @@ public class Gateway {
   }
 
   @SuppressWarnings("unchecked")
-  public Observable<Event> connect(String url, BotToken token) {
+  public Observable<Event> connect(String url, BotToken token, Optional<Shard> shard) {
+    Observable<RxWebSocketEvent> websocketEvents =
+        ws.connect(String.format("%s?v=%s&encoding=%s", url, VERSION, ENCODING));
+    websocketEvents
+        .ofType(RxWebSocketEvent.Closing.class)
+        .doOnNext(
+            e -> {
+              if (e.getCode() == 4004) {
+                e.getWebSocket().close(1002, "Invalid token.");
+                throw new ErisCasperFatalException("Failed to authenticate with discord servers.");
+              }
+            })
+        .share();
     Observable<Payload> ps =
-        ws.connect(String.format("%s?v=%s&encoding=%s", url, VERSION, ENCODING))
+        websocketEvents
             .ofType(RxWebSocketEvent.StringMessage.class)
             .map(RxWebSocketEvent.StringMessage::getText)
             .flatMapMaybe(
@@ -101,7 +116,8 @@ public class Gateway {
 
     Completable identify =
         ps.filter(Payload.isOp(OpCode.HELLO))
-            .flatMapCompletable(p -> isResumable() ? resume(ws, token) : identify(ws, token));
+            .flatMapCompletable(
+                p -> isResumable() ? resume(ws, token) : identify(ws, token, shard));
 
     Observable<Event> events = ps.flatMapMaybe(payloads::toEvent).share();
 
@@ -127,8 +143,8 @@ public class Gateway {
         .doOnComplete(() -> LOG.debug("Sent: {}.", payload));
   }
 
-  private Completable identify(RxWebSocket ws, BotToken token) {
-    return Single.just(payloads.identify(token))
+  private Completable identify(RxWebSocket ws, BotToken token, Optional<Shard> shard) {
+    return Single.just(payloads.identify(token, shard))
         .lift(RateLimiterOperator.of(identifyLimit))
         .flatMapCompletable(p -> send(ws, p));
   }

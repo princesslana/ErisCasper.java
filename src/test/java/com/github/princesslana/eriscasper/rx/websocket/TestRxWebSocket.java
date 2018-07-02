@@ -69,8 +69,6 @@ public class TestRxWebSocket {
 
     ImmutableMap.<Consumer<WebSocketListener>, RxWebSocketEvent>builder()
         .put(
-            l -> l.onClosed(mockWebSocket, 0, "closed"), ClosedTuple.of(mockWebSocket, 0, "closed"))
-        .put(
             l -> l.onClosing(mockWebSocket, 0, "closing"),
             ClosingTuple.of(mockWebSocket, 0, "closing"))
         .put(
@@ -90,6 +88,9 @@ public class TestRxWebSocket {
               k.accept(listener.getValue());
               subscriber.assertValues(v);
             });
+    TestObserver<RxWebSocketEvent> subscriber = subject.connect(TEST_WS_URL).test();
+    listener.getValue().onClosed(mockWebSocket, 0, "closed");
+    subscriber.assertValues(ClosedTuple.of(mockWebSocket, 0, "closed"));
   }
 
   @Test

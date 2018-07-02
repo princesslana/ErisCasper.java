@@ -14,8 +14,7 @@ import com.github.princesslana.eriscasper.data.event.ReadyEventData;
 import com.github.princesslana.eriscasper.data.util.Jackson;
 import com.github.princesslana.eriscasper.faker.DataFaker;
 import com.github.princesslana.eriscasper.faker.DiscordFaker;
-import com.github.princesslana.eriscasper.gateway.Payloads.ConnectionProperties;
-import com.github.princesslana.eriscasper.gateway.Payloads.Identify;
+import com.github.princesslana.eriscasper.gateway.commands.Identify;
 import com.github.princesslana.eriscasper.rx.websocket.RxWebSocket;
 import com.github.princesslana.eriscasper.rx.websocket.RxWebSocketEvent;
 import com.github.princesslana.eriscasper.rx.websocket.StringMessageTuple;
@@ -23,6 +22,7 @@ import io.reactivex.Completable;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subjects.PublishSubject;
 import java.io.IOException;
+import java.util.Optional;
 import okhttp3.WebSocket;
 import org.assertj.core.api.Assertions;
 import org.mockito.ArgumentCaptor;
@@ -101,7 +101,7 @@ public class TestGateway {
 
     Assertions.assertThat(identify)
         .hasFieldOrPropertyWithValue("token", token)
-        .hasFieldOrPropertyWithValue("properties", ConnectionProperties.ofDefault());
+        .hasFieldOrPropertyWithValue("properties", Identify.ConnectionProperties.ofDefault());
   }
 
   @Test
@@ -149,7 +149,7 @@ public class TestGateway {
   }
 
   private TestObserver<Event> connect(BotToken token) {
-    return subject.connect("wss://localhost", token).test();
+    return subject.connect("wss://localhost", token, Optional.empty()).test();
   }
 
   private RxWebSocketEvent.StringMessage stringMessageOf(Payload payload) {

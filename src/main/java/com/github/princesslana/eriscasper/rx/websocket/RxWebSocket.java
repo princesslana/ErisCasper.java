@@ -31,6 +31,7 @@ public class RxWebSocket {
 
               ws = http.newWebSocket(rq, new Listener(em));
             })
+        .takeUntil(e -> e instanceof RxWebSocketEvent.Closed)
         .doOnNext(e -> LOG.trace("Received: {}.", e))
         .doOnError(e -> LOG.warn("Error: {}.", e));
   }
@@ -43,7 +44,7 @@ public class RxWebSocket {
   private static class Listener extends WebSocketListener {
     private final ObservableEmitter<RxWebSocketEvent> em;
 
-    public Listener(ObservableEmitter<RxWebSocketEvent> em) {
+    private Listener(ObservableEmitter<RxWebSocketEvent> em) {
       this.em = em;
     }
 
