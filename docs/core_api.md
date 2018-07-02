@@ -5,8 +5,8 @@ The core API of ErisCasper.java is designed to be minimal and powerful.
 It exposes the concepts of `Bot`s, the event stream (`Observable<Event>`), `Action`s, and `Repository`s as
 described below.
 
-There also exists the concept `Gateway` and `Routes`.
-These are lower level wrappers around the Discord API and considered internal
+At a lower level are `Gateway`s and `Routes`.
+These are wrappers around the Discord API and considered internal
 to ErisCasper.java.
 This means their use is heavily discouraged, but they are available to bot
 developers if required.
@@ -27,7 +27,7 @@ This Completable will be subscribed to by ErisCasper.java.
 
 ## Event Stream
 
-The event stream is the events sent from Discord.
+The event stream consists of events sent from Discord.
 This includes events such as message sends, new guild members, etc.
 
 The event stream uses the `Observable` type from RxJava to make the events available to bot developers.
@@ -37,25 +37,26 @@ The event stream uses the `Observable` type from RxJava to make the events avail
 
 `Action`s are interactions with the Discord API that are expected to change its state,
 but for which there is no response expected.
-Examples include sending a message, or adding a role.
+Examples include sending a message or adding a role.
 
 
 ## Repositories
 
 `Repository`s are the source of information from Discord.
-This could include, for example, information about guilds, channels, or users.
+This includes information about guilds, channels, or users.
 
-`Repository` implmentations may perform caching, gateway requests, or HTTP requests
+`Repository` implementations may perform caching, gateway requests, or HTTP requests
 as required.
 
 ## Internal Concepts
 
 ### Gateway
 
-Provide access to the (Discord Gateway)[https://discordapp.com/developers/docs/topics/gateway].
-This is a websocket provided by Discord used for tasks such as authentication and receiving events.
+Provides access to the (Discord Gateway)[https://discordapp.com/developers/docs/topics/gateway].
+This is a websocket provided by Discord used for tasks such as authentication, sending gateway commands,
+and receiving events
 
 ### Routes
 
-Provides access to Discord's REST API.
+Provides access to (Discord's REST API)[https://discordapp.com/developers/docs/reference].
 The REST API is used for most actions and for querying the state of servers, guilds, users, etc.
