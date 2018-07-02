@@ -2,7 +2,6 @@ package com.github.princesslana.eriscasper.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.princesslana.eriscasper.BotToken;
-import com.github.princesslana.eriscasper.rx.Maybes;
 import io.github.resilience4j.ratelimiter.RateLimiter;
 import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
 import io.github.resilience4j.ratelimiter.operator.RateLimiterOperator;
@@ -13,12 +12,10 @@ import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Optional;
 import java.util.concurrent.Callable;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,15 +44,13 @@ public class Routes {
   }
 
   public <I, O> Single<O> execute(Route<I, O> route, I data) {
-    Function<Optional<RequestBody>, Request> buildRequest =
-        body ->
-            route.newRequestBuilder(data).header("Authorization", "Bot " + token.unwrap()).build();
+    Function<Request.Builder, Request.Builder> addAuthorizationHeader =
+        b -> b.header("Authorization", "Bot " + token.unwrap());
 
-    return Maybes.fromNullable(data)
-        .map(d -> RequestBody.create(MEDIA_TYPE_JSON, jackson.writeValueAsString(data)))
-        .map(Optional::of)
-        .toSingle(Optional.empty())
-        .map(buildRequest)
+    return Single.just(route)
+        .map(r -> r.newRequestBuilder(data))
+        .map(addAuthorizationHeader)
+        .map(Request.Builder::build)
         .flatMap(rq -> executeRequest(route, rq))
         .lift(RateLimiterOperator.of(getRateLimiter(route)));
   }
