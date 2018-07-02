@@ -2,32 +2,8 @@ package com.github.princesslana.eriscasper.rest;
 
 import com.github.princesslana.eriscasper.data.Data;
 import com.github.princesslana.eriscasper.data.Snowflake;
-import com.github.princesslana.eriscasper.data.resource.Ban;
-import com.github.princesslana.eriscasper.data.resource.Channel;
-import com.github.princesslana.eriscasper.data.resource.Guild;
-import com.github.princesslana.eriscasper.data.resource.GuildEmbed;
-import com.github.princesslana.eriscasper.data.resource.GuildMember;
-import com.github.princesslana.eriscasper.data.resource.Integration;
-import com.github.princesslana.eriscasper.data.resource.InviteWithMetadata;
-import com.github.princesslana.eriscasper.data.resource.PartialInvite;
-import com.github.princesslana.eriscasper.data.resource.Role;
-import com.github.princesslana.eriscasper.data.resource.VoiceRegion;
-import com.github.princesslana.eriscasper.rest.guild.AddGuildMemberRequest;
-import com.github.princesslana.eriscasper.rest.guild.BeginGuildPruneRequest;
-import com.github.princesslana.eriscasper.rest.guild.CreateGuildBanRequest;
-import com.github.princesslana.eriscasper.rest.guild.CreateGuildIntegrationRequest;
-import com.github.princesslana.eriscasper.rest.guild.CreateGuildRoleRequest;
-import com.github.princesslana.eriscasper.rest.guild.GetGuildPruneCountRequest;
-import com.github.princesslana.eriscasper.rest.guild.GuildChannelCreateRequest;
-import com.github.princesslana.eriscasper.rest.guild.GuildCreateRequest;
-import com.github.princesslana.eriscasper.rest.guild.ListGuildMemberRequest;
-import com.github.princesslana.eriscasper.rest.guild.ModifyCurrentNickRequest;
-import com.github.princesslana.eriscasper.rest.guild.ModifyGuildChannelPositionsRequest;
-import com.github.princesslana.eriscasper.rest.guild.ModifyGuildIntegrationRequest;
-import com.github.princesslana.eriscasper.rest.guild.ModifyGuildMemberRequest;
-import com.github.princesslana.eriscasper.rest.guild.ModifyGuildRequest;
-import com.github.princesslana.eriscasper.rest.guild.ModifyGuildRolePositionsRequest;
-import com.github.princesslana.eriscasper.rest.guild.ModifyGuildRoleRequest;
+import com.github.princesslana.eriscasper.data.request.*;
+import com.github.princesslana.eriscasper.data.resource.*;
 import com.github.princesslana.eriscasper.util.Pruned;
 import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
@@ -76,7 +52,7 @@ public class GuildRoute {
    * @see <a href="https://discordapp.com/developers/docs/resources/guild#create-guild-channel">
    *     https://discordapp.com/developers/docs/resources/guild#create-guild-channel</a>
    */
-  public Route<GuildChannelCreateRequest, Channel> createGuildChannel() {
+  public Route<CreateGuildChannelRequest, Channel> createGuildChannel() {
     return Route.post(path("/channels"), Channel.class);
   }
 
@@ -101,11 +77,9 @@ public class GuildRoute {
    * @see <a href="https://discordapp.com/developers/docs/resources/guild#list-guild-members">
    *     https://discordapp.com/developers/docs/resources/guild#list-guild-members</a>
    */
-  public Route<ListGuildMemberRequest, ImmutableList<GuildMember>> listGuildMembers() {
+  public Route<ListGuildMembersRequest, ImmutableList<GuildMember>> listGuildMembers() {
     return Route.get(
-        path("/members"),
-        Route.queryString(ListGuildMemberRequest::toQueryString),
-        Route.jsonArrayResponse(GuildMember.class));
+        path("/members"), Route.queryString(), Route.jsonArrayResponse(GuildMember.class));
   }
 
   /**
@@ -134,7 +108,7 @@ public class GuildRoute {
    * @see <a href="https://discordapp.com/developers/docs/resources/guild#modify-current-user-nick">
    *     https://discordapp.com/developers/docs/resources/guild#modify-current-user-nick</a>
    */
-  public Route<ModifyCurrentNickRequest, String> modifyCurrentUserNick() {
+  public Route<ModifyCurrentUserNickRequest, String> modifyCurrentUserNick() {
     return Route.patch(path("/members/@me/nick"), String.class);
   }
 
@@ -183,10 +157,7 @@ public class GuildRoute {
    *     https://discordapp.com/developers/docs/resources/guild#create-guild-ban</a>
    */
   public Route<CreateGuildBanRequest, Void> createGuildBan(Snowflake userId) {
-    return Route.put(
-        path("/bans/%s", userId.unwrap()),
-        Route.queryString(CreateGuildBanRequest::toQueryString),
-        Route.noResponse());
+    return Route.put(path("/bans/%s", userId.unwrap()), Route.queryString(), Route.noResponse());
   }
 
   /**
@@ -244,10 +215,7 @@ public class GuildRoute {
    *     https://discordapp.com/developers/docs/resources/guild#get-guild-prune-count</a>
    */
   public Route<GetGuildPruneCountRequest, Pruned> getGuildPruneCount() {
-    return Route.get(
-        path("/prune"),
-        Route.queryString(GetGuildPruneCountRequest::toQueryString),
-        Route.jsonResponse(Pruned.class));
+    return Route.get(path("/prune"), Route.queryString(), Route.jsonResponse(Pruned.class));
   }
 
   /**
@@ -255,10 +223,7 @@ public class GuildRoute {
    *     https://discordapp.com/developers/docs/resources/guild#begin-guild-prune</a>
    */
   public Route<BeginGuildPruneRequest, Pruned> beginGuildPrune() {
-    return Route.post(
-        path("/prune"),
-        Route.queryString(BeginGuildPruneRequest::toQueryString),
-        Route.jsonResponse(Pruned.class));
+    return Route.post(path("/prune"), Route.queryString(), Route.jsonResponse(Pruned.class));
   }
 
   /**
@@ -358,7 +323,7 @@ public class GuildRoute {
    * @see <a href="https://discordapp.com/developers/docs/resources/guild#create-guild">
    *     https://discordapp.com/developers/docs/resources/guild#create-guild</a>
    */
-  public static Route<GuildCreateRequest, Guild> createGuild() {
+  public static Route<CreateGuildRequest, Guild> createGuild() {
     return Route.post("/guilds", Guild.class);
   }
 }

@@ -17,6 +17,7 @@ import com.github.princesslana.eriscasper.data.resource.UnavailableGuild;
 import com.github.princesslana.eriscasper.repository.ChannelRepository;
 import com.github.princesslana.eriscasper.repository.FunctionData;
 import com.github.princesslana.eriscasper.rx.Maybes;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
@@ -31,17 +32,19 @@ public class ChannelsFromEvents implements ChannelRepository {
   private static final ChannelFunctionData<Guild> ADD_GUILD_CHANNELS_FUNCTION =
       ChannelFunctionData.of(
           (map, guild) -> {
-            if (guild.getChannels().isEmpty()) {
+            if (!guild.getChannels().isPresent()) {
+              return ImmutableMap.copyOf(map);
+            }
+            ImmutableList<Channel> channels = guild.getChannels().get();
+            if (channels.isEmpty()) {
               return ImmutableMap.copyOf(map);
             }
             Snowflake guildId = guild.getId();
-            guild
-                .getChannels()
-                .forEach(
-                    channel ->
-                        map.put(
-                            channel.getId(),
-                            ImmutableChannel.builder().from(channel).guildId(guildId).build()));
+            channels.forEach(
+                channel ->
+                    map.put(
+                        channel.getId(),
+                        ImmutableChannel.builder().from(channel).guildId(guildId).build()));
             return ImmutableMap.copyOf(map);
           });
   private static final ChannelFunctionData<UnavailableGuild> REMOVE_GUILD_CHANNELS_FUNCTION =
