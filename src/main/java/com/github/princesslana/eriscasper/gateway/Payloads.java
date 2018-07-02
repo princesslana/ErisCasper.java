@@ -5,6 +5,7 @@ import com.github.princesslana.eriscasper.BotToken;
 import com.github.princesslana.eriscasper.data.event.Event;
 import com.github.princesslana.eriscasper.data.event.EventFactory;
 import com.github.princesslana.eriscasper.data.gateway.IdentifyPayload;
+import com.github.princesslana.eriscasper.data.gateway.ImmutableConnectionPropertiesPayload;
 import com.github.princesslana.eriscasper.data.gateway.ImmutableIdentifyPayload;
 import com.github.princesslana.eriscasper.data.gateway.ResumePayload;
 import com.github.princesslana.eriscasper.data.gateway.ShardPayload;
@@ -37,7 +38,17 @@ public class Payloads {
   }
 
   public Payload identify(BotToken token, Optional<ShardPayload> shard) {
-    return identify(ImmutableIdentifyPayload.builder().token(token.unwrap()).shard(shard).build());
+    return identify(
+        ImmutableIdentifyPayload.builder()
+            .properties(
+                ImmutableConnectionPropertiesPayload.builder()
+                    .os(System.getProperty("os"))
+                    .browser("ErisCasper.Java")
+                    .device("ErisCasper.java")
+                    .build())
+            .token(token.unwrap())
+            .shard(shard)
+            .build());
   }
 
   public Payload identify(IdentifyPayload id) {

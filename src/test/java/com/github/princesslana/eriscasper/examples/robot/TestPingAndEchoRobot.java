@@ -8,13 +8,13 @@ import com.github.princesslana.eriscasper.data.Snowflake;
 import com.github.princesslana.eriscasper.data.Users;
 import com.github.princesslana.eriscasper.data.event.Event;
 import com.github.princesslana.eriscasper.data.event.MessageCreateEvent;
+import com.github.princesslana.eriscasper.data.request.ImmutableCreateMessageRequest;
 import com.github.princesslana.eriscasper.data.resource.ImmutableMessage;
 import com.github.princesslana.eriscasper.data.resource.User;
 import com.github.princesslana.eriscasper.faker.DataFaker;
 import com.github.princesslana.eriscasper.faker.DiscordFaker;
 import com.github.princesslana.eriscasper.rest.ChannelRoute;
 import com.github.princesslana.eriscasper.rest.Routes;
-import com.github.princesslana.eriscasper.rest.channel.CreateMessageRequest;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subjects.PublishSubject;
 import org.mockito.Mock;
@@ -58,7 +58,7 @@ public class TestPingAndEchoRobot {
         .should()
         .execute(
             ChannelRoute.on(channelId).createMessage(),
-            CreateMessageRequest.ofText(expectedResponse));
+            ImmutableCreateMessageRequest.builder().content(expectedResponse).build());
 
     subscriber.assertNotComplete();
   }

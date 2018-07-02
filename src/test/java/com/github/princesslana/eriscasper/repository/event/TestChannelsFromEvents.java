@@ -10,6 +10,7 @@ import com.github.princesslana.eriscasper.data.event.ImmutableChannelPinsUpdateE
 import com.github.princesslana.eriscasper.data.resource.Channel;
 import com.github.princesslana.eriscasper.data.resource.Guild;
 import com.github.princesslana.eriscasper.faker.DataFaker;
+import com.google.common.collect.ImmutableList;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subjects.PublishSubject;
 import java.time.OffsetDateTime;
@@ -34,7 +35,7 @@ public class TestChannelsFromEvents {
     TestObserver<Channel> observer = new TestObserver<>();
 
     Guild guild = simpleCreateGuild();
-    Channel channel = guild.getChannels().get(0);
+    Channel channel = guild.getChannels().orElse(ImmutableList.of()).get(0);
 
     subject.getChannel(channel.getId()).subscribe(observer);
 
@@ -48,7 +49,7 @@ public class TestChannelsFromEvents {
     TestObserver<Channel> observer = new TestObserver<>();
 
     Guild guild = simpleCreateGuild();
-    Channel channel = guild.getChannels().get(0);
+    Channel channel = guild.getChannels().orElse(ImmutableList.of()).get(0);
 
     events.onNext(GuildDeleteEvent.of(DataFaker.unavailableGuildFromGuild(guild.getId())));
 

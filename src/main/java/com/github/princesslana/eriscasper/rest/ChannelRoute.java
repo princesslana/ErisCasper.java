@@ -10,7 +10,6 @@ import com.github.princesslana.eriscasper.data.resource.Channel;
 import com.github.princesslana.eriscasper.data.resource.Message;
 import com.github.princesslana.eriscasper.data.resource.User;
 import com.google.common.collect.ImmutableList;
-
 import java.util.Arrays;
 
 public class ChannelRoute {
