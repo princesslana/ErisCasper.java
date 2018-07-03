@@ -31,7 +31,6 @@ public class RxWebSocket {
 
               ws = http.newWebSocket(rq, new Listener(em));
             })
-        .takeUntil(e -> e instanceof RxWebSocketEvent.Closed)
         .doOnNext(e -> LOG.trace("Received: {}.", e))
         .doOnError(e -> LOG.warn("Error: {}.", e));
   }
@@ -51,11 +50,13 @@ public class RxWebSocket {
     @Override
     public void onClosed(WebSocket ws, int code, String reason) {
       em.onNext(ClosedTuple.of(ws, code, reason));
+      em.onComplete();
     }
 
     @Override
     public void onClosing(WebSocket ws, int code, String reason) {
       em.onNext(ClosingTuple.of(ws, code, reason));
+      ws.close(0, "Close.");
     }
 
     @Override
