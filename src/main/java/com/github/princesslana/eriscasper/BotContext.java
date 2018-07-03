@@ -38,7 +38,7 @@ public class BotContext {
   public <D, E extends Event & Wrapper<D>> Completable on(
       Class<E> evt, Function<D, Completable> f) {
     // It would be nice to use a method reference here,
-    // but doing so causes, an exception at runtime
+    // but doing so causes an exception at runtime
     return events.ofType(evt).map(e -> e.unwrap()).flatMapCompletable(f::apply);
   }
 
