@@ -8,7 +8,6 @@ import com.github.princesslana.eriscasper.data.gateway.ShardPayload;
 import com.github.princesslana.eriscasper.gateway.ImmutablePayload;
 import com.github.princesslana.eriscasper.gateway.OpCode;
 import com.github.princesslana.eriscasper.gateway.Payload;
-
 import java.util.Optional;
 import org.immutables.value.Value;
 

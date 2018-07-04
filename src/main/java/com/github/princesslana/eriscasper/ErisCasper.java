@@ -84,15 +84,14 @@ public class ErisCasper {
 
   public static ErisCasper create(String token, int shardNumber, int shardTotal) {
     assertShard(shardNumber, shardTotal);
-    return new ErisCasper(BotToken.of(token), Optional.of(ShardPayload.of(shardNumber, shardTotal)));
+    return new ErisCasper(
+        BotToken.of(token), Optional.of(ShardPayload.of(shardNumber, shardTotal)));
   }
 
   private static void assertShard(long shard, long total) {
-    Preconditions.checkArgument(
-            shard >= 0, "Shard number must be greater than or equal to 0.");
+    Preconditions.checkArgument(shard >= 0, "Shard number must be greater than or equal to 0.");
     Preconditions.checkArgument(total >= 1, "Shard total must be greater than or equal to 1.");
-    Preconditions.checkState(
-            shard < total, "Shard number must be less than the shard total.");
+    Preconditions.checkState(shard < total, "Shard number must be less than the shard total.");
   }
 
   public static Optional<ShardPayload> shardFromConfig(Properlty config) {
@@ -100,14 +99,20 @@ public class ErisCasper {
     Optional<Integer> total = config.getInt("ec.shard.total");
     if (shard.isPresent() || total.isPresent()) {
       ErisCasperFatalException exception =
-              new ErisCasperFatalException(
-                      "Failed to resolve both sharding values when only one was provided.");
+          new ErisCasperFatalException(
+              "Failed to resolve both sharding values when only one was provided.");
       return Optional.of(
-              shard
-                      .map(s -> total.map(t -> {
-                        assertShard(s, t);
-                        return ShardPayload.of(s, t);}).orElseThrow(() -> exception))
-                      .orElseThrow(() -> exception));
+          shard
+              .map(
+                  s ->
+                      total
+                          .map(
+                              t -> {
+                                assertShard(s, t);
+                                return ShardPayload.of(s, t);
+                              })
+                          .orElseThrow(() -> exception))
+              .orElseThrow(() -> exception));
     }
     return Optional.empty();
   }
