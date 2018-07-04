@@ -10,7 +10,6 @@ import com.github.princesslana.eriscasper.repository.RepositoryManager;
 import com.github.princesslana.eriscasper.rest.RouteCatalog;
 import com.github.princesslana.eriscasper.rest.Routes;
 import com.github.princesslana.eriscasper.util.OkHttp;
-import com.google.common.base.Preconditions;
 import com.ufoscout.properlty.Properlty;
 import com.ufoscout.properlty.reader.EnvironmentVariablesReader;
 import com.ufoscout.properlty.reader.SystemPropertiesReader;
@@ -79,41 +78,12 @@ public class ErisCasper {
 
   public static ErisCasper create(String token) {
 
-    return new ErisCasper(BotToken.of(token), shardFromConfig(CONFIG));
+    return new ErisCasper(BotToken.of(token), Shards.fromConfig(CONFIG));
   }
 
   public static ErisCasper create(String token, int shardNumber, int shardTotal) {
-    assertShard(shardNumber, shardTotal);
-    return new ErisCasper(
-        BotToken.of(token), Optional.of(ShardPayload.of(shardNumber, shardTotal)));
-  }
-
-  private static void assertShard(long shard, long total) {
-    Preconditions.checkArgument(shard >= 0, "Shard number must be greater than or equal to 0.");
-    Preconditions.checkArgument(total >= 1, "Shard total must be greater than or equal to 1.");
-    Preconditions.checkState(shard < total, "Shard number must be less than the shard total.");
-  }
-
-  public static Optional<ShardPayload> shardFromConfig(Properlty config) {
-    Optional<Integer> shard = config.getInt("ec.shard.id");
-    Optional<Integer> total = config.getInt("ec.shard.total");
-    if (shard.isPresent() || total.isPresent()) {
-      ErisCasperFatalException exception =
-          new ErisCasperFatalException(
-              "Failed to resolve both sharding values when only one was provided.");
-      return Optional.of(
-          shard
-              .map(
-                  s ->
-                      total
-                          .map(
-                              t -> {
-                                assertShard(s, t);
-                                return ShardPayload.of(s, t);
-                              })
-                          .orElseThrow(() -> exception))
-              .orElseThrow(() -> exception));
-    }
-    return Optional.empty();
+    ShardPayload shard = ShardPayload.of(shardNumber, shardTotal);
+    Shards.check(shard);
+    return new ErisCasper(BotToken.of(token), Optional.of(shard));
   }
 }
