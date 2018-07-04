@@ -1,9 +1,9 @@
 package com.github.princesslana.eriscasper.rest;
 
 import com.github.princesslana.eriscasper.data.Snowflake;
+import com.github.princesslana.eriscasper.data.request.CreateWebhookRequest;
+import com.github.princesslana.eriscasper.data.request.ModifyWebhookRequest;
 import com.github.princesslana.eriscasper.data.resource.Webhook;
-import com.github.princesslana.eriscasper.rest.webhook.CreateWebhookRequest;
-import com.github.princesslana.eriscasper.rest.webhook.ModifyWebhookRequest;
 import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
 

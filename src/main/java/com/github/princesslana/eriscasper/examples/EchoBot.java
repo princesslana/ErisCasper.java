@@ -1,10 +1,9 @@
 package com.github.princesslana.eriscasper.examples;
 
 import com.github.princesslana.eriscasper.ErisCasper;
+import com.github.princesslana.eriscasper.action.Actions;
 import com.github.princesslana.eriscasper.data.Users;
 import com.github.princesslana.eriscasper.data.event.MessageCreateEvent;
-import com.github.princesslana.eriscasper.rest.ChannelRoute;
-import com.github.princesslana.eriscasper.rest.channel.CreateMessageRequest;
 
 public class EchoBot {
   public static void main(String args[]) {
@@ -31,11 +30,7 @@ public class EchoBot {
                           } else if (replyMessage.charAt(0) != ' ') {
                             replyMessage = "Invalid Command";
                           }
-
-                          return ctx.execute(
-                                  ChannelRoute.on(d.getChannelId()).createMessage(),
-                                  CreateMessageRequest.ofText(replyMessage))
-                              .toCompletable();
+                          return ctx.execute(Actions.sendMessage(d.getChannelId(), replyMessage));
                         }));
   }
 }

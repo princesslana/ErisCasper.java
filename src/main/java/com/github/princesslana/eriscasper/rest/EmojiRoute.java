@@ -1,10 +1,10 @@
 package com.github.princesslana.eriscasper.rest;
 
 import com.github.princesslana.eriscasper.data.Snowflake;
+import com.github.princesslana.eriscasper.data.request.CreateGuildEmojiRequest;
+import com.github.princesslana.eriscasper.data.request.ModifyGuildEmojiRequest;
 import com.github.princesslana.eriscasper.data.resource.Emoji;
 import com.github.princesslana.eriscasper.data.resource.Guild;
-import com.github.princesslana.eriscasper.rest.emoji.CreateGuildEmojiRequest;
-import com.github.princesslana.eriscasper.rest.emoji.ModifyGuildEmojiRequest;
 import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
 
@@ -36,7 +36,6 @@ public class EmojiRoute {
    * @see <a href="https://discordapp.com/developers/docs/resources/emoji#create-guild-emoji">
    *     https://discordapp.com/developers/docs/resources/emoji#create-guild-emoji</a>
    */
-  // TODO support animated emojis
   public Route<CreateGuildEmojiRequest, Emoji> createGuildEmoji() {
     return Route.post(path(""), Emoji.class);
   }
