@@ -93,10 +93,6 @@ public class Route<Rq, Rs> {
     return r -> ImmutableRequestContent.builder().build();
   }
 
-  public static <Rq> Function<Rq, RequestContent> queryString() {
-    return queryString(Data::toQueryString);
-  }
-
   public static <Rq> Function<Rq, RequestContent> queryString(Function<Rq, String> f) {
     return rq -> ImmutableRequestContent.builder().queryString(f.apply(rq)).build();
   }
