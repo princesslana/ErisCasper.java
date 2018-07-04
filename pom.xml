@@ -32,12 +32,6 @@
       <url>https://oss.sonatype.org/content/repositories/snapshots</url>
     </snapshotRepository>
   </distributionManagement>
-  <repositories>
-    <repository>
-      <id>sonatype</id>
-      <url>https://oss.sonatype.org/content/repositories/releases</url>
-    </repository>
-  </repositories>
   <properties>
     <revision>0-SNAPSHOT</revision>
     <exec.logLevel>debug</exec.logLevel>
@@ -85,6 +79,12 @@
     <plugin.spotless.version>1.0.0.BETA2</plugin.spotless.version>
     <plugin.surefire.version>2.20.1</plugin.surefire.version>
   </properties>
+  <repositories>
+    <repository>
+      <id>sonatype</id>
+      <url>https://oss.sonatype.org/content/repositories/releases</url>
+    </repository>
+  </repositories>
   <dependencyManagement>
     <dependencies>
       <dependency>
