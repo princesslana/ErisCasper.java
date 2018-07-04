@@ -14,7 +14,10 @@ public interface GatewayAction<I> extends Action {
 
   @Override
   default Completable execute(ActionContext context) {
-    return context.getGateway().execute(getCode(), getData());
+    return context
+        .getGateway()
+        .map(gateway -> gateway.execute(getCode(), getData()))
+        .orElse(Completable.complete());
   }
 
   static <I> GatewayAction<I> of(OpCode code, I data) {

@@ -5,16 +5,19 @@ import io.reactivex.Completable;
 import org.immutables.value.Value;
 
 @Value.Immutable
-public interface VoidRouteAction extends Action {
+public interface VoidRouteAction<O> extends Action {
 
-  Route<Void, ?> getRoute();
+  Route<Void, O> getRoute();
 
   @Override
   default Completable execute(ActionContext context) {
-    return context.getRoutes().execute(getRoute()).toCompletable();
+    return context
+        .getRoutes()
+        .map(routes -> routes.execute(getRoute()).toCompletable())
+        .orElse(Completable.complete());
   }
 
-  static VoidRouteAction of(Route<Void, ?> route) {
-    return ImmutableVoidRouteAction.builder().route(route).build();
+  static <O> VoidRouteAction<O> of(Route<Void, O> route) {
+    return ImmutableVoidRouteAction.<O>builder().route(route).build();
   }
 }

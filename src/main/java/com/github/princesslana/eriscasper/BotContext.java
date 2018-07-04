@@ -5,6 +5,7 @@ import com.github.princesslana.eriscasper.action.ActionContext;
 import com.github.princesslana.eriscasper.action.ImmutableActionContext;
 import com.github.princesslana.eriscasper.data.event.Event;
 import com.github.princesslana.eriscasper.data.immutable.Wrapper;
+import com.github.princesslana.eriscasper.data.util.Nullable;
 import com.github.princesslana.eriscasper.gateway.Gateway;
 import com.github.princesslana.eriscasper.repository.RepositoryDefinition;
 import com.github.princesslana.eriscasper.repository.RepositoryManager;
@@ -31,7 +32,11 @@ public class BotContext {
   public BotContext(
       Observable<Event> events, Routes routes, Gateway gateway, RepositoryManager repositories) {
     this.events = events;
-    this.actionContext = ImmutableActionContext.builder().routes(routes).gateway(gateway).build();
+    this.actionContext =
+        ImmutableActionContext.builder()
+            .routes(Nullable.ofNullable(routes))
+            .gateway(Nullable.ofNullable(gateway))
+            .build();
     this.repositories = repositories;
   }
 
@@ -60,15 +65,24 @@ public class BotContext {
   }
 
   public <O> Single<O> execute(Route<Void, O> route) {
-    return actionContext.getRoutes().execute(route);
+    return actionContext
+        .getRoutes()
+        .map(routes -> routes.execute(route))
+        .orElse(Single.error(new IllegalStateException("Failed to find routes to execute on.")));
   }
 
   public <I, O> Single<O> execute(Route<I, O> route, I request) {
-    return actionContext.getRoutes().execute(route, request);
+    return actionContext
+        .getRoutes()
+        .map(routes -> routes.execute(route, request))
+        .orElse(Single.error(new IllegalStateException("Failed to find routes to execute on.")));
   }
 
   private <I, O> Single<O> execute(Route<I, O> route, Optional<I> request) {
-    return actionContext.getRoutes().execute(route, request.orElse(null));
+    return actionContext
+        .getRoutes()
+        .map(routes -> routes.execute(route, request.orElse(null)))
+        .orElse(Single.error(new IllegalStateException("Failed to find routes to execute on.")));
   }
 
   public <R> R getRepository(RepositoryDefinition<R> def) {

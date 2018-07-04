@@ -13,7 +13,10 @@ public interface RouteAction<I, O> extends Action {
   Optional<I> getData();
 
   default Completable execute(ActionContext context) {
-    return context.getRoutes().execute(getRoute(), getData().orElse(null)).toCompletable();
+    return context
+        .getRoutes()
+        .map(routes -> routes.execute(getRoute(), getData().orElse(null)).toCompletable())
+        .orElse(Completable.complete());
   }
 
   static <I, O> RouteAction<I, O> of(Route<I, O> route, I data) {

@@ -8,7 +8,7 @@ import org.immutables.value.Value;
 @Value.Immutable
 public interface ActionContext {
 
-  Routes getRoutes();
+  Nullable<Routes> getRoutes();
 
   Nullable<Gateway> getGateway();
 }
