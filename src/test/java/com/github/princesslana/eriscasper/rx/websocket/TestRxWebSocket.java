@@ -4,20 +4,16 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.notNull;
 import static org.mockito.BDDMockito.then;
 
-import com.google.common.collect.ImmutableMap;
 import io.reactivex.observers.TestObserver;
 import java.util.Optional;
-import java.util.function.Consumer;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.Response;
 import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;
 import okio.ByteString;
 import org.assertj.core.api.Assertions;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -31,7 +27,7 @@ public class TestRxWebSocket {
 
   @Mock private WebSocket mockWebSocket;
 
-  private ArgumentCaptor<WebSocketListener> listener;
+  private ArgumentCaptor<WebSocketListener> listenerCaptor;
 
   private RxWebSocket subject;
 
@@ -46,9 +42,13 @@ public class TestRxWebSocket {
 
     subject = new RxWebSocket(mockClient);
 
-    listener = ArgumentCaptor.forClass(WebSocketListener.class);
+    listenerCaptor = ArgumentCaptor.forClass(WebSocketListener.class);
 
-    given(mockClient.newWebSocket(notNull(), listener.capture())).willReturn(mockWebSocket);
+    given(mockClient.newWebSocket(notNull(), listenerCaptor.capture())).willReturn(mockWebSocket);
+  }
+
+  private WebSocketListener getListener() {
+    return listenerCaptor.getValue();
   }
 
   @Test
@@ -63,41 +63,43 @@ public class TestRxWebSocket {
   }
 
   @Test
-  public void connect_whenListenerCalled_shouldEmitEvent() {
-    Response mockResponse = Mockito.mock(Response.class);
-    Throwable throwable = new NullPointerException();
-
-    ImmutableMap.<Consumer<WebSocketListener>, RxWebSocketEvent>builder()
-        .put(
-            l -> l.onClosing(mockWebSocket, 0, "closing"),
-            ClosingTuple.of(mockWebSocket, 0, "closing"))
-        .put(
-            l -> l.onFailure(mockWebSocket, throwable, mockResponse),
-            FailureTuple.of(mockWebSocket, throwable, Optional.of(mockResponse)))
-        .put(
-            l -> l.onMessage(mockWebSocket, ByteString.encodeUtf8(TEST_MESSAGE)),
-            ByteStringMessageTuple.of(mockWebSocket, ByteString.encodeUtf8(TEST_MESSAGE)))
-        .put(
-            l -> l.onMessage(mockWebSocket, TEST_MESSAGE),
-            StringMessageTuple.of(mockWebSocket, TEST_MESSAGE))
-        .put(l -> l.onOpen(mockWebSocket, mockResponse), OpenTuple.of(mockWebSocket, mockResponse))
-        .build()
-        .forEach(
-            (k, v) -> {
-              TestObserver<RxWebSocketEvent> subscriber = subject.connect(TEST_WS_URL).test();
-              k.accept(listener.getValue());
-              subscriber.assertValues(v);
-            });
-    TestObserver<RxWebSocketEvent> subscriber = subject.connect(TEST_WS_URL).test();
-    listener.getValue().onClosed(mockWebSocket, 0, "closed");
-    subscriber.assertValues(ClosedTuple.of(mockWebSocket, 0, "closed"));
+  public void connect_whenStringMessage_shouldEmitEvent() {
+    TestObserver<RxWebSocketEvent> subscriber = connect();
+    getListener().onMessage(mockWebSocket, TEST_MESSAGE);
+    subscriber.assertValues(StringMessageTuple.of(mockWebSocket, TEST_MESSAGE));
   }
 
   @Test
-  public void connect_whenOnFailure_shouldError() {
-    TestObserver<RxWebSocketEvent> subscriber = subject.connect(TEST_WS_URL).test();
-    listener.getValue().onFailure(mockWebSocket, new NullPointerException(), null);
-    subscriber.assertError(NullPointerException.class);
+  public void connect_whenByteStringMessage_shouldEmitEvent() {
+    ByteString byteString = ByteString.encodeUtf8(TEST_MESSAGE);
+    TestObserver<RxWebSocketEvent> subscriber = connect();
+    getListener().onMessage(mockWebSocket, byteString);
+    subscriber.assertValues(ByteStringMessageTuple.of(mockWebSocket, byteString));
+  }
+
+  @Test
+  public void connect_whenOnFailure_shouldEmitEventThenError() {
+    Throwable error = new NullPointerException();
+    TestObserver<RxWebSocketEvent> subscriber = connect();
+    getListener().onFailure(mockWebSocket, error, null);
+    subscriber.assertValues(FailureTuple.of(mockWebSocket, error, Optional.empty()));
+    subscriber.assertError(error);
+  }
+
+  @Test
+  public void connect_whenClosing_shouldEmitEventThenCloseWebSocket() {
+    TestObserver<RxWebSocketEvent> subscriber = connect();
+    getListener().onClosing(mockWebSocket, 0, "Closing...");
+    subscriber.assertValues(ClosingTuple.of(mockWebSocket, 0, "Closing..."));
+    then(mockWebSocket).should().close(1000, null);
+  }
+
+  @Test
+  public void connect_whenClosed_shouldEmitEventThenComplete() {
+    TestObserver<RxWebSocketEvent> subscriber = connect();
+    getListener().onClosed(mockWebSocket, 0, "Closed.");
+    subscriber.assertValues(ClosedTuple.of(mockWebSocket, 0, "Closed."));
+    subscriber.assertComplete();
   }
 
   @Test
@@ -112,5 +114,9 @@ public class TestRxWebSocket {
 
     subscriber.assertComplete();
     then(mockWebSocket).should().send(TEST_MESSAGE);
+  }
+
+  private TestObserver<RxWebSocketEvent> connect() {
+    return subject.connect(TEST_WS_URL).test();
   }
 }

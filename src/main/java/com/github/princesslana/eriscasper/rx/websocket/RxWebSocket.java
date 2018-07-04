@@ -14,6 +14,9 @@ import org.slf4j.LoggerFactory;
 
 public class RxWebSocket {
 
+  // https://tools.ietf.org/html/rfc6455#section-7.4
+  private static final int NORMAL_CLOSURE = 1000;
+
   private static final Logger LOG = LoggerFactory.getLogger(RxWebSocket.class);
 
   private final OkHttpClient http;
@@ -50,11 +53,13 @@ public class RxWebSocket {
     @Override
     public void onClosed(WebSocket ws, int code, String reason) {
       em.onNext(ClosedTuple.of(ws, code, reason));
+      em.onComplete();
     }
 
     @Override
     public void onClosing(WebSocket ws, int code, String reason) {
       em.onNext(ClosingTuple.of(ws, code, reason));
+      ws.close(NORMAL_CLOSURE, null);
     }
 
     @Override
