@@ -34,7 +34,7 @@ public class TestChannelsFromEvents {
     TestObserver<Channel> observer = new TestObserver<>();
 
     Guild guild = simpleCreateGuild();
-    Channel channel = guild.getChannels().get(0);
+    Channel channel = guild.getChannels().get().get(0);
 
     subject.getChannel(channel.getId()).subscribe(observer);
 
@@ -48,7 +48,7 @@ public class TestChannelsFromEvents {
     TestObserver<Channel> observer = new TestObserver<>();
 
     Guild guild = simpleCreateGuild();
-    Channel channel = guild.getChannels().get(0);
+    Channel channel = guild.getChannels().get().get(0);
 
     events.onNext(GuildDeleteEvent.of(DataFaker.unavailableGuildFromGuild(guild.getId())));
 
