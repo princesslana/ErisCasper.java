@@ -11,11 +11,10 @@ import com.github.princesslana.eriscasper.data.event.HelloEvent;
 import com.github.princesslana.eriscasper.data.event.ImmutableHelloEventData;
 import com.github.princesslana.eriscasper.data.event.ReadyEvent;
 import com.github.princesslana.eriscasper.data.event.ReadyEventData;
-import com.github.princesslana.eriscasper.data.gateway.IdentifyPayload;
-import com.github.princesslana.eriscasper.data.gateway.ImmutableConnectionPropertiesPayload;
 import com.github.princesslana.eriscasper.data.util.Jackson;
 import com.github.princesslana.eriscasper.faker.DataFaker;
 import com.github.princesslana.eriscasper.faker.DiscordFaker;
+import com.github.princesslana.eriscasper.gateway.commands.Identify;
 import com.github.princesslana.eriscasper.rx.websocket.RxWebSocket;
 import com.github.princesslana.eriscasper.rx.websocket.RxWebSocketEvent;
 import com.github.princesslana.eriscasper.rx.websocket.StringMessageTuple;
@@ -98,17 +97,11 @@ public class TestGateway {
     Payload p = jackson.readValue(sent, Payload.class);
     Assertions.assertThat(p).hasFieldOrPropertyWithValue("op", OpCode.IDENTIFY);
 
-    IdentifyPayload identify = payloads.dataAs(p, IdentifyPayload.class).blockingGet();
+    Identify identify = payloads.dataAs(p, Identify.class).blockingGet();
 
     Assertions.assertThat(identify)
         .hasFieldOrPropertyWithValue("token", token)
-        .hasFieldOrPropertyWithValue(
-            "properties",
-            ImmutableConnectionPropertiesPayload.builder()
-                .os(System.getProperty("os"))
-                .browser("ErisCasper.Java")
-                .device("ErisCasper.java")
-                .build());
+        .hasFieldOrPropertyWithValue("properties", Identify.ConnectionProperties.ofDefault());
   }
 
   @Test

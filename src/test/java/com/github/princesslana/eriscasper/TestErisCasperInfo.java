@@ -7,6 +7,6 @@ public class TestErisCasperInfo {
 
   @Test
   public void load_shouldNotThrow() {
-    Assertions.assertThatCode(ErisCasperInfo::load).doesNotThrowAnyException();
+    Assertions.assertThatCode(() -> ErisCasperInfo.load()).doesNotThrowAnyException();
   }
 }

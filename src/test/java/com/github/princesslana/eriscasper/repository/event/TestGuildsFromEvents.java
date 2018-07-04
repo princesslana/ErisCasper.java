@@ -28,7 +28,6 @@ import com.github.princesslana.eriscasper.data.resource.ImmutableRole;
 import com.github.princesslana.eriscasper.data.resource.Role;
 import com.github.princesslana.eriscasper.faker.DataFaker;
 import com.github.princesslana.eriscasper.rx.Maybes;
-import com.google.common.collect.ImmutableList;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subjects.PublishSubject;
 import org.testng.annotations.BeforeMethod;
@@ -123,7 +122,7 @@ public class TestGuildsFromEvents {
     subject
         .getGuild(guild.getId())
         .map(Guild::getMembers)
-        .map(list -> list.orElse(ImmutableList.of()).get(0))
+        .map(list -> list.get(0))
         .subscribe(observer);
 
     assertObserver(observer, member);
@@ -146,7 +145,7 @@ public class TestGuildsFromEvents {
     subject
         .getGuild(guild.getId())
         .map(Guild::getMembers)
-        .flatMap(list -> Maybes.fromOptional(list.orElse(ImmutableList.of()).stream().findFirst()))
+        .flatMap(list -> Maybes.fromOptional(list.stream().findFirst()))
         .subscribe(observer);
 
     assertObserver(observer);
@@ -172,7 +171,7 @@ public class TestGuildsFromEvents {
     subject
         .getGuild(guild.getId())
         .map(Guild::getMembers)
-        .map(list -> list.orElse(ImmutableList.of()).get(0))
+        .map(list -> list.get(0))
         .subscribe(observer);
 
     assertObserver(observer, member);
