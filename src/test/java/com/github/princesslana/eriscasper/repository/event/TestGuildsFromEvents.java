@@ -122,9 +122,7 @@ public class TestGuildsFromEvents {
     subject
         .getGuild(guild.getId())
         .map(Guild::getMembers)
-        .map(
-            list ->
-                list.orElseThrow(() -> new IllegalStateException("Illegal state of list.")).get(0))
+        .map(list -> list.get().get(0))
         .subscribe(observer);
 
     assertObserver(observer, member);
@@ -147,12 +145,7 @@ public class TestGuildsFromEvents {
     subject
         .getGuild(guild.getId())
         .map(Guild::getMembers)
-        .flatMap(
-            list ->
-                Maybes.fromOptional(
-                    list.orElseThrow(() -> new IllegalStateException("Illegal state of list."))
-                        .stream()
-                        .findFirst()))
+        .flatMap(list -> Maybes.fromOptional(list.get().stream().findFirst()))
         .subscribe(observer);
 
     assertObserver(observer);
@@ -178,9 +171,7 @@ public class TestGuildsFromEvents {
     subject
         .getGuild(guild.getId())
         .map(Guild::getMembers)
-        .map(
-            list ->
-                list.orElseThrow(() -> new IllegalStateException("Illegal state of list.")).get(0))
+        .map(list -> list.get().get(0))
         .subscribe(observer);
 
     assertObserver(observer, member);

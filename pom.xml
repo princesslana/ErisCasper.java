@@ -281,11 +281,15 @@
           <fail>true</fail>
           <failFast>false</failFast>
           <rules>
-            <dependencyConvergence />
+            <dependencyConvergence>
+              <ignore />
+            </dependencyConvergence>
             <requireReleaseDeps>
               <onlyWhenRelease>true</onlyWhenRelease>
             </requireReleaseDeps>
-            <requirePluginVersions />
+            <requirePluginVersions>
+              <ignore />
+            </requirePluginVersions>
           </rules>
         </configuration>
       </plugin>
