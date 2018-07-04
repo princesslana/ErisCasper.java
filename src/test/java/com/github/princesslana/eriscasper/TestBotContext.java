@@ -19,7 +19,7 @@ public class TestBotContext {
 
     PublishSubject<Event> publisher = PublishSubject.create();
 
-    BotContext bctx = new BotContext(publisher, null, null);
+    BotContext bctx = new BotContext(publisher, null, null, null);
 
     List<Message> received = new ArrayList<>();
 

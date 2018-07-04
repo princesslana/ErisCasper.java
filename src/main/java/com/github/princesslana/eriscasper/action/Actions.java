@@ -9,14 +9,14 @@ import com.github.princesslana.eriscasper.rest.ChannelRoute;
 public class Actions {
   private Actions() {}
 
-  public static Action<CreateMessageRequest, Message> sendMessage(Snowflake chan, String msg) {
-    return Action.of(
+  public static RouteAction<CreateMessageRequest, Message> sendMessage(Snowflake chan, String msg) {
+    return RouteAction.of(
         ChannelRoute.on(chan).createMessage(),
         ImmutableCreateMessageRequest.builder().content(msg).build());
   }
 
-  public static Action<CreateMessageRequest, Message> sendMessage(
+  public static RouteAction<CreateMessageRequest, Message> sendMessage(
       Snowflake chan, CreateMessageRequest msg) {
-    return Action.of(ChannelRoute.on(chan).createMessage(), msg);
+    return RouteAction.of(ChannelRoute.on(chan).createMessage(), msg);
   }
 }

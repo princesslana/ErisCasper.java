@@ -1,8 +1,11 @@
 package com.github.princesslana.eriscasper;
 
 import com.github.princesslana.eriscasper.action.Action;
+import com.github.princesslana.eriscasper.action.ActionContext;
+import com.github.princesslana.eriscasper.action.ImmutableActionContext;
 import com.github.princesslana.eriscasper.data.event.Event;
 import com.github.princesslana.eriscasper.data.immutable.Wrapper;
+import com.github.princesslana.eriscasper.gateway.Gateway;
 import com.github.princesslana.eriscasper.repository.RepositoryDefinition;
 import com.github.princesslana.eriscasper.repository.RepositoryManager;
 import com.github.princesslana.eriscasper.rest.Route;
@@ -21,13 +24,13 @@ public class BotContext {
 
   private final Observable<Event> events;
 
-  private Routes routes;
+  private final ActionContext actionContext;
 
   private RepositoryManager repositories;
 
-  public BotContext(Observable<Event> events, Routes routes, RepositoryManager repositories) {
+  public BotContext(Observable<Event> events, Routes routes, Gateway gateway, RepositoryManager repositories) {
     this.events = events;
-    this.routes = routes;
+    this.actionContext = ImmutableActionContext.builder().routes(routes).gateway(gateway).build();
     this.repositories = repositories;
   }
 
@@ -51,21 +54,20 @@ public class BotContext {
    *
    * <p>(As opposed to a Query)
    */
-  public <I, O> Completable execute(Action<I, O> action) {
-    LOG.debug("Executing {}...", action);
-    return execute(action.getRoute(), action.getData()).toCompletable();
+  public Completable execute(Action action) {
+      return action.execute(actionContext);
   }
 
   public <O> Single<O> execute(Route<Void, O> route) {
-    return routes.execute(route);
+    return actionContext.getRoutes().execute(route);
   }
 
   public <I, O> Single<O> execute(Route<I, O> route, I request) {
-    return routes.execute(route, request);
+    return actionContext.getRoutes().execute(route, request);
   }
 
   private <I, O> Single<O> execute(Route<I, O> route, Optional<I> request) {
-    return routes.execute(route, request.orElse(null));
+    return actionContext.getRoutes().execute(route, request.orElse(null));
   }
 
   public <R> R getRepository(RepositoryDefinition<R> def) {
