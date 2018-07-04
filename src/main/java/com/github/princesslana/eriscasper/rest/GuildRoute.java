@@ -2,35 +2,10 @@ package com.github.princesslana.eriscasper.rest;
 
 import com.github.princesslana.eriscasper.data.Data;
 import com.github.princesslana.eriscasper.data.Snowflake;
-import com.github.princesslana.eriscasper.data.request.AddGuildMemberRequest;
-import com.github.princesslana.eriscasper.data.request.BeginGuildPruneRequest;
-import com.github.princesslana.eriscasper.data.request.CreateGuildBanRequest;
-import com.github.princesslana.eriscasper.data.request.CreateGuildChannelRequest;
-import com.github.princesslana.eriscasper.data.request.CreateGuildIntegrationRequest;
-import com.github.princesslana.eriscasper.data.request.CreateGuildRequest;
-import com.github.princesslana.eriscasper.data.request.CreateGuildRoleRequest;
-import com.github.princesslana.eriscasper.data.request.GetGuildPruneCountRequest;
-import com.github.princesslana.eriscasper.data.request.ListGuildMembersRequest;
-import com.github.princesslana.eriscasper.data.request.ModifyCurrentUserNickRequest;
-import com.github.princesslana.eriscasper.data.request.ModifyGuildChannelPositionsRequest;
-import com.github.princesslana.eriscasper.data.request.ModifyGuildIntegrationRequest;
-import com.github.princesslana.eriscasper.data.request.ModifyGuildMemberRequest;
-import com.github.princesslana.eriscasper.data.request.ModifyGuildRequest;
-import com.github.princesslana.eriscasper.data.request.ModifyGuildRolePositionsRequest;
-import com.github.princesslana.eriscasper.data.request.ModifyGuildRoleRequest;
-import com.github.princesslana.eriscasper.data.resource.Ban;
-import com.github.princesslana.eriscasper.data.resource.Channel;
-import com.github.princesslana.eriscasper.data.resource.Guild;
-import com.github.princesslana.eriscasper.data.resource.GuildEmbed;
-import com.github.princesslana.eriscasper.data.resource.GuildMember;
-import com.github.princesslana.eriscasper.data.resource.Integration;
-import com.github.princesslana.eriscasper.data.resource.InviteWithMetadata;
-import com.github.princesslana.eriscasper.data.resource.PartialInvite;
-import com.github.princesslana.eriscasper.data.resource.Role;
-import com.github.princesslana.eriscasper.data.resource.VoiceRegion;
+import com.github.princesslana.eriscasper.data.request.*;
+import com.github.princesslana.eriscasper.data.resource.*;
 import com.github.princesslana.eriscasper.util.Pruned;
 import com.google.common.collect.ImmutableList;
-
 import java.util.Arrays;
 import java.util.Optional;
 

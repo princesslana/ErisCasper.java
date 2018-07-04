@@ -1,16 +1,11 @@
 package com.github.princesslana.eriscasper.rest;
 
 import com.github.princesslana.eriscasper.data.Snowflake;
-import com.github.princesslana.eriscasper.data.request.CreateMessageRequest;
-import com.github.princesslana.eriscasper.data.request.EditMessageRequest;
-import com.github.princesslana.eriscasper.data.request.GetChannelMessagesRequest;
-import com.github.princesslana.eriscasper.data.request.GetReactionsRequest;
-import com.github.princesslana.eriscasper.data.request.ModifyChannelRequest;
+import com.github.princesslana.eriscasper.data.request.*;
 import com.github.princesslana.eriscasper.data.resource.Channel;
 import com.github.princesslana.eriscasper.data.resource.Message;
 import com.github.princesslana.eriscasper.data.resource.User;
 import com.google.common.collect.ImmutableList;
-
 import java.util.Arrays;
 
 public class ChannelRoute {
