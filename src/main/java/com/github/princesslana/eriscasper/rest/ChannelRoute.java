@@ -1,14 +1,14 @@
 package com.github.princesslana.eriscasper.rest;
 
 import com.github.princesslana.eriscasper.data.Snowflake;
+import com.github.princesslana.eriscasper.data.request.CreateMessageRequest;
+import com.github.princesslana.eriscasper.data.request.EditMessageRequest;
+import com.github.princesslana.eriscasper.data.request.GetChannelMessagesRequest;
+import com.github.princesslana.eriscasper.data.request.GetReactionsRequest;
+import com.github.princesslana.eriscasper.data.request.ModifyChannelRequest;
 import com.github.princesslana.eriscasper.data.resource.Channel;
 import com.github.princesslana.eriscasper.data.resource.Message;
 import com.github.princesslana.eriscasper.data.resource.User;
-import com.github.princesslana.eriscasper.rest.channel.CreateMessageRequest;
-import com.github.princesslana.eriscasper.rest.channel.EditMessageRequest;
-import com.github.princesslana.eriscasper.rest.channel.GetChannelMessagesRequest;
-import com.github.princesslana.eriscasper.rest.channel.GetReactionsRequest;
-import com.github.princesslana.eriscasper.rest.channel.ModifyChannelRequest;
 import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
 
@@ -49,10 +49,7 @@ public class ChannelRoute {
    *     https://discordapp.com/developers/docs/resources/channel#get-channel-messages</a>
    */
   public Route<GetChannelMessagesRequest, ImmutableList<Message>> getChannelMessages() {
-    return Route.get(
-        path("/"),
-        Route.queryString(GetChannelMessagesRequest::toQueryString),
-        Route.jsonArrayResponse(Message.class));
+    return Route.get(path("/"), Route.queryString(), Route.jsonArrayResponse(Message.class));
   }
 
   /**
@@ -106,7 +103,7 @@ public class ChannelRoute {
       Snowflake messageId, String emoji) {
     return Route.get(
         path("/messages/%s/reactions/%s", messageId.unwrap(), emoji),
-        Route.queryString(GetReactionsRequest::toQueryString),
+        Route.queryString(),
         Route.jsonArrayResponse(User.class));
   }
 

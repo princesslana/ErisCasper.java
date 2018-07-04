@@ -1,14 +1,14 @@
 package com.github.princesslana.eriscasper.rest;
 
 import com.github.princesslana.eriscasper.data.Snowflake;
+import com.github.princesslana.eriscasper.data.request.CreateDmRequest;
+import com.github.princesslana.eriscasper.data.request.CreateGroupDmRequest;
+import com.github.princesslana.eriscasper.data.request.GetCurrentUserGuildsRequest;
+import com.github.princesslana.eriscasper.data.request.ModifyCurrentUserRequest;
 import com.github.princesslana.eriscasper.data.resource.Channel;
 import com.github.princesslana.eriscasper.data.resource.Connection;
 import com.github.princesslana.eriscasper.data.resource.Guild;
 import com.github.princesslana.eriscasper.data.resource.User;
-import com.github.princesslana.eriscasper.rest.user.CreateDmRequest;
-import com.github.princesslana.eriscasper.rest.user.CreateGroupDmRequest;
-import com.github.princesslana.eriscasper.rest.user.GetUserGuildsRequest;
-import com.github.princesslana.eriscasper.rest.user.ModifyUserRequest;
 import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
 
@@ -36,7 +36,7 @@ public final class UserRoute {
    * @see <a href="https://discordapp.com/developers/docs/resources/user#modify-current-user">
    *     https://discordapp.com/developers/docs/resources/user#modify-current-user</a>
    */
-  public static Route<ModifyUserRequest, User> modifyCurrentUser() {
+  public static Route<ModifyCurrentUserRequest, User> modifyCurrentUser() {
     return Route.patch(myPath(""), User.class);
   }
 
@@ -44,11 +44,8 @@ public final class UserRoute {
    * @see <a href="https://discordapp.com/developers/docs/resources/user#get-current-user-guilds">
    *     https://discordapp.com/developers/docs/resources/user#get-current-user-guilds</a>
    */
-  public static Route<GetUserGuildsRequest, ImmutableList<Guild>> getCurrentUserGuilds() {
-    return Route.get(
-        myPath("/guilds"),
-        Route.queryString(GetUserGuildsRequest::toQueryString),
-        Route.jsonArrayResponse(Guild.class));
+  public static Route<GetCurrentUserGuildsRequest, ImmutableList<Guild>> getCurrentUserGuilds() {
+    return Route.get(myPath("/guilds"), Route.queryString(), Route.jsonArrayResponse(Guild.class));
   }
 
   /**

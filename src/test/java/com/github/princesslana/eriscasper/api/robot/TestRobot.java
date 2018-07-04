@@ -10,6 +10,7 @@ import com.github.princesslana.eriscasper.data.Snowflake;
 import com.github.princesslana.eriscasper.data.Users;
 import com.github.princesslana.eriscasper.data.event.Event;
 import com.github.princesslana.eriscasper.data.event.MessageCreateEvent;
+import com.github.princesslana.eriscasper.data.request.ImmutableCreateMessageRequest;
 import com.github.princesslana.eriscasper.data.resource.ImmutableMessage;
 import com.github.princesslana.eriscasper.data.resource.ImmutableUser;
 import com.github.princesslana.eriscasper.data.resource.User;
@@ -20,7 +21,6 @@ import com.github.princesslana.eriscasper.repository.RepositoryManager;
 import com.github.princesslana.eriscasper.repository.UserRepository;
 import com.github.princesslana.eriscasper.rest.ChannelRoute;
 import com.github.princesslana.eriscasper.rest.Routes;
-import com.github.princesslana.eriscasper.rest.channel.CreateMessageRequest;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subjects.PublishSubject;
@@ -149,6 +149,8 @@ public class TestRobot {
   private void thenShouldSend(Snowflake channelId, String msg) {
     then(routes)
         .should()
-        .execute(ChannelRoute.on(channelId).createMessage(), CreateMessageRequest.ofText(msg));
+        .execute(
+            ChannelRoute.on(channelId).createMessage(),
+            ImmutableCreateMessageRequest.builder().content(msg).build());
   }
 }
