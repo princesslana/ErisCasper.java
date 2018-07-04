@@ -8,6 +8,7 @@ import com.github.princesslana.eriscasper.data.event.GuildEmojisUpdateEvent;
 import com.github.princesslana.eriscasper.data.event.GuildMemberAddEvent;
 import com.github.princesslana.eriscasper.data.event.GuildMemberRemoveEvent;
 import com.github.princesslana.eriscasper.data.event.GuildMemberUpdateEvent;
+import com.github.princesslana.eriscasper.data.event.GuildMembersChunkEvent;
 import com.github.princesslana.eriscasper.data.event.GuildRoleCreateEvent;
 import com.github.princesslana.eriscasper.data.event.GuildRoleDeleteEvent;
 import com.github.princesslana.eriscasper.data.event.GuildRoleUpdateEvent;
@@ -15,6 +16,7 @@ import com.github.princesslana.eriscasper.data.event.GuildUpdateEvent;
 import com.github.princesslana.eriscasper.data.event.ImmutableGuildEmojisUpdateEventData;
 import com.github.princesslana.eriscasper.data.event.ImmutableGuildMemberRemoveEventData;
 import com.github.princesslana.eriscasper.data.event.ImmutableGuildMemberUpdateEventData;
+import com.github.princesslana.eriscasper.data.event.ImmutableGuildMembersChunkEventData;
 import com.github.princesslana.eriscasper.data.event.ImmutableGuildRoleCreateEventData;
 import com.github.princesslana.eriscasper.data.event.ImmutableGuildRoleDeleteEventData;
 import com.github.princesslana.eriscasper.data.event.ImmutableGuildRoleUpdateEventData;
@@ -54,6 +56,22 @@ public class TestGuildsFromEvents {
     subject.getGuild(guild.getId()).subscribe(observer);
 
     assertObserver(observer, guild);
+  }
+
+  @Test
+  public void getGuild_whenEmptyDataSent_ShouldRemainCached() {
+    TestObserver<GuildMember> observer = new TestObserver<>();
+
+    Guild guild = simpleCreateGuild();
+    GuildMember member = simpleCreateGuildMember(guild.getId());
+    events.onNext(GuildMembersChunkEvent.of(ImmutableGuildMembersChunkEventData.builder().guildId(guild.getId()).build()));
+
+    subject.getGuild(guild.getId())
+            .map(Guild::getMembers)
+            .map(list -> list.get().get(0))
+            .subscribe(observer);
+
+    assertObserver(observer, member);
   }
 
   @Test
