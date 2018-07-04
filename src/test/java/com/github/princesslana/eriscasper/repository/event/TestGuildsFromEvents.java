@@ -64,12 +64,15 @@ public class TestGuildsFromEvents {
 
     Guild guild = simpleCreateGuild();
     GuildMember member = simpleCreateGuildMember(guild.getId());
-    events.onNext(GuildMembersChunkEvent.of(ImmutableGuildMembersChunkEventData.builder().guildId(guild.getId()).build()));
+    events.onNext(
+        GuildMembersChunkEvent.of(
+            ImmutableGuildMembersChunkEventData.builder().guildId(guild.getId()).build()));
 
-    subject.getGuild(guild.getId())
-            .map(Guild::getMembers)
-            .map(list -> list.get().get(0))
-            .subscribe(observer);
+    subject
+        .getGuild(guild.getId())
+        .map(Guild::getMembers)
+        .map(list -> list.get().get(0))
+        .subscribe(observer);
 
     assertObserver(observer, member);
   }
