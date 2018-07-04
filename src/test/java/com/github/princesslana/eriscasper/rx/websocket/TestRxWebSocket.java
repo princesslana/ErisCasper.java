@@ -91,7 +91,7 @@ public class TestRxWebSocket {
     TestObserver<RxWebSocketEvent> subscriber = connect();
     getListener().onClosing(mockWebSocket, 0, "Closing...");
     subscriber.assertValues(ClosingTuple.of(mockWebSocket, 0, "Closing..."));
-    then(mockWebSocket).should().close(0, "Close.");
+    then(mockWebSocket).should().close(1000, null);
   }
 
   @Test
