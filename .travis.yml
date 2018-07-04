@@ -39,5 +39,6 @@ jobs:
       jdk: openjdk8
       env:
         - EC_JAVA_VERSION=$(git describe --dirty --tags)
+        - MAVEN_OPTS="-Drevision=$EC_JAVA_VERSION -Dproperty=revision -DnewVersion=$EC_JAVA_VERSION -DgenerateBackupPoms=false"
       script: mvn -s etc/settings.xml -B versions:set-property deploy -P release
 
