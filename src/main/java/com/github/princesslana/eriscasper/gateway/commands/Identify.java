@@ -4,10 +4,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.github.princesslana.eriscasper.BotToken;
+import com.github.princesslana.eriscasper.data.gateway.ShardPayload;
 import com.github.princesslana.eriscasper.gateway.ImmutablePayload;
 import com.github.princesslana.eriscasper.gateway.OpCode;
 import com.github.princesslana.eriscasper.gateway.Payload;
-import com.github.princesslana.eriscasper.util.Shard;
 import java.util.Optional;
 import org.immutables.value.Value;
 
@@ -22,7 +22,7 @@ import org.immutables.value.Value;
 public interface Identify extends GatewayCommand {
   BotToken getToken();
 
-  Optional<Shard> shard();
+  Optional<ShardPayload> shard();
 
   default ConnectionProperties getProperties() {
     return ConnectionProperties.ofDefault();
