@@ -82,7 +82,8 @@ public class GuildsFromEvents implements GuildRepository {
       GuildFunctionData.of(
           (map, data) -> {
             Guild guild = map.get(data.getGuildId());
-            List<GuildMember> members = new ArrayList<>(guild.getMembers().orElse(ImmutableList.of()));
+            List<GuildMember> members =
+                new ArrayList<>(guild.getMembers().orElse(ImmutableList.of()));
             members
                 .stream()
                 .filter(member -> member.getUser().getId().equals(data.getUser().getId()))
@@ -97,7 +98,8 @@ public class GuildsFromEvents implements GuildRepository {
           (map, data) -> {
             Guild guild = map.get(data.getGuildId());
             Stack<GuildMember> toRemove = new Stack<>();
-            List<GuildMember> members = new ArrayList<>(guild.getMembers().orElse(ImmutableList.of()));
+            List<GuildMember> members =
+                new ArrayList<>(guild.getMembers().orElse(ImmutableList.of()));
             Set<Snowflake> container =
                 data.getMembers()
                     .stream()
@@ -118,7 +120,8 @@ public class GuildsFromEvents implements GuildRepository {
       GuildFunctionData.of(
           (map, data) -> {
             Guild guild = map.get(data.getGuildId());
-            List<GuildMember> members = new ArrayList<>(guild.getMembers().orElse(ImmutableList.of()));
+            List<GuildMember> members =
+                new ArrayList<>(guild.getMembers().orElse(ImmutableList.of()));
             GuildMember initial =
                 members
                     .stream()

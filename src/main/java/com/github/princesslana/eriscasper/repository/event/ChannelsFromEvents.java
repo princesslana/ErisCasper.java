@@ -37,7 +37,8 @@ public class ChannelsFromEvents implements ChannelRepository {
             }
             Snowflake guildId = guild.getId();
             guild
-                .getChannels().orElse(ImmutableList.of())
+                .getChannels()
+                .orElse(ImmutableList.of())
                 .forEach(
                     channel ->
                         map.put(
