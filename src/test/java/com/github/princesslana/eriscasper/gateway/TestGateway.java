@@ -6,6 +6,7 @@ import static org.mockito.BDDMockito.notNull;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.princesslana.eriscasper.BotToken;
+import com.github.princesslana.eriscasper.ErisCasperFatalException;
 import com.github.princesslana.eriscasper.data.event.Event;
 import com.github.princesslana.eriscasper.data.event.HelloEvent;
 import com.github.princesslana.eriscasper.data.event.ImmutableHelloEventData;
@@ -15,11 +16,13 @@ import com.github.princesslana.eriscasper.data.util.Jackson;
 import com.github.princesslana.eriscasper.faker.DataFaker;
 import com.github.princesslana.eriscasper.faker.DiscordFaker;
 import com.github.princesslana.eriscasper.gateway.commands.Identify;
+import com.github.princesslana.eriscasper.rx.websocket.ClosingTuple;
 import com.github.princesslana.eriscasper.rx.websocket.RxWebSocket;
 import com.github.princesslana.eriscasper.rx.websocket.RxWebSocketEvent;
 import com.github.princesslana.eriscasper.rx.websocket.StringMessageTuple;
 import io.reactivex.Completable;
 import io.reactivex.observers.TestObserver;
+import io.reactivex.plugins.RxJavaPlugins;
 import io.reactivex.subjects.PublishSubject;
 import java.io.IOException;
 import java.util.Optional;
@@ -63,6 +66,18 @@ public class TestGateway {
     connect();
 
     Assertions.assertThat(urlCapture.getValue()).isEqualTo("wss://localhost?v=6&encoding=json");
+  }
+
+  @Test
+  public void connect_whenWebSocketClosing_shouldError() {
+    // silence the default error handler
+    RxJavaPlugins.setErrorHandler(e -> {});
+
+    TestObserver<Event> subscriber = connect();
+
+    wsEvents.onNext(ClosingTuple.of(mockWebSocket, 4321, "Test Socket Closing"));
+
+    subscriber.assertError(ErisCasperFatalException.class);
   }
 
   @Test
