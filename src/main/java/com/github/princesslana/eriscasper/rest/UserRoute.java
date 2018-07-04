@@ -42,7 +42,7 @@ public final class UserRoute {
 
   /**
    * @see <a href="https://discordapp.com/developers/docs/resources/user#get-current-user-guilds">
-   *     https://discordapp.com/developers/docs/resources/user#get-current-user-guilds</a>
+   *     https://discordapp.com/developers/docs/resources/user#get-current-user-guilds</acom.github.princesslana.eriscasper.data.request.GetCurrentUserGuildsRequest
    */
   public static Route<GetCurrentUserGuildsRequest, ImmutableList<Guild>> getCurrentUserGuilds() {
     return Route.get(myPath("/guilds"), Route.queryString(), Route.jsonArrayResponse(Guild.class));
