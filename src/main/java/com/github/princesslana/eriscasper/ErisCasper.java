@@ -2,6 +2,7 @@ package com.github.princesslana.eriscasper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.princesslana.eriscasper.data.event.Event;
+import com.github.princesslana.eriscasper.data.gateway.ShardPayload;
 import com.github.princesslana.eriscasper.data.util.Jackson;
 import com.github.princesslana.eriscasper.gateway.Gateway;
 import com.github.princesslana.eriscasper.gateway.Payloads;
@@ -9,7 +10,7 @@ import com.github.princesslana.eriscasper.repository.RepositoryManager;
 import com.github.princesslana.eriscasper.rest.RouteCatalog;
 import com.github.princesslana.eriscasper.rest.Routes;
 import com.github.princesslana.eriscasper.util.OkHttp;
-import com.github.princesslana.eriscasper.util.Shard;
+import com.google.common.base.Preconditions;
 import com.ufoscout.properlty.Properlty;
 import com.ufoscout.properlty.reader.EnvironmentVariablesReader;
 import com.ufoscout.properlty.reader.SystemPropertiesReader;
@@ -40,9 +41,9 @@ public class ErisCasper {
   private final Payloads payloads = new Payloads(jackson);
 
   private final Routes routes;
-  private final Optional<Shard> shard;
+  private final Optional<ShardPayload> shard;
 
-  private ErisCasper(BotToken token, Optional<Shard> shard) {
+  private ErisCasper(BotToken token, Optional<ShardPayload> shard) {
     this.token = token;
     this.shard = shard;
     routes = new Routes(token, httpClient, jackson);
@@ -77,11 +78,37 @@ public class ErisCasper {
   }
 
   public static ErisCasper create(String token) {
-    return new ErisCasper(BotToken.of(token), Shard.fromConfig(CONFIG));
+
+    return new ErisCasper(BotToken.of(token), shardFromConfig(CONFIG));
   }
 
   public static ErisCasper create(String token, int shardNumber, int shardTotal) {
-    Shard shard = new Shard(shardNumber, shardTotal);
-    return new ErisCasper(BotToken.of(token), Optional.of(shard));
+    assertShard(shardNumber, shardTotal);
+    return new ErisCasper(BotToken.of(token), Optional.of(ShardPayload.of(shardNumber, shardTotal)));
+  }
+
+  private static void assertShard(long shard, long total) {
+    Preconditions.checkArgument(
+            shard >= 0, "Shard number must be greater than or equal to 0.");
+    Preconditions.checkArgument(total >= 1, "Shard total must be greater than or equal to 1.");
+    Preconditions.checkState(
+            shard < total, "Shard number must be less than the shard total.");
+  }
+
+  public static Optional<ShardPayload> shardFromConfig(Properlty config) {
+    Optional<Integer> shard = config.getInt("ec.shard.id");
+    Optional<Integer> total = config.getInt("ec.shard.total");
+    if (shard.isPresent() || total.isPresent()) {
+      ErisCasperFatalException exception =
+              new ErisCasperFatalException(
+                      "Failed to resolve both sharding values when only one was provided.");
+      return Optional.of(
+              shard
+                      .map(s -> total.map(t -> {
+                        assertShard(s, t);
+                        return ShardPayload.of(s, t);}).orElseThrow(() -> exception))
+                      .orElseThrow(() -> exception));
+    }
+    return Optional.empty();
   }
 }

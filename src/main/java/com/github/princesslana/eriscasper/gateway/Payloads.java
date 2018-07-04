@@ -4,13 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.princesslana.eriscasper.BotToken;
 import com.github.princesslana.eriscasper.data.event.Event;
 import com.github.princesslana.eriscasper.data.event.EventFactory;
+import com.github.princesslana.eriscasper.data.gateway.ShardPayload;
 import com.github.princesslana.eriscasper.data.immutable.Wrapped;
 import com.github.princesslana.eriscasper.data.immutable.Wrapper;
 import com.github.princesslana.eriscasper.gateway.commands.Identify;
 import com.github.princesslana.eriscasper.gateway.commands.ImmutableIdentify;
 import com.github.princesslana.eriscasper.gateway.commands.Resume;
 import com.github.princesslana.eriscasper.rx.Maybes;
-import com.github.princesslana.eriscasper.util.Shard;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import java.util.Optional;
@@ -36,7 +36,7 @@ public class Payloads {
     return ImmutablePayload.builder().op(OpCode.HEARTBEAT).d(s.map(jackson::valueToTree)).build();
   }
 
-  public Payload identify(BotToken token, Optional<Shard> shard) {
+  public Payload identify(BotToken token, Optional<ShardPayload> shard) {
     return identify(ImmutableIdentify.builder().token(token).shard(shard).build());
   }
 
