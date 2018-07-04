@@ -28,7 +28,8 @@ public class BotContext {
 
   private RepositoryManager repositories;
 
-  public BotContext(Observable<Event> events, Routes routes, Gateway gateway, RepositoryManager repositories) {
+  public BotContext(
+      Observable<Event> events, Routes routes, Gateway gateway, RepositoryManager repositories) {
     this.events = events;
     this.actionContext = ImmutableActionContext.builder().routes(routes).gateway(gateway).build();
     this.repositories = repositories;
@@ -55,7 +56,7 @@ public class BotContext {
    * <p>(As opposed to a Query)
    */
   public Completable execute(Action action) {
-      return action.execute(actionContext);
+    return action.execute(actionContext);
   }
 
   public <O> Single<O> execute(Route<Void, O> route) {
