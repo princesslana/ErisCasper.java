@@ -18,14 +18,11 @@ public abstract class RouteAction<I, O> implements Action {
   }
 
   static <O> RouteAction<Void, O> of(Route<Void, O> route) {
-    return ImmutableRouteAction.<Void, O>builder().route(route).build();
+    return of(route, Nullable.ofNull());
   }
 
   static <I, O> RouteAction<I, O> of(Route<I, O> route, I data) {
-    return ImmutableRouteAction.<I, O>builder()
-        .route(route)
-        .data(Nullable.ofNullable(data))
-        .build();
+    return of(route, Nullable.ofNullable(data));
   }
 
   static <I, O> RouteAction<I, O> of(Route<I, O> route, Nullable<I> data) {
