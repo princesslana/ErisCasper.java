@@ -2,6 +2,7 @@ package com.github.princesslana.eriscasper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.princesslana.eriscasper.data.event.Event;
+import com.github.princesslana.eriscasper.data.gateway.ShardPayload;
 import com.github.princesslana.eriscasper.data.util.Jackson;
 import com.github.princesslana.eriscasper.gateway.Gateway;
 import com.github.princesslana.eriscasper.gateway.Payloads;
@@ -9,7 +10,6 @@ import com.github.princesslana.eriscasper.repository.RepositoryManager;
 import com.github.princesslana.eriscasper.rest.RouteCatalog;
 import com.github.princesslana.eriscasper.rest.Routes;
 import com.github.princesslana.eriscasper.util.OkHttp;
-import com.github.princesslana.eriscasper.util.Shard;
 import com.ufoscout.properlty.Properlty;
 import com.ufoscout.properlty.reader.EnvironmentVariablesReader;
 import com.ufoscout.properlty.reader.SystemPropertiesReader;
@@ -40,9 +40,9 @@ public class ErisCasper {
   private final Payloads payloads = new Payloads(jackson);
 
   private final Routes routes;
-  private final Optional<Shard> shard;
+  private final Optional<ShardPayload> shard;
 
-  private ErisCasper(BotToken token, Optional<Shard> shard) {
+  private ErisCasper(BotToken token, Optional<ShardPayload> shard) {
     this.token = token;
     this.shard = shard;
     routes = new Routes(token, httpClient, jackson);
@@ -85,11 +85,13 @@ public class ErisCasper {
   }
 
   public static ErisCasper create(String token) {
-    return new ErisCasper(BotToken.of(token), Shard.fromConfig(CONFIG));
+
+    return new ErisCasper(BotToken.of(token), Shards.fromConfig(CONFIG));
   }
 
   public static ErisCasper create(String token, int shardNumber, int shardTotal) {
-    Shard shard = new Shard(shardNumber, shardTotal);
+    ShardPayload shard = ShardPayload.of(shardNumber, shardTotal);
+    Shards.check(shard);
     return new ErisCasper(BotToken.of(token), Optional.of(shard));
   }
 }

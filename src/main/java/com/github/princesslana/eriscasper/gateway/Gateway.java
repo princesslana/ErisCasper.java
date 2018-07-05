@@ -4,11 +4,11 @@ import com.github.princesslana.eriscasper.BotToken;
 import com.github.princesslana.eriscasper.data.event.Event;
 import com.github.princesslana.eriscasper.data.event.HelloEventData;
 import com.github.princesslana.eriscasper.data.event.ReadyEvent;
+import com.github.princesslana.eriscasper.data.gateway.ShardPayload;
 import com.github.princesslana.eriscasper.gateway.commands.ImmutableResume;
 import com.github.princesslana.eriscasper.rx.Singles;
 import com.github.princesslana.eriscasper.rx.websocket.RxWebSocket;
 import com.github.princesslana.eriscasper.rx.websocket.RxWebSocketEvent;
-import com.github.princesslana.eriscasper.util.Shard;
 import com.google.common.base.Preconditions;
 import io.github.resilience4j.ratelimiter.RateLimiter;
 import io.github.resilience4j.ratelimiter.RateLimiterConfig;
@@ -93,7 +93,6 @@ public class Gateway {
     }
   }
 
-  @SuppressWarnings("unchecked")
   public Observable<Event> connect(String url, BotToken token, Optional<Shard> shard) {
     CompositeDisposable disposables = new CompositeDisposable();
 
@@ -139,7 +138,7 @@ public class Gateway {
         .doOnComplete(() -> LOG.debug("Sent: {}.", payload));
   }
 
-  private Completable identify(RxWebSocket ws, BotToken token, Optional<Shard> shard) {
+  private Completable identify(RxWebSocket ws, BotToken token, Optional<ShardPayload> shard) {
     return Single.just(payloads.identify(token, shard))
         .lift(RateLimiterOperator.of(identifyLimit))
         .flatMapCompletable(p -> send(ws, p));
