@@ -60,13 +60,21 @@ public class ErisCasper {
   }
 
   public void run(Bot bot) {
-    Observable<Event> events = getEvents();
+    try {
+      getEvents()
+          .compose(
+              evts ->
+                  bot.apply(new BotContext(evts, routes, RepositoryManager.create(evts)))
+                      .toObservable())
+          .doOnError(t -> LOG.warn("Exception thrown by Bot", t))
+          .blockingSubscribe();
+    } finally {
+      Schedulers.shutdown();
+      httpClient.dispatcher().executorService().shutdown();
+      httpClient.connectionPool().evictAll();
+    }
 
-    RepositoryManager rm = RepositoryManager.create(events);
-
-    bot.apply(new BotContext(events, routes, rm))
-        .doOnError(t -> LOG.warn("Exception thrown by Bot", t))
-        .blockingAwait();
+    LOG.trace("ErisCasper.run done.");
   }
 
   public static ErisCasper create() {
