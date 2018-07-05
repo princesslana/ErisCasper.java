@@ -93,7 +93,7 @@ public class Gateway {
     }
   }
 
-  public Observable<Event> connect(String url, BotToken token, Optional<Shard> shard) {
+  public Observable<Event> connect(String url, BotToken token, Optional<ShardPayload> shard) {
     CompositeDisposable disposables = new CompositeDisposable();
 
     Observable<Payload> ps =
