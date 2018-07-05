@@ -13,6 +13,7 @@ import com.github.princesslana.eriscasper.data.resource.ImmutableMessage;
 import com.github.princesslana.eriscasper.data.resource.User;
 import com.github.princesslana.eriscasper.faker.DataFaker;
 import com.github.princesslana.eriscasper.faker.DiscordFaker;
+import com.github.princesslana.eriscasper.gateway.Gateway;
 import com.github.princesslana.eriscasper.rest.ChannelRoute;
 import com.github.princesslana.eriscasper.rest.Routes;
 import io.reactivex.observers.TestObserver;
@@ -25,6 +26,7 @@ import org.testng.annotations.Test;
 public class TestPingAndEchoRobot {
 
   @Mock private Routes routes;
+  @Mock private Gateway gateway;
 
   private Bot subject;
 
@@ -38,7 +40,7 @@ public class TestPingAndEchoRobot {
   public void apply_whenPing_shouldPong() {
     PublishSubject<Event> events = PublishSubject.create();
 
-    BotContext ctx = new BotContext(events, routes, null, null);
+    BotContext ctx = new BotContext(events, routes, gateway, null);
 
     TestObserver<Void> subscriber = subject.apply(ctx).test();
 

@@ -6,17 +6,19 @@ import java.util.Optional;
 import org.immutables.value.Value;
 
 @Value.Immutable
-public interface RouteAction<I, O> extends Action {
+public abstract class RouteAction<I, O> implements Action {
 
-  Route<I, O> getRoute();
+  public abstract Route<I, O> getRoute();
 
-  Optional<I> getData();
+  public abstract Optional<I> getData();
 
-  default Completable execute(ActionContext context) {
-    return context
-        .getRoutes()
-        .map(routes -> routes.execute(getRoute(), getData().orElse(null)).toCompletable())
-        .orElse(Completable.complete());
+  @Override
+  public Completable apply(ActionContext context) {
+    return context.getRoutes().execute(getRoute(), getData().orElse(null)).toCompletable();
+  }
+
+  static <O> RouteAction<Void, O> of(Route<Void, O> route) {
+    return ImmutableRouteAction.<Void, O>builder().route(route).build();
   }
 
   static <I, O> RouteAction<I, O> of(Route<I, O> route, I data) {

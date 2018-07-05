@@ -5,19 +5,16 @@ import io.reactivex.Completable;
 import org.immutables.value.Value;
 
 @Value.Immutable
-public interface GatewayAction<I> extends Action {
+public abstract class GatewayAction<I> implements Action {
 
-  OpCode getCode();
+  public abstract OpCode getCode();
 
   // There is no gateway action which takes no data
-  I getData();
+  public abstract I getData();
 
   @Override
-  default Completable execute(ActionContext context) {
-    return context
-        .getGateway()
-        .map(gateway -> gateway.execute(getCode(), getData()))
-        .orElse(Completable.complete());
+  public Completable apply(ActionContext context) {
+    return context.getGateway().execute(getCode(), getData());
   }
 
   static <I> GatewayAction<I> of(OpCode code, I data) {
