@@ -17,6 +17,7 @@ import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.functions.Consumer;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -87,10 +88,12 @@ public class Gateway {
     seq.ifPresent(sid -> lastSeenSequenceNumber = Optional.of(sid));
   }
 
-  private void warnOnClosing(RxWebSocketEvent evt) {
-    if (evt instanceof RxWebSocketEvent.Closing || evt instanceof RxWebSocketEvent.Closed) {
-      LOG.warn("Websocket closing: {}", evt);
-    }
+  private Consumer<RxWebSocketEvent> warnOnClosing(String url, Optional<ShardPayload> shard) {
+    return evt -> {
+      if (evt instanceof RxWebSocketEvent.Closing || evt instanceof RxWebSocketEvent.Closed) {
+        LOG.warn("Websocket closing: url={}, shard={}, event={}", url, shard, evt);
+      }
+    };
   }
 
   public Observable<Event> connect(String url, BotToken token, Optional<ShardPayload> shard) {
@@ -98,7 +101,7 @@ public class Gateway {
 
     Observable<Payload> ps =
         ws.connect(String.format("%s?v=%s&encoding=%s", url, VERSION, ENCODING))
-            .doOnNext(this::warnOnClosing)
+            .doOnNext(warnOnClosing(url, shard))
             .doFinally(disposables::dispose)
             .ofType(RxWebSocketEvent.StringMessage.class)
             .map(RxWebSocketEvent.StringMessage::getText)
