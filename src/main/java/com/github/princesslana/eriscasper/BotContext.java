@@ -56,7 +56,7 @@ public class BotContext {
    * <p>(As opposed to a Query)
    */
   public Completable execute(Action action) {
-    return Single.just(actionContext).flatMapCompletable(action);
+    return action.apply(actionContext);
   }
 
   public <O> Single<O> execute(Route<Void, O> route) {
