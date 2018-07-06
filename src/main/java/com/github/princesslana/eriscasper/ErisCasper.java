@@ -74,7 +74,7 @@ public class ErisCasper {
       httpClient.connectionPool().evictAll();
     }
 
-    LOG.trace("ErisCasper.run done.");
+    LOG.trace("ErisCasper#run(Bot) done.");
   }
 
   public static ErisCasper create() {
