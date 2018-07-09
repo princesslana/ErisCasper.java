@@ -1,12 +1,12 @@
 package com.github.princesslana.eriscasper.gateway;
 
+import static org.mockito.BDDMockito.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.notNull;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.princesslana.eriscasper.BotToken;
-import com.github.princesslana.eriscasper.ErisCasperFatalException;
 import com.github.princesslana.eriscasper.data.event.Event;
 import com.github.princesslana.eriscasper.data.event.HelloEvent;
 import com.github.princesslana.eriscasper.data.event.ImmutableHelloEventData;
@@ -16,13 +16,11 @@ import com.github.princesslana.eriscasper.data.util.Jackson;
 import com.github.princesslana.eriscasper.faker.DataFaker;
 import com.github.princesslana.eriscasper.faker.DiscordFaker;
 import com.github.princesslana.eriscasper.gateway.commands.Identify;
-import com.github.princesslana.eriscasper.rx.websocket.ClosingTuple;
 import com.github.princesslana.eriscasper.rx.websocket.RxWebSocket;
 import com.github.princesslana.eriscasper.rx.websocket.RxWebSocketEvent;
 import com.github.princesslana.eriscasper.rx.websocket.StringMessageTuple;
 import io.reactivex.Completable;
 import io.reactivex.observers.TestObserver;
-import io.reactivex.plugins.RxJavaPlugins;
 import io.reactivex.subjects.PublishSubject;
 import java.io.IOException;
 import java.util.Optional;
@@ -39,7 +37,7 @@ public class TestGateway {
   @Mock private RxWebSocket mockRxWebSocket;
   @Mock private WebSocket mockWebSocket;
 
-  private final PublishSubject<RxWebSocketEvent> wsEvents = PublishSubject.create();
+  private PublishSubject<RxWebSocketEvent> wsEvents;
 
   private final ObjectMapper jackson = Jackson.newObjectMapper();
   private final Payloads payloads = new Payloads(jackson);
@@ -53,6 +51,8 @@ public class TestGateway {
 
   @BeforeMethod
   public void subject() {
+    wsEvents = PublishSubject.create();
+
     subject = new Gateway(mockRxWebSocket, payloads);
 
     given(mockRxWebSocket.connect(notNull())).willReturn(wsEvents);
@@ -69,15 +69,29 @@ public class TestGateway {
   }
 
   @Test
-  public void connect_whenWebSocketClosing_shouldError() {
-    // silence the default error handler
-    RxJavaPlugins.setErrorHandler(e -> {});
-
+  public void connect_whenWebSocketCompletes_shouldComplete() {
     TestObserver<Event> subscriber = connect();
 
-    wsEvents.onNext(ClosingTuple.of(mockWebSocket, 4321, "Test Socket Closing"));
+    wsEvents.onComplete();
 
-    subscriber.assertError(ErisCasperFatalException.class);
+    subscriber.assertComplete();
+  }
+
+  @Test
+  public void connect_whenAfterHelloAndWebSocketCompletes_shouldComplete() {
+    TestObserver<Event> subscriber = connect();
+
+    given(mockRxWebSocket.send(any())).willReturn(Completable.complete());
+
+    JsonNode d =
+        jackson.valueToTree(
+            HelloEvent.of(
+                ImmutableHelloEventData.builder().heartbeatInterval(Long.MAX_VALUE).build()));
+
+    wsEvents.onNext(stringMessageOf(ImmutablePayload.builder().op(OpCode.HELLO).d(d).build()));
+    wsEvents.onComplete();
+
+    subscriber.assertComplete();
   }
 
   @Test
