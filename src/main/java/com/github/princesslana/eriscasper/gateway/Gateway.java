@@ -1,7 +1,6 @@
 package com.github.princesslana.eriscasper.gateway;
 
 import com.github.princesslana.eriscasper.BotToken;
-import com.github.princesslana.eriscasper.ErisCasperFatalException;
 import com.github.princesslana.eriscasper.data.event.Event;
 import com.github.princesslana.eriscasper.data.event.HelloEventData;
 import com.github.princesslana.eriscasper.data.event.ReadyEvent;
@@ -17,6 +16,8 @@ import io.github.resilience4j.ratelimiter.operator.RateLimiterOperator;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.functions.Consumer;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -87,19 +88,21 @@ public class Gateway {
     seq.ifPresent(sid -> lastSeenSequenceNumber = Optional.of(sid));
   }
 
-  @SuppressWarnings("unchecked")
+  private Consumer<RxWebSocketEvent> warnOnClosing(String url, Optional<ShardPayload> shard) {
+    return evt -> {
+      if (evt instanceof RxWebSocketEvent.Closing || evt instanceof RxWebSocketEvent.Closed) {
+        LOG.warn("Websocket closing: url={}, shard={}, event={}", url, shard, evt);
+      }
+    };
+  }
+
   public Observable<Event> connect(String url, BotToken token, Optional<ShardPayload> shard) {
-    Observable<RxWebSocketEvent> websocketEvents =
-        ws.connect(String.format("%s?v=%s&encoding=%s", url, VERSION, ENCODING))
-            .flatMap(
-                e ->
-                    e instanceof RxWebSocketEvent.Closing || e instanceof RxWebSocketEvent.Closed
-                        ? Observable.error(
-                            new ErisCasperFatalException("Websocket closed unexpectedly: " + e))
-                        : Observable.just(e));
+    CompositeDisposable disposables = new CompositeDisposable();
 
     Observable<Payload> ps =
-        websocketEvents
+        ws.connect(String.format("%s?v=%s&encoding=%s", url, VERSION, ENCODING))
+            .doOnNext(warnOnClosing(url, shard))
+            .doFinally(disposables::dispose)
             .ofType(RxWebSocketEvent.StringMessage.class)
             .map(RxWebSocketEvent.StringMessage::getText)
             .flatMapMaybe(
@@ -108,26 +111,24 @@ public class Gateway {
             .doOnNext(p -> sequenceNumberSeen(p.s()))
             .share();
 
-    Completable heartbeat =
-        ps.filter(Payload.isOp(OpCode.HELLO)).flatMapCompletable(p -> heartbeat(ws, p));
-
-    Completable identify =
+    disposables.add(
         ps.filter(Payload.isOp(OpCode.HELLO))
-            .flatMapCompletable(
-                p -> isResumable() ? resume(ws, token) : identify(ws, token, shard));
+            .flatMapCompletable(p -> heartbeat(ws, p))
+            .subscribe());
 
-    Observable<Event> events = ps.flatMapMaybe(payloads::toEvent).share();
+    disposables.add(
+        ps.filter(Payload.isOp(OpCode.HELLO))
+            .flatMapCompletable(p -> isResumable() ? resume(ws, token) : identify(ws, token, shard))
+            .subscribe());
 
-    Completable setSessionId =
-        events
+    disposables.add(
+        ps.flatMapMaybe(payloads::toEvent)
             .ofType(ReadyEvent.class)
             .map(r -> r.unwrap().getSessionId())
             .doOnNext(s -> setSessionId(SessionId.of(s)))
-            .ignoreElements();
+            .subscribe());
 
-    return Observable.mergeArray(
-            events, setSessionId.toObservable(), heartbeat.toObservable(), identify.toObservable())
-        .doOnNext(e -> LOG.debug("Event: {}.", e));
+    return ps.flatMapMaybe(payloads::toEvent).doOnNext(e -> LOG.debug("Event: {}.", e));
   }
 
   private Completable send(RxWebSocket ws, Payload payload) {
