@@ -66,7 +66,7 @@ public class ErisCasper {
       getEvents()
           .compose(
               evts ->
-                  bot.apply(new BotContext(evts, routes, RepositoryManager.create(evts)))
+                  bot.apply(new BotContext(evts, routes, gateway, RepositoryManager.create(evts)))
                       .toObservable())
           .doOnError(t -> LOG.warn("Exception thrown by Bot", t))
           .blockingSubscribe();
