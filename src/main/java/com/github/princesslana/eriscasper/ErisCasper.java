@@ -36,22 +36,21 @@ public class ErisCasper {
   private final BotToken token;
 
   private final OkHttpClient httpClient = OkHttp.newHttpClient();
-  private final ObjectMapper jackson = Jackson.newObjectMapper();
-  private final Payloads payloads = new Payloads(jackson);
 
   private final Routes routes;
   private final Optional<ShardPayload> shard;
 
-  private Gateway gateway;
+  private final Gateway gateway;
 
   private ErisCasper(BotToken token, Optional<ShardPayload> shard) {
     this.token = token;
     this.shard = shard;
-    routes = new Routes(token, httpClient, jackson);
+    ObjectMapper jackson = Jackson.newObjectMapper();
+    this.routes = new Routes(token, httpClient, jackson);
+    this.gateway = Gateway.create(httpClient, new Payloads(jackson));
   }
 
   private Observable<Event> getEvents() {
-    this.gateway = Gateway.create(httpClient, payloads);
     return Single.just(RouteCatalog.getGateway())
         .observeOn(Schedulers.io())
         .flatMap(routes::execute)
