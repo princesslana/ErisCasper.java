@@ -52,6 +52,10 @@ public class Payloads {
     return r.toPayload(jackson);
   }
 
+  public Payload createPayload(OpCode code, Object item) {
+    return ImmutablePayload.builder().op(code).d(jackson.valueToTree(item)).build();
+  }
+
   public Maybe<Event> toEvent(Payload payload) {
     return Single.just(payload)
         .filter(Payload.isOp(OpCode.DISPATCH))

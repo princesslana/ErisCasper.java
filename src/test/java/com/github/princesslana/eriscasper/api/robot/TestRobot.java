@@ -16,6 +16,7 @@ import com.github.princesslana.eriscasper.data.resource.ImmutableUser;
 import com.github.princesslana.eriscasper.data.resource.User;
 import com.github.princesslana.eriscasper.faker.DataFaker;
 import com.github.princesslana.eriscasper.faker.DiscordFaker;
+import com.github.princesslana.eriscasper.gateway.Gateway;
 import com.github.princesslana.eriscasper.repository.RepositoryDefinition;
 import com.github.princesslana.eriscasper.repository.RepositoryManager;
 import com.github.princesslana.eriscasper.repository.UserRepository;
@@ -32,6 +33,7 @@ import org.testng.annotations.Test;
 public class TestRobot {
 
   @Mock private Routes routes;
+  @Mock private Gateway gateway;
 
   @Mock private RepositoryManager repositoryManager;
   @Mock private UserRepository userRepository;
@@ -46,7 +48,7 @@ public class TestRobot {
     MockitoAnnotations.initMocks(this);
     subject = new Robot();
 
-    bctx = new BotContext(events, routes, repositoryManager);
+    bctx = new BotContext(events, routes, gateway, repositoryManager);
 
     given(repositoryManager.get(RepositoryDefinition.USER)).willReturn(userRepository);
     given(userRepository.getSelf()).willReturn(Single.just(DataFaker.user()));

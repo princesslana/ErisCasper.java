@@ -170,6 +170,10 @@ public class Gateway {
         .flatMapCompletable(p -> send(ws, p));
   }
 
+  public Completable execute(OpCode code, Object object) {
+    return send(ws, payloads.createPayload(code, object));
+  }
+
   public static Gateway create(OkHttpClient client, Payloads payloads) {
     return new Gateway(new RxWebSocket(client), payloads);
   }
