@@ -13,7 +13,6 @@ import com.github.princesslana.eriscasper.data.event.ImmutableHelloEventData;
 import com.github.princesslana.eriscasper.data.event.ReadyEvent;
 import com.github.princesslana.eriscasper.data.event.ReadyEventData;
 import com.github.princesslana.eriscasper.data.gateway.IdentifyPayload;
-import com.github.princesslana.eriscasper.data.gateway.ImmutableConnectionPropertiesPayload;
 import com.github.princesslana.eriscasper.data.util.Jackson;
 import com.github.princesslana.eriscasper.faker.DataFaker;
 import com.github.princesslana.eriscasper.faker.DiscordFaker;
@@ -131,13 +130,7 @@ public class TestGateway {
 
     Assertions.assertThat(identify)
         .hasFieldOrPropertyWithValue("token", token.unwrap())
-        .hasFieldOrPropertyWithValue(
-            "properties",
-            ImmutableConnectionPropertiesPayload.builder()
-                .browser("ErisCasper.java")
-                .device("ErisCasper.java")
-                .os(System.getProperty("os.name"))
-                .build());
+        .hasFieldOrPropertyWithValue("properties", payloads.getDefaultConnectionProperties());
   }
 
   @Test

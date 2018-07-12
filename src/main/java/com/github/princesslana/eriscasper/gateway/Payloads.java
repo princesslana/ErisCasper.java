@@ -51,7 +51,7 @@ public class Payloads {
     return createPayload(OpCode.IDENTIFY, id);
   }
 
-  private ConnectionPropertiesPayload getDefaultConnectionProperties() {
+  public ConnectionPropertiesPayload getDefaultConnectionProperties() {
     return ImmutableConnectionPropertiesPayload.builder()
         .browser("ErisCasper.java")
         .device("ErisCasper.java")
