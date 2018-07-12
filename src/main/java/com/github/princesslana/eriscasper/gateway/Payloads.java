@@ -4,12 +4,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.princesslana.eriscasper.BotToken;
 import com.github.princesslana.eriscasper.data.event.Event;
 import com.github.princesslana.eriscasper.data.event.EventFactory;
+import com.github.princesslana.eriscasper.data.gateway.ConnectionPropertiesPayload;
+import com.github.princesslana.eriscasper.data.gateway.IdentifyPayload;
+import com.github.princesslana.eriscasper.data.gateway.ImmutableConnectionPropertiesPayload;
+import com.github.princesslana.eriscasper.data.gateway.ImmutableIdentifyPayload;
+import com.github.princesslana.eriscasper.data.gateway.ResumePayload;
 import com.github.princesslana.eriscasper.data.gateway.ShardPayload;
 import com.github.princesslana.eriscasper.data.immutable.Wrapped;
 import com.github.princesslana.eriscasper.data.immutable.Wrapper;
-import com.github.princesslana.eriscasper.gateway.commands.Identify;
-import com.github.princesslana.eriscasper.gateway.commands.ImmutableIdentify;
-import com.github.princesslana.eriscasper.gateway.commands.Resume;
 import com.github.princesslana.eriscasper.rx.Maybes;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
@@ -37,19 +39,32 @@ public class Payloads {
   }
 
   public Payload identify(BotToken token, Optional<ShardPayload> shard) {
-    return identify(ImmutableIdentify.builder().token(token).shard(shard).build());
+    return identify(
+        ImmutableIdentifyPayload.builder()
+            .token(token.unwrap())
+            .shard(shard)
+            .properties(getDefaultConnectionProperties())
+            .build());
   }
 
-  public Payload identify(Identify id) {
-    return id.toPayload(jackson);
+  public Payload identify(IdentifyPayload id) {
+    return createPayload(OpCode.IDENTIFY, id);
+  }
+
+  private ConnectionPropertiesPayload getDefaultConnectionProperties() {
+    return ImmutableConnectionPropertiesPayload.builder()
+        .browser("ErisCasper.java")
+        .device("ErisCasper.java")
+        .os(System.getProperty("os.name"))
+        .build();
   }
 
   public Single<Payload> read(String text) {
     return Single.fromCallable(() -> jackson.readValue(text, Payload.class));
   }
 
-  public Payload resume(Resume r) {
-    return r.toPayload(jackson);
+  public Payload resume(ResumePayload r) {
+    return createPayload(OpCode.RESUME, r);
   }
 
   public Payload createPayload(OpCode code, Object item) {
