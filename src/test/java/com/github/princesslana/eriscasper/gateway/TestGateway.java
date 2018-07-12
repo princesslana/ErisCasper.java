@@ -130,7 +130,7 @@ public class TestGateway {
     IdentifyPayload identify = payloads.dataAs(p, IdentifyPayload.class).blockingGet();
 
     Assertions.assertThat(identify)
-        .hasFieldOrPropertyWithValue("token", token)
+        .hasFieldOrPropertyWithValue("token", token.unwrap())
         .hasFieldOrPropertyWithValue(
             "properties",
             ImmutableConnectionPropertiesPayload.builder()
