@@ -9,7 +9,6 @@ public abstract class GatewayAction<I> implements Action {
 
   public abstract OpCode getCode();
 
-  // There is no gateway action which takes no data
   public abstract I getData();
 
   @Override
