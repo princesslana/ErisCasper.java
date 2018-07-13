@@ -6,7 +6,6 @@ import com.github.princesslana.eriscasper.data.event.HelloEventData;
 import com.github.princesslana.eriscasper.data.event.ReadyEvent;
 import com.github.princesslana.eriscasper.data.gateway.ImmutableResumePayload;
 import com.github.princesslana.eriscasper.data.gateway.ShardPayload;
-import com.github.princesslana.eriscasper.data.util.Nullable;
 import com.github.princesslana.eriscasper.rx.Singles;
 import com.github.princesslana.eriscasper.rx.websocket.RxWebSocket;
 import com.github.princesslana.eriscasper.rx.websocket.RxWebSocketEvent;
@@ -43,7 +42,7 @@ public class Gateway {
 
   private Optional<SequenceNumber> lastSeenSequenceNumber = Optional.empty();
 
-  private Nullable<SessionId> sessionId = Nullable.ofNull();
+  private Optional<SessionId> sessionId = Optional.empty();
 
   /**
    * @see <a href="https://discordapp.com/developers/docs/topics/gateway#rate-limiting">
@@ -81,7 +80,7 @@ public class Gateway {
   }
 
   private void setSessionId(SessionId sid) {
-    this.sessionId = Nullable.of(sid);
+    this.sessionId = Optional.of(sid);
   }
 
   private void sequenceNumberSeen(Optional<SequenceNumber> seq) {
