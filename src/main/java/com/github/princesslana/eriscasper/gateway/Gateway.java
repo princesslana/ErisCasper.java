@@ -9,7 +9,6 @@ import com.github.princesslana.eriscasper.data.gateway.ShardPayload;
 import com.github.princesslana.eriscasper.rx.Singles;
 import com.github.princesslana.eriscasper.rx.websocket.RxWebSocket;
 import com.github.princesslana.eriscasper.rx.websocket.RxWebSocketEvent;
-import com.google.common.base.Preconditions;
 import io.github.resilience4j.ratelimiter.RateLimiter;
 import io.github.resilience4j.ratelimiter.RateLimiterConfig;
 import io.github.resilience4j.ratelimiter.operator.RateLimiterOperator;
@@ -156,15 +155,23 @@ public class Gateway {
   }
 
   private Completable resume(RxWebSocket ws, BotToken token) {
-    Preconditions.checkState(sessionId.isPresent(), "Can not resume without a session id");
-    Preconditions.checkState(
-        lastSeenSequenceNumber.isPresent(), "Can not resume without a sequence number");
-
     return Single.just(
             ImmutableResumePayload.builder()
                 .token(token.unwrap())
-                .sessionId(sessionId.get().unwrap())
-                .seq(lastSeenSequenceNumber.get().unwrap().longValue())
+                .sessionId(
+                    sessionId
+                        .map(SessionId::unwrap)
+                        .orElseThrow(
+                            () ->
+                                new IllegalStateException("Can not resume without a session id.")))
+                .seq(
+                    lastSeenSequenceNumber
+                        .map(SequenceNumber::unwrap)
+                        .map(Integer::longValue)
+                        .orElseThrow(
+                            () ->
+                                new IllegalStateException(
+                                    "Can not resume without a sequence number.")))
                 .build())
         .map(payloads::resume)
         .flatMapCompletable(p -> send(ws, p));
