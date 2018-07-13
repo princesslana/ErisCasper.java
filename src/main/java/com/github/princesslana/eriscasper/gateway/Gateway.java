@@ -6,6 +6,7 @@ import com.github.princesslana.eriscasper.data.event.HelloEventData;
 import com.github.princesslana.eriscasper.data.event.ReadyEvent;
 import com.github.princesslana.eriscasper.data.gateway.ImmutableResumePayload;
 import com.github.princesslana.eriscasper.data.gateway.ShardPayload;
+import com.github.princesslana.eriscasper.data.util.Nullable;
 import com.github.princesslana.eriscasper.rx.Singles;
 import com.github.princesslana.eriscasper.rx.websocket.RxWebSocket;
 import com.github.princesslana.eriscasper.rx.websocket.RxWebSocketEvent;
@@ -42,7 +43,7 @@ public class Gateway {
 
   private Optional<SequenceNumber> lastSeenSequenceNumber = Optional.empty();
 
-  private Optional<SessionId> sessionId = Optional.empty();
+  private Nullable<SessionId> sessionId = Nullable.ofNull();
 
   /**
    * @see <a href="https://discordapp.com/developers/docs/topics/gateway#rate-limiting">
@@ -74,13 +75,13 @@ public class Gateway {
     this.ws = ws;
     this.payloads = payloads;
   }
-
+  
   private boolean isResumable() {
     return sessionId.isPresent() && lastSeenSequenceNumber.isPresent();
   }
 
   private void setSessionId(SessionId sid) {
-    this.sessionId = Optional.of(sid);
+    this.sessionId = Nullable.of(sid);
   }
 
   private void sequenceNumberSeen(Optional<SequenceNumber> seq) {
@@ -167,7 +168,6 @@ public class Gateway {
                 .seq(
                     lastSeenSequenceNumber
                         .map(SequenceNumber::unwrap)
-                        .map(Integer::longValue)
                         .orElseThrow(
                             () ->
                                 new IllegalStateException(
