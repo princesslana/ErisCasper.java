@@ -42,7 +42,7 @@ public class TestPayloads {
 
   @Test
   public void heartbeat_whenSequenceNumber_shouldIncludeIt() {
-    SequenceNumber sn = SequenceNumber.of(123);
+    SequenceNumber sn = SequenceNumber.of(123L);
 
     Payload p = subject.heartbeat(Optional.of(sn));
 

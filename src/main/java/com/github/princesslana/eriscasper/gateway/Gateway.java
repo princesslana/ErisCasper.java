@@ -75,7 +75,7 @@ public class Gateway {
     this.ws = ws;
     this.payloads = payloads;
   }
-  
+
   private boolean isResumable() {
     return sessionId.isPresent() && lastSeenSequenceNumber.isPresent();
   }
