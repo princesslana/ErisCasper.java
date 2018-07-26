@@ -35,5 +35,5 @@ public abstract class Payload {
 
   @Value.Immutable
   @Wrapped
-  public static interface SequenceNumberWrapper extends Wrapper<Integer> {}
+  public static interface SequenceNumberWrapper extends Wrapper<Long> {}
 }
