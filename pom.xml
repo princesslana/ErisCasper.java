@@ -56,6 +56,7 @@
     <lib.rxjava.version>2.1.10</lib.rxjava.version>
     <lib.slf4j.version>1.7.24</lib.slf4j.version>
     <lib.testng.version>6.14.2</lib.testng.version>
+    <plugin.checkstyle.version>3.0.0</plugin.checkstyle.version>
     <plugin.clean.version>3.0.0</plugin.clean.version>
     <plugin.compiler.version>3.7.0</plugin.compiler.version>
     <plugin.deploy.version>2.8.2</plugin.deploy.version>
@@ -229,6 +230,34 @@
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <version>${plugin.checkstyle.version}</version>
+        <executions>
+          <execution>
+            <phase>verify</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <consoleOutput>true</consoleOutput>
+          <sourceDirectories>
+            <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
+          </sourceDirectories>
+          <failsOnError>true</failsOnError>
+          <checkstyleRules>
+            <module name="Checker">
+              <module name="TreeWalker">
+                <module name="AvoidStarImport"></module>
+                <module name="NeedBraces"></module>
+              </module>
+            </module>
+          </checkstyleRules>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-clean-plugin</artifactId>
         <version>${plugin.clean.version}</version>
       </plugin>
@@ -281,11 +310,11 @@
           <fail>true</fail>
           <failFast>false</failFast>
           <rules>
-            <dependencyConvergence/>
+            <dependencyConvergence></dependencyConvergence>
             <requireReleaseDeps>
               <onlyWhenRelease>true</onlyWhenRelease>
             </requireReleaseDeps>
-            <requirePluginVersions/>
+            <requirePluginVersions></requirePluginVersions>
           </rules>
         </configuration>
       </plugin>
